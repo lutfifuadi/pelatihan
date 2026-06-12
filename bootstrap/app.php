@@ -24,5 +24,12 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->web(\App\Http\Middleware\CheckUserActive::class);
     })
     ->withExceptions(function (Exceptions $exceptions) {
-        //
+        // Jika APP_KEY belum di-set, redirect ke installer
+        $exceptions->render(function (\Illuminate\Encryption\MissingAppKeyException $e, \Illuminate\Http\Request $request) {
+            $installed = file_exists(storage_path('installed'));
+            if (!$installed) {
+                return redirect('/install');
+            }
+            throw $e;
+        });
     })->create();
