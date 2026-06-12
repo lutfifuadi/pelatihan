@@ -102,9 +102,16 @@ class RegistrationController extends Controller
         }
 
         try {
-            $response = Http::timeout(10)->get(env('WA_API_URL'), [
-                'api_key' => env('WA_API_KEY'),
-                'sender'  => env('WA_SENDER'),
+            $waUrl = \App\Models\Setting::where('key', 'whatsapp_api_url')->value('value')
+                ?? env('WA_API_URL', 'https://wa.test/check-number');
+            $waKey = \App\Models\Setting::where('key', 'whatsapp_api_key')->value('value')
+                ?? env('WA_API_KEY', 'test-key');
+            $waSender = \App\Models\Setting::where('key', 'whatsapp_sender')->value('value')
+                ?? env('WA_SENDER', '62888888888');
+
+            $response = Http::timeout(10)->get($waUrl, [
+                'api_key' => $waKey,
+                'sender'  => $waSender,
                 'number'  => $number,
             ]);
 
