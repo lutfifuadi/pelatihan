@@ -15,8 +15,9 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->web(LocaleMiddleware::class);
 
         $middleware->alias([
-            'role'       => \App\Http\Middleware\RoleMiddleware::class,
-            'user.active' => \App\Http\Middleware\CheckUserActive::class,
+            'role'              => \App\Http\Middleware\RoleMiddleware::class,
+            'user.active'       => \App\Http\Middleware\CheckUserActive::class,
+            'redirect.if.installed' => \App\Http\Middleware\RedirectIfInstalled::class,
         ]);
 
         // Middleware untuk cek user aktif, dijalankan setelah session & auth

@@ -4,6 +4,18 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\SeoController;
 use App\Http\Controllers\language\LanguageController;
 
+use App\Http\Controllers\InstallerController;
+
+// ===== WEB INSTALLER ROUTES =====
+Route::prefix('install')->name('installer.')->middleware('redirect.if.installed')->group(function () {
+    Route::get('/', [InstallerController::class, 'step1'])->name('step1');
+    Route::get('/step2', [InstallerController::class, 'step2'])->name('step2');
+    Route::post('/step2', [InstallerController::class, 'step2Submit'])->name('step2Submit');
+    Route::post('/step2/test', [InstallerController::class, 'testConnection'])->name('step2.test');
+    Route::get('/step3', [InstallerController::class, 'step3'])->name('step3');
+    Route::post('/process', [InstallerController::class, 'process'])->name('process');
+});
+
 // ===== SEO ROUTES =====
 Route::get('/sitemap.xml', [SeoController::class, 'sitemap'])->name('sitemap');
 Route::get('/robots.txt', [SeoController::class, 'robots'])->name('robots');
