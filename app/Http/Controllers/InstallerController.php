@@ -137,6 +137,13 @@ class InstallerController extends Controller
             $this->logInstaller('Menjalankan database seed');
             Artisan::call('db:seed', ['--force' => true]);
 
+            // Update .env: alihkan session/cache/queue ke database
+            $this->setEnv([
+                'SESSION_DRIVER' => 'database',
+                'CACHE_STORE' => 'database',
+                'QUEUE_CONNECTION' => 'database',
+            ]);
+
             $this->logInstaller('Membuat user admin');
             User::create([
                 'name' => $request->admin_name,
