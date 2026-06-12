@@ -133,14 +133,20 @@ class InstallerController extends Controller
 
     public function progress()
     {
-        $current = session('install_progress', ['step' => 0, 'label' => 'Memulai...']);
+        $progressFile = storage_path('framework/install-progress.json');
+        if (file_exists($progressFile)) {
+            $current = json_decode(file_get_contents($progressFile), true) ?: ['step' => 0, 'label' => 'Memulai...'];
+        } else {
+            $current = ['step' => 0, 'label' => 'Memulai...'];
+        }
         return response()->json($current);
     }
 
     private function setProgress($step, $label)
     {
-        session(['install_progress' => ['step' => $step, 'label' => $label]]);
-        session()->save();
+        $progressFile = storage_path('framework/install-progress.json');
+        $data = json_encode(['step' => $step, 'label' => $label, 'updated_at' => time()]);
+        file_put_contents($progressFile, $data, LOCK_EX);
     }
 
     public function process(Request $request)
@@ -219,6 +225,12 @@ class InstallerController extends Controller
             Artisan::call('route:cache');
             Artisan::call('view:cache');
 
+            // Hapus file progress
+            $progressFile = storage_path('framework/install-progress.json');
+            if (file_exists($progressFile)) {
+                @unlink($progressFile);
+            }
+
             session()->forget([
                 'install_db_host', 'install_db_port', 'install_db_name',
                 'install_db_user', 'install_db_pass', 'install_progress',
@@ -236,6 +248,12 @@ class InstallerController extends Controller
             $this->setProgress(0, 'Gagal: ' . $e->getMessage());
             $this->logInstaller('Error: ' . $e->getMessage(), 'error');
             \Illuminate\Support\Facades\Log::error('Installer Error: ' . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
+
+            // Hapus file progress biar ga nyangkut
+            $progressFile = storage_path('framework/install-progress.json');
+            if (file_exists($progressFile)) {
+                @unlink($progressFile);
+            }
 
             return response()->json([
                 'success' => false,
