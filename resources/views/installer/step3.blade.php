@@ -35,27 +35,29 @@
         <span style="flex: 1; height: 1px; background: var(--border);"></span>
     </div>
 
-    <div class="field">
-        <label class="lbl">Nama Admin</label>
-        <div class="inp-wrap has-icon">
-            <span class="inp-icon">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-            </span>
-            <input type="text" name="admin_name" value="{{ old('admin_name') }}" placeholder="Nama lengkap admin" required>
+    <div class="grid-2">
+        <div class="field">
+            <label class="lbl">Nama Admin</label>
+            <div class="inp-wrap has-icon">
+                <span class="inp-icon">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                </span>
+                <input type="text" name="admin_name" value="{{ old('admin_name') }}" placeholder="Nama lengkap admin" required>
+            </div>
+        </div>
+
+        <div class="field">
+            <label class="lbl">Email Admin</label>
+            <div class="inp-wrap has-icon">
+                <span class="inp-icon">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                </span>
+                <input type="email" name="admin_email" value="{{ old('admin_email') }}" placeholder="admin@example.com" required>
+            </div>
         </div>
     </div>
 
-    <div class="field">
-        <label class="lbl">Email Admin</label>
-        <div class="inp-wrap has-icon">
-            <span class="inp-icon">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-            </span>
-            <input type="email" name="admin_email" value="{{ old('admin_email') }}" placeholder="admin@example.com" required>
-        </div>
-    </div>
-
-    <div class="field">
+    <div class="field" style="margin-top: 14px;">
         <label class="lbl">Password Admin</label>
         <div class="inp-wrap has-icon">
             <span class="inp-icon">
