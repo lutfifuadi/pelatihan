@@ -38,7 +38,7 @@ fi
 
 if [ -z "$GITHUB_OWNER" ] || [ -z "$GITHUB_REPO" ]; then
     GITHUB_OWNER="lutfifuadi"
-    GITHUB_REPO="aplikasi-pelatihan"
+    GITHUB_REPO="pelatihan"
     echo "[INFO] Git remote tidak terdeteksi. Menggunakan default: $GITHUB_OWNER/$GITHUB_REPO"
 fi
 
@@ -216,6 +216,7 @@ echo "[10/11] Setup queue worker..."
 if command -v supervisorctl &> /dev/null; then
     echo "[INFO] Supervisor ditemukan, setup queue worker..."
     if [ -f "$APP_PATH/setup-queue-worker.sh" ]; then
+        echo "[INFO] Menjalankan setup-queue-worker.sh..."
         bash "$APP_PATH/setup-queue-worker.sh"
     else
         echo "[INFO] File setup-queue-worker.sh tidak ditemukan."

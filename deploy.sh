@@ -38,7 +38,7 @@ fi
 
 if [ -z "$GITHUB_OWNER" ] || [ -z "$GITHUB_REPO" ]; then
     GITHUB_OWNER="lutfifuadi"
-    GITHUB_REPO="aplikasi-pelatihan"
+    GITHUB_REPO="pelatihan"
     echo "[INFO] Git remote tidak terdeteksi. Menggunakan default: $GITHUB_OWNER/$GITHUB_REPO"
 fi
 
