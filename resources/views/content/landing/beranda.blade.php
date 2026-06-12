@@ -144,6 +144,12 @@ $customizerHidden = 'customizer-hide';
     padding-top: 140px;
     padding-bottom: 130px;
   }
+  @media (max-width: 991.98px) {
+    .hero-gradient-animated {
+      padding-top: 100px;
+      padding-bottom: 60px;
+    }
+  }
 
   /* --- Dynamic Floating Orbs --- */
   .glow-orb {
@@ -790,8 +796,8 @@ $customizerHidden = 'customizer-hide';
     <div class="glow-orb orb-2"></div>
     <div class="glow-orb orb-3"></div>
 
-    <div class="container position-relative py-5" style="z-index: 10;">
-      <div class="row align-items-center justify-content-between py-5 mt-4 mt-lg-0">
+    <div class="container position-relative py-lg-5 py-3" style="z-index: 10;">
+      <div class="row align-items-center justify-content-between py-lg-4 py-0 mt-3 mt-lg-0">
 
         <!-- LEFT: Hero Copywriting -->
         <div class="col-lg-6 text-center text-lg-start mb-5 mb-lg-0">
