@@ -111,6 +111,39 @@
       "slug": "admin.faqs.index"
     },
     {
+      "menuHeader": "Notifikasi"
+    },
+    {
+      "url": "/notifications",
+      "name": "Riwayat Notifikasi",
+      "icon": "menu-icon icon-base ti tabler-bell",
+      "slug": "notifications.index"
+    },
+    {
+      "url": "/notifications/preferences",
+      "name": "Preferensi",
+      "icon": "menu-icon icon-base ti tabler-settings",
+      "slug": "notifications.preferences"
+    },
+    {
+      "url": "/admin/notifications",
+      "name": "Log Pengiriman",
+      "icon": "menu-icon icon-base ti tabler-report-search",
+      "slug": "admin.notifications.index"
+    },
+    {
+      "url": "/admin/notification-templates",
+      "name": "Template WA",
+      "icon": "menu-icon icon-base ti tabler-template",
+      "slug": "admin.notification-templates.index"
+    },
+    {
+      "url": "/admin/notifications/broadcast",
+      "name": "Broadcast WA",
+      "icon": "menu-icon icon-base ti tabler-brand-whatsapp",
+      "slug": "admin.notifications.broadcast"
+    },
+    {
       "menuHeader": "Informasi"
     }
   ]

@@ -34,6 +34,7 @@ use App\Http\Controllers\Admin\PesertaController;
 use App\Http\Controllers\Admin\WhatsAppGatewayController;
 use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\FaqController;
+use App\Http\Controllers\Admin\NotificationAdminController;
 use App\Http\Controllers\KoordinatorRegisterController;
 use App\Http\Controllers\Peserta\PesertaFormController;
 use App\Http\Controllers\Admin\Auth\AdminLoginController;
@@ -166,6 +167,14 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
         });
     });
 
+    // ===== NOTIFIKASI ROUTES =====
+    Route::get('/notifications/unread', [App\Http\Controllers\NotificationController::class, 'unread'])->name('notifications.unread');
+    Route::post('/notifications/{notification}/read', [App\Http\Controllers\NotificationController::class, 'markAsRead'])->name('notifications.read');
+    Route::post('/notifications/read-all', [App\Http\Controllers\NotificationController::class, 'markAllAsRead'])->name('notifications.read-all');
+    Route::get('/notifications', [App\Http\Controllers\NotificationController::class, 'index'])->name('notifications.index');
+    Route::get('/notifications/preferences', [App\Http\Controllers\NotificationController::class, 'preferences'])->name('notifications.preferences');
+    Route::post('/notifications/preferences', [App\Http\Controllers\NotificationController::class, 'updatePreferences'])->name('notifications.preferences.update');
+
     // ===== ADMIN MANAGEMENT (Admin only) =====
     Route::middleware(['role:admin'])->prefix('admin')->name('admin.')->group(function () {
         // Kecamatan
@@ -207,6 +216,25 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
         Route::post('koordinator/{koordinator}/approve', [KoordinatorController::class, 'approve'])->name('koordinator.approve');
         Route::post('koordinator/{koordinator}/reject', [KoordinatorController::class, 'reject'])->name('koordinator.reject');
         Route::resource('koordinator', KoordinatorController::class);
+
+        // Notifikasi Admin
+        Route::get('notifications', [NotificationAdminController::class, 'index'])->name('notifications.index');
+
+        // Broadcast (harus sebelum {notification} agar 'broadcast' tidak dianggap sebagai ID)
+        Route::get('notifications/broadcast', [NotificationAdminController::class, 'broadcast'])->name('notifications.broadcast');
+        Route::post('notifications/broadcast/send', [NotificationAdminController::class, 'sendBroadcast'])->name('notifications.broadcast.send');
+
+        Route::get('notifications/{notification}', [NotificationAdminController::class, 'show'])->name('notifications.show');
+        Route::post('notifications/{notification}/resend', [NotificationAdminController::class, 'resend'])->name('notifications.resend');
+
+        // Template
+        Route::get('notification-templates', [NotificationAdminController::class, 'templates'])->name('notification-templates.index');
+        Route::get('notification-templates/create', [NotificationAdminController::class, 'createTemplate'])->name('notification-templates.create');
+        Route::post('notification-templates', [NotificationAdminController::class, 'storeTemplate'])->name('notification-templates.store');
+        Route::get('notification-templates/{template}/edit', [NotificationAdminController::class, 'editTemplate'])->name('notification-templates.edit');
+        Route::put('notification-templates/{template}', [NotificationAdminController::class, 'updateTemplate'])->name('notification-templates.update');
+        Route::delete('notification-templates/{template}', [NotificationAdminController::class, 'destroyTemplate'])->name('notification-templates.destroy');
+        Route::post('notification-templates/{template}/test', [NotificationAdminController::class, 'testTemplate'])->name('notification-templates.test');
     });
 });
 

@@ -41,6 +41,21 @@
       "name": "4. Dokumen & Konfirmasi",
       "icon": "menu-icon icon-base ti tabler-file-check",
       "slug": "dashboard.peserta.form-dokumen"
+    },
+    {
+      "menuHeader": "Notifikasi"
+    },
+    {
+      "url": "/notifications",
+      "name": "Riwayat Notifikasi",
+      "icon": "menu-icon icon-base ti tabler-bell",
+      "slug": "notifications.index"
+    },
+    {
+      "url": "/notifications/preferences",
+      "name": "Preferensi",
+      "icon": "menu-icon icon-base ti tabler-settings",
+      "slug": "notifications.preferences"
     }
   ]
 }

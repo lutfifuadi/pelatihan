@@ -53,7 +53,7 @@ fi
 # 1. Pull kode terbaru dari Git
 # ----------------------------------------------------------
 echo ""
-echo "[1/9] Pull kode terbaru dari Git..."
+echo "[1/11] Pull kode terbaru dari Git..."
 
 if [ -n "$GITHUB_TOKEN" ]; then
     echo "[INFO] Menggunakan GITHUB_TOKEN untuk autentikasi Git..."
@@ -74,14 +74,14 @@ fi
 # 2. Install / update Composer dependencies
 # ----------------------------------------------------------
 echo ""
-echo "[2/9] Install Composer dependencies..."
+echo "[2/11] Install Composer dependencies..."
 composer install --no-dev --optimize-autoloader --no-interaction
 
 # ----------------------------------------------------------
 # 3. Build frontend assets — fallback ke GitHub Release
 # ----------------------------------------------------------
 echo ""
-echo "[3/9] Build frontend assets..."
+echo "[3/11] Build frontend assets..."
 
 BUILD_SUCCESS=false
 if command -v node &> /dev/null && command -v npm &> /dev/null; then
@@ -148,7 +148,7 @@ fi
 # 4. Cek file .env & update GitHub config
 # ----------------------------------------------------------
 echo ""
-echo "[4/9] Cek file .env..."
+echo "[4/11] Cek file .env..."
 if [ ! -f ".env" ]; then
     cp .env.example .env
     php artisan key:generate --force
@@ -173,14 +173,14 @@ fi
 # 5. Jalankan migrasi database
 # ----------------------------------------------------------
 echo ""
-echo "[5/9] Migrasi database..."
+echo "[5/11] Migrasi database..."
 php artisan migrate --force
 
 # ----------------------------------------------------------
 # 6. Pastikan symlink storage ada
 # ----------------------------------------------------------
 echo ""
-echo "[6/9] Cek symlink storage..."
+echo "[6/11] Cek symlink storage..."
 if [ ! -L "public/storage" ]; then
     echo "[INFO] Membuat symlink storage..."
     php artisan storage:link
@@ -192,7 +192,7 @@ fi
 # 7. Optimasi Laravel
 # ----------------------------------------------------------
 echo ""
-echo "[7/9] Optimasi Laravel..."
+echo "[7/11] Optimasi Laravel..."
 php artisan config:clear
 php artisan route:clear
 php artisan view:clear
@@ -203,10 +203,35 @@ php artisan view:cache
 echo "[OK] Optimasi selesai."
 
 # ----------------------------------------------------------
-# 8. Set permission
+# 8. Deploy Notification System
 # ----------------------------------------------------------
 echo ""
-echo "[8/9] Set permission folder & ownership..."
+echo "[8/11] Deploy Notification System..."
+
+# Seed notification templates (jika belum ada)
+php artisan db:seed --class=NotificationTemplateSeeder --force 2>/dev/null || echo "[WARN] NotificationTemplateSeeder tidak ditemukan, lewati..."
+
+# Queue & Scheduler
+php artisan queue:restart 2>/dev/null || echo "[WARN] queue:restart gagal, mungkin tidak ada queue worker."
+
+# Restart supervisor services (jika ada)
+if command -v supervisorctl &> /dev/null; then
+    sudo supervisorctl reread 2>/dev/null || true
+    sudo supervisorctl update 2>/dev/null || true
+    sudo supervisorctl restart laravel-worker:* 2>/dev/null || echo "[WARN] laravel-worker belum terdaftar di supervisor."
+    sudo supervisorctl restart laravel-scheduler 2>/dev/null || echo "[WARN] laravel-scheduler belum terdaftar di supervisor."
+    echo "[OK] Supervisor services restarted."
+else
+    echo "[INFO] supervisorctl tidak ditemukan, lewati restart supervisor."
+fi
+
+echo "[OK] Notification System deployed."
+
+# ----------------------------------------------------------
+# 9. Set permission
+# ----------------------------------------------------------
+echo ""
+echo "[9/11] Set permission folder & ownership..."
 chown -R "$WEB_USER":"$WEB_USER" "$APP_PATH"
 find "$APP_PATH" -type f -exec chmod 644 {} \;
 find "$APP_PATH" -type d -exec chmod 755 {} \;
@@ -214,10 +239,10 @@ chmod -R 775 storage bootstrap/cache
 echo "[OK] Permission selesai."
 
 # ----------------------------------------------------------
-# 9. Informasi versi
+# 10. Informasi versi
 # ----------------------------------------------------------
 echo ""
-echo "[9/9] Informasi deploy..."
+echo "[10/11] Informasi deploy..."
 DEPLOY_TIME=$(date "+%Y-%m-%d %H:%M:%S")
 GIT_HASH=$(git rev-parse --short HEAD 2>/dev/null || echo "unknown")
 GIT_BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "unknown")
@@ -226,8 +251,10 @@ echo "  Branch       : $GIT_BRANCH"
 echo "  Commit       : $GIT_HASH"
 
 # ----------------------------------------------------------
-# Selesai
+# 11. Selesai
 # ----------------------------------------------------------
+echo ""
+echo "[11/11] Selesai."
 echo ""
 echo "=========================================="
 echo "  Deploy Selesai!"

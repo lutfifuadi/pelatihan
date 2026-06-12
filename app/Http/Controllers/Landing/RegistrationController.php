@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Landing;
 
+use App\Events\PesertaRegistered;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -46,6 +47,9 @@ class RegistrationController extends Controller
             'is_active' => true,
             'email_verified_at' => now(), // Auto-verified (manual registration)
         ]);
+
+        // Dispatch event notifikasi
+        PesertaRegistered::dispatch($user);
 
         // Auto-login the user
         auth()->login($user);

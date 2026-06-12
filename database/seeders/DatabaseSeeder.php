@@ -55,6 +55,9 @@ class DatabaseSeeder extends Seeder
         // Seed FAQs
         $this->call(FaqSeeder::class);
 
+        // Seed Notification Templates
+        $this->call(NotificationTemplateSeeder::class);
+
         // Note: Peserta akan mendaftar sendiri melalui halaman landing page
     }
 }

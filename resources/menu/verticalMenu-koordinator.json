@@ -14,6 +14,21 @@
       "name": "Dashboard",
       "icon": "menu-icon icon-base ti tabler-dashboard",
       "slug": "dashboard.koordinator"
+    },
+    {
+      "menuHeader": "Notifikasi"
+    },
+    {
+      "url": "/notifications",
+      "name": "Riwayat Notifikasi",
+      "icon": "menu-icon icon-base ti tabler-bell",
+      "slug": "notifications.index"
+    },
+    {
+      "url": "/notifications/preferences",
+      "name": "Preferensi",
+      "icon": "menu-icon icon-base ti tabler-settings",
+      "slug": "notifications.preferences"
     }
   ]
 }

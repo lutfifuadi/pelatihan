@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\PesertaRegistered;
 use App\Models\User;
 use App\Models\Kecamatan;
 use App\Services\WhatsAppService;
@@ -82,6 +83,9 @@ class KoordinatorRegisterController extends Controller
         if ($whatsapp) {
             WhatsAppService::sendPassword($whatsapp, $plainPassword, $user->name, $user->nik);
         }
+
+        // Dispatch event notifikasi
+        PesertaRegistered::dispatch($user);
 
         return redirect()->route('koordinator.register.sukses');
     }

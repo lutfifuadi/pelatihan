@@ -460,6 +460,80 @@ $configData = Helper::appClasses();
     </div>
 
     <!-- ============================================================
+         NOTIFICATION STATISTICS ROW
+         ============================================================ -->
+    <div class="row g-4 mb-4">
+      <div class="col-lg-3 col-md-6">
+        <a href="{{ route('admin.notifications.index', ['channel' => 'whatsapp', 'status' => 'sent']) }}" class="text-decoration-none">
+          <div class="glass-card-premium px-4 py-4 h-100">
+            <div class="d-flex align-items-center gap-3">
+              <div class="stat-icon-box stat-icon-success">
+                <i class="icon-base ti tabler-brand-whatsapp"></i>
+              </div>
+              <div>
+                <p class="text-body-premium small mb-0">WA Terkirim Hari Ini</p>
+                <h3 class="fw-bold text-white mb-0">
+                  {{ \App\Models\Notification::where('channel', 'whatsapp')->where('status', 'sent')->whereDate('sent_at', today())->count() }}
+                </h3>
+              </div>
+            </div>
+          </div>
+        </a>
+      </div>
+      <div class="col-lg-3 col-md-6">
+        <a href="{{ route('admin.notifications.index', ['status' => 'failed']) }}" class="text-decoration-none">
+          <div class="glass-card-premium px-4 py-4 h-100">
+            <div class="d-flex align-items-center gap-3">
+              <div class="stat-icon-box stat-icon-danger">
+                <i class="icon-base ti tabler-alert-circle"></i>
+              </div>
+              <div>
+                <p class="text-body-premium small mb-0">Total WA Gagal</p>
+                <h3 class="fw-bold text-white mb-0">
+                  {{ \App\Models\Notification::where('channel', 'whatsapp')->where('status', 'failed')->count() }}
+                </h3>
+              </div>
+            </div>
+          </div>
+        </a>
+      </div>
+      <div class="col-lg-3 col-md-6">
+        <a href="{{ route('admin.notification-templates.index', ['is_active' => 1]) }}" class="text-decoration-none">
+          <div class="glass-card-premium px-4 py-4 h-100">
+            <div class="d-flex align-items-center gap-3">
+              <div class="stat-icon-box stat-icon-primary">
+                <i class="icon-base ti tabler-template"></i>
+              </div>
+              <div>
+                <p class="text-body-premium small mb-0">Template Aktif</p>
+                <h3 class="fw-bold text-white mb-0">
+                  {{ \App\Models\NotificationTemplate::where('is_active', true)->count() }}
+                </h3>
+              </div>
+            </div>
+          </div>
+        </a>
+      </div>
+      <div class="col-lg-3 col-md-6">
+        <a href="{{ route('admin.notifications.index', ['status' => 'pending']) }}" class="text-decoration-none">
+          <div class="glass-card-premium px-4 py-4 h-100">
+            <div class="d-flex align-items-center gap-3">
+              <div class="stat-icon-box stat-icon-warning">
+                <i class="icon-base ti tabler-clock"></i>
+              </div>
+              <div>
+                <p class="text-body-premium small mb-0">Notifikasi Pending</p>
+                <h3 class="fw-bold text-white mb-0">
+                  {{ \App\Models\Notification::where('status', 'pending')->count() }}
+                </h3>
+              </div>
+            </div>
+          </div>
+        </a>
+      </div>
+    </div>
+
+    <!-- ============================================================
          MAIN CONTENT ROW
          ============================================================ -->
     <div class="row g-4 mb-4">

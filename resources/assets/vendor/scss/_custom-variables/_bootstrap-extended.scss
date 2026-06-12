@@ -20,3 +20,9 @@ $font-family-sans-serif:
   "Droid Sans",
   "Helvetica Neue",
   sans-serif !default;
+
+// Border-radius override — maksimal 5px
+$border-radius: .3125rem !default;     // 5px (sebelumnya .375rem / 6px)
+$border-radius-lg: .3125rem !default;  // 5px (sebelumnya .5rem / 8px)
+$border-radius-xl: .3125rem !default;  // 5px (sebelumnya .625rem / 10px)
+$border-radius-xxl: .3125rem !default; // 5px (sebelumnya 1rem / 16px)

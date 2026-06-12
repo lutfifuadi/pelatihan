@@ -27,3 +27,21 @@ label, .form-label, .form-control, .form-select, input, select, textarea, button
 .nav-link, .menu-item, .menu-link, .app-brand-text {
   font-family: "DM Sans", "Public Sans", sans-serif !important;
 }
+
+/* Alpine.js x-cloak */
+[x-cloak] { display: none !important; }
+
+/* Notification Bell Dropdown Scrollbar */
+.notification-list::-webkit-scrollbar {
+  width: 4px;
+}
+.notification-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+.notification-list::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.12);
+  border-radius: 4px;
+}
+.notification-list::-webkit-scrollbar-thumb:hover {
+  background: rgba(255,255,255,0.2);
+}

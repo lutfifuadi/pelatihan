@@ -8,6 +8,10 @@
 /vendor
 /auth.json
 
+# Laravel cache (runtime, jangan di-commit)
+/bootstrap/cache/*.php
+!/bootstrap/cache/.gitignore
+
 # 🔴 KRITIS: Jangan commit .env
 .env
 .env.backup
@@ -32,6 +36,9 @@ Thumbs.db
 docker-compose.override.yml
 Homestead.json
 Homestead.yaml
+
+# Storage runtime
+/storage/installed
 
 # Logs
 npm-debug.log
