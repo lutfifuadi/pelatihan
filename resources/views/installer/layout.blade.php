@@ -305,10 +305,17 @@
         </form>
 
         <div class="loading-overlay" id="loading-overlay">
-            <div class="loading-content" style="margin: auto;">
+            <div class="loading-content" style="margin: auto; padding: 0 20px;">
                 <div class="spinner"></div>
                 <div style="color: var(--text-2); font-size: 0.875rem; font-weight: 600;">Memproses Instalasi...</div>
-                <div style="color: var(--text-muted); font-size: 0.75rem; margin-top: 8px;">Mohon tunggu, jangan tutup halaman ini.</div>
+                <div class="prog-track-inline">
+                    <div class="prog-fill-inline" id="progress-bar-fill"></div>
+                </div>
+                <div id="progress-status" style="color: var(--text-muted); font-size: 0.75rem;">Mohon tunggu, jangan tutup halaman ini.</div>
+                <button type="button" class="btn btn-primary" id="btn-retry" onclick="location.reload()" style="display:none; margin-top: 14px;">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-5"/></svg>
+                    Coba Lagi
+                </button>
             </div>
         </div>
     </div>

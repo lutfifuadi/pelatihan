@@ -85,6 +85,25 @@
 @endsection
 
 @section('scripts')
+<style>
+    #loading-overlay .prog-track-inline {
+        width: 100%; max-width: 320px; height: 6px;
+        background: rgba(255,255,255,0.08); border-radius: 4px;
+        overflow: hidden; margin: 16px auto 10px;
+    }
+    #loading-overlay .prog-fill-inline {
+        height: 100%; background: linear-gradient(90deg, #7c6cf5, #a78bfa);
+        border-radius: 4px; transition: width 0.5s ease;
+        width: 0%;
+    }
+    #progress-status {
+        font-size: 0.8125rem; color: var(--text-muted); margin-top: 4px;
+        transition: color 0.3s;
+    }
+    #btn-retry {
+        display: none; margin-top: 14px;
+    }
+</style>
 <script>
 $(document).ready(function() {
     var $form = $('#installer-form');
@@ -98,34 +117,63 @@ $(document).ready(function() {
         var label = $btn.find('[data-label]');
         label.text('Menginstal...');
 
+        $('#btn-retry').hide();
+        $('#progress-status').text('Memulai...');
+        $('#progress-bar-fill').css('width', '0%');
+
         $overlay.addClass('active');
 
-        $.ajax({
-            url: $form.attr('action'),
-            method: 'POST',
-            data: $form.serialize(),
-            dataType: 'json',
-            success: function(data) {
-                if (data.success && data.redirect) {
-                    window.location.href = data.redirect;
-                } else {
-                    alert(data.message || 'Instalasi gagal.');
+            // Polling progress setiap 2 detik
+            var pollInterval = setInterval(function() {
+                $.get('{{ route('installer.progress') }}', function(prog) {
+                    var $progText = $('#progress-status');
+                    if (prog.label) {
+                        $progText.text(prog.label);
+                    }
+                    if (prog.step > 0) {
+                        var $progBar = $('#progress-bar-fill');
+                        var pct = Math.min((prog.step / 7) * 100, 95);
+                        $progBar.css('width', pct + '%');
+                    }
+                });
+            }, 2000);
+
+            $.ajax({
+                url: $form.attr('action'),
+                method: 'POST',
+                data: $form.serialize(),
+                dataType: 'json',
+                timeout: 0, // no timeout
+                success: function(data) {
+                    clearInterval(pollInterval);
+                    $('#progress-bar-fill').css('width', '100%');
+                    $('#progress-status').text('Selesai!');
+
+                    if (data.success && data.redirect) {
+                        setTimeout(function() {
+                            window.location.href = data.redirect;
+                        }, 800);
+                    } else {
+                        alert(data.message || 'Instalasi gagal.');
+                        $overlay.removeClass('active');
+                        $btn.prop('disabled', false);
+                        label.text('Instal Sekarang!');
+                    }
+                },
+                error: function(xhr) {
+                    clearInterval(pollInterval);
                     $overlay.removeClass('active');
+
+                    var msg = 'Terjadi kesalahan server.';
+                    if (xhr.responseJSON && xhr.responseJSON.message) {
+                        msg = xhr.responseJSON.message;
+                    }
+                    $('#progress-status').text('Error: ' + msg);
+                    $('#btn-retry').show();
                     $btn.prop('disabled', false);
                     label.text('Instal Sekarang!');
                 }
-            },
-            error: function(xhr) {
-                $overlay.removeClass('active');
-                var msg = 'Terjadi kesalahan server.';
-                if (xhr.responseJSON && xhr.responseJSON.message) {
-                    msg = xhr.responseJSON.message;
-                }
-                alert('Error: ' + msg);
-                $btn.prop('disabled', false);
-                label.text('Instal Sekarang!');
-            }
-        });
+            });
     });
 });
 </script>

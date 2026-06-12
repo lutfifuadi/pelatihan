@@ -97,6 +97,18 @@ class InstallerController extends Controller
         return view('installer.step3');
     }
 
+    public function progress()
+    {
+        $current = session('install_progress', ['step' => 0, 'label' => 'Memulai...']);
+        return response()->json($current);
+    }
+
+    private function setProgress($step, $label)
+    {
+        session(['install_progress' => ['step' => $step, 'label' => $label]]);
+        session()->save();
+    }
+
     public function process(Request $request)
     {
         $this->logInstaller('Memulai Proses Akhir Instalasi');
@@ -109,8 +121,10 @@ class InstallerController extends Controller
         ]);
 
         set_time_limit(0);
+        ignore_user_abort(true);
 
         try {
+            $this->setProgress(1, 'Menulis konfigurasi database...');
             $this->logInstaller('Menulis konfigurasi ke .env');
 
             $this->setEnv([
@@ -125,12 +139,15 @@ class InstallerController extends Controller
 
             Artisan::call('config:clear');
 
+            $this->setProgress(2, 'Migrasi database...');
             $this->logInstaller('Menjalankan migrasi database');
             Artisan::call('migrate', ['--force' => true]);
 
+            $this->setProgress(3, 'Seeder data awal...');
             $this->logInstaller('Menjalankan database seed');
             Artisan::call('db:seed', ['--force' => true]);
 
+            $this->setProgress(4, 'Mengoptimasi pengaturan...');
             // Update .env: alihkan session/cache/queue ke database
             $this->setEnv([
                 'SESSION_DRIVER' => 'database',
@@ -138,6 +155,7 @@ class InstallerController extends Controller
                 'QUEUE_CONNECTION' => 'database',
             ]);
 
+            $this->setProgress(5, 'Membuat akun admin...');
             $this->logInstaller('Membuat user admin');
             User::create([
                 'name' => $request->admin_name,
@@ -146,6 +164,7 @@ class InstallerController extends Controller
                 'role' => 'admin',
             ]);
 
+            $this->setProgress(6, 'Storage link & finalisasi...');
             $this->logInstaller('Membuat storage link');
             if (!file_exists(public_path('storage'))) {
                 Artisan::call('storage:link');
@@ -153,6 +172,7 @@ class InstallerController extends Controller
 
             file_put_contents(storage_path('installed'), 'installed on ' . date('Y-m-d H:i:s'));
 
+            $this->setProgress(7, 'Optimasi cache...');
             $this->logInstaller('Optimizing cache');
             Artisan::call('config:cache');
             Artisan::call('route:cache');
@@ -160,7 +180,7 @@ class InstallerController extends Controller
 
             session()->forget([
                 'install_db_host', 'install_db_port', 'install_db_name',
-                'install_db_user', 'install_db_pass',
+                'install_db_user', 'install_db_pass', 'install_progress',
             ]);
 
             $this->logInstaller('Instalasi selesai dengan sukses');
@@ -171,6 +191,7 @@ class InstallerController extends Controller
                 'redirect' => url('/login'),
             ]);
         } catch (\Exception $e) {
+            $this->setProgress(0, 'Gagal: ' . $e->getMessage());
             $this->logInstaller('Error: ' . $e->getMessage(), 'error');
             \Illuminate\Support\Facades\Log::error('Installer Error: ' . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
 

@@ -14,6 +14,7 @@ Route::prefix('install')->name('installer.')->middleware('redirect.if.installed'
     Route::post('/step2/test', [InstallerController::class, 'testConnection'])->name('step2.test');
     Route::get('/step3', [InstallerController::class, 'step3'])->name('step3');
     Route::post('/process', [InstallerController::class, 'process'])->name('process');
+    Route::get('/progress', [InstallerController::class, 'progress'])->name('progress');
 });
 
 // ===== SEO ROUTES =====
