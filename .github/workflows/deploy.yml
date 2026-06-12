@@ -25,28 +25,35 @@ jobs:
           script: |
             set -e
             cd ${{ secrets.DEPLOY_PATH }}
-            echo "[1] Pull kode terbaru..."
+
+            echo "[1] Maintenance mode ON..."
+            php artisan down --retry=60
+
+            echo "[2] Pull kode terbaru..."
             git pull origin main
 
-            echo "[2] Update Composer..."
+            echo "[3] Update Composer..."
             composer install --no-dev --optimize-autoloader --no-interaction
 
-            echo "[3] Build frontend..."
+            echo "[4] Build frontend..."
             (npm ci --no-audit --no-fund 2>/dev/null || npm install --no-audit --no-fund) && npm run build
 
-            echo "[4] Migrasi database..."
+            echo "[5] Migrasi database..."
             php artisan migrate --force
 
-            echo "[5] Storage link..."
+            echo "[6] Storage link..."
             [ ! -L public/storage ] && php artisan storage:link || true
 
-            echo "[6] Optimasi..."
+            echo "[7] Optimasi..."
             php artisan config:cache
             php artisan route:cache
             php artisan view:cache
 
-            echo "[7] Permission..."
-            chown -R ${{ secrets.DEPLOY_USER || 'www' }}:${{ secrets.DEPLOY_USER || 'www' }} .
+            echo "[8] Permission..."
             chmod -R 775 storage bootstrap/cache
+            chown -R ${{ secrets.DEPLOY_USER || 'www' }}:${{ secrets.DEPLOY_USER || 'www' }} . 2>/dev/null || echo "[INFO] chown dilewati (butuh sudo)"
+
+            echo "[9] Maintenance mode OFF..."
+            php artisan up
 
             echo "✅ Deploy selesai: $(date)"
