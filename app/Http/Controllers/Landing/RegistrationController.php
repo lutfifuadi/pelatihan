@@ -58,6 +58,8 @@ class RegistrationController extends Controller
      */
     public function sukses()
     {
+        seo()->staticPage('daftar-sukses');
+
         $user = auth()->user();
         if (!$user) {
             return redirect()->route('login');

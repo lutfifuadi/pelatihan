@@ -58,10 +58,10 @@
       "menuHeader": "Halaman"
     },
     {
-      "url": "/page-2",
-      "icon": "menu-icon icon-base ti tabler-file",
-      "name": "Page 2",
-      "slug": "pages-page-2"
+      "url": "/daftar-koordinator",
+      "name": "Daftar Koordinator",
+      "icon": "menu-icon icon-base ti tabler-user-plus",
+      "slug": "daftar-koordinator"
     }
   ]
 }

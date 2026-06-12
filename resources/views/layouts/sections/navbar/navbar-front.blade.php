@@ -26,6 +26,34 @@ $activeClass = in_array($currentRouteName, $activeRoutes) ? 'active' : '';
         <button class="navbar-toggler border-0 text-heading position-absolute end-0 top-0 scaleX-n1-rtl p-2" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
           <i class="icon-base ti tabler-x icon-lg"></i>
         </button>
+
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item">
+            <a class="nav-link {{ request()->routeIs('home') ? 'active' : '' }}" href="{{ url('/') }}">
+              <i class="icon-base ti tabler-smart-home me-1"></i>Beranda
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link {{ request()->routeIs('tentang') ? 'active' : '' }}" href="{{ route('tentang') }}">
+              <i class="icon-base ti tabler-info-circle me-1"></i>Tentang
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link {{ request()->routeIs('kontak') ? 'active' : '' }}" href="{{ route('kontak') }}">
+              <i class="icon-base ti tabler-mail me-1"></i>Kontak
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link {{ request()->routeIs('faq') ? 'active' : '' }}" href="{{ route('faq') }}">
+              <i class="icon-base ti tabler-help-circle me-1"></i>FAQ
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link {{ request()->routeIs('koordinator.register') ? 'active' : '' }}" href="{{ route('koordinator.register') }}">
+              <i class="icon-base ti tabler-user-plus me-1"></i>Daftar Koordinator
+            </a>
+          </li>
+        </ul>
       </div>
       <div class="landing-menu-overlay d-lg-none"></div>
       <!-- Menu wrapper: End -->

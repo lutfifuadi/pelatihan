@@ -21,6 +21,37 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Static Pages SEO Configuration
+    |--------------------------------------------------------------------------
+    | Konfigurasi SEO untuk halaman statis yang tidak terikat model.
+    | Digunakan oleh SEOManager::staticPage().
+    */
+    'static_pages' => [
+        'home' => [
+            'title' => 'Beranda',
+            'description' => 'Platform pelatihan online — daftar, belajar, dan dapatkan sertifikat resmi.',
+            'og_image' => '/assets/img/og-default.jpg',
+        ],
+
+        'daftar-koordinator' => [
+            'title' => 'Daftar Koordinator Pelatihan | Aplikasi Pelatihan',
+            'description' => 'Daftar menjadi koordinator pelatihan di Aplikasi Pelatihan. Kelola peserta dan jadwal pelatihan dengan mudah.',
+            'og_image' => '/assets/img/og-register.jpg',
+        ],
+        'daftar-koordinator-sukses' => [
+            'title' => 'Pendaftaran Koordinator Berhasil | Aplikasi Pelatihan',
+            'description' => 'Pendaftaran koordinator pelatihan Anda telah berhasil dikirim. Tim kami akan menghubungi Anda.',
+            'og_image' => '/assets/img/og-success.jpg',
+        ],
+        'daftar-sukses' => [
+            'title' => 'Pendaftaran Berhasil | Aplikasi Pelatihan',
+            'description' => 'Pendaftaran Anda telah berhasil. Silakan cek email untuk informasi selanjutnya.',
+            'og_image' => '/assets/img/og-success.jpg',
+        ],
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Sitemap Configuration
     |--------------------------------------------------------------------------
     | Daftar model yang akan muncul di sitemap.xml
@@ -35,17 +66,10 @@ return [
                 'priority' => 1.0,
                 'changefreq' => 'daily',
             ],
-            App\Models\User::class => [
-                'priority' => 0.3,
-                'changefreq' => 'weekly',
-            ],
-            // Tambahkan model lain nanti
+            // Hanya model publik — User tidak perlu masuk sitemap (privasi)
         ],
         'static_urls' => [
             ['loc' => '/', 'priority' => 1.0, 'changefreq' => 'daily'],
-            ['loc' => '/tentang', 'priority' => 0.7, 'changefreq' => 'monthly'],
-            ['loc' => '/kontak', 'priority' => 0.6, 'changefreq' => 'monthly'],
-            ['loc' => '/faq', 'priority' => 0.6, 'changefreq' => 'weekly'],
         ],
     ],
 

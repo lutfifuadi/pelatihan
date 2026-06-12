@@ -77,6 +77,26 @@ class PelatihanController extends Controller
             ->with('success', 'Pelatihan berhasil diperbarui.');
     }
 
+    public function show(Pelatihan $pelatihan)
+    {
+        $pelatihan->load([
+            'dinas',
+            'kecamatans',
+            'pesertaProfiles.user',
+            'pesertaProfiles.kelurahan',
+        ]);
+
+        $peserta = $pelatihan->pesertaProfiles()
+            ->with(['user', 'kelurahan'])
+            ->orderBy('created_at', 'desc')
+            ->paginate(20);
+
+        $totalPeserta = $pelatihan->pesertaProfiles()->count();
+        $completedCount = $pelatihan->pesertaProfiles()->where('is_completed', true)->count();
+
+        return view('content.admin.pelatihan.show', compact('pelatihan', 'peserta', 'totalPeserta', 'completedCount'));
+    }
+
     public function destroy(Pelatihan $pelatihan)
     {
         $pelatihan->delete();

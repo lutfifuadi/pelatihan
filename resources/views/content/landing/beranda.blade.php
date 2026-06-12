@@ -584,30 +584,7 @@ $customizerHidden = 'customizer-hide';
 @section('content')
 <div id="beranda-page-wrapper">
 
-  <!-- ============================================================
-       FLOATING NAVIGATION BAR
-       ============================================================ -->
-  <header class="navbar-glass-floating">
-    <div class="container d-flex align-items-center justify-content-between p-0">
-      <a href="#beranda" class="navbar-logo d-flex align-items-center gap-2 text-decoration-none">
-        <div class="logo-icon-glow">
-          <i class="icon-base ti tabler-bulb text-white fs-4"></i>
-        </div>
-        <x-brand-logo size="lg" />
-      </a>
-      <nav class="d-none d-lg-flex align-items-center gap-4">
-        <a href="#beranda" class="nav-link-premium">Beranda</a>
-        <a href="#langkah" class="nav-link-premium">Langkah Daftar</a>
-        <a href="#mengapa" class="nav-link-premium">Keunggulan</a>
-        <a href="#faq" class="nav-link-premium">Tanya Jawab</a>
-      </nav>
-      <div>
-        <a href="{{ route('login') }}" class="btn btn-login-premium d-flex align-items-center gap-2">
-          <i class="icon-base ti tabler-login fs-5"></i>Login
-        </a>
-      </div>
-    </div>
-  </header>
+  @include('partials.floating-navbar')
 
   <!-- ============================================================
        HERO SECTION
@@ -1035,82 +1012,7 @@ $customizerHidden = 'customizer-hide';
     </div>
   </section>
 
-  <!-- ============================================================
-       PREMIUM FOOTER
-       ============================================================ -->
-  <footer class="footer-premium py-6 py-lg-7 text-white">
-    <div class="container">
-      <div class="row g-5 mb-5 text-start">
-
-        <!-- Column 1: Info and Socials -->
-        <div class="col-lg-5 col-md-12">
-          <a href="#beranda" class="d-flex align-items-center gap-2 text-decoration-none mb-3">
-            <div class="logo-icon-glow" style="width:34px; height:34px; border-radius:5px;">
-              <i class="icon-base ti tabler-bulb text-white fs-5"></i>
-            </div>
-            <x-brand-logo size="md" />
-          </a>
-          <p class="text-white-50 mb-4" style="max-width: 400px; font-size: 0.95rem; line-height: 1.65;">
-{{ $institutionDesc }}
-          </p>
-          <div class="d-flex gap-3">
-            <a href="#" class="social-icon-btn"><i class="icon-base ti tabler-brand-instagram"></i></a>
-            <a href="#" class="social-icon-btn"><i class="icon-base ti tabler-brand-facebook"></i></a>
-            <a href="#" class="social-icon-btn"><i class="icon-base ti tabler-brand-youtube"></i></a>
-            <a href="#" class="social-icon-btn"><i class="icon-base ti tabler-mail"></i></a>
-          </div>
-        </div>
-
-        <!-- Column 2: Program Categories -->
-        <div class="col-lg-3 col-md-4 col-sm-6">
-          <h6 class="text-white fw-bold mb-4" style="font-family: 'Sora', sans-serif;">Kategori Pelatihan</h6>
-          <ul class="list-unstyled d-flex flex-column gap-2">
-            <li><a href="#" class="footer-link">Kuliner Kreatif</a></li>
-            <li><a href="#" class="footer-link">Konten Kreator</a></li>
-            <li><a href="#" class="footer-link">Desain Grafis</a></li>
-            <li><a href="#" class="footer-link">Kriya & Seni Tradisional</a></li>
-          </ul>
-        </div>
-
-        <!-- Column 3: Quick Navigation links -->
-        <div class="col-lg-2 col-md-4 col-sm-6">
-          <h6 class="text-white fw-bold mb-4" style="font-family: 'Sora', sans-serif;">Tautan Penting</h6>
-          <ul class="list-unstyled d-flex flex-column gap-2">
-            <li><a href="#beranda" class="footer-link">Beranda</a></li>
-            <li><a href="#langkah" class="footer-link">Cara Daftar</a></li>
-            <li><a href="#mengapa" class="footer-link">Keunggulan</a></li>
-            <li><a href="#faq" class="footer-link">Tanya Jawab</a></li>
-          </ul>
-        </div>
-
-        <!-- Column 4: Contact/Address -->
-        <div class="col-lg-2 col-md-4 col-sm-12">
-          <h6 class="text-white fw-bold mb-4" style="font-family: 'Sora', sans-serif;">Hubungi Penyelenggara</h6>
-          <p class="text-white-50 mb-3 small d-flex align-items-start gap-2" style="line-height: 1.5;">
-             <i class="icon-base ti tabler-map-pin text-warning mt-1"></i> {{ $institutionAddress }}
-          </p>
-          <p class="text-white-50 mb-0 small d-flex align-items-center gap-2">
-             <i class="icon-base ti tabler-phone text-warning"></i> {{ $institutionPhone }}
-          </p>
-        </div>
-
-      </div>
-
-      <!-- Copyright border line -->
-      <div style="width: 100%; height: 1px; background: rgba(255, 255, 255, 0.07); margin-bottom: 24px;"></div>
-
-      <!-- Footer Copyright bar -->
-      <div class="d-flex flex-column flex-md-row align-items-center justify-content-between gap-3 text-center text-md-start">
-        <p class="text-white-50 small mb-0">
-          &copy; {{ date('Y') }} <span class="text-white fw-medium">{{ $footerCopyright }}</span>. All rights reserved.
-        </p>
-        <div class="d-flex gap-4">
-          <a href="#" class="text-white-50 small text-decoration-none hover-white">Kebijakan Privasi</a>
-          <a href="#" class="text-white-50 small text-decoration-none hover-white">Syarat & Ketentuan</a>
-        </div>
-      </div>
-    </div>
-  </footer>
+  @include('partials.site-footer')
 
 </div>
 @endsection

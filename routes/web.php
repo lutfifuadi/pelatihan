@@ -44,6 +44,9 @@ Route::get('/pelatihan/{pelatihan}', [\App\Http\Controllers\PelatihanController:
     ->name('pelatihan.show');
 
 // ===== Landing Page Registration =====
+Route::get('/daftar', function () {
+    return redirect('/#beranda');
+})->name('landing.register.form');
 Route::post('/daftar', [RegistrationController::class, 'register'])->name('landing.register');
 Route::post('/daftar/cek-nik', [RegistrationController::class, 'checkNik'])->name('landing.check-nik');
 Route::post('/daftar/cek-wa', [RegistrationController::class, 'checkWa'])->name('landing.check-wa');
@@ -156,6 +159,7 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
 
         // Pelatihan
         Route::resource('pelatihan', PelatihanController::class);
+        Route::get('pelatihan/{pelatihan}/peserta', [PelatihanController::class, 'show'])->name('pelatihan.peserta');
 
         // Dinas
         Route::resource('dinas', DinasController::class);
@@ -176,6 +180,10 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
         // Settings - Branding
         Route::get('settings/branding', [SettingController::class, 'branding'])->name('settings.branding');
         Route::post('settings/branding', [SettingController::class, 'updateBranding'])->name('settings.branding.update');
+
+        // Settings - SEO
+        Route::get('settings/seo', [SettingController::class, 'seo'])->name('settings.seo');
+        Route::post('settings/seo', [SettingController::class, 'updateSeo'])->name('settings.seo.update');
 
         // FAQ Management
         Route::resource('faqs', FaqController::class)->parameters(['faqs' => 'faq']);

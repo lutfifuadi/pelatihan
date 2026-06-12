@@ -16,6 +16,12 @@ class KoordinatorRegisterController extends Controller
      */
     public function showForm()
     {
+        seo()->staticPage('daftar-koordinator')
+             ->addJsonLd(seo()->breadcrumbSchema([
+                 ['label' => 'Beranda', 'url' => url('/')],
+                 ['label' => 'Daftar Koordinator', 'url' => url('/daftar-koordinator')],
+             ]));
+
         $kecamatans = Kecamatan::orderBy('name')->get();
         return view('content.koordinator.register', compact('kecamatans'));
     }
@@ -85,6 +91,8 @@ class KoordinatorRegisterController extends Controller
      */
     public function sukses()
     {
+        seo()->staticPage('daftar-koordinator-sukses');
+
         return view('content.koordinator.sukses');
     }
 }

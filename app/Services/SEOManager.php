@@ -75,28 +75,12 @@ class SEOManager
     }
 
     /**
-     * Setup SEO untuk halaman statis (Home, About, Contact, FAQ).
+     * Setup SEO untuk halaman statis (Home, About, Contact, FAQ, dll).
+     * Konfigurasi diambil dari config/seo.php → static_pages.
      */
     public function staticPage(string $pageKey): self
     {
-        $pages = [
-            'home' => [
-                'title' => 'Beranda',
-                'description' => 'Platform pelatihan online — daftar, belajar, dan dapatkan sertifikat resmi.',
-            ],
-            'tentang' => [
-                'title' => 'Tentang Kami',
-                'description' => 'Pelajari lebih lanjut tentang platform pelatihan kami.',
-            ],
-            'kontak' => [
-                'title' => 'Kontak',
-                'description' => 'Hubungi kami untuk informasi lebih lanjut tentang pelatihan.',
-            ],
-            'faq' => [
-                'title' => 'FAQ',
-                'description' => 'Pertanyaan yang sering diajukan tentang pelatihan.',
-            ],
-        ];
+        $pages = config('seo.static_pages', []);
 
         if (isset($pages[$pageKey])) {
             $this->data = array_merge($this->data, $pages[$pageKey]);
@@ -192,6 +176,30 @@ class SEOManager
             '@context' => 'https://schema.org',
             '@type' => 'BreadcrumbList',
             'itemListElement' => $items,
+        ];
+    }
+
+    /**
+     * Generate FAQPage schema untuk halaman FAQ.
+     */
+    public function faqPageSchema($faqs): array
+    {
+        $items = [];
+        foreach ($faqs as $faq) {
+            $items[] = [
+                '@type' => 'Question',
+                'name' => $faq->question,
+                'acceptedAnswer' => [
+                    '@type' => 'Answer',
+                    'text' => strip_tags($faq->answer),
+                ],
+            ];
+        }
+
+        return [
+            '@context' => 'https://schema.org',
+            '@type' => 'FAQPage',
+            'mainEntity' => $items,
         ];
     }
 

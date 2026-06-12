@@ -44,6 +44,11 @@ class Pelatihan extends Model
         return $this->belongsToMany(Kecamatan::class, 'kecamatan_pelatihan');
     }
 
+    public function pesertaProfiles()
+    {
+        return $this->hasMany(PesertaProfile::class, 'pelatihan_id');
+    }
+
     public function seoTitle(): ?string
     {
         return $this->nama . ' | Pelatihan';

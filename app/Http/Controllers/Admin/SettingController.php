@@ -68,4 +68,64 @@ class SettingController extends Controller
         return redirect()->route('admin.settings.branding')
             ->with('success', 'Pengaturan branding berhasil diperbarui.');
     }
+
+    public function seo()
+    {
+        $settings = Setting::whereIn('key', [
+            'seo_default_title', 'seo_default_description', 'seo_default_keywords',
+            'seo_og_image', 'seo_twitter_handle', 'seo_facebook_page',
+            'seo_instagram_handle', 'seo_org_name', 'seo_org_logo',
+        ])
+            ->get()
+            ->keyBy('key');
+
+        return view('content.admin.seo.index', compact('settings'));
+    }
+
+    public function updateSeo(Request $request)
+    {
+        $request->validate([
+            'seo_default_title' => 'required|string|max:100',
+            'seo_default_description' => 'required|string|max:200',
+            'seo_default_keywords' => 'nullable|string|max:255',
+            'seo_og_image' => 'nullable|string|max:255',
+            'seo_twitter_handle' => 'nullable|string|max:50',
+            'seo_facebook_page' => 'nullable|string|max:255',
+            'seo_instagram_handle' => 'nullable|string|max:50',
+            'seo_org_name' => 'required|string|max:100',
+            'seo_org_logo' => 'nullable|string|max:255',
+        ]);
+
+        $keys = [
+            'seo_default_title', 'seo_default_description', 'seo_default_keywords',
+            'seo_og_image', 'seo_twitter_handle', 'seo_facebook_page',
+            'seo_instagram_handle', 'seo_org_name', 'seo_org_logo',
+        ];
+
+        $labels = [
+            'seo_default_title' => 'Default Title',
+            'seo_default_description' => 'Default Description',
+            'seo_default_keywords' => 'Default Keywords',
+            'seo_og_image' => 'OG Image Path',
+            'seo_twitter_handle' => 'Twitter Handle',
+            'seo_facebook_page' => 'Facebook Page',
+            'seo_instagram_handle' => 'Instagram Handle',
+            'seo_org_name' => 'Organization Name (Schema)',
+            'seo_org_logo' => 'Organization Logo (Schema)',
+        ];
+
+        foreach ($keys as $key) {
+            Setting::updateOrCreate(
+                ['key' => $key],
+                [
+                    'value' => $request->input($key),
+                    'group' => 'seo',
+                    'label' => $labels[$key] ?? '',
+                ]
+            );
+        }
+
+        return redirect()->route('admin.settings.seo')
+            ->with('success', 'Pengaturan SEO berhasil diperbarui.');
+    }
 }

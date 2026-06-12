@@ -11,11 +11,9 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Fortify\TwoFactorAuthenticatable;
 use Laravel\Jetstream\HasProfilePhoto;
 use Laravel\Sanctum\HasApiTokens;
-use App\Models\Traits\HasSeo;
 
 class User extends Authenticatable
 {
-    use HasSeo;
     use HasApiTokens;
 
     /** @use HasFactory<UserFactory> */
@@ -101,10 +99,5 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
-    }
-
-    public function seoTitle(): ?string
-    {
-        return 'Profil ' . $this->name;
     }
 }

@@ -52,7 +52,21 @@
       "url": "/admin/pelatihan",
       "name": "Kelola Pelatihan",
       "icon": "menu-icon icon-base ti tabler-book",
-      "slug": "admin.pelatihan"
+      "slug": "admin.pelatihan",
+      "submenu": [
+        {
+          "url": "/admin/pelatihan",
+          "name": "Daftar Pelatihan",
+          "icon": "menu-icon icon-base ti tabler-list",
+          "slug": "admin.pelatihan.index"
+        },
+        {
+          "url": "/admin/pelatihan/create",
+          "name": "Tambah Pelatihan",
+          "icon": "menu-icon icon-base ti tabler-plus",
+          "slug": "admin.pelatihan.create"
+        }
+      ]
     },
     {
       "menuHeader": "Koordinator"
@@ -74,8 +88,8 @@
     },
     {
       "url": "/admin/whatsapp-gateway",
-      "name": "Pengaturan",
-      "icon": "menu-icon icon-base ti tabler-settings",
+      "name": "WhatsApp Gateway",
+      "icon": "menu-icon icon-base ti tabler-brand-whatsapp",
       "slug": "admin.whatsapp-gateway"
     },
     {
@@ -85,10 +99,19 @@
       "slug": "admin.settings.branding"
     },
     {
+      "url": "/admin/settings/seo",
+      "name": "Pengaturan SEO",
+      "icon": "menu-icon icon-base ti tabler-seo",
+      "slug": "admin.settings.seo"
+    },
+    {
       "url": "/admin/faqs",
       "name": "FAQ",
       "icon": "menu-icon icon-base ti tabler-help-circle",
       "slug": "admin.faqs.index"
+    },
+    {
+      "menuHeader": "Informasi"
     }
   ]
 }

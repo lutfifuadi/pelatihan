@@ -4,7 +4,7 @@ $configData = Helper::appClasses();
 
 @extends('layouts/layoutMaster')
 
-@section('title', 'Kelola Pelatihan')
+@section('title', 'Peserta Pelatihan - ' . $pelatihan->nama)
 
 @section('page-style')
 <style>
@@ -25,7 +25,6 @@ $configData = Helper::appClasses();
     font-family: 'Sora', sans-serif;
   }
 
-  /* --- LAYOUT OVERRIDES FOR LANDING PAGE ALIGNMENT --- */
   html,
   body,
   .layout-page,
@@ -49,7 +48,6 @@ $configData = Helper::appClasses();
     padding: 0 !important;
   }
 
-  /* Sidebar styling */
   .layout-menu,
   #layout-menu {
     background-color: #0b0f19 !important;
@@ -86,7 +84,6 @@ $configData = Helper::appClasses();
     color: #ffffff !important;
   }
 
-  /* Top Navbar styling */
   .layout-navbar,
   #layout-navbar {
     background: rgba(15, 23, 42, 0.45) !important;
@@ -107,7 +104,6 @@ $configData = Helper::appClasses();
     color: #ffffff !important;
   }
 
-  /* Dynamic Floating Orbs */
   .glow-orb {
     position: absolute;
     border-radius: 50%;
@@ -183,6 +179,18 @@ $configData = Helper::appClasses();
     background: rgba(99, 102, 241, 0.12);
     color: #6366f1;
   }
+  .stat-icon-success {
+    background: rgba(16, 185, 129, 0.12);
+    color: #10b981;
+  }
+  .stat-icon-info {
+    background: rgba(6, 182, 212, 0.12);
+    color: #06b6d4;
+  }
+  .stat-icon-warning {
+    background: rgba(245, 158, 11, 0.12);
+    color: #f59e0b;
+  }
 
   .badge-premium {
     background: rgba(255, 255, 255, 0.04);
@@ -221,7 +229,6 @@ $configData = Helper::appClasses();
     color: #0b0f19 !important;
   }
 
-  /* --- Pagination styling --- */
   .pagination .page-item .page-link {
     background: rgba(255, 255, 255, 0.04) !important;
     border: 1px solid rgba(255, 255, 255, 0.08) !important;
@@ -251,136 +258,174 @@ $configData = Helper::appClasses();
 @endsection
 
 @section('content')
-  <!-- Floating Background Orbs -->
   <div class="glow-orb orb-1"></div>
   <div class="glow-orb orb-2"></div>
   <div class="glow-orb orb-3"></div>
 
-  <!-- Content Wrapper -->
   <div class="container-fluid px-4 px-lg-6 position-relative" style="z-index: 1;">
-    
-    <!-- Title Section -->
+
     <div class="glass-card-premium px-4 px-xl-5 py-4 mb-4">
       <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
         <div class="d-flex align-items-center gap-3">
           <div class="stat-icon-box stat-icon-primary">
-            <i class="icon-base ti tabler-book-2 fs-4"></i>
+            <i class="icon-base ti tabler-users-group fs-4"></i>
           </div>
           <div>
-            <h4 class="fw-bold text-white mb-0">Kelola Pelatihan</h4>
+            <h4 class="fw-bold text-white mb-0">Peserta Pelatihan</h4>
             <p class="text-body-premium mb-0 mt-1" style="font-size: 0.95rem;">
-              Daftar dan konfigurasi program pelatihan ekonomi kreatif
+              {{ $pelatihan->nama }} — Batch {{ $pelatihan->batch }}
+              @if($pelatihan->dinas)
+                <span class="mx-2">|</span> {{ $pelatihan->dinas->nama_dinas }}
+              @endif
             </p>
           </div>
         </div>
-        <a href="{{ route('admin.pelatihan.create') }}" class="btn btn-glow-premium px-4 py-2 d-flex align-items-center gap-2">
-          <i class="icon-base ti tabler-plus"></i> Tambah Pelatihan
+        <a href="{{ route('admin.pelatihan.index') }}" class="btn btn-outline-light btn-sm d-flex align-items-center gap-2" style="border-radius: 5px;">
+          <i class="icon-base ti tabler-arrow-left"></i> Kembali
         </a>
       </div>
     </div>
 
-    <!-- Alert Messages -->
-    @if(session('success'))
-      <div class="alert alert-success alert-dismissible border-0 mb-4" role="alert" style="background: linear-gradient(135deg, #10b981, #059669); color: white; border-radius: 5px;">
-        <div class="d-flex align-items-center">
-          <i class="icon-base ti tabler-check-circle fs-5 me-2"></i>
-          <span>{{ session('success') }}</span>
+    <div class="row g-3 mb-4">
+      <div class="col-md-3 col-6">
+        <div class="glass-card-premium px-3 py-3">
+          <div class="d-flex align-items-center gap-3">
+            <div class="stat-icon-box stat-icon-info" style="width: 44px; height: 44px; font-size: 1.3rem;">
+              <i class="icon-base ti tabler-users"></i>
+            </div>
+            <div>
+              <div class="text-body-premium small">Total Peserta</div>
+              <div class="text-white fw-bold fs-4">{{ $totalPeserta }}</div>
+            </div>
+          </div>
         </div>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Close"></button>
       </div>
-    @endif
-
-    @if(session('error'))
-      <div class="alert alert-danger alert-dismissible border-0 mb-4" role="alert" style="background: linear-gradient(135deg, #ef4444, #b91c1c); color: white; border-radius: 5px;">
-        <div class="d-flex align-items-center">
-          <i class="icon-base ti tabler-alert-circle fs-5 me-2"></i>
-          <span>{{ session('error') }}</span>
+      <div class="col-md-3 col-6">
+        <div class="glass-card-premium px-3 py-3">
+          <div class="d-flex align-items-center gap-3">
+            <div class="stat-icon-box stat-icon-success" style="width: 44px; height: 44px; font-size: 1.3rem;">
+              <i class="icon-base ti tabler-check"></i>
+            </div>
+            <div>
+              <div class="text-body-premium small">Lengkap</div>
+              <div class="text-white fw-bold fs-4">{{ $completedCount }}</div>
+            </div>
+          </div>
         </div>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Close"></button>
       </div>
-    @endif
+      <div class="col-md-3 col-6">
+        <div class="glass-card-premium px-3 py-3">
+          <div class="d-flex align-items-center gap-3">
+            <div class="stat-icon-box stat-icon-warning" style="width: 44px; height: 44px; font-size: 1.3rem;">
+              <i class="icon-base ti tabler-clipboard-list"></i>
+            </div>
+            <div>
+              <div class="text-body-premium small">Kuota</div>
+              <div class="text-white fw-bold fs-4">{{ $pelatihan->kuota ?? '-' }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3 col-6">
+        <div class="glass-card-premium px-3 py-3">
+          <div class="d-flex align-items-center gap-3">
+            <div class="stat-icon-box stat-icon-primary" style="width: 44px; height: 44px; font-size: 1.3rem;">
+              <i class="icon-base ti tabler-calendar"></i>
+            </div>
+            <div>
+              <div class="text-body-premium small">Pelaksanaan</div>
+              <div class="text-white fw-semibold" style="font-size: 0.85rem;">
+                {{ $pelatihan->tanggal_mulai ? \Carbon\Carbon::parse($pelatihan->tanggal_mulai)->format('d/m/Y') : '-' }}
+                —
+                {{ $pelatihan->tanggal_selesai ? \Carbon\Carbon::parse($pelatihan->tanggal_selesai)->format('d/m/Y') : '-' }}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
 
-    <!-- Data Table Card -->
     <div class="col-12">
       <div class="glass-card-premium px-4 py-4">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+          <h5 class="fw-bold text-white mb-0">
+            <i class="icon-base ti tabler-list me-2"></i> Daftar Peserta
+          </h5>
+          <div class="d-flex gap-2">
+            <button onclick="copyAllWA()" class="btn btn-info btn-sm d-flex align-items-center gap-1" style="border-radius: 5px;">
+              <i class="icon-base ti tabler-copy"></i> Salin Semua WA
+            </button>
+            <a href="#" class="btn btn-success btn-sm d-flex align-items-center gap-1" style="border-radius: 5px;">
+              <i class="icon-base ti tabler-file-spreadsheet"></i> Export Excel
+            </a>
+          </div>
+        </div>
+
         <div class="table-responsive">
           <table class="table table-borderless text-white align-middle">
             <thead>
               <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.08);">
-                <th class="text-body-premium small fw-semibold px-0" style="width: 60px;">No</th>
-                <th class="text-body-premium small fw-semibold">Batch</th>
-                <th class="text-body-premium small fw-semibold">Nama Pelatihan</th>
-                <th class="text-body-premium small fw-semibold">Dinas</th>
-                <th class="text-body-premium small fw-semibold">Tanggal Pelaksanaan</th>
-                <th class="text-body-premium small fw-semibold">Kuota</th>
+                <th class="text-body-premium small fw-semibold px-0" style="width: 50px;">No</th>
+                <th class="text-body-premium small fw-semibold">Nama</th>
+                <th class="text-body-premium small fw-semibold">NIK</th>
+                <th class="text-body-premium small fw-semibold">WhatsApp</th>
+                <th class="text-body-premium small fw-semibold">Email</th>
+                <th class="text-body-premium small fw-semibold">Kecamatan</th>
                 <th class="text-body-premium small fw-semibold">Status</th>
-                <th class="text-body-premium small fw-semibold text-end px-0" style="width: 120px;">Aksi</th>
+                <th class="text-body-premium small fw-semibold text-end px-0" style="width: 80px;">Aksi</th>
               </tr>
             </thead>
             <tbody>
-              @forelse($pelatihans as $index => $pelatihan)
+              @forelse($peserta as $index => $p)
                 <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.04);">
-                  <td class="px-0 py-3 text-body-premium">{{ $pelatihans->firstItem() + $index }}</td>
-                  <td class="py-3 fw-semibold text-white">{{ $pelatihan->batch }}</td>
-                  <td class="py-3 text-white fw-semibold">{{ $pelatihan->nama }}</td>
+                  <td class="px-0 py-3 text-body-premium">{{ $peserta->firstItem() + $index }}</td>
+                  <td class="py-3 fw-semibold text-white">{{ $p->nama_lengkap ?? $p->user?->name ?? '-' }}</td>
+                  <td class="py-3 text-body-premium" style="font-size: 0.85rem;">{{ $p->nik ?? '-' }}</td>
                   <td class="py-3 text-body-premium">
-                    <span class="badge bg-primary bg-opacity-10 text-primary px-2 py-1" style="font-size: 0.75rem; border-radius: 4px;">
-                      {{ $pelatihan->dinas->nama_dinas ?? '-' }}
-                    </span>
-                  </td>
-                  <td class="py-3 text-body-premium">
-                    <div><i class="icon-base ti tabler-calendar me-1"></i>
-                    {{ $pelatihan->tanggal_mulai ? \Carbon\Carbon::parse($pelatihan->tanggal_mulai)->format('d/m/Y') : '-' }}
-                    -
-                    {{ $pelatihan->tanggal_selesai ? \Carbon\Carbon::parse($pelatihan->tanggal_selesai)->format('d/m/Y') : '-' }}</div>
-                    @if($pelatihan->batas_pendaftaran)
-                      <div class="mt-1" style="font-size: 0.7rem;">
-                        <i class="icon-base ti tabler-clock me-1"></i>
-                        Batas daftar: {{ \Carbon\Carbon::parse($pelatihan->batas_pendaftaran)->format('d/m/Y') }}
-                      </div>
+                    @if($p->whatsapp)
+                      <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $p->whatsapp) }}" target="_blank" class="text-info text-decoration-none">
+                        <i class="icon-base ti tabler-brand-whatsapp me-1"></i>{{ $p->whatsapp }}
+                      </a>
+                    @else
+                      <span class="text-body-premium">-</span>
                     @endif
                   </td>
-                  <td class="py-3 text-body-premium">{{ $pelatihan->kuota ?? '-' }} Peserta</td>
+                  <td class="py-3 text-body-premium" style="font-size: 0.85rem;">{{ $p->email ?? $p->user?->email ?? '-' }}</td>
+                  <td class="py-3 text-body-premium" style="font-size: 0.85rem;">
+                    {{ $p->kelurahan?->kecamatan?->name ?? $p->kecamatan ?? '-' }}
+                  </td>
                   <td class="py-3">
-                    @if($pelatihan->is_active)
-                      <span class="badge-premium badge-premium-success">Aktif</span>
+                    @if($p->is_completed)
+                      <span class="badge-premium badge-premium-success">Lengkap</span>
                     @else
-                      <span class="badge-premium badge-premium-warning">Nonaktif</span>
+                      <span class="badge-premium badge-premium-warning">Belum Lengkap</span>
                     @endif
                   </td>
                   <td class="text-end px-0 py-3">
-                    <div class="d-inline-flex gap-2">
-                      <a href="{{ route('admin.pelatihan.peserta', $pelatihan) }}" class="btn btn-info btn-sm d-flex align-items-center justify-content-center" style="border-radius: 5px; width: 32px; height: 32px; padding: 0;" title="Lihat Peserta">
-                        <i class="icon-base ti tabler-eye fs-5"></i>
+                    @if($p->user)
+                      <a href="{{ route('admin.peserta.show', $p->user) }}" class="btn btn-primary btn-sm d-flex align-items-center justify-content-center" style="border-radius: 5px; width: 32px; height: 32px; padding: 0;" title="Detail">
+                        <i class="icon-base ti tabler-arrow-right fs-5"></i>
                       </a>
-                      <a href="{{ route('admin.pelatihan.edit', $pelatihan) }}" class="btn btn-warning btn-sm d-flex align-items-center justify-content-center" style="border-radius: 5px; width: 32px; height: 32px; padding: 0;">
-                        <i class="icon-base ti tabler-edit fs-5 text-dark"></i>
-                      </a>
-                      <form action="{{ route('admin.pelatihan.destroy', $pelatihan) }}" method="POST" class="d-inline"
-                        onsubmit="return confirm('Yakin ingin menghapus pelatihan {{ $pelatihan->nama }}?')">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" class="btn btn-danger btn-sm d-flex align-items-center justify-content-center" style="border-radius: 5px; width: 32px; height: 32px; padding: 0;">
-                          <i class="icon-base ti tabler-trash fs-5"></i>
-                        </button>
-                      </form>
-                    </div>
+                    @else
+                      <span class="text-body-premium small">-</span>
+                    @endif
                   </td>
                 </tr>
               @empty
                 <tr>
                   <td colspan="8" class="text-center text-body-premium py-5">
-                    <i class="icon-base ti tabler-book-off fs-1 mb-2 d-block text-warning"></i>
-                    Belum ada data pelatihan.
+                    <i class="icon-base ti tabler-users-off fs-1 mb-2 d-block text-warning"></i>
+                    Belum ada peserta terdaftar untuk pelatihan ini.
                   </td>
                 </tr>
               @endforelse
             </tbody>
           </table>
         </div>
-        @if($pelatihans->hasPages())
+
+        @if($peserta->hasPages())
           <div class="mt-4 pt-3" style="border-top: 1px solid rgba(255, 255, 255, 0.05);">
-            {{ $pelatihans->links() }}
+            {{ $peserta->links() }}
           </div>
         @endif
       </div>
@@ -388,3 +433,16 @@ $configData = Helper::appClasses();
 
   </div>
 @endsection
+
+@push('scripts')
+<script>
+function copyAllWA() {
+    const waNumbers = @json($peserta->pluck('whatsapp')->filter()->implode(', '));
+    navigator.clipboard.writeText(waNumbers).then(() => {
+        alert('Semua nomor WA berhasil disalin!');
+    }).catch(() => {
+        alert('Gagal menyalin nomor WA.');
+    });
+}
+</script>
+@endpush
