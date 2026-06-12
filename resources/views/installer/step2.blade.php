@@ -26,8 +26,6 @@
         </div>
     @endif
 
-    <div id="db-existing-warning" style="display: none;" class="notice notice-err" style="margin-bottom: 18px;"></div>
-
     <div class="grid-2">
         <div class="field">
             <label class="lbl">Host Database</label>
@@ -114,6 +112,11 @@ $(document).ready(function() {
     var $testBtn = $('#btn-test-connection');
     var $result = $('#db-test-result');
     var $submitBtn = $('#btn-submit');
+
+    // Tampilkan checkbox jika ada flash warning dari server
+    @if(session('db_warning'))
+        $('#wipe-confirm-wrap').slideDown(0);
+    @endif
 
     $testBtn.on('click', function() {
         var $btn = $(this);
