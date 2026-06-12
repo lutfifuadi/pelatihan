@@ -18,21 +18,24 @@ $customizerHidden = 'customizer-hide';
     background-color: #0b0f19;
     color: #f8fafc;
     overflow: hidden;
-    height: 100vh;
+    height: 100dvh;
     width: 100%;
     display: flex;
     align-items: center;
     justify-content: center;
     position: relative;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
   }
   @media (max-height: 600px) {
     #auth-page-wrapper {
-      height: auto;
-      min-height: 100vh;
       overflow-y: auto;
-      padding: 20px 0;
+    }
+    .glass-card-premium {
+      padding: 20px 16px;
     }
   }
+  #auth-page-wrapper::-webkit-scrollbar { display: none; }
   #auth-page-wrapper h1, 
   #auth-page-wrapper h2, 
   #auth-page-wrapper h3, 
