@@ -64,7 +64,29 @@ class InstallerController extends Controller
             'install_db_name' => $request->db_name,
             'install_db_user' => $request->db_user,
             'install_db_pass' => $request->db_password ?? '',
+            'install_confirm_wipe' => $request->has('confirm_wipe'),
         ]);
+
+        // Deteksi apakah database sudah berisi tabel
+        try {
+            $pdo = new \PDO(
+                "mysql:host={$request->db_host};port={$request->db_port};dbname={$request->db_name}",
+                $request->db_user,
+                $request->db_password ?? '',
+                [\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION, \PDO::ATTR_TIMEOUT => 5]
+            );
+            $stmt = $pdo->query("SHOW TABLES");
+            $tables = $stmt->fetchAll(\PDO::FETCH_COLUMN);
+
+            if (count($tables) > 0 && !$request->has('confirm_wipe')) {
+                $this->logInstaller('Database tidak kosong! Terdeteksi ' . count($tables) . ' tabel.');
+                return redirect()->route('installer.step2')
+                    ->with('db_warning', true)
+                    ->with('db_table_count', count($tables));
+            }
+        } catch (\Exception $e) {
+            // Abaikan, koneksi sudah dicek di testConnection
+        }
 
         return redirect()->route('installer.step3');
     }
@@ -86,7 +108,19 @@ class InstallerController extends Controller
                 [\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION, \PDO::ATTR_TIMEOUT => 5]
             );
 
-            return response()->json(['success' => true, 'message' => 'Koneksi berhasil!']);
+            // Cek apakah ada tabel existing
+            $stmt = $pdo->query("SHOW TABLES");
+            $tables = $stmt->fetchAll(\PDO::FETCH_COLUMN);
+            $warning = count($tables) > 0
+                ? ' Database memiliki ' . count($tables) . ' tabel existing.'
+                : '';
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Koneksi berhasil!' . $warning,
+                'tables_count' => count($tables),
+                'has_tables' => count($tables) > 0,
+            ]);
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => 'Koneksi gagal: ' . $e->getMessage()]);
         }
@@ -141,7 +175,14 @@ class InstallerController extends Controller
 
             $this->setProgress(2, 'Migrasi database...');
             $this->logInstaller('Menjalankan migrasi database');
-            Artisan::call('migrate', ['--force' => true]);
+
+            // Jika user konfirmasi hapus data lama, pakai migrate:fresh
+            if (session('install_confirm_wipe')) {
+                $this->logInstaller('Mode: migrate:fresh (hapus data lama)');
+                Artisan::call('migrate:fresh', ['--force' => true, '--seed' => false]);
+            } else {
+                Artisan::call('migrate', ['--force' => true]);
+            }
 
             $this->setProgress(3, 'Seeder data awal...');
             $this->logInstaller('Menjalankan database seed');
@@ -181,6 +222,7 @@ class InstallerController extends Controller
             session()->forget([
                 'install_db_host', 'install_db_port', 'install_db_name',
                 'install_db_user', 'install_db_pass', 'install_progress',
+                'install_confirm_wipe',
             ]);
 
             $this->logInstaller('Instalasi selesai dengan sukses');

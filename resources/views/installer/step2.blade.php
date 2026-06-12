@@ -17,6 +17,17 @@
 
     <div id="db-test-result" style="display: none;"></div>
 
+    @if(session('db_warning'))
+        <div class="notice notice-err" style="margin-bottom: 18px;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="13"/><circle cx="12" cy="16" r=".5" fill="currentColor"/>
+            </svg>
+            <span><strong>Database tidak kosong!</strong> Terdeteksi {{ session('db_table_count') }} tabel. Centang opsi di bawah jika ingin menghapus data lama dan instalasi fresh.</span>
+        </div>
+    @endif
+
+    <div id="db-existing-warning" style="display: none;" class="notice notice-err" style="margin-bottom: 18px;"></div>
+
     <div class="grid-2">
         <div class="field">
             <label class="lbl">Host Database</label>
@@ -67,6 +78,13 @@
                 <input type="password" name="db_password" id="db_password" value="{{ old('db_password', session('install_db_pass')) }}" placeholder="Password">
             </div>
         </div>
+    </div>
+
+    <div id="wipe-confirm-wrap" style="display: none; margin-top: 16px; padding: 12px 14px; background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.2); border-radius: 4px;">
+        <label style="display: flex; align-items: flex-start; gap: 10px; cursor: pointer; font-size: 0.8125rem; color: #fca5a5;">
+            <input type="checkbox" name="confirm_wipe" value="1" style="margin-top: 2px; accent-color: #ef4444; width: 16px; height: 16px;">
+            <span>Saya mengerti, <strong>hapus semua data lama</strong> di database ini dan instalasi fresh.</span>
+        </label>
     </div>
 @endsection
 
@@ -122,6 +140,14 @@ $(document).ready(function() {
                         .addClass('notice notice-ok')
                         .html('<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg><span>' + data.message + '</span>')
                         .slideDown(200);
+
+                    // Jika database memiliki tabel existing, tampilkan opsi wipe
+                    if (data.has_tables) {
+                        $('#wipe-confirm-wrap').slideDown(200);
+                    } else {
+                        $('#wipe-confirm-wrap').slideUp(200);
+                    }
+
                     $submitBtn.prop('disabled', false);
                 } else {
                     $result
