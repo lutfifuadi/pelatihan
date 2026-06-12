@@ -1,0 +1,181 @@
+<?php
+
+namespace App\Http\Controllers\Admin;
+
+use App\Http\Controllers\Controller;
+use App\Models\User;
+use App\Models\Kecamatan;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+
+class KoordinatorController extends Controller
+{
+    /**
+     * Display a listing of koordinator users.
+     */
+    public function index()
+    {
+        $koordinators = User::where('role', 'koordinator')
+            ->with('kecamatan')
+            ->orderBy('name')
+            ->paginate(15);
+
+        return view('content.admin.koordinator.index', compact('koordinators'));
+    }
+
+    /**
+     * Show the form for creating a new koordinator.
+     */
+    public function create()
+    {
+        $kecamatans = Kecamatan::orderBy('name')->get();
+        return view('content.admin.koordinator.create', compact('kecamatans'));
+    }
+
+    /**
+     * Store a newly created koordinator.
+     */
+    public function store(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users',
+            'password' => 'required|string|min:8',
+            'kecamatan_id' => 'required|exists:kecamatans,id',
+            'kelurahan_id' => 'required|exists:kelurahans,id',
+            'phone' => 'nullable|string|max:20',
+            'whatsapp' => 'nullable|string|max:20',
+            'nik' => 'nullable|string|digits_between:15,16|unique:users,nik',
+        ]);
+
+        User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
+            'role' => 'koordinator',
+            'kecamatan_id' => $request->kecamatan_id,
+            'kelurahan_id' => $request->kelurahan_id,
+            'phone' => $request->phone,
+            'whatsapp' => $request->whatsapp,
+            'nik' => $request->nik,
+            'is_active' => true,
+            'email_verified_at' => now(),
+        ]);
+
+        return redirect()->route('admin.koordinator.index')
+            ->with('success', 'Koordinator berhasil ditambahkan.');
+    }
+
+    /**
+     * Show the form for editing the specified koordinator.
+     */
+    public function edit(User $koordinator)
+    {
+        if ($koordinator->role !== 'koordinator') {
+            abort(404);
+        }
+
+        $kecamatans = Kecamatan::orderBy('name')->get();
+        return view('content.admin.koordinator.edit', compact('koordinator', 'kecamatans'));
+    }
+
+    /**
+     * Update the specified koordinator.
+     */
+    public function update(Request $request, User $koordinator)
+    {
+        if ($koordinator->role !== 'koordinator') {
+            abort(404);
+        }
+
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users,email,' . $koordinator->id,
+            'password' => 'nullable|string|min:8',
+            'kecamatan_id' => 'required|exists:kecamatans,id',
+            'kelurahan_id' => 'required|exists:kelurahans,id',
+            'phone' => 'nullable|string|max:20',
+            'whatsapp' => 'nullable|string|max:20',
+            'nik' => 'nullable|string|digits_between:15,16|unique:users,nik,' . $koordinator->id,
+        ]);
+
+        $data = [
+            'name' => $request->name,
+            'email' => $request->email,
+            'kecamatan_id' => $request->kecamatan_id,
+            'kelurahan_id' => $request->kelurahan_id,
+            'phone' => $request->phone,
+            'whatsapp' => $request->whatsapp,
+            'nik' => $request->nik,
+        ];
+
+        if ($request->filled('password')) {
+            $data['password'] = Hash::make($request->password);
+        }
+
+        $koordinator->update($data);
+
+        return redirect()->route('admin.koordinator.index')
+            ->with('success', 'Koordinator berhasil diperbarui.');
+    }
+
+    /**
+     * Tampilkan daftar koordinator yang menunggu approval (pending).
+     */
+    public function pending()
+    {
+        $koordinators = User::where('role', 'koordinator')
+            ->where('is_active', false)
+            ->with('kecamatan')
+            ->orderBy('created_at', 'desc')
+            ->paginate(15);
+
+        return view('content.admin.koordinator.pending', compact('koordinators'));
+    }
+
+    /**
+     * Approve (aktifkan) koordinator.
+     */
+    public function approve(User $koordinator)
+    {
+        if ($koordinator->role !== 'koordinator') {
+            abort(404);
+        }
+
+        $koordinator->update(['is_active' => true]);
+
+        return redirect()->route('admin.koordinator.pending')
+            ->with('success', 'Koordinator ' . $koordinator->name . ' berhasil diaktifkan.');
+    }
+
+    /**
+     * Tolak / hapus koordinator yang masih pending.
+     */
+    public function reject(User $koordinator)
+    {
+        if ($koordinator->role !== 'koordinator') {
+            abort(404);
+        }
+
+        $nama = $koordinator->name;
+        $koordinator->delete();
+
+        return redirect()->route('admin.koordinator.pending')
+            ->with('success', 'Pendaftaran koordinator ' . $nama . ' ditolak dan dihapus.');
+    }
+
+    /**
+     * Remove the specified koordinator.
+     */
+    public function destroy(User $koordinator)
+    {
+        if ($koordinator->role !== 'koordinator') {
+            abort(404);
+        }
+
+        $koordinator->delete();
+
+        return redirect()->route('admin.koordinator.index')
+            ->with('success', 'Koordinator berhasil dihapus.');
+    }
+}

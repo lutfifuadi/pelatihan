@@ -1,0 +1,417 @@
+/* ============================================================
+   PREMIUM SKIN — Glassmorphism Dark Theme ala UI Beranda
+   ============================================================ */
+
+[data-skin="premium"] {
+  // ============================================================
+  // 1. BASIC VARIABLES
+  // ============================================================
+  --bs-body-bg: #0b0f19;
+  --bs-body-bg-rgb: 11, 15, 25;
+  --bs-body-color: #f8fafc;
+  --bs-body-color-rgb: 248, 250, 252;
+  --bs-heading-color: #ffffff;
+  --bs-text-muted: rgba(255, 255, 255, 0.65);
+  --bs-border-color: rgba(255, 255, 255, 0.08);
+  --bs-border-color-translucent: rgba(255, 255, 255, 0.08);
+  --bs-secondary-color: rgba(255, 255, 255, 0.65);
+  --bs-tertiary-color: rgba(255, 255, 255, 0.4);
+  --bs-secondary-bg: rgba(15, 23, 42, 0.5);
+  --bs-tertiary-bg: rgba(15, 23, 42, 0.3);
+
+  // ============================================================
+  // 2. PAPER / CARD
+  // ============================================================
+  --bs-paper-bg: rgba(15, 23, 42, 0.35);
+  --bs-paper-bg-rgb: 15, 23, 42;
+  --bs-card-bg: rgba(15, 23, 42, 0.35);
+  --bs-card-box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+  --bs-card-border-color: rgba(255, 255, 255, 0.06);
+  --bs-card-cap-bg: rgba(15, 23, 42, 0.5);
+  --bs-card-color: #f8fafc;
+
+  // ============================================================
+  // 3. NAVBAR
+  // ============================================================
+  --bs-navbar-bg: rgba(15, 23, 42, 0.45);
+  --bs-navbar-box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  --bs-navbar-border-color: rgba(255, 255, 255, 0.08);
+  --bs-navbar-color: rgba(255, 255, 255, 0.75);
+  --bs-navbar-hover-color: #ffffff;
+  --bs-navbar-active-color: #ffffff;
+
+  // ============================================================
+  // 4. MENU / SIDEBAR
+  // ============================================================
+  --bs-menu-bg: rgba(15, 23, 42, 0.45);
+  --bs-menu-color: rgba(255, 255, 255, 0.65);
+  --bs-menu-color-rgb: 255, 255, 255;
+  --bs-menu-hover-color: #ffffff;
+  --bs-menu-hover-bg: rgba(255, 255, 255, 0.04);
+  --bs-menu-active-color: #ffffff;
+  --bs-menu-active-bg: rgba(99, 102, 241, 0.15);
+  --bs-menu-box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+  --bs-menu-divider-color: rgba(255, 255, 255, 0.06);
+  --bs-menu-vertical-menu-level-spacer: 1px;
+
+  // ============================================================
+  // 5. DROPDOWN
+  // ============================================================
+  --bs-dropdown-bg: rgba(15, 23, 42, 0.85);
+  --bs-dropdown-color: #f8fafc;
+  --bs-dropdown-border-color: rgba(255, 255, 255, 0.08);
+  --bs-dropdown-box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  --bs-dropdown-link-color: rgba(255, 255, 255, 0.75);
+  --bs-dropdown-link-hover-color: #ffffff;
+  --bs-dropdown-link-hover-bg: rgba(99, 102, 241, 0.1);
+  --bs-dropdown-link-active-color: #ffffff;
+  --bs-dropdown-link-active-bg: rgba(99, 102, 241, 0.2);
+
+  // ============================================================
+  // 6. MODAL
+  // ============================================================
+  --bs-modal-bg: rgba(15, 23, 42, 0.85);
+  --bs-modal-border-color: rgba(255, 255, 255, 0.08);
+  --bs-modal-box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5);
+  --bs-modal-color: #f8fafc;
+  --bs-modal-header-border-color: rgba(255, 255, 255, 0.06);
+  --bs-modal-footer-border-color: rgba(255, 255, 255, 0.06);
+
+  // ============================================================
+  // 7. FORMS
+  // ============================================================
+  --bs-input-bg: rgba(255, 255, 255, 0.03);
+  --bs-input-color: #f8fafc;
+  --bs-input-border-color: rgba(255, 255, 255, 0.12);
+  --bs-input-focus-border-color: #6366f1;
+  --bs-input-focus-box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.25);
+  --bs-input-placeholder-color: rgba(255, 255, 255, 0.35);
+  --bs-form-control-bg: rgba(255, 255, 255, 0.03);
+  --bs-form-control-color: #f8fafc;
+  --bs-form-control-border-color: rgba(255, 255, 255, 0.12);
+
+  // ============================================================
+  // 8. TABLE
+  // ============================================================
+  --bs-table-bg: transparent;
+  --bs-table-color: #f8fafc;
+  --bs-table-border-color: rgba(255, 255, 255, 0.06);
+  --bs-table-hover-bg: rgba(255, 255, 255, 0.02);
+  --bs-table-striped-bg: rgba(255, 255, 255, 0.02);
+
+  // ============================================================
+  // 9. ACCORDION
+  // ============================================================
+  --bs-accordion-bg: rgba(15, 23, 42, 0.35);
+  --bs-accordion-color: #f8fafc;
+  --bs-accordion-border-color: rgba(255, 255, 255, 0.06);
+  --bs-accordion-active-bg: rgba(99, 102, 241, 0.1);
+  --bs-accordion-active-color: #818cf8;
+  --bs-accordion-btn-color: #f8fafc;
+  --bs-accordion-btn-focus-box-shadow: none;
+
+  // ============================================================
+  // 10. LIST GROUP
+  // ============================================================
+  --bs-list-group-bg: rgba(15, 23, 42, 0.35);
+  --bs-list-group-color: #f8fafc;
+  --bs-list-group-border-color: rgba(255, 255, 255, 0.06);
+  --bs-list-group-hover-bg: rgba(255, 255, 255, 0.03);
+  --bs-list-group-action-color: #f8fafc;
+  --bs-list-group-action-hover-bg: rgba(99, 102, 241, 0.08);
+
+  // ============================================================
+  // 11. OFF-CANVAS
+  // ============================================================
+  --bs-offcanvas-bg: rgba(15, 23, 42, 0.85);
+  --bs-offcanvas-color: #f8fafc;
+  --bs-offcanvas-border-color: rgba(255, 255, 255, 0.08);
+
+  // ============================================================
+  // 12. TOAST
+  // ============================================================
+  --bs-toast-bg: rgba(15, 23, 42, 0.85);
+  --bs-toast-color: #f8fafc;
+  --bs-toast-border-color: rgba(255, 255, 255, 0.08);
+  --bs-toast-box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+  --bs-toast-header-bg: rgba(15, 23, 42, 0.9);
+  --bs-toast-header-color: #f8fafc;
+  --bs-toast-header-border-color: rgba(255, 255, 255, 0.06);
+
+  // ============================================================
+  // 13. PROGRESS
+  // ============================================================
+  --bs-progress-bg: rgba(255, 255, 255, 0.06);
+  --bs-progress-bar-bg: linear-gradient(90deg, #6366f1, #d946ef);
+
+  // ============================================================
+  // 14. PAGINATION
+  // ============================================================
+  --bs-pagination-bg: rgba(15, 23, 42, 0.35);
+  --bs-pagination-color: rgba(255, 255, 255, 0.75);
+  --bs-pagination-border-color: rgba(255, 255, 255, 0.08);
+  --bs-pagination-hover-bg: rgba(99, 102, 241, 0.1);
+  --bs-pagination-hover-color: #ffffff;
+  --bs-pagination-focus-bg: rgba(99, 102, 241, 0.15);
+  --bs-pagination-active-bg: #6366f1;
+  --bs-pagination-active-border-color: #6366f1;
+
+  // ============================================================
+  // 15. PRIMARY COLOR
+  // ============================================================
+  --bs-primary: #6366f1;
+  --bs-primary-rgb: 99, 102, 241;
+  --bs-primary-bg-subtle: rgba(99, 102, 241, 0.15);
+  --bs-primary-border-subtle: rgba(99, 102, 241, 0.3);
+  --bs-link-color: #818cf8;
+  --bs-link-hover-color: #6366f1;
+
+  // ============================================================
+  // 16. CLOSE BUTTON
+  // ============================================================
+  --bs-btn-close-color: #f8fafc;
+  --bs-btn-close-bg: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23f8fafc'%3e%3cpath d='M.293.293a1 1 0 011.414 0L8 6.586 14.293.293a1 1 0 111.414 1.414L9.414 8l6.293 6.293a1 1 0 01-1.414 1.414L8 9.414l-6.293 6.293a1 1 0 01-1.414-1.414L6.586 8 .293 1.707a1 1 0 010-1.414z'/%3e%3c/svg%3e");
+
+  // ============================================================
+  // 17. FOOTER — Glass effect
+  // ============================================================
+  .footer {
+    background-color: rgba(15, 23, 42, 0.45) !important;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+  }
+
+  // ============================================================
+  // 18. TYPOGRAPHY
+  // ============================================================
+  font-family: 'Outfit', sans-serif;
+
+  // ============================================================
+  // 19. CARD — Glassmorphism
+  // ============================================================
+  .card {
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    color: #f8fafc;
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5), 0 0 30px rgba(99, 102, 241, 0.08) !important;
+    }
+  }
+
+  // ============================================================
+  // 19. NAVBAR — Glass
+  // ============================================================
+  .layout-navbar {
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+
+    &.navbar-detached {
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+    }
+  }
+
+  // ============================================================
+  // 20. MENU / SIDEBAR — Glass
+  // ============================================================
+  .layout-menu,
+  .app-brand {
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-right: 1px solid rgba(255, 255, 255, 0.06);
+  }
+
+  .menu-item {
+    .menu-link {
+      color: rgba(255, 255, 255, 0.65);
+      transition: all 0.3s ease;
+
+      &:hover {
+        color: #ffffff;
+        background: rgba(255, 255, 255, 0.04);
+      }
+    }
+
+    &.active > .menu-link {
+      color: #ffffff;
+      background: rgba(99, 102, 241, 0.15);
+      border-right: 2px solid #6366f1;
+    }
+  }
+
+  // ============================================================
+  // 21. DROPDOWN — Glass
+  // ============================================================
+  .dropdown-menu {
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+
+    .dropdown-item {
+      color: rgba(255, 255, 255, 0.75);
+      transition: all 0.2s ease;
+
+      &:hover {
+        color: #ffffff;
+        background: rgba(99, 102, 241, 0.1);
+      }
+
+      &:active {
+        background: rgba(99, 102, 241, 0.2);
+      }
+    }
+  }
+
+  // ============================================================
+  // 22. FORM CONTROLS
+  // ============================================================
+  .form-control,
+  .form-select {
+    background-color: rgba(255, 255, 255, 0.03) !important;
+    border-color: rgba(255, 255, 255, 0.12) !important;
+    color: #f8fafc !important;
+
+    &:focus {
+      background-color: rgba(255, 255, 255, 0.06) !important;
+      border-color: #6366f1 !important;
+      box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.25) !important;
+    }
+
+    &::placeholder {
+      color: rgba(255, 255, 255, 0.35) !important;
+    }
+  }
+
+  .form-label {
+    color: rgba(255, 255, 255, 0.7) !important;
+  }
+
+  .input-group-text {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+    border-color: rgba(255, 255, 255, 0.12) !important;
+    color: rgba(255, 255, 255, 0.7) !important;
+  }
+
+  // ============================================================
+  // 23. MODAL — Glass
+  // ============================================================
+  .modal-content {
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  // ============================================================
+  // 24. BUTTONS
+  // ============================================================
+  .btn-primary {
+    background: linear-gradient(135deg, #6366f1, #d946ef) !important;
+    border: none !important;
+    box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3) !important;
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 30px rgba(99, 102, 241, 0.5) !important;
+    }
+  }
+
+  .btn-outline-primary {
+    border-color: rgba(99, 102, 241, 0.5) !important;
+    color: #818cf8 !important;
+
+    &:hover {
+      background: rgba(99, 102, 241, 0.15) !important;
+      border-color: #6366f1 !important;
+      color: #ffffff !important;
+    }
+  }
+
+  // ============================================================
+  // 25. TABLE
+  // ============================================================
+  .table {
+    --bs-table-bg: transparent;
+    color: #f8fafc;
+
+    th {
+      color: rgba(255, 255, 255, 0.8);
+      font-weight: 600;
+    }
+
+    td {
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    thead th {
+      border-bottom-color: rgba(255, 255, 255, 0.06);
+    }
+  }
+
+  // ============================================================
+  // 26. PROGRESS BAR
+  // ============================================================
+  .progress {
+    background: rgba(255, 255, 255, 0.06);
+    border-radius: 8px;
+    height: 8px;
+
+    .progress-bar {
+      background: linear-gradient(90deg, #6366f1, #d946ef);
+      border-radius: 8px;
+    }
+  }
+
+  // ============================================================
+  // 27. DIVIDER
+  // ============================================================
+  hr {
+    border-color: rgba(255, 255, 255, 0.06);
+    opacity: 1;
+  }
+
+  // ============================================================
+  // 28. SCROLLBAR
+  // ============================================================
+  ::-webkit-scrollbar {
+    width: 8px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #0b0f19;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #6366f1;
+    border-radius: 4px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #d946ef;
+  }
+
+  // ============================================================
+  // 29. APEX CHARTS
+  // ============================================================
+  .apexcharts-canvas {
+    .apexcharts-tooltip {
+      background: rgba(15, 23, 42, 0.85) !important;
+      border: 1px solid rgba(255, 255, 255, 0.08) !important;
+      backdrop-filter: blur(16px);
+
+      .apexcharts-tooltip-title {
+        background: rgba(15, 23, 42, 0.9) !important;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
+      }
+    }
+
+    .apexcharts-gridline {
+      stroke: rgba(255, 255, 255, 0.04);
+    }
+
+    .apexcharts-text {
+      fill: rgba(255, 255, 255, 0.5);
+    }
+  }
+}

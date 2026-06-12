@@ -1,0 +1,54 @@
+/.phpunit.cache
+/node_modules
+/public/build
+/public/hot
+/public/storage
+/storage/*.key
+/storage/pail
+/vendor
+/auth.json
+
+# 🔴 KRITIS: Jangan commit .env
+.env
+.env.backup
+.env.production
+
+# Internal tools & planning (hanya untuk local)
+/.agents
+/.planing
+
+# IDE & Tools
+/.fleet
+/.idea
+/.nova
+/.vscode
+/.zed
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Docker
+docker-compose.override.yml
+Homestead.json
+Homestead.yaml
+
+# Logs
+npm-debug.log
+yarn-error.log
+.phpactor.json
+.phpunit.result.cache
+
+# Assets (compiled)
+/public/css
+/public/js
+/public/mix-manifest.json
+/resources/assets/vendor/fonts/flags/**
+/resources/assets/vendor/fonts/fontawesome/**
+
+# Keep template-customizer.js
+!/resources/assets/vendor/js/template-customizer.js
+
+# Public assets
+!/public/assets
+!/public/assets/*

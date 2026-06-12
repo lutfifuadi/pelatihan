@@ -1,0 +1,29 @@
+/* ============================================================
+   Custom Fonts — Design System
+   Heading: Sora | Body: DM Sans
+   ============================================================ */
+
+h1, h2, h3, h4, h5, h6,
+.h1, .h2, .h3, .h4, .h5, .h6,
+.display-1, .display-2, .display-3, .display-4, .display-5, .display-6,
+h1 *, h2 *, h3 *, h4 *, h5 *, h6 * {
+  font-family: "Sora", "DM Sans", "Public Sans", sans-serif !important;
+  letter-spacing: -0.02em;
+}
+
+/* Khusus landing page — heading lebih bold & kreatif */
+.landing-heading {
+  font-family: "Sora", "DM Sans", "Public Sans", sans-serif !important;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+}
+
+/* Form label pakai DM Sans */
+label, .form-label, .form-control, .form-select, input, select, textarea, button, .btn, p, span, small, li, a {
+  font-family: "DM Sans", "Public Sans", sans-serif !important;
+}
+
+/* Navbar & sidebar tetap pakai DM Sans */
+.nav-link, .menu-item, .menu-link, .app-brand-text {
+  font-family: "DM Sans", "Public Sans", sans-serif !important;
+}

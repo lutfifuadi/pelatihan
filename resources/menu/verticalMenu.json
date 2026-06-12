@@ -1,0 +1,67 @@
+{
+  "menu": [
+    {
+      "url": "/",
+      "name": "Beranda",
+      "icon": "menu-icon icon-base ti tabler-smart-home",
+      "slug": "pages-home"
+    },
+    {
+      "menuHeader": "Aplikasi Pelatihan"
+    },
+    {
+      "url": "/dashboard/admin",
+      "name": "Dashboard Admin",
+      "icon": "menu-icon icon-base ti tabler-dashboard",
+      "slug": "dashboard.admin",
+      "role": "admin"
+    },
+    {
+      "url": "/dashboard/instruktur",
+      "name": "Dashboard Instruktur",
+      "icon": "menu-icon icon-base ti tabler-dashboard",
+      "slug": "dashboard.instruktur",
+      "role": "instruktur"
+    },
+    {
+      "url": "/dashboard/peserta",
+      "name": "Dashboard Peserta",
+      "icon": "menu-icon icon-base ti tabler-dashboard",
+      "slug": "dashboard.peserta",
+      "role": "peserta"
+    },
+    {
+      "menuHeader": "Admin Panel"
+    },
+    {
+      "url": "/admin/kecamatan",
+      "name": "Kelola Kecamatan",
+      "icon": "menu-icon icon-base ti tabler-map-pin",
+      "slug": "admin.kecamatan",
+      "role": "admin"
+    },
+    {
+      "url": "/admin/koordinator/pending",
+      "name": "Approval Koordinator",
+      "icon": "menu-icon icon-base ti tabler-user-check",
+      "slug": "admin.koordinator.pending",
+      "role": "admin"
+    },
+    {
+      "url": "/admin/koordinator",
+      "name": "Semua Koordinator",
+      "icon": "menu-icon icon-base ti tabler-users",
+      "slug": "admin.koordinator",
+      "role": "admin"
+    },
+    {
+      "menuHeader": "Halaman"
+    },
+    {
+      "url": "/page-2",
+      "icon": "menu-icon icon-base ti tabler-file",
+      "name": "Page 2",
+      "slug": "pages-page-2"
+    }
+  ]
+}

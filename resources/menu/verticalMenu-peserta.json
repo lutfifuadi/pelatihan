@@ -1,0 +1,46 @@
+{
+  "menu": [
+    {
+      "url": "/",
+      "name": "Beranda",
+      "icon": "menu-icon icon-base ti tabler-smart-home",
+      "slug": "pages-home"
+    },
+    {
+      "menuHeader": "Peserta"
+    },
+    {
+      "url": "/dashboard/peserta",
+      "name": "Dashboard",
+      "icon": "menu-icon icon-base ti tabler-dashboard",
+      "slug": "dashboard.peserta"
+    },
+    {
+      "menuHeader": "Form Pendaftaran"
+    },
+    {
+      "url": "/dashboard/peserta/form-pendaftaran",
+      "name": "1. Data Pribadi & Alamat",
+      "icon": "menu-icon icon-base ti tabler-user",
+      "slug": "dashboard.peserta.form-pendaftaran"
+    },
+    {
+      "url": "/dashboard/peserta/form-pendidikan",
+      "name": "2. Pendidikan & Pekerjaan",
+      "icon": "menu-icon icon-base ti tabler-school",
+      "slug": "dashboard.peserta.form-pendidikan"
+    },
+    {
+      "url": "/dashboard/peserta/form-minat",
+      "name": "3. Minat Pelatihan",
+      "icon": "menu-icon icon-base ti tabler-heart",
+      "slug": "dashboard.peserta.form-minat"
+    },
+    {
+      "url": "/dashboard/peserta/form-dokumen",
+      "name": "4. Dokumen & Konfirmasi",
+      "icon": "menu-icon icon-base ti tabler-file-check",
+      "slug": "dashboard.peserta.form-dokumen"
+    }
+  ]
+}

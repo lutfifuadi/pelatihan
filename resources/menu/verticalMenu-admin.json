@@ -1,0 +1,94 @@
+{
+  "menu": [
+    {
+      "menuHeader": "Utama"
+    },
+    {
+      "url": "/",
+      "name": "Beranda",
+      "icon": "menu-icon icon-base ti tabler-smart-home",
+      "slug": "pages-home"
+    },
+    {
+      "url": "/dashboard/admin",
+      "name": "Dashboard",
+      "icon": "menu-icon icon-base ti tabler-dashboard",
+      "slug": "dashboard.admin"
+    },
+    {
+      "menuHeader": "Master Data Wilayah"
+    },
+    {
+      "url": "/admin/dinas",
+      "name": "Dinas",
+      "icon": "menu-icon icon-base ti tabler-building-community",
+      "slug": "admin.dinas"
+    },
+    {
+      "url": "/admin/kecamatan",
+      "name": "Kecamatan",
+      "icon": "menu-icon icon-base ti tabler-map-pin",
+      "slug": "admin.kecamatan"
+    },
+    {
+      "url": "/admin/kelurahan",
+      "name": "Kelurahan",
+      "icon": "menu-icon icon-base ti tabler-building",
+      "slug": "admin.kelurahan"
+    },
+    {
+      "menuHeader": "Peserta"
+    },
+    {
+      "url": "/admin/peserta",
+      "name": "Data Peserta",
+      "icon": "menu-icon icon-base ti tabler-users-group",
+      "slug": "admin.peserta"
+    },
+    {
+      "menuHeader": "Pelatihan"
+    },
+    {
+      "url": "/admin/pelatihan",
+      "name": "Kelola Pelatihan",
+      "icon": "menu-icon icon-base ti tabler-book",
+      "slug": "admin.pelatihan"
+    },
+    {
+      "menuHeader": "Koordinator"
+    },
+    {
+      "url": "/admin/koordinator/pending",
+      "name": "Approval",
+      "icon": "menu-icon icon-base ti tabler-user-check",
+      "slug": "admin.koordinator.pending"
+    },
+    {
+      "url": "/admin/koordinator",
+      "name": "Semua Koordinator",
+      "icon": "menu-icon icon-base ti tabler-users",
+      "slug": "admin.koordinator"
+    },
+    {
+      "menuHeader": "Pengaturan"
+    },
+    {
+      "url": "/admin/whatsapp-gateway",
+      "name": "Pengaturan",
+      "icon": "menu-icon icon-base ti tabler-settings",
+      "slug": "admin.whatsapp-gateway"
+    },
+    {
+      "url": "/admin/settings/branding",
+      "name": "Branding Aplikasi",
+      "icon": "menu-icon icon-base ti tabler-palette",
+      "slug": "admin.settings.branding"
+    },
+    {
+      "url": "/admin/faqs",
+      "name": "FAQ",
+      "icon": "menu-icon icon-base ti tabler-help-circle",
+      "slug": "admin.faqs.index"
+    }
+  ]
+}

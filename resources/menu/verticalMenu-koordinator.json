@@ -1,0 +1,19 @@
+{
+  "menu": [
+    {
+      "url": "/",
+      "name": "Beranda",
+      "icon": "menu-icon icon-base ti tabler-smart-home",
+      "slug": "pages-home"
+    },
+    {
+      "menuHeader": "Koordinator"
+    },
+    {
+      "url": "/dashboard/koordinator",
+      "name": "Dashboard",
+      "icon": "menu-icon icon-base ti tabler-dashboard",
+      "slug": "dashboard.koordinator"
+    }
+  ]
+}
