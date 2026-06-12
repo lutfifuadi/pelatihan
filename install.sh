@@ -46,7 +46,7 @@ fi
 # 1. Persiapan folder wajib Laravel
 # ----------------------------------------------------------
 echo ""
-echo "[1/11] Persiapan folder & permission..."
+echo "[1/8] Persiapan folder & permission..."
 mkdir -p bootstrap/cache storage/framework/{sessions,views,cache/data} storage/logs
 chmod -R 775 bootstrap/cache storage
 echo "[OK] Folder siap."
@@ -55,14 +55,14 @@ echo "[OK] Folder siap."
 # 2. Install Composer dependencies
 # ----------------------------------------------------------
 echo ""
-echo "[2/11] Install Composer dependencies..."
+echo "[2/8] Install Composer dependencies..."
 composer install --no-dev --optimize-autoloader --no-interaction
 
 # ----------------------------------------------------------
 # 3. Setup file .env & generate key
 # ----------------------------------------------------------
 echo ""
-echo "[3/11] Setup file .env & generate key..."
+echo "[3/8] Setup file .env & generate key..."
 if [ ! -f ".env" ]; then
     cp .env.example .env
     echo "[OK] File .env dibuat dari .env.example."
@@ -96,7 +96,7 @@ echo "[OK] GITHUB_REPO_OWNER=$GITHUB_OWNER, GITHUB_REPO_NAME=$GITHUB_REPO dituli
 # 4. Build frontend assets (npm) — fallback ke GitHub Release
 # ----------------------------------------------------------
 echo ""
-echo "[4/11] Build frontend assets..."
+echo "[4/8] Build frontend assets..."
 
 BUILD_SUCCESS=false
 if command -v node &> /dev/null && command -v npm &> /dev/null; then
@@ -160,26 +160,10 @@ if [ "$BUILD_SUCCESS" = false ]; then
 fi
 
 # ----------------------------------------------------------
-# 5. Migrasi database
+# 5. Buat symlink storage
 # ----------------------------------------------------------
 echo ""
-echo "[5/11] Migrasi database..."
-php artisan migrate --force
-echo "[OK] Migrasi selesai."
-
-# ----------------------------------------------------------
-# 6. Seeder database
-# ----------------------------------------------------------
-echo ""
-echo "[6/11] Seeder database..."
-php artisan db:seed --force
-echo "[OK] Seeder selesai."
-
-# ----------------------------------------------------------
-# 7. Buat symlink storage
-# ----------------------------------------------------------
-echo ""
-echo "[7/11] Buat symlink storage..."
+echo "[5/8] Buat symlink storage..."
 if [ ! -L "public/storage" ]; then
     php artisan storage:link
     echo "[OK] Symlink public/storage dibuat."
@@ -188,20 +172,10 @@ else
 fi
 
 # ----------------------------------------------------------
-# 8. Optimasi Laravel
+# 6. Set permission
 # ----------------------------------------------------------
 echo ""
-echo "[8/11] Optimasi Laravel..."
-php artisan config:cache
-php artisan route:cache
-php artisan view:cache
-echo "[OK] Optimasi selesai."
-
-# ----------------------------------------------------------
-# 9. Set permission
-# ----------------------------------------------------------
-echo ""
-echo "[9/11] Set permission folder & ownership..."
+echo "[6/8] Set permission folder & ownership..."
 chown -R "$WEB_USER":"$WEB_USER" "$APP_PATH"
 find "$APP_PATH" -type f -exec chmod 644 {} \;
 find "$APP_PATH" -type d -exec chmod 755 {} \;
@@ -209,10 +183,10 @@ chmod -R 775 storage bootstrap/cache
 echo "[OK] Permission selesai."
 
 # ----------------------------------------------------------
-# 10. Setup queue worker jika Supervisor tersedia
+# 7. Setup queue worker jika Supervisor tersedia
 # ----------------------------------------------------------
 echo ""
-echo "[10/11] Setup queue worker..."
+echo "[7/8] Setup queue worker..."
 if command -v supervisorctl &> /dev/null; then
     echo "[INFO] Supervisor ditemukan, setup queue worker..."
     if [ -f "$APP_PATH/setup-queue-worker.sh" ]; then
@@ -234,10 +208,10 @@ else
 fi
 
 # ----------------------------------------------------------
-# 11. Setup cron job untuk scheduler
+# 8. Setup cron job untuk scheduler
 # ----------------------------------------------------------
 echo ""
-echo "[11/11] Setup cron job untuk scheduler..."
+echo "[8/8] Setup cron job untuk scheduler..."
 CRON_JOB="* * * * * cd $APP_PATH && php artisan schedule:run >> /dev/null 2>&1"
 EXISTING_CRON=$(crontab -l 2>/dev/null || true)
 if echo "$EXISTING_CRON" | grep -q "php artisan schedule:run"; then
