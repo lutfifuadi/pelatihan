@@ -6,8 +6,11 @@
       </div>
       <x-brand-logo size="lg" />
     </a>
-    <button class="navbar-toggler d-lg-none border-0 p-0 ms-auto me-3" type="button" data-bs-toggle="collapse" data-bs-target="#mobileNav" aria-controls="mobileNav" aria-expanded="false" aria-label="Toggle navigation">
-      <i class="icon-base ti tabler-menu-2 text-white fs-4"></i>
+    <!-- Mobile Hamburger: animated 3-bar toggle -->
+    <button class="mobile-menu-btn d-lg-none ms-auto me-3" id="mobileMenuToggle" aria-label="Buka menu">
+      <span class="bar"></span>
+      <span class="bar"></span>
+      <span class="bar"></span>
     </button>
     <nav class="d-none d-lg-flex align-items-center gap-4">
       <a href="#beranda" class="nav-link-premium">Beranda</a>
@@ -15,14 +18,6 @@
       <a href="#mengapa" class="nav-link-premium">Keunggulan</a>
       <a href="#faq" class="nav-link-premium">FAQ</a>
     </nav>
-    <div class="collapse navbar-collapse d-lg-none" id="mobileNav">
-      <nav class="d-flex flex-column gap-2 mt-3 pt-3" style="border-top: 1px solid rgba(255,255,255,0.08);">
-        <a href="#beranda" class="nav-link-premium">Beranda</a>
-        <a href="#langkah" class="nav-link-premium">Langkah Daftar</a>
-        <a href="#mengapa" class="nav-link-premium">Keunggulan</a>
-        <a href="#faq" class="nav-link-premium">FAQ</a>
-      </nav>
-    </div>
     <div>
       @auth
         <a href="{{ route('dashboard.admin') }}" class="btn btn-login-premium d-flex align-items-center gap-2">
@@ -30,6 +25,50 @@
         </a>
       @else
         <a href="{{ route('login') }}" class="btn btn-login-premium d-flex align-items-center gap-2">
+          <i class="icon-base ti tabler-login fs-5"></i>Login
+        </a>
+      @endauth
+    </div>
+  </div>
+
+  <!-- Mobile overlay (blur background) -->
+  <div class="mobile-overlay" id="mobileOverlay"></div>
+
+  <!-- Mobile slide-in panel from left -->
+  <div class="mobile-slide-panel" id="mobileSlidePanel">
+    <div class="panel-header">
+      <span class="panel-title">Menu</span>
+      <button class="panel-close-btn" id="mobileMenuClose" aria-label="Tutup menu">
+        <i class="icon-base ti tabler-x fs-4"></i>
+      </button>
+    </div>
+
+    <nav class="panel-nav">
+      <a href="#beranda" class="panel-link">
+        <i class="icon-base ti tabler-smart-home"></i>
+        Beranda
+      </a>
+      <a href="#langkah" class="panel-link">
+        <i class="icon-base ti tabler-list-check"></i>
+        Langkah Daftar
+      </a>
+      <a href="#mengapa" class="panel-link">
+        <i class="icon-base ti tabler-star"></i>
+        Keunggulan
+      </a>
+      <a href="#faq" class="panel-link">
+        <i class="icon-base ti tabler-question-mark"></i>
+        FAQ
+      </a>
+    </nav>
+
+    <div class="panel-footer">
+      @auth
+        <a href="{{ route('dashboard.admin') }}" class="btn btn-login-premium w-100 d-flex align-items-center justify-content-center gap-2">
+          <i class="icon-base ti tabler-dashboard fs-5"></i>Dashboard
+        </a>
+      @else
+        <a href="{{ route('login') }}" class="btn btn-login-premium w-100 d-flex align-items-center justify-content-center gap-2">
           <i class="icon-base ti tabler-login fs-5"></i>Login
         </a>
       @endauth
