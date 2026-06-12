@@ -32,6 +32,7 @@ class UserFactory extends Factory
             'email_verified_at' => now(),
             'password' => static::$password ??= Hash::make('password'),
             'role' => 'peserta',
+            'is_active' => true,
             'nik' => (string) fake()->unique()->numerify('################'),
             'two_factor_secret' => null,
             'two_factor_recovery_codes' => null,

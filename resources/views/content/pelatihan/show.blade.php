@@ -1,3 +1,7 @@
+@php
+$configData = Helper::appClasses();
+@endphp
+
 @extends('layouts.commonMaster')
 
 @section('content')

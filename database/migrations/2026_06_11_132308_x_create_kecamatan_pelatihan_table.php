@@ -8,14 +8,16 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('kecamatan_pelatihan', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('kecamatan_id')->constrained()->onDelete('cascade');
-            $table->foreignId('pelatihan_id')->constrained('pelatihan')->onDelete('cascade');
-            $table->timestamps();
+        if (!Schema::hasTable('kecamatan_pelatihan')) {
+            Schema::create('kecamatan_pelatihan', function (Blueprint $table) {
+                $table->id();
+                $table->foreignId('kecamatan_id')->constrained()->onDelete('cascade');
+                $table->foreignId('pelatihan_id')->constrained('pelatihan')->onDelete('cascade');
+                $table->timestamps();
 
-            $table->unique(['kecamatan_id', 'pelatihan_id']);
-        });
+                $table->unique(['kecamatan_id', 'pelatihan_id']);
+            });
+        }
     }
 
     public function down(): void

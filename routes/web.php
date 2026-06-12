@@ -43,6 +43,7 @@ use Illuminate\Support\Facades\Auth;
 Route::get('/', [HomePage::class, 'index'])->name('pages-home');
 Route::get('/page-2', [Page2::class, 'index'])->name('pages-page-2');
 
+
 // locale
 Route::get('/lang/{locale}', [LanguageController::class, 'swap']);
 Route::get('/pages/misc-error', [MiscError::class, 'index'])->name('pages-misc-error');
@@ -130,21 +131,21 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
                     'nik' => $u->nik,
                     'whatsapp' => $u->whatsapp,
                     'email' => $u->email,
-                    // Data profile dari database
-                    'jenis_kelamin' => $profile->jenis_kelamin ?? '',
-                    'tempat_lahir' => $profile->tempat_lahir ?? '',
-                    'tanggal_lahir' => $profile->tanggal_lahir ?? '',
-                    'bulan_lahir' => $profile->bulan_lahir ?? '',
-                    'tahun_lahir' => $profile->tahun_lahir ?? '',
-                    'alamat_ktp' => $profile->alamat_ktp ?? '',
-                    'rt' => $profile->rt ?? '',
-                    'rw' => $profile->rw ?? '',
-                    'kelurahan' => $profile->kelurahan ?? '',
-                    'kecamatan' => $profile->kecamatan ?? '',
+                    // Data profile dari database (gunakan nullsafe operator)
+                    'jenis_kelamin' => $profile?->jenis_kelamin ?? '',
+                    'tempat_lahir' => $profile?->tempat_lahir ?? '',
+                    'tanggal_lahir' => $profile?->tanggal_lahir ?? '',
+                    'bulan_lahir' => $profile?->bulan_lahir ?? '',
+                    'tahun_lahir' => $profile?->tahun_lahir ?? '',
+                    'alamat_ktp' => $profile?->alamat_ktp ?? '',
+                    'rt' => $profile?->rt ?? '',
+                    'rw' => $profile?->rw ?? '',
+                    'kelurahan' => $profile?->kelurahan ?? '',
+                    'kecamatan' => $profile?->kecamatan ?? '',
                     'kota' => $lockKota,
                     'provinsi' => $lockProvinsi,
-                    'kodepos' => $profile->kodepos ?? '',
-                    'link_medsos' => $profile->link_medsos ?? '',
+                    'kodepos' => $profile?->kodepos ?? '',
+                    'link_medsos' => $profile?->link_medsos ?? '',
                 ];
                 return view('content.dashboard.peserta.form-pendaftaran', ['user' => $userData, 'kecamatans' => $kecamatans]);
             })->name('form-pendaftaran');
@@ -175,7 +176,7 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
         Route::get('pelatihan/{pelatihan}/peserta', [PelatihanController::class, 'show'])->name('pelatihan.peserta');
 
         // Dinas
-        Route::resource('dinas', DinasController::class);
+        Route::resource('dinas', DinasController::class)->parameter('dinas', 'dinas');
 
         // Kelurahan
         Route::resource('kelurahan', KelurahanController::class);

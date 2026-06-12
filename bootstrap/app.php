@@ -22,6 +22,8 @@ return Application::configure(basePath: dirname(__DIR__))
 
         // Middleware untuk cek user aktif, dijalankan setelah session & auth
         $middleware->web(\App\Http\Middleware\CheckUserActive::class);
+
+
     })
     ->withExceptions(function (Exceptions $exceptions) {
         // Jika APP_KEY belum di-set, redirect ke installer

@@ -33,21 +33,7 @@ $activeClass = in_array($currentRouteName, $activeRoutes) ? 'active' : '';
               <i class="icon-base ti tabler-smart-home me-1"></i>Beranda
             </a>
           </li>
-          <li class="nav-item">
-            <a class="nav-link {{ request()->routeIs('tentang') ? 'active' : '' }}" href="{{ route('tentang') }}">
-              <i class="icon-base ti tabler-info-circle me-1"></i>Tentang
-            </a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link {{ request()->routeIs('kontak') ? 'active' : '' }}" href="{{ route('kontak') }}">
-              <i class="icon-base ti tabler-mail me-1"></i>Kontak
-            </a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link {{ request()->routeIs('faq') ? 'active' : '' }}" href="{{ route('faq') }}">
-              <i class="icon-base ti tabler-help-circle me-1"></i>FAQ
-            </a>
-          </li>
+
           <li class="nav-item">
             <a class="nav-link {{ request()->routeIs('koordinator.register') ? 'active' : '' }}" href="{{ route('koordinator.register') }}">
               <i class="icon-base ti tabler-user-plus me-1"></i>Daftar Koordinator

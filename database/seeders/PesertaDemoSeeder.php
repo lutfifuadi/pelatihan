@@ -70,9 +70,19 @@ class PesertaDemoSeeder extends Seeder
         $text .= "Scan KTP        : -\n";
         $text .= "========================================\n\n";
 
-        $filePath = base_path('.planing/data-user.txt');
-        file_put_contents($filePath, $text, FILE_APPEND | LOCK_EX);
+        $dirPath = storage_path('app/demo');
+        $filePath = $dirPath . '/data-user.txt';
 
-        $this->command->info('✓ Data peserta demo berhasil ditambahkan ke data-user.txt');
+        if (!is_dir($dirPath)) {
+            mkdir($dirPath, 0755, true);
+        }
+
+        $written = file_put_contents($filePath, $text, FILE_APPEND | LOCK_EX);
+
+        if ($written !== false) {
+            $this->command->info('✓ Data peserta demo berhasil ditambahkan ke ' . $filePath);
+        } else {
+            $this->command->warn('⚠ Gagal menulis file data-user.txt, namun seeding tetap dilanjutkan.');
+        }
     }
 }

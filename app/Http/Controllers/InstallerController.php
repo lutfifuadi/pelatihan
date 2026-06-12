@@ -204,12 +204,26 @@ class InstallerController extends Controller
 
             $this->setProgress(5, 'Membuat akun admin...');
             $this->logInstaller('Membuat user admin');
-            User::create([
-                'name' => $request->admin_name,
-                'email' => $request->admin_email,
-                'password' => Hash::make($request->admin_password),
-                'role' => 'admin',
-            ]);
+
+            // Cek dulu apakah admin sudah ada (dari seeder) untuk hindari duplicate email
+            $admin = User::where('email', $request->admin_email)->where('role', 'admin')->first();
+
+            if ($admin) {
+                // Update password jika admin dari seeder ingin diganti passwordnya
+                $admin->update([
+                    'name' => $request->admin_name,
+                    'password' => Hash::make($request->admin_password),
+                ]);
+                $this->logInstaller('Admin sudah ada, password diperbarui');
+            } else {
+                User::create([
+                    'name' => $request->admin_name,
+                    'email' => $request->admin_email,
+                    'password' => Hash::make($request->admin_password),
+                    'role' => 'admin',
+                ]);
+                $this->logInstaller('User admin baru berhasil dibuat');
+            }
 
             $this->setProgress(6, 'Storage link & finalisasi...');
             $this->logInstaller('Membuat storage link');

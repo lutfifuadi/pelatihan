@@ -10,16 +10,7 @@ class RedirectIfInstalled
 {
     public function handle(Request $request, Closure $next): Response
     {
-        $installed = file_exists(storage_path('installed'));
-
-        if ($installed && $request->is('install*')) {
-            return redirect('/');
-        }
-
-        if (!$installed && !$request->is('install*')) {
-            return redirect()->route('installer.step1');
-        }
-
+        // Temporarily disabled redirects for installer testing
         return $next($request);
     }
 }

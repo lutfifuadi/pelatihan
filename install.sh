@@ -223,19 +223,72 @@ else
 fi
 
 # ----------------------------------------------------------
-# Selesai
+# 9. Tanya mode instalasi
 # ----------------------------------------------------------
 echo ""
 echo "=========================================="
-echo "  Instalasi Selesai!"
+echo "  Instalasi Lingkungan Selesai!"
 echo "=========================================="
 echo ""
-echo "Langkah selanjutnya:"
-echo "  Buka browser dan akses wizard instalasi:"
-echo "  https://domain-anda/install"
+echo "Pilih mode instalasi:"
+echo "  [1] CLI (headless) — Install langsung via command line"
+echo "     Lebih cepat, tidak perlu browser."
 echo ""
-echo "  Wizard akan memandu:"
-echo "  - Konfigurasi database"
-echo "  - Data aplikasi"
-echo "  - Pembuatan akun admin"
+echo "  [2] Browser (wizard) — Buka wizard instalasi di browser"
+echo "     Cocok jika ingin konfigurasi visual."
 echo ""
+read -p "Pilihan [1/2] (default: 1): " INSTALL_MODE
+INSTALL_MODE="${INSTALL_MODE:-1}"
+
+if [ "$INSTALL_MODE" = "1" ] || [ "$INSTALL_MODE" = "" ]; then
+    echo ""
+    echo "=========================================="
+    echo "  Mode CLI — Instalasi Headless"
+    echo "=========================================="
+    echo ""
+    echo "Memulai instalasi database & aplikasi..."
+    echo ""
+    
+    # Jalankan instalasi via Artisan command
+    php artisan app:install --fresh
+    
+    INSTALL_EXIT=$?
+    
+    if [ $INSTALL_EXIT -eq 0 ]; then
+        echo ""
+        echo "=========================================="
+        echo "  ✅ INSTALASI BERHASIL!"
+        echo "=========================================="
+        echo ""
+        echo "  Silakan login dengan akun admin yang sudah dibuat."
+        echo "  https://domain-anda/login"
+        echo ""
+    else
+        echo ""
+        echo "=========================================="
+        echo "  ❌ INSTALASI GAGAL"
+        echo "=========================================="
+        echo ""
+        echo "  Coba jalankan manual:"
+        echo "    php artisan app:install --fresh"
+        echo ""
+        echo "  Atau pilih mode browser:"
+        echo "    Buka https://domain-anda/install"
+        echo ""
+    fi
+else
+    echo ""
+    echo "=========================================="
+    echo "  Mode Browser — Buka Wizard Instalasi"
+    echo "=========================================="
+    echo ""
+    echo "Langkah selanjutnya:"
+    echo "  Buka browser dan akses wizard instalasi:"
+    echo "  https://domain-anda/install"
+    echo ""
+    echo "  Wizard akan memandu:"
+    echo "  - Konfigurasi database"
+    echo "  - Data aplikasi"
+    echo "  - Pembuatan akun admin"
+    echo ""
+fi
