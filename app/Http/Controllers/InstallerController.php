@@ -31,16 +31,10 @@ class InstallerController extends Controller
 
         $requirements = [
             'PHP Version >= 8.1' => version_compare(phpversion(), '8.1.0', '>='),
-            'PDO Extension' => extension_loaded('pdo'),
-            'Mbstring Extension' => extension_loaded('mbstring'),
-            'OpenSSL Extension' => extension_loaded('openssl'),
-            'JSON Extension' => extension_loaded('json'),
-            'Ctype Extension' => extension_loaded('ctype'),
-            'XML Extension' => extension_loaded('xml'),
-            'BCMath Extension' => extension_loaded('bcmath'),
-            'Curl Extension' => extension_loaded('curl'),
-            'Storage is Writable' => is_writable(storage_path()),
-            'Cache is Writable' => is_writable(base_path('bootstrap/cache')),
+            'Database Driver (PDO/MySQL)' => extension_loaded('pdo') && extension_loaded('pdo_mysql'),
+            'OpenSSL & JSON' => extension_loaded('openssl') && extension_loaded('json'),
+            'XML & Curl' => extension_loaded('xml') && extension_loaded('curl'),
+            'Storage & Cache Writable' => is_writable(storage_path()) && is_writable(base_path('bootstrap/cache')),
         ];
 
         $allPassed = !in_array(false, $requirements);
