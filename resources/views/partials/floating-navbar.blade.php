@@ -30,48 +30,48 @@
       @endauth
     </div>
   </div>
-
-  <!-- Mobile overlay (blur background) -->
-  <div class="mobile-overlay" id="mobileOverlay"></div>
-
-  <!-- Mobile slide-in panel from left -->
-  <div class="mobile-slide-panel" id="mobileSlidePanel">
-    <div class="panel-header">
-      <span class="panel-title">Menu</span>
-      <button class="panel-close-btn" id="mobileMenuClose" aria-label="Tutup menu">
-        <i class="icon-base ti tabler-x fs-4"></i>
-      </button>
-    </div>
-
-    <nav class="panel-nav">
-      <a href="#beranda" class="panel-link">
-        <i class="icon-base ti tabler-smart-home"></i>
-        Beranda
-      </a>
-      <a href="#langkah" class="panel-link">
-        <i class="icon-base ti tabler-list-check"></i>
-        Langkah Daftar
-      </a>
-      <a href="#mengapa" class="panel-link">
-        <i class="icon-base ti tabler-star"></i>
-        Keunggulan
-      </a>
-      <a href="#faq" class="panel-link">
-        <i class="icon-base ti tabler-question-mark"></i>
-        FAQ
-      </a>
-    </nav>
-
-    <div class="panel-footer">
-      @auth
-        <a href="{{ route('dashboard.admin') }}" class="btn btn-login-premium w-100 d-flex align-items-center justify-content-center gap-2">
-          <i class="icon-base ti tabler-dashboard fs-5"></i>Dashboard
-        </a>
-      @else
-        <a href="{{ route('login') }}" class="btn btn-login-premium w-100 d-flex align-items-center justify-content-center gap-2">
-          <i class="icon-base ti tabler-login fs-5"></i>Login
-        </a>
-      @endauth
-    </div>
-  </div>
 </header>
+
+<!-- Mobile overlay (blur background) -->
+<div class="mobile-overlay" id="mobileOverlay"></div>
+
+<!-- Mobile slide-in panel from left -->
+<div class="mobile-slide-panel" id="mobileSlidePanel">
+  <div class="panel-header">
+    <span class="panel-title">Menu</span>
+    <button class="panel-close-btn" id="mobileMenuClose" aria-label="Tutup menu">
+      <i class="icon-base ti tabler-x fs-4"></i>
+    </button>
+  </div>
+
+  <nav class="panel-nav">
+    <a href="#beranda" class="panel-link">
+      <i class="icon-base ti tabler-smart-home"></i>
+      Beranda
+    </a>
+    <a href="#langkah" class="panel-link">
+      <i class="icon-base ti tabler-list-check"></i>
+      Langkah Daftar
+    </a>
+    <a href="#mengapa" class="panel-link">
+      <i class="icon-base ti tabler-star"></i>
+      Keunggulan
+    </a>
+    <a href="#faq" class="panel-link">
+      <i class="icon-base ti tabler-question-mark"></i>
+      FAQ
+    </a>
+  </nav>
+
+  <div class="panel-footer">
+    @auth
+      <a href="{{ route('dashboard.admin') }}" class="btn btn-login-premium w-100 d-flex align-items-center justify-content-center gap-2">
+        <i class="icon-base ti tabler-dashboard fs-5"></i>Dashboard
+      </a>
+    @else
+      <a href="{{ route('login') }}" class="btn btn-login-premium w-100 d-flex align-items-center justify-content-center gap-2">
+        <i class="icon-base ti tabler-login fs-5"></i>Login
+      </a>
+    @endauth
+  </div>
+</div>
