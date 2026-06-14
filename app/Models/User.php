@@ -89,6 +89,14 @@ class User extends Authenticatable
     }
 
     /**
+     * Relasi: User memiliki banyak enrollment (pendaftaran pelatihan)
+     */
+    public function enrollments()
+    {
+        return $this->hasMany(Enrollment::class);
+    }
+
+    /**
      * Get the attributes that should be cast.
      *
      * @return array<string, string>

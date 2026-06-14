@@ -4,6 +4,8 @@ namespace App\Listeners;
 
 use App\Events\JadwalReminder;
 use App\Events\PendaftaranApproved;
+use App\Events\PendaftaranRejected;
+use App\Events\SertifikatDiterbitkan;
 use App\Events\PesertaRegistered;
 use App\Events\TugasBaru;
 use App\Services\NotificationService;
@@ -56,6 +58,32 @@ class SendNotificationListener
         );
     }
 
+    public function handlePendaftaranRejected(PendaftaranRejected $event): void
+    {
+        $this->notificationService->sendByTemplate(
+            $event->user,
+            'pendaftaran_ditolak',
+            [
+                'nama' => $event->user->name,
+                'pelatihan' => $event->pelatihan->nama,
+                'alasan' => $event->notes ?? '',
+            ]
+        );
+    }
+
+    public function handleSertifikatDiterbitkan(SertifikatDiterbitkan $event): void
+    {
+        $this->notificationService->sendByTemplate(
+            $event->user,
+            'kelulusan',
+            [
+                'nama' => $event->user->name,
+                'pelatihan' => $event->pelatihan->nama,
+                'nomor_sertifikat' => $event->certificate->certificate_number,
+            ]
+        );
+    }
+
     public function handleJadwalReminder(JadwalReminder $event): void
     {
         $tanggal = is_object($event->jadwal) ? ($event->jadwal->tanggal ?? $event->jadwal->waktu ?? now()->toDateString()) : (string) $event->jadwal;
@@ -90,6 +118,16 @@ class SendNotificationListener
         $events->listen(
             JadwalReminder::class,
             [self::class, 'handleJadwalReminder']
+        );
+
+        $events->listen(
+            PendaftaranRejected::class,
+            [self::class, 'handlePendaftaranRejected']
+        );
+
+        $events->listen(
+            SertifikatDiterbitkan::class,
+            [self::class, 'handleSertifikatDiterbitkan']
         );
     }
 }

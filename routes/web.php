@@ -35,6 +35,9 @@ use App\Http\Controllers\Admin\WhatsAppGatewayController;
 use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\FaqController;
 use App\Http\Controllers\Admin\NotificationAdminController;
+use App\Http\Controllers\Admin\EnrollmentController;
+use App\Http\Controllers\Admin\AttendanceController;
+use App\Http\Controllers\Admin\CertificateController;
 use App\Http\Controllers\KoordinatorRegisterController;
 use App\Http\Controllers\Peserta\PesertaFormController;
 use App\Http\Controllers\Admin\Auth\AdminLoginController;
@@ -211,6 +214,28 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
         // FAQ Management
         Route::resource('faqs', FaqController::class)->parameters(['faqs' => 'faq']);
 
+        // Enrollment (Pendaftaran Pelatihan - Approve/Reject/Waitlist)
+        Route::get('enrollments', [EnrollmentController::class, 'index'])->name('enrollments.index');
+        Route::get('enrollments/pelatihan/{pelatihan}', [EnrollmentController::class, 'index'])->name('enrollments.pelatihan');
+        Route::get('enrollments/{enrollment}', [EnrollmentController::class, 'show'])->name('enrollments.show');
+        Route::post('enrollments/{enrollment}/approve', [EnrollmentController::class, 'approve'])->name('enrollments.approve');
+        Route::post('enrollments/{enrollment}/reject', [EnrollmentController::class, 'reject'])->name('enrollments.reject');
+        Route::post('enrollments/{enrollment}/waitlist', [EnrollmentController::class, 'waitlist'])->name('enrollments.waitlist');
+        Route::post('enrollments/{enrollment}/promote', [EnrollmentController::class, 'promote'])->name('enrollments.promote');
+
+        // Absensi
+        Route::get('attendances/{pelatihan}', [AttendanceController::class, 'index'])->name('attendances.index');
+        Route::post('attendances/{pelatihan}', [AttendanceController::class, 'store'])->name('attendances.store');
+        Route::get('attendances/{pelatihan}/rapport', [AttendanceController::class, 'rapport'])->name('attendances.rapport');
+
+        // Sertifikat
+        Route::get('certificates', [CertificateController::class, 'index'])->name('certificates.index');
+        Route::get('certificates/create/{pelatihan}', [CertificateController::class, 'create'])->name('certificates.create');
+        Route::post('certificates', [CertificateController::class, 'store'])->name('certificates.store');
+        Route::post('certificates/batch/{pelatihan}', [CertificateController::class, 'generateBatch'])->name('certificates.batch');
+        Route::get('certificates/{certificate}', [CertificateController::class, 'show'])->name('certificates.show');
+        Route::get('certificates/{certificate}/download', [CertificateController::class, 'download'])->name('certificates.download');
+
         // Koordinator
         Route::get('koordinator/pending', [KoordinatorController::class, 'pending'])->name('koordinator.pending');
         Route::post('koordinator/{koordinator}/approve', [KoordinatorController::class, 'approve'])->name('koordinator.approve');
@@ -254,6 +279,9 @@ Route::prefix('admin')->name('admin.')->group(function () {
         })->name('dashboard');
     });
 });
+
+// ===== PUBLIC: Verifikasi Sertifikat =====
+Route::get('/verifikasi-sertifikat', [\App\Http\Controllers\Admin\CertificateController::class, 'verify'])->name('certificates.verify');
 
 // Old auth routes - redirect to new Jetstream routes
 Route::get('/auth/login-basic', function () {

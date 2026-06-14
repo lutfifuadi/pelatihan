@@ -49,6 +49,21 @@ class Pelatihan extends Model
         return $this->hasMany(PesertaProfile::class, 'pelatihan_id');
     }
 
+    public function enrollments()
+    {
+        return $this->hasMany(Enrollment::class);
+    }
+
+    public function pendingEnrollments()
+    {
+        return $this->hasMany(Enrollment::class)->where('status', 'pending');
+    }
+
+    public function approvedEnrollments()
+    {
+        return $this->hasMany(Enrollment::class)->where('status', 'approved');
+    }
+
     public function seoTitle(): ?string
     {
         return $this->nama . ' | Pelatihan';
