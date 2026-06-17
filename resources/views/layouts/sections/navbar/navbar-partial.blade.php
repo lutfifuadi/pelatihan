@@ -65,39 +65,6 @@ use Illuminate\Support\Facades\Route;
   <!-- / Style Switcher-->
   @endif
   <ul class="navbar-nav flex-row align-items-center ms-auto">
-    <!-- Language Switcher -->
-    <li class="nav-item dropdown dropdown-language me-2 d-flex align-items-center">
-      <a class="nav-link dropdown-toggle hide-arrow" href="#" data-bs-toggle="dropdown">
-        <i class="icon-base ti tabler-language icon-md"></i>
-        <span class="d-none d-sm-inline ms-1 align-middle">
-          @switch(session('locale', 'id'))
-            @case('en') English @break
-            @case('ar') العربية @break
-            @default Indonesia
-          @endswitch
-        </span>
-      </a>
-      <ul class="dropdown-menu dropdown-menu-end">
-        <li>
-          <a class="dropdown-item d-flex align-items-center {{ session('locale') === 'id' ? 'active' : '' }}" href="{{ url('/lang/id') }}">
-            <i class="icon-base ti tabler-check me-2 {{ session('locale') === 'id' ? '' : 'opacity-0' }}"></i>
-            <span>Indonesia</span>
-          </a>
-        </li>
-        <li>
-          <a class="dropdown-item d-flex align-items-center {{ session('locale') === 'en' ? 'active' : '' }}" href="{{ url('/lang/en') }}">
-            <i class="icon-base ti tabler-check me-2 {{ session('locale') === 'en' ? '' : 'opacity-0' }}"></i>
-            <span>English</span>
-          </a>
-        </li>
-        <li>
-          <a class="dropdown-item d-flex align-items-center {{ session('locale') === 'ar' ? 'active' : '' }}" href="{{ url('/lang/ar') }}">
-            <i class="icon-base ti tabler-check me-2 {{ session('locale') === 'ar' ? '' : 'opacity-0' }}"></i>
-            <span>العربية</span>
-          </a>
-        </li>
-      </ul>
-    </li>
     <!-- Notification Bell -->
     @auth
     <li class="nav-item dropdown-notification me-2 d-flex align-items-center">

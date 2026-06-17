@@ -33,9 +33,9 @@
 
 @endphp
 
-<html lang="{{ session()->get('locale') ?? app()->getLocale() }}"
+<html lang="id"
   class="{{ $navbarType ?? '' }} {{ $contentLayout ?? '' }} {{ $menuFixed ?? '' }} {{ $menuCollapsed ?? '' }} {{ $footerFixed ?? '' }} {{ $customizerHidden ?? '' }}"
-  dir="{{ session()->get('locale') === 'ar' ? 'rtl' : ($configData['textDirection'] ?? 'ltr') }}" data-skin="{{ $skinName }}" data-assets-path="{{ asset('/assets') . '/' }}"
+  dir="ltr" data-skin="{{ $skinName }}" data-assets-path="{{ asset('/assets') . '/' }}"
   data-base-url="{{ url('/') }}" data-framework="laravel" data-template="{{ $configData['layout'] }}-menu-template"
   data-bs-theme="{{ $configData['theme'] }}" @if ($isAdminLayout && $semiDarkEnabled) data-semidark-menu="true" @endif>
 

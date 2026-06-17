@@ -20,39 +20,6 @@
       <a href="#faq" class="nav-link-premium">{{ __('FAQ') }}</a>
     </nav>
     <div class="d-flex align-items-center gap-2">
-      <!-- Language Switcher -->
-      <div class="dropdown dropdown-language">
-        <a class="nav-link-premium dropdown-toggle d-flex align-items-center gap-1" href="#" data-bs-toggle="dropdown" style="font-size:0.85rem;">
-          <i class="icon-base ti tabler-language fs-5"></i>
-          <span>
-            @switch(session('locale', 'id'))
-              @case('en') EN @break
-              @case('ar') AR @break
-              @default ID
-            @endswitch
-          </span>
-        </a>
-        <ul class="dropdown-menu dropdown-menu-end" style="z-index: 1100;">
-          <li>
-            <a class="dropdown-item d-flex align-items-center {{ session('locale') === 'id' ? 'active' : '' }}" href="{{ url('/lang/id') }}">
-              <i class="icon-base ti tabler-check me-2 {{ session('locale') === 'id' ? '' : 'opacity-0' }}"></i>
-              <span>Indonesia</span>
-            </a>
-          </li>
-          <li>
-            <a class="dropdown-item d-flex align-items-center {{ session('locale') === 'en' ? 'active' : '' }}" href="{{ url('/lang/en') }}">
-              <i class="icon-base ti tabler-check me-2 {{ session('locale') === 'en' ? '' : 'opacity-0' }}"></i>
-              <span>English</span>
-            </a>
-          </li>
-          <li>
-            <a class="dropdown-item d-flex align-items-center {{ session('locale') === 'ar' ? 'active' : '' }}" href="{{ url('/lang/ar') }}">
-              <i class="icon-base ti tabler-check me-2 {{ session('locale') === 'ar' ? '' : 'opacity-0' }}"></i>
-              <span>العربية</span>
-            </a>
-          </li>
-        </ul>
-      </div>
       @auth
         <a href="{{ route('dashboard.admin') }}" class="btn btn-login-premium d-flex align-items-center gap-2">
           <i class="icon-base ti tabler-dashboard fs-5"></i>Dashboard
