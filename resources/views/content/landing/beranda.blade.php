@@ -778,6 +778,260 @@ $customizerHidden = 'customizer-hide';
       display: flex; /* override d-lg-none: tampil di mobile */
     }
   }
+
+  /* ============================================================
+     GRID CARDS PELATIHAN PUBLIK — Premium Dark Selection
+     ============================================================ */
+  .pelatihan-grid-section {
+    background: #0b0f19;
+    position: relative;
+    overflow: hidden;
+  }
+  .pelatihan-grid-section::before {
+    content: '';
+    position: absolute;
+    top: -10%;
+    right: -5%;
+    width: 500px;
+    height: 500px;
+    background: radial-gradient(circle, rgba(99, 102, 241, 0.12) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .pelatihan-grid-section::after {
+    content: '';
+    position: absolute;
+    bottom: -10%;
+    left: -5%;
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, rgba(245, 158, 11, 0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .pelatihan-card {
+    background: rgba(15, 23, 42, 0.6);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    overflow: hidden;
+    transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+  }
+  .pelatihan-card:hover {
+    transform: translateY(-8px);
+    border-color: rgba(255, 193, 7, 0.35);
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.4), 0 0 30px rgba(255, 193, 7, 0.08);
+  }
+
+  .pelatihan-card .card-cover {
+    position: relative;
+    height: 180px;
+    overflow: hidden;
+  }
+  .pelatihan-card .card-cover img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .pelatihan-card:hover .card-cover img {
+    transform: scale(1.08);
+  }
+  .pelatihan-card .card-cover::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(11, 15, 25, 0.9) 0%, rgba(11, 15, 25, 0.2) 50%, transparent 100%);
+  }
+
+  .pelatihan-card .card-badge-category {
+    position: absolute;
+    top: 14px;
+    left: 14px;
+    z-index: 2;
+    padding: 6px 12px;
+    background: rgba(11, 15, 25, 0.75);
+    border: 1px solid rgba(255, 193, 7, 0.3);
+    border-radius: 20px;
+    color: #ffc107;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    backdrop-filter: blur(8px);
+  }
+
+  .pelatihan-card .card-badge-status {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    z-index: 2;
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    backdrop-filter: blur(8px);
+  }
+  .card-status-open {
+    background: rgba(16, 185, 129, 0.15);
+    border: 1px solid rgba(16, 185, 129, 0.3);
+    color: #34d399;
+  }
+  .card-status-limited {
+    background: rgba(245, 158, 11, 0.15);
+    border: 1px solid rgba(245, 158, 11, 0.3);
+    color: #fbbf24;
+  }
+  .card-status-full {
+    background: rgba(239, 68, 68, 0.15);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    color: #f87171;
+  }
+
+  .pelatihan-card .card-body {
+    padding: 22px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .pelatihan-card .batch-label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #6366f1;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 6px;
+  }
+
+  .pelatihan-card .card-title {
+    font-family: 'Sora', sans-serif;
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #ffffff;
+    line-height: 1.4;
+    margin-bottom: 14px;
+  }
+
+  .pelatihan-card .card-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.65);
+    margin-bottom: 10px;
+  }
+  .pelatihan-card .card-meta i {
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 1rem;
+  }
+
+  .pelatihan-card .quota-bar {
+    margin-top: auto;
+    padding-top: 16px;
+  }
+  .pelatihan-card .quota-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.6);
+    margin-bottom: 6px;
+  }
+  .pelatihan-card .quota-label strong {
+    color: #ffc107;
+  }
+  .pelatihan-card .progress {
+    height: 5px;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .pelatihan-card .progress-bar {
+    border-radius: 10px;
+    transition: width 0.6s ease;
+  }
+
+  .pelatihan-card .card-footer-action {
+    padding: 16px 22px;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .pelatihan-card .price-tag {
+    font-family: 'Sora', sans-serif;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #ffc107;
+  }
+  .pelatihan-card .price-tag small {
+    display: block;
+    font-size: 0.7rem;
+    color: rgba(255, 255, 255, 0.45);
+    font-weight: 500;
+    text-decoration: line-through;
+  }
+
+  .pelatihan-card .btn-daftar-card {
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    border: none;
+    background: linear-gradient(135deg, #ffc107, #ff9800);
+    color: #0b0f19;
+    transition: all 0.25s ease;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+  }
+  .pelatihan-card .btn-daftar-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(255, 152, 0, 0.35);
+    background: linear-gradient(135deg, #ffca28, #ffa726);
+  }
+
+  .pelatihan-empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    background: rgba(15, 23, 42, 0.4);
+    border: 1px dashed rgba(255, 255, 255, 0.12);
+    border-radius: 12px;
+  }
+  .pelatihan-empty-state i {
+    font-size: 3rem;
+    color: rgba(255, 255, 255, 0.2);
+    margin-bottom: 16px;
+  }
+  .pelatihan-empty-state h5 {
+    color: rgba(255, 255, 255, 0.8);
+    margin-bottom: 8px;
+  }
+  .pelatihan-empty-state p {
+    color: rgba(255, 255, 255, 0.5);
+    margin-bottom: 0;
+  }
+
+  @media (max-width: 767.98px) {
+    .pelatihan-card .card-cover {
+      height: 160px;
+    }
+    .pelatihan-card .card-title {
+      font-size: 1rem;
+    }
+    .pelatihan-card .btn-daftar-card {
+      padding: 8px 14px;
+      font-size: 0.75rem;
+    }
+  }
 </style>
 @endsection
 
@@ -865,7 +1119,6 @@ $customizerHidden = 'customizer-hide';
             <!-- Card Form Header -->
             <div class="text-center mb-3">
               <h4 class="fw-bold text-white mb-0">{{ __('Daftar Sekarang') }}</h4>
-              <p class="text-white-50 small mb-0 mt-1">{{ __('Lengkapi data diri di bawah') }}</p>
             </div>
 
             <!-- Success Dynamic Laravel Alert -->
@@ -1029,6 +1282,173 @@ $customizerHidden = 'customizer-hide';
           </div>
         </div>
       </div>
+
+    </div>
+  </section>
+
+  <!-- ============================================================
+       PELATIHAN GRID SECTION — Daftar Kelas Tersedia
+       ============================================================ -->
+  <section id="pelatihan" class="py-8 py-lg-10 pelatihan-grid-section">
+    <div class="container py-4 position-relative" style="z-index: 1;">
+
+      <!-- Section Header -->
+      <div class="text-center mb-5 pb-3 reveal">
+        <span class="badge bg-warning bg-opacity-10 text-warning px-4 py-2 fw-semibold mb-3" style="font-size: 0.8rem; letter-spacing: 0.05em; border: 1px solid rgba(245, 158, 11, 0.2); border-radius: 5px;">
+          {{ __('Program Unggulan') }}
+        </span>
+        <h2 class="fw-bold mb-3 display-6" style="color: #ffffff; font-family: 'Sora', sans-serif;">
+          {{ __('Pelatihan yang Tersedia') }}
+        </h2>
+        <p class="text-white-50 fs-5 mx-auto" style="max-width: 580px;">
+          {{ __('Pilih kelas sesuai minat Anda. Kuota terbatas, segera daftar sebelum pendaftaran ditutup.') }}
+        </p>
+      </div>
+
+      @php
+        $coverImages = [
+          'kuliner' => 'https://images.unsplash.com/photo-1556910103-1c02745aae4d?q=80&w=800&auto=format&fit=crop',
+          'kriya' => 'https://images.unsplash.com/photo-1452860606245-08befc0ff44b?q=80&w=800&auto=format&fit=crop',
+          'desain' => 'https://images.unsplash.com/photo-1561070791-2526d30994b5?q=80&w=800&auto=format&fit=crop',
+          'film' => 'https://images.unsplash.com/photo-1574717024653-61fd2cf4d44d?q=80&w=800&auto=format&fit=crop',
+          'foto' => 'https://images.unsplash.com/photo-1516035069371-29a1b244cc32?q=80&w=800&auto=format&fit=crop',
+          'animasi' => 'https://images.unsplash.com/photo-1633356122544-f134324a6cee?q=80&w=800&auto=format&fit=crop',
+          'marketing' => 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=800&auto=format&fit=crop',
+          'bisnis' => 'https://images.unsplash.com/photo-1507679799987-c73779587ccf?q=80&w=800&auto=format&fit=crop',
+          'teknologi' => 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?q=80&w=800&auto=format&fit=crop',
+          'default' => 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?q=80&w=800&auto=format&fit=crop',
+        ];
+
+        $keywordMap = [
+          'kuliner' => 'kuliner', 'makanan' => 'kuliner', 'pastry' => 'kuliner',
+          'kriya' => 'kriya', 'kreasi' => 'kriya', 'diy' => 'kriya',
+          'desain' => 'desain', 'design' => 'desain',
+          'film' => 'film', 'video' => 'film',
+          'animasi' => 'animasi',
+          'foto' => 'foto', 'fotografi' => 'foto',
+          'marketing' => 'marketing', 'iklan' => 'marketing', 'periklanan' => 'marketing',
+          'bisnis' => 'bisnis', 'usaha' => 'bisnis',
+          'teknologi' => 'teknologi', 'it' => 'teknologi', 'software' => 'teknologi',
+        ];
+      @endphp
+
+      @if($pelatihans->count() > 0)
+        <div class="row g-4">
+          @foreach($pelatihans as $pelatihan)
+            @php
+              $namaLower = strtolower($pelatihan->nama);
+              $imageKey = 'default';
+              foreach ($keywordMap as $keyword => $key) {
+                if (str_contains($namaLower, $keyword)) {
+                  $imageKey = $key;
+                  break;
+                }
+              }
+              $coverUrl = $coverImages[$imageKey] ?? $coverImages['default'];
+
+              $approvedCount = $pelatihan->approved_enrollments_count ?? 0;
+              $quota = $pelatihan->kuota;
+              $isKuotaUnlimited = is_null($quota) || $quota <= 0;
+              $percentage = $isKuotaUnlimited ? 0 : min(100, round(($approvedCount / $quota) * 100, 1));
+
+              if ($isKuotaUnlimited) {
+                $statusClass = 'card-status-open';
+                $statusText = __('Pendaftaran Dibuka');
+                $quotaText = __('Kuota Terbuka');
+                $barColor = 'bg-success';
+              } elseif ($percentage >= 100) {
+                $statusClass = 'card-status-full';
+                $statusText = __('Kuota Penuh');
+                $quotaText = __('Kuota Penuh');
+                $barColor = 'bg-danger';
+              } elseif ($percentage >= 80) {
+                $statusClass = 'card-status-limited';
+                $statusText = __('Sisa Sedikit');
+                $quotaText = $quota - $approvedCount . ' ' . __('kursi tersisa');
+                $barColor = 'bg-warning';
+              } else {
+                $statusClass = 'card-status-open';
+                $statusText = __('Pendaftaran Dibuka');
+                $quotaText = $quota - $approvedCount . ' / ' . $quota . ' ' . __('kursi');
+                $barColor = 'bg-success';
+              }
+
+              $dateRange = '';
+              if ($pelatihan->tanggal_mulai && $pelatihan->tanggal_selesai) {
+                $dateRange = $pelatihan->tanggal_mulai->translatedFormat('d M') . ' - ' . $pelatihan->tanggal_selesai->translatedFormat('d M Y');
+              } elseif ($pelatihan->tanggal_mulai) {
+                $dateRange = $pelatihan->tanggal_mulai->translatedFormat('d M Y');
+              } else {
+                $dateRange = __('Jadwal Menyusul');
+              }
+
+              $kecamatanNames = $pelatihan->kecamatans->pluck('name')->filter()->values();
+              $lokasiText = $kecamatanNames->isNotEmpty() ? __('Khusus') . ': ' . $kecamatanNames->implode(', ') : __('Untuk semua kecamatan');
+            @endphp
+
+            <div class="col-md-6 col-lg-4 reveal" style="transition-delay: {{ $loop->iteration * 0.1 }}s;">
+              <div class="pelatihan-card h-100">
+                <!-- Cover Image -->
+                <div class="card-cover">
+                  <img src="{{ $coverUrl }}" alt="{{ $pelatihan->nama }}" loading="lazy">
+                  <span class="card-badge-category">{{ $imageKey }}</span>
+                  <span class="card-badge-status {{ $statusClass }}">{{ $statusText }}</span>
+                </div>
+
+                <!-- Card Body -->
+                <div class="card-body">
+                  <div class="batch-label">{{ __('Batch') }} {{ $pelatihan->batch }}</div>
+                  <h5 class="card-title">{{ $pelatihan->nama }}</h5>
+
+                  <div class="card-meta">
+                    <i class="icon-base ti tabler-building"></i>
+                    <span>{{ $pelatihan->dinas?->nama_dinas ?? __('Dinas Penyelenggara') }}</span>
+                  </div>
+
+                  <div class="card-meta">
+                    <i class="icon-base ti tabler-calendar"></i>
+                    <span>{{ $dateRange }}</span>
+                  </div>
+
+                  <div class="card-meta">
+                    <i class="icon-base ti tabler-map-pin"></i>
+                    <span>{{ $lokasiText }}</span>
+                  </div>
+
+                  @if(!$isKuotaUnlimited)
+                    <div class="quota-bar">
+                      <div class="quota-label">
+                        <span>{{ __('Terisi') }}</span>
+                        <strong>{{ $quotaText }}</strong>
+                      </div>
+                      <div class="progress">
+                        <div class="progress-bar {{ $barColor }}" role="progressbar" style="width: {{ $percentage }}%" aria-valuenow="{{ $percentage }}" aria-valuemin="0" aria-valuemax="100"></div>
+                      </div>
+                    </div>
+                  @endif
+                </div>
+
+                <!-- Card Footer -->
+                <div class="card-footer-action">
+                  <div class="price-tag">
+                    <small>Rp 0</small>
+                    {{ __('Gratis') }}
+                  </div>
+                  <a href="#beranda" class="btn-daftar-card">
+                    {{ __('Daftar') }} <i class="icon-base ti tabler-arrow-right"></i>
+                  </a>
+                </div>
+              </div>
+            </div>
+          @endforeach
+        </div>
+      @else
+        <div class="pelatihan-empty-state reveal">
+          <i class="icon-base ti tabler-calendar-off"></i>
+          <h5>{{ __('Belum Ada Pelatihan Aktif') }}</h5>
+          <p>{{ __('Silakan kembali beberapa saat lagi untuk melihat program pelatihan terbaru kami.') }}</p>
+        </div>
+      @endif
 
     </div>
   </section>
