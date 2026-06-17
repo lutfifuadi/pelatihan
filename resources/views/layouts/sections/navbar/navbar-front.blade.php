@@ -30,13 +30,13 @@ $activeClass = in_array($currentRouteName, $activeRoutes) ? 'active' : '';
         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
           <li class="nav-item">
             <a class="nav-link {{ request()->routeIs('home') ? 'active' : '' }}" href="{{ url('/') }}">
-              <i class="icon-base ti tabler-smart-home me-1"></i>Beranda
+              <i class="icon-base ti tabler-smart-home me-1"></i>{{ __('Beranda') }}
             </a>
           </li>
 
           <li class="nav-item">
             <a class="nav-link {{ request()->routeIs('koordinator.register') ? 'active' : '' }}" href="{{ route('koordinator.register') }}">
-              <i class="icon-base ti tabler-user-plus me-1"></i>Daftar Koordinator
+              <i class="icon-base ti tabler-user-plus me-1"></i>{{ __('Daftar Koordinator') }}
             </a>
           </li>
         </ul>
@@ -78,11 +78,44 @@ data-icon="device-desktop-analytics"></i>System</span>
         <!-- / Style Switcher-->
         @endif
 
+        <!-- Language Switcher -->
+        <li class="nav-item dropdown dropdown-language me-2">
+          <a class="nav-link dropdown-toggle hide-arrow" href="#" data-bs-toggle="dropdown" style="color: rgba(255,255,255,0.8);">
+            <i class="icon-base ti tabler-language icon-md"></i>
+            <span class="d-none d-sm-inline ms-1 align-middle">
+              @switch(session('locale', 'id'))
+                @case('en') English @break
+                @case('ar') العربية @break
+                @default Indonesia
+              @endswitch
+            </span>
+          </a>
+          <ul class="dropdown-menu dropdown-menu-end">
+            <li>
+              <a class="dropdown-item d-flex align-items-center {{ session('locale') === 'id' ? 'active' : '' }}" href="{{ url('/lang/id') }}">
+                <i class="icon-base ti tabler-check me-2 {{ session('locale') === 'id' ? '' : 'opacity-0' }}"></i>
+                <span>Indonesia</span>
+              </a>
+            </li>
+            <li>
+              <a class="dropdown-item d-flex align-items-center {{ session('locale') === 'en' ? 'active' : '' }}" href="{{ url('/lang/en') }}">
+                <i class="icon-base ti tabler-check me-2 {{ session('locale') === 'en' ? '' : 'opacity-0' }}"></i>
+                <span>English</span>
+              </a>
+            </li>
+            <li>
+              <a class="dropdown-item d-flex align-items-center {{ session('locale') === 'ar' ? 'active' : '' }}" href="{{ url('/lang/ar') }}">
+                <i class="icon-base ti tabler-check me-2 {{ session('locale') === 'ar' ? '' : 'opacity-0' }}"></i>
+                <span>العربية</span>
+              </a>
+            </li>
+          </ul>
+        </li>
         <!-- navbar button: Start -->
         <li>
           <a href="javascript:;" class="btn btn-primary" target="_blank"><span
               class="icon-base ti tabler-login scaleX-n1-rtl me-md-1"></span><span
-              class="d-none d-md-block">Login/Register</span></a>
+              class="d-none d-md-block">{{ __('Login') }}/{{ __('Register') }}</span></a>
         </li>
         <!-- navbar button: End -->
       </ul>

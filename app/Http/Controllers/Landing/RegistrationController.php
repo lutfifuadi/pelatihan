@@ -5,10 +5,12 @@ namespace App\Http\Controllers\Landing;
 use App\Events\PesertaRegistered;
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Services\WhatsAppService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Log;
 
 class RegistrationController extends Controller
 {
@@ -37,19 +39,45 @@ class RegistrationController extends Controller
             $whatsapp = '62' . $whatsapp;
         }
 
+        // Generate random password 12 karakter yang unik untuk setiap user
+        $plainPassword = Str::random(12);
+        $hashedPassword = Hash::make($plainPassword);
+
         $user = User::create([
             'name'     => strtoupper($request->name),
             'nik'      => $request->nik,
             'whatsapp' => $whatsapp,
             'email'    => $request->email,
-            'password' => Hash::make('pelatihanku2026'),
+            'password' => $hashedPassword,
             'role'     => 'peserta',
             'is_active' => true,
             'email_verified_at' => now(), // Auto-verified (manual registration)
         ]);
 
+        // Kirim password ke WhatsApp user (jika nomor tersedia)
+        if ($whatsapp) {
+            try {
+                WhatsAppService::sendMessage(
+                    $whatsapp,
+                    "🎉 *Pendaftaran Berhasil!*\n\n"
+                    . "Halo *{$user->name}*,\n\n"
+                    . "Akun Anda telah berhasil dibuat. Berikut adalah detail login Anda:\n\n"
+                    . "🆔 *Username (NIK)*: `{$user->nik}`\n"
+                    . "🔑 *Password*: `{$plainPassword}`\n\n"
+                    . "🔗 *Link Login*: " . url('/login') . "\n\n"
+                    . "⚠️ *Segera ganti password Anda setelah login pertama.*\n\n"
+                    . "Terima kasih.\n"
+                    . "- " . (\App\Models\Setting::where('key', 'institution_name')->value('value') ?? config('app.name'))
+                );
+            } catch (\Exception $e) {
+                Log::warning("Gagal mengirim password via WhatsApp ke {$whatsapp}: " . $e->getMessage());
+            }
+        }
+
         // Dispatch event notifikasi
         PesertaRegistered::dispatch($user);
+
+        event(new \App\Events\DashboardUpdated());
 
         // Auto-login the user
         auth()->login($user);

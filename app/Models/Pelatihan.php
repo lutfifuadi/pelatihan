@@ -64,6 +64,16 @@ class Pelatihan extends Model
         return $this->hasMany(Enrollment::class)->where('status', 'approved');
     }
 
+    public function schedules()
+    {
+        return $this->hasMany(Schedule::class)->orderBy('pertemuan_ke');
+    }
+
+    public function activeSchedules()
+    {
+        return $this->hasMany(Schedule::class)->active()->orderBy('pertemuan_ke');
+    }
+
     public function seoTitle(): ?string
     {
         return $this->nama . ' | Pelatihan';

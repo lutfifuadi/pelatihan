@@ -27,7 +27,7 @@
       </div>
 
       <div class="col-lg-3 col-md-4 col-sm-6">
-        <h6 class="text-white fw-bold mb-4" style="font-family: 'Sora', sans-serif;">Kategori Pelatihan</h6>
+        <h6 class="text-white fw-bold mb-4" style="font-family: 'Sora', sans-serif;">{{ __('Kategori Pelatihan') }}</h6>
         <ul class="list-unstyled d-flex flex-column gap-2">
           <li><a href="#" class="footer-link">Kuliner Kreatif</a></li>
           <li><a href="#" class="footer-link">Konten Kreator</a></li>
@@ -37,18 +37,18 @@
       </div>
 
       <div class="col-lg-2 col-md-4 col-sm-6">
-        <h6 class="text-white fw-bold mb-4" style="font-family: 'Sora', sans-serif;">Tautan Penting</h6>
+        <h6 class="text-white fw-bold mb-4" style="font-family: 'Sora', sans-serif;">{{ __('Tautan Penting') }}</h6>
           <ul class="list-unstyled d-flex flex-column gap-2">
-            <li><a href="#beranda" class="footer-link">Beranda</a></li>
-            <li><a href="#langkah" class="footer-link">Cara Daftar</a></li>
-            <li><a href="#mengapa" class="footer-link">Keunggulan</a></li>
-            <li><a href="#faq" class="footer-link">Tanya Jawab</a></li>
-            <li><a href="{{ route('koordinator.register') }}" class="footer-link">Daftar Koordinator</a></li>
+            <li><a href="#beranda" class="footer-link">{{ __('Beranda') }}</a></li>
+            <li><a href="#langkah" class="footer-link">{{ __('Cara Daftar') }}</a></li>
+            <li><a href="#mengapa" class="footer-link">{{ __('Keunggulan') }}</a></li>
+            <li><a href="#faq" class="footer-link">{{ __('FAQ') }}</a></li>
+            <li><a href="{{ route('koordinator.register') }}" class="footer-link">{{ __('Daftar Koordinator') }}</a></li>
           </ul>
       </div>
 
       <div class="col-lg-2 col-md-4 col-sm-12">
-        <h6 class="text-white fw-bold mb-4" style="font-family: 'Sora', sans-serif;">Hubungi Penyelenggara</h6>
+        <h6 class="text-white fw-bold mb-4" style="font-family: 'Sora', sans-serif;">{{ __('Hubungi Penyelenggara') }}</h6>
         <p class="text-white-50 mb-3 small d-flex align-items-start gap-2" style="line-height: 1.5;">
            <i class="icon-base ti tabler-map-pin text-warning mt-1"></i> {{ $institutionAddress }}
         </p>
@@ -65,8 +65,8 @@
         &copy; {{ date('Y') }} <span class="text-white fw-medium">{{ $footerCopyright }}</span>. All rights reserved.
       </p>
       <div class="d-flex gap-4">
-        <a href="#" class="text-white-50 small text-decoration-none hover-white">Kebijakan Privasi</a>
-        <a href="#" class="text-white-50 small text-decoration-none hover-white">Syarat & Ketentuan</a>
+        <a href="#" class="text-white-50 small text-decoration-none hover-white">{{ __('Kebijakan Privasi') }}</a>
+        <a href="#" class="text-white-50 small text-decoration-none hover-white">{{ __('Syarat & Ketentuan') }}</a>
       </div>
     </div>
   </div>

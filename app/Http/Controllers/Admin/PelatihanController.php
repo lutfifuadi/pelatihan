@@ -6,7 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Models\Dinas;
 use App\Models\Kecamatan;
 use App\Models\Pelatihan;
+use App\Services\ActivityLogger;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 
 class PelatihanController extends Controller
 {
@@ -18,8 +20,13 @@ class PelatihanController extends Controller
 
     public function create()
     {
-        $dinas = Dinas::where('is_active', true)->orderBy('nama_dinas')->get();
-        $kecamatans = Kecamatan::orderBy('name')->get();
+        // Cache data master yang jarang berubah (3600 detik = 1 jam)
+        $dinas = Cache::remember('pelatihan.dinas.active', 3600, function () {
+            return Dinas::where('is_active', true)->orderBy('nama_dinas')->get();
+        });
+        $kecamatans = Cache::remember('pelatihan.kecamatans.all', 3600, function () {
+            return Kecamatan::orderBy('name')->get();
+        });
         return view('content.admin.pelatihan.create', compact('dinas', 'kecamatans'));
     }
 
@@ -42,14 +49,26 @@ class PelatihanController extends Controller
         $pelatihan = Pelatihan::create($request->all());
         $pelatihan->kecamatans()->sync($request->kecamatan_ids ?? []);
 
+        // Invalidate cache dashboard & pelatihan
+        Cache::forget('dashboard.admin.stats');
+
+        event(new \App\Events\DashboardUpdated());
+
+        ActivityLogger::created($pelatihan, "Pelatihan {$pelatihan->nama} batch {$pelatihan->batch} berhasil dibuat");
+
         return redirect()->route('admin.pelatihan.index')
             ->with('success', 'Pelatihan berhasil ditambahkan.');
     }
 
     public function edit(Pelatihan $pelatihan)
     {
-        $dinas = Dinas::where('is_active', true)->orderBy('nama_dinas')->get();
-        $kecamatans = Kecamatan::orderBy('name')->get();
+        // Cache data master yang jarang berubah
+        $dinas = Cache::remember('pelatihan.dinas.active', 3600, function () {
+            return Dinas::where('is_active', true)->orderBy('nama_dinas')->get();
+        });
+        $kecamatans = Cache::remember('pelatihan.kecamatans.all', 3600, function () {
+            return Kecamatan::orderBy('name')->get();
+        });
         $pelatihan->load('kecamatans');
         return view('content.admin.pelatihan.edit', compact('pelatihan', 'dinas', 'kecamatans'));
     }
@@ -70,8 +89,17 @@ class PelatihanController extends Controller
             'kecamatan_ids.*' => 'exists:kecamatans,id',
         ]);
 
+        $oldValues = $pelatihan->getOriginal();
         $pelatihan->update($request->all());
         $pelatihan->kecamatans()->sync($request->kecamatan_ids ?? []);
+
+        // Invalidate cache
+        Cache::forget('dashboard.admin.stats');
+
+        event(new \App\Events\DashboardUpdated());
+
+        $freshPelatihan = $pelatihan->fresh();
+        ActivityLogger::updated($freshPelatihan, $oldValues, $freshPelatihan->getAttributes(), "Pelatihan {$freshPelatihan->nama} batch {$freshPelatihan->batch} berhasil diperbarui");
 
         return redirect()->route('admin.pelatihan.index')
             ->with('success', 'Pelatihan berhasil diperbarui.');
@@ -79,11 +107,10 @@ class PelatihanController extends Controller
 
     public function show(Pelatihan $pelatihan)
     {
+        // Optimasi: Load + count dalam 1 query, hindari N+1
         $pelatihan->load([
             'dinas',
             'kecamatans',
-            'pesertaProfiles.user',
-            'pesertaProfiles.kelurahan',
         ]);
 
         $peserta = $pelatihan->pesertaProfiles()
@@ -91,15 +118,37 @@ class PelatihanController extends Controller
             ->orderBy('created_at', 'desc')
             ->paginate(20);
 
-        $totalPeserta = $pelatihan->pesertaProfiles()->count();
-        $completedCount = $pelatihan->pesertaProfiles()->where('is_completed', true)->count();
+        // Optimasi: Gunakan withCount agar tidak perlu query terpisah
+        $pelatihan->loadCount([
+            'pesertaProfiles as total_peserta',
+            'pesertaProfiles as completed_count' => function ($q) {
+                $q->where('is_completed', true);
+            },
+        ]);
 
-        return view('content.admin.pelatihan.show', compact('pelatihan', 'peserta', 'totalPeserta', 'completedCount'));
+        return view('content.admin.pelatihan.show', compact('pelatihan', 'peserta'));
     }
 
     public function destroy(Pelatihan $pelatihan)
     {
+        $oldData = $pelatihan->getAttributes();
+        $nama = $pelatihan->nama;
+        $batch = $pelatihan->batch;
         $pelatihan->delete();
+
+        // Invalidate cache
+        Cache::forget('dashboard.admin.stats');
+
+        event(new \App\Events\DashboardUpdated());
+
+        ActivityLogger::log(
+            action: 'deleted',
+            subjectType: 'Pelatihan',
+            subjectId: $pelatihan->id,
+            subjectName: $nama,
+            description: "Pelatihan {$nama} batch {$batch} berhasil dihapus",
+            oldValues: $oldData,
+        );
 
         return redirect()->route('admin.pelatihan.index')
             ->with('success', 'Pelatihan berhasil dihapus.');

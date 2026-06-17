@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Services\ActivityLogger;
 use Illuminate\Http\Request;
 
 class PesertaController extends Controller
@@ -56,7 +57,20 @@ class PesertaController extends Controller
         if ($peserta->role !== 'peserta') {
             abort(404);
         }
+
+        $oldData = $peserta->getAttributes();
+        $nama = $peserta->name;
         $peserta->delete();
+
+        ActivityLogger::log(
+            action: 'deleted',
+            subjectType: 'Peserta',
+            subjectId: $peserta->id,
+            subjectName: $nama,
+            description: "Peserta {$nama} berhasil dihapus",
+            oldValues: $oldData,
+        );
+
         return redirect()->route('admin.peserta.index')
             ->with('success', 'Peserta berhasil dihapus.');
     }

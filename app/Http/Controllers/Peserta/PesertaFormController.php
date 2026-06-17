@@ -7,11 +7,22 @@ use App\Models\Pelatihan;
 use App\Models\PesertaProfile;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rules\File;
 
 class PesertaFormController extends Controller
 {
     public function saveTab1(Request $request)
     {
+        $request->validate([
+            'nik' => 'nullable|string|digits_between:15,16',
+            'nama_lengkap' => 'nullable|string|max:255',
+            'jenis_kelamin' => 'nullable|in:L,P',
+            'tempat_lahir' => 'nullable|string|max:200',
+            'tanggal_lahir' => 'nullable|string|max:2',
+            'bulan_lahir' => 'nullable|string|max:20',
+            'tahun_lahir' => 'nullable|string|digits:4',
+        ]);
+
         $user = auth()->user();
 
         // Update NIK di tabel users (username)
@@ -21,16 +32,16 @@ class PesertaFormController extends Controller
 
         // Update nama di tabel users
         if ($request->filled('nama_lengkap') && $request->nama_lengkap !== $user->name) {
-            $user->update(['name' => $request->nama_lengkap]);
+            $user->update(['name' => strip_tags($request->nama_lengkap)]);
         }
 
         // Simpan / update ke peserta_profiles
         PesertaProfile::updateOrCreate(
             ['user_id' => $user->id],
             [
-                'nama_lengkap' => $request->nama_lengkap,
+                'nama_lengkap' => strip_tags($request->nama_lengkap),
                 'jenis_kelamin' => $request->jenis_kelamin,
-                'tempat_lahir' => $request->tempat_lahir,
+                'tempat_lahir' => strip_tags($request->tempat_lahir),
                 'tanggal_lahir' => $request->tanggal_lahir,
                 'bulan_lahir' => $request->bulan_lahir,
                 'tahun_lahir' => $request->tahun_lahir,
@@ -43,6 +54,26 @@ class PesertaFormController extends Controller
 
     public function store(Request $request)
     {
+        $request->validate([
+            'nik' => 'nullable|string|digits_between:15,16',
+            'nama_lengkap' => 'nullable|string|max:255',
+            'jenis_kelamin' => 'nullable|in:L,P',
+            'tempat_lahir' => 'nullable|string|max:200',
+            'tanggal_lahir' => 'nullable|string|max:2',
+            'bulan_lahir' => 'nullable|string|max:20',
+            'tahun_lahir' => 'nullable|string|digits:4',
+            'alamat_ktp' => 'nullable|string|max:500',
+            'rt' => 'nullable|string|max:5',
+            'rw' => 'nullable|string|max:5',
+            'kelurahan' => 'nullable|string|max:200',
+            'kecamatan' => 'nullable|string|max:200',
+            'kota' => 'nullable|string|max:200',
+            'provinsi' => 'nullable|string|max:200',
+            'kodepos' => 'nullable|string|max:10',
+            'whatsapp' => 'nullable|string|max:20',
+            'email' => 'nullable|email|max:255',
+        ]);
+
         $user = auth()->user();
 
         // Update NIK & nama di tabel users jika berubah
@@ -80,38 +111,6 @@ class PesertaFormController extends Controller
         // Jangan ubah is_completed — biarkan false sampai tahap akhir
         $profile->save();
 
-        // Tulis ke file txt
-        $tglLahir = $request->input('tanggal_lahir', '') . ' ' . $request->input('bulan_lahir', '') . ' ' . $request->input('tahun_lahir', '');
-        $text = "========================================\n";
-        $text .= "        DATA PENDAFTARAN PESERTA\n";
-        $text .= "========================================\n";
-        $text .= "Tanggal Daftar  : " . now()->format('Y-m-d H:i:s') . "\n";
-        $text .= "----------------------------------------\n";
-        $text .= "DATA PRIBADI\n";
-        $text .= "----------------------------------------\n";
-        $text .= "Nama Lengkap    : " . $request->input('nama_lengkap', '') . "\n";
-        $text .= "Jenis Kelamin   : " . $request->input('jenis_kelamin', '') . "\n";
-        $text .= "Tempat Lahir    : " . $request->input('tempat_lahir', '') . "\n";
-        $text .= "Tanggal Lahir   : " . trim($tglLahir) . "\n";
-        $text .= "NIK KTP         : " . $request->input('nik', '') . "\n";
-        $text .= "----------------------------------------\n";
-        $text .= "ALAMAT KTP & KONTAK\n";
-        $text .= "----------------------------------------\n";
-        $text .= "Alamat KTP      : " . $request->input('alamat_ktp', '') . "\n";
-        $text .= "RT              : " . $request->input('rt', '') . "\n";
-        $text .= "RW              : " . $request->input('rw', '') . "\n";
-        $text .= "Kelurahan       : " . $request->input('kelurahan', '') . "\n";
-        $text .= "Kecamatan       : " . $request->input('kecamatan', '') . "\n";
-        $text .= "Kota/Kabupaten  : " . $request->input('kota', '') . "\n";
-        $text .= "Provinsi        : " . $request->input('provinsi', '') . "\n";
-        $text .= "Kode Pos        : " . $request->input('kodepos', '') . "\n";
-        $text .= "WhatsApp        : " . $request->input('whatsapp', '') . "\n";
-        $text .= "Email           : " . $request->input('email', '') . "\n";
-        $linkMedsosList = json_decode($request->input('link_medsos', '[]'), true);
-        $text .= "Link Medsos     : " . (is_array($linkMedsosList) ? implode(', ', array_map(function($m) { return ($m['platform'] ?? '') . ': ' . ($m['url'] ?? ''); }, $linkMedsosList)) : '') . "\n";
-        $text .= "========================================\n\n";
-        file_put_contents(base_path('.planing/data-user.txt'), $text, FILE_APPEND | LOCK_EX);
-
         return redirect()->route('dashboard.peserta.form-pendidikan')->with('success', 'Data pribadi & alamat tersimpan!');
     }
 
@@ -124,16 +123,25 @@ class PesertaFormController extends Controller
 
     public function savePendidikan(Request $request)
     {
+        $request->validate([
+            'pendidikan_terakhir' => 'nullable|string|max:100',
+            'nama_institusi' => 'nullable|string|max:255',
+            'jurusan' => 'nullable|string|max:255',
+            'tahun_lulus' => 'nullable|string|digits:4',
+            'status_pekerjaan' => 'nullable|string|max:100',
+            'nama_perusahaan' => 'nullable|string|max:255',
+        ]);
+
         $user = auth()->user();
         PesertaProfile::updateOrCreate(
             ['user_id' => $user->id],
             [
                 'pendidikan_terakhir' => $request->pendidikan_terakhir,
-                'nama_institusi' => $request->nama_institusi,
-                'jurusan' => $request->jurusan,
+                'nama_institusi' => strip_tags($request->nama_institusi),
+                'jurusan' => strip_tags($request->jurusan),
                 'tahun_lulus' => $request->tahun_lulus,
                 'status_pekerjaan' => $request->status_pekerjaan,
-                'nama_perusahaan' => $request->nama_perusahaan,
+                'nama_perusahaan' => strip_tags($request->nama_perusahaan),
             ]
         );
         return redirect()->route('dashboard.peserta.form-minat')->with('success', 'Data pendidikan tersimpan');
@@ -260,6 +268,22 @@ class PesertaFormController extends Controller
 
     public function saveDokumen(Request $request)
     {
+        $request->validate([
+            'foto_profil' => [
+                'nullable',
+                File::types(['jpg', 'jpeg', 'png', 'webp'])
+                    ->max(2 * 1024), // Maks 2MB
+            ],
+            'scan_ktp' => [
+                'nullable',
+                File::types(['jpg', 'jpeg', 'png', 'pdf'])
+                    ->max(5 * 1024), // Maks 5MB
+            ],
+        ], [
+            'foto_profil.max' => 'Ukuran foto profil maksimal 2MB.',
+            'scan_ktp.max' => 'Ukuran scan KTP maksimal 5MB.',
+        ]);
+
         $fotoProfil = null;
         $scanKtp = null;
 
@@ -289,67 +313,6 @@ class PesertaFormController extends Controller
             ['user_id' => $user->id],
             $updateData
         );
-
-        // Tulis ke file data-user.txt
-        $profile = PesertaProfile::where('user_id', $user->id)->first();
-        $bidangMinat = $profile->bidang_minat ?? [];
-        if (is_string($bidangMinat)) $bidangMinat = [$bidangMinat];
-
-        $tglLahir = trim(($profile->tanggal_lahir ?? '') . ' ' . ($profile->bulan_lahir ?? '') . ' ' . ($profile->tahun_lahir ?? ''));
-
-        $text = "========================================\n";
-        $text .= "        DATA PENDAFTARAN PESERTA\n";
-        $text .= "========================================\n";
-        $text .= "Tanggal Daftar  : " . now()->format('Y-m-d H:i:s') . "\n";
-        $text .= "----------------------------------------\n";
-        $text .= "DATA PRIBADI\n";
-        $text .= "----------------------------------------\n";
-        $text .= "Nama Lengkap    : " . ($profile->nama_lengkap ?? '') . "\n";
-        $text .= "Jenis Kelamin   : " . ($profile->jenis_kelamin ?? '') . "\n";
-        $text .= "Tempat Lahir    : " . ($profile->tempat_lahir ?? '') . "\n";
-        $text .= "Tanggal Lahir   : " . $tglLahir . "\n";
-        $text .= "NIK KTP         : " . ($profile->nik ?? '') . "\n";
-        $text .= "----------------------------------------\n";
-        $text .= "ALAMAT KTP & KONTAK\n";
-        $text .= "----------------------------------------\n";
-        $text .= "Alamat KTP      : " . ($profile->alamat_ktp ?? '') . "\n";
-        $text .= "RT              : " . ($profile->rt ?? '') . "\n";
-        $text .= "RW              : " . ($profile->rw ?? '') . "\n";
-        $text .= "Kelurahan       : " . ($profile->kelurahan ?? '') . "\n";
-        $text .= "Kecamatan       : " . ($profile->kecamatan ?? '') . "\n";
-        $text .= "Kota/Kabupaten  : " . ($profile->kota ?? '') . "\n";
-        $text .= "Provinsi        : " . ($profile->provinsi ?? '') . "\n";
-        $text .= "Kode Pos        : " . ($profile->kodepos ?? '') . "\n";
-        $text .= "WhatsApp        : " . ($profile->whatsapp ?? '') . "\n";
-        $text .= "Email           : " . ($profile->email ?? '') . "\n";
-        $linkMedsos = $profile->link_medsos ?? [];
-        if (is_string($linkMedsos)) $linkMedsos = json_decode($linkMedsos, true) ?? [];
-        $text .= "Link Medsos     : " . (is_array($linkMedsos) ? implode(', ', array_map(function($m) { return ($m['platform'] ?? '') . ': ' . ($m['url'] ?? ''); }, $linkMedsos)) : '') . "\n";
-        $text .= "----------------------------------------\n";
-        $text .= "PENDIDIKAN & PEKERJAAN\n";
-        $text .= "----------------------------------------\n";
-        $text .= "Pendidikan      : " . ($profile->pendidikan_terakhir ?? '') . "\n";
-        $text .= "Institusi       : " . ($profile->nama_institusi ?? '') . "\n";
-        $text .= "Jurusan         : " . ($profile->jurusan ?? '') . "\n";
-        $text .= "Tahun Lulus     : " . ($profile->tahun_lulus ?? '') . "\n";
-        $text .= "Status Pekerjaan: " . ($profile->status_pekerjaan ?? '') . "\n";
-        $text .= "Perusahaan      : " . ($profile->nama_perusahaan ?? '') . "\n";
-        $text .= "----------------------------------------\n";
-        $text .= "MINAT PELATIHAN\n";
-        $text .= "----------------------------------------\n";
-        $text .= "Bidang Minat    : " . implode(', ', $bidangMinat) . "\n";
-        $text .= "Tujuan          : " . ($profile->tujuan_pelatihan ?? '') . "\n";
-        $text .= "Preferensi Jadwal: " . ($profile->preferensi_jadwal ?? '') . "\n";
-        $text .= "Preferensi Mode : " . ($profile->preferensi_mode ?? '') . "\n";
-        $text .= "----------------------------------------\n";
-        $text .= "DOKUMEN\n";
-        $text .= "----------------------------------------\n";
-        $text .= "Foto Profil     : " . ($fotoProfil ? basename($fotoProfil) : ($profile->foto_profil ?? '-')) . "\n";
-        $text .= "Scan KTP        : " . ($scanKtp ? basename($scanKtp) : ($profile->scan_ktp ?? '-')) . "\n";
-        $text .= "========================================\n\n";
-
-        $filePath = base_path('.planing/data-user.txt');
-        file_put_contents($filePath, $text, FILE_APPEND | LOCK_EX);
 
         return redirect()->route('dashboard.peserta')->with('success', 'Pendaftaran berhasil! Data Anda telah tersimpan.');
     }

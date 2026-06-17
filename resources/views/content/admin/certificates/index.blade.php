@@ -64,6 +64,18 @@
       </form>
     </div>
 
+    {{-- Export Buttons --}}
+    <div class="glass-card-premium px-4 py-3 mb-4">
+      <div class="d-flex justify-content-end align-items-center gap-2">
+        <a href="{{ route('admin.exports.certificates.pdf') }}" class="btn btn-outline-info btn-sm" style="border-radius: 5px; border-color: rgba(96,165,250,0.3); color: #93c5fd; font-weight: 600; padding: 4px 12px; font-size: 0.75rem; transition: all 0.3s ease;">
+          <i class="icon-base ti tabler-file-export me-1"></i> 📄 Export PDF
+        </a>
+        <a href="{{ route('admin.exports.certificates.excel') }}" class="btn btn-outline-success btn-sm" style="border-radius: 5px; border-color: rgba(16,185,129,0.3); color: #34d399; font-weight: 600; padding: 4px 12px; font-size: 0.75rem; transition: all 0.3s ease;">
+          <i class="icon-base ti tabler-file-spreadsheet me-1"></i> 📊 Export Excel
+        </a>
+      </div>
+    </div>
+
     {{-- Table --}}
     <div class="glass-card-premium px-4 py-4">
       <div class="table-responsive">

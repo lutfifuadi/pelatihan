@@ -6,8 +6,10 @@ use App\Http\Controllers\Controller;
 use App\Models\Certificate;
 use App\Models\Enrollment;
 use App\Models\Pelatihan;
+use App\Services\ActivityLogger;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 
 class CertificateController extends Controller
@@ -26,7 +28,9 @@ class CertificateController extends Controller
         }
 
         $certificates = $query->orderBy('created_at', 'desc')->paginate(20);
-        $pelatihans = Pelatihan::where('is_active', true)->orderBy('nama')->get();
+        $pelatihans = Cache::remember('pelatihan.active.list', 3600, function () {
+            return Pelatihan::where('is_active', true)->orderBy('nama')->get(['id', 'nama', 'batch']);
+        });
 
         return view('content.admin.certificates.index', compact('certificates', 'pelatihans'));
     }
@@ -74,6 +78,8 @@ class CertificateController extends Controller
 
         $certificate = $this->generateCertificate($enrollment);
 
+        ActivityLogger::created($certificate, "Sertifikat {$certificate->certificate_number} untuk {$enrollment->user?->name} berhasil dibuat");
+
         return redirect()->route('admin.certificates.show', $certificate)
             ->with('success', 'Sertifikat berhasil digenerate.');
     }
@@ -98,6 +104,8 @@ class CertificateController extends Controller
             $this->generateCertificate($enrollment);
             $generated++;
         }
+
+        ActivityLogger::action('created', 'Certificate', "Batch {$generated} sertifikat untuk pelatihan {$pelatihan->nama} berhasil digenerate", $pelatihan->id, $pelatihan->nama);
 
         return redirect()->route('admin.certificates.index', ['pelatihan_id' => $pelatihan->id])
             ->with('success', "{$generated} sertifikat berhasil digenerate.");
@@ -124,6 +132,8 @@ class CertificateController extends Controller
             'participant' => $certificate->enrollment->user,
             'training' => $certificate->enrollment->pelatihan,
         ]);
+
+        ActivityLogger::action('export', 'Certificate', "Sertifikat {$certificate->certificate_number} untuk {$certificate->enrollment->user?->name} di-download", $certificate->id, $certificate->certificate_number);
 
         $filename = 'sertifikat_' . $certificate->certificate_number . '.pdf';
 

@@ -42,7 +42,7 @@ class PesertaFormTest extends TestCase
         PesertaProfile::create([
             'user_id' => $this->peserta->id,
             'nama_lengkap' => 'Peserta Lengkap',
-            'jenis_kelamin' => 'Laki-laki',
+            'jenis_kelamin' => 'L',
             'tempat_lahir' => 'Bandung',
             'tanggal_lahir' => '15',
             'bulan_lahir' => '01',
@@ -63,7 +63,7 @@ class PesertaFormTest extends TestCase
     {
         $response = $this->post('/dashboard/peserta/save-tab1', [
             'nama_lengkap' => 'Peserta Updated',
-            'jenis_kelamin' => 'Perempuan',
+            'jenis_kelamin' => 'P',
             'tempat_lahir' => 'Jakarta',
             'tanggal_lahir' => '20',
             'bulan_lahir' => '05',
@@ -83,7 +83,7 @@ class PesertaFormTest extends TestCase
     {
         $response = $this->post('/dashboard/peserta/form-pendaftaran', [
             'nama_lengkap' => 'Peserta Lengkap',
-            'jenis_kelamin' => 'Laki-laki',
+            'jenis_kelamin' => 'L',
             'tempat_lahir' => 'Bandung',
             'tanggal_lahir' => '15',
             'bulan_lahir' => '01',

@@ -295,7 +295,7 @@ $configData = Helper::appClasses();
             </div>
             <div>
               <div class="text-body-premium small">Total Peserta</div>
-              <div class="text-white fw-bold fs-4">{{ $totalPeserta }}</div>
+              <div class="text-white fw-bold fs-4">{{ $pelatihan->total_peserta }}</div>
             </div>
           </div>
         </div>
@@ -308,7 +308,7 @@ $configData = Helper::appClasses();
             </div>
             <div>
               <div class="text-body-premium small">Lengkap</div>
-              <div class="text-white fw-bold fs-4">{{ $completedCount }}</div>
+              <div class="text-white fw-bold fs-4">{{ $pelatihan->completed_count }}</div>
             </div>
           </div>
         </div>

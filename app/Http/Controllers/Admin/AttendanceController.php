@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Attendance;
 use App\Models\Enrollment;
 use App\Models\Pelatihan;
+use App\Services\ActivityLogger;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -29,10 +30,10 @@ class AttendanceController extends Controller
             return $e->attendances->where('status', 'hadir')->isNotEmpty();
         })->count();
 
-        // Hitung pertemuan terakhir + 1 untuk form
-        $maxPertemuan = Attendance::whereHas('enrollment', function ($q) use ($pelatihan) {
-            $q->where('pelatihan_id', $pelatihan->id);
-        })->max('pertemuan_ke') ?? 0;
+        // Optimasi: JOIN langsung tanpa subquery
+        $maxPertemuan = Attendance::join('enrollments', 'attendances.enrollment_id', '=', 'enrollments.id')
+            ->where('enrollments.pelatihan_id', $pelatihan->id)
+            ->max('attendances.pertemuan_ke') ?? 0;
 
         $nextPertemuan = $maxPertemuan + 1;
 
@@ -57,30 +58,29 @@ class AttendanceController extends Controller
         $pertemuanKe = $request->pertemuan_ke;
         $date = $request->date;
 
-        DB::transaction(function () use ($request, $pertemuanKe, $date, $pelatihan) {
-            foreach ($request->attendances as $data) {
-                // Cek apakah sudah ada absensi untuk pertemuan ini
-                $existing = Attendance::where('enrollment_id', $data['enrollment_id'])
-                    ->where('pertemuan_ke', $pertemuanKe)
-                    ->first();
+        DB::transaction(function () use ($request, $pertemuanKe, $date) {
+            // Optimasi: Gunakan upsert() untuk batch insert/update
+            $attendanceData = collect($request->attendances)->map(function ($data) use ($pertemuanKe, $date) {
+                return [
+                    'enrollment_id' => $data['enrollment_id'],
+                    'pertemuan_ke' => $pertemuanKe,
+                    'status' => $data['status'],
+                    'date' => $date,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ];
+            })->toArray();
 
-                if ($existing) {
-                    // Update jika sudah ada
-                    $existing->update([
-                        'status' => $data['status'],
-                        'date' => $date,
-                    ]);
-                } else {
-                    // Buat baru
-                    Attendance::create([
-                        'enrollment_id' => $data['enrollment_id'],
-                        'pertemuan_ke' => $pertemuanKe,
-                        'status' => $data['status'],
-                        'date' => $date,
-                    ]);
-                }
-            }
+            Attendance::upsert(
+                $attendanceData,
+                ['enrollment_id', 'pertemuan_ke'], // unique columns
+                ['status', 'date', 'updated_at']    // columns to update
+            );
         });
+
+        ActivityLogger::action('created', 'Attendance', "Absensi pertemuan ke-{$pertemuanKe} pelatihan {$pelatihan->nama} berhasil dicatat", $pelatihan->id, $pelatihan->nama);
+
+        event(new \App\Events\DashboardUpdated());
 
         return redirect()->route('admin.attendances.index', $pelatihan)
             ->with('success', "Absensi pertemuan ke-{$pertemuanKe} berhasil disimpan.");
@@ -99,9 +99,9 @@ class AttendanceController extends Controller
             ->orderBy('created_at', 'asc')
             ->get();
 
-        $totalPertemuan = Attendance::whereHas('enrollment', function ($q) use ($pelatihan) {
-            $q->where('pelatihan_id', $pelatihan->id);
-        })->max('pertemuan_ke') ?? 0;
+        $totalPertemuan = Attendance::join('enrollments', 'attendances.enrollment_id', '=', 'enrollments.id')
+            ->where('enrollments.pelatihan_id', $pelatihan->id)
+            ->max('attendances.pertemuan_ke') ?? 0;
 
         $pertemuans = range(1, $totalPertemuan);
 

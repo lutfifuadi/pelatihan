@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Jobs\SendEmailNotification;
 use App\Jobs\SendWhatsAppNotification;
 use App\Models\Notification;
 use App\Models\NotificationTemplate;
@@ -79,6 +80,11 @@ class NotificationService
 
         if ($channel === 'whatsapp' && $recipient) {
             SendWhatsAppNotification::dispatch($recipient, $body, $notification->id)
+                ->onConnection('database');
+        }
+
+        if ($channel === 'email' && $recipient) {
+            SendEmailNotification::dispatch($recipient, $title, $body, $data, $notification->id)
                 ->onConnection('database');
         }
 
@@ -162,6 +168,24 @@ class NotificationService
             SendWhatsAppNotification::dispatch(
                 $notification->recipient,
                 $notification->body,
+                $notification->id
+            )->onConnection('database');
+
+            $processed++;
+        }
+
+        // Proses juga notifikasi email yang pending
+        $pendingEmail = Notification::where('status', 'pending')
+            ->where('channel', 'email')
+            ->whereNull('sent_at')
+            ->get();
+
+        foreach ($pendingEmail as $notification) {
+            SendEmailNotification::dispatch(
+                $notification->recipient,
+                $notification->title,
+                $notification->body,
+                $notification->data ?? [],
                 $notification->id
             )->onConnection('database');
 

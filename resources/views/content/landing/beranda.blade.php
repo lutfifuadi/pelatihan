@@ -15,7 +15,7 @@ $customizerHidden = 'customizer-hide';
 
 @extends('layouts/blankLayout')
 
-@section('title', 'Pendaftaran Pelatihan Ekonomi Kreatif 2026')
+@section('title', __('Pendaftaran Pelatihan Ekonomi Kreatif') . ' 2026')
 
 @section('page-style')
 <style>
@@ -805,13 +805,13 @@ $customizerHidden = 'customizer-hide';
 
           <!-- Main Typography Heading -->
           <h1 class="display-4 fw-bold text-white mb-4 hero-title" style="line-height: 1.15; font-family: 'Sora', sans-serif;">
-            Pendaftaran<br/>
-            <span class="text-warning text-gradient-creative">Pelatihan Ekonomi Kreatif</span><br/>
+            {{ __('Pendaftaran') }}<br/>
+            <span class="text-warning text-gradient-creative">{{ __('Pelatihan') }} {{ __('Ekonomi Kreatif') }}</span><br/>
           </h1>
 
           <!-- Body Description -->
           <p class="text-white-50 fs-5 mb-4 lh-lg" style="max-width: 560px;">
-            Dapatkan keterampilan praktis yang dapat langsung dimanfaatkan untuk merintis usaha mandiri atau meningkatkan kompetensi profesional Anda.
+            {{ __('Dapatkan keterampilan praktis') }}
           </p>
 
           <!-- Interactive Category Tags -->
@@ -834,21 +834,21 @@ $customizerHidden = 'customizer-hide';
           <div class="row g-4 pt-4 border-top border-white-subtle" style="border-top: 1px solid rgba(255, 255, 255, 0.08) !important;">
             <div class="col-4 col-sm-4">
               <div class="text-white fw-bold display-6" style="font-family: 'Sora', sans-serif;">4+</div>
-              <div class="text-white-50 small">Bidang Kreatif</div>
+              <div class="text-white-50 small">{{ __('Bidang Kreatif') }}</div>
             </div>
             <div class="col-4 col-sm-4">
-              <div class="text-white fw-bold display-6 text-gradient-creative" style="font-family: 'Sora', sans-serif;">Gratis</div>
-              <div class="text-white-50 small">Tanpa Biaya</div>
+              <div class="text-white fw-bold display-6 text-gradient-creative" style="font-family: 'Sora', sans-serif;">{{ __('Gratis') }}</div>
+              <div class="text-white-50 small">{{ __('Tanpa Biaya') }}</div>
             </div>
             <div class="col-4 col-sm-4">
               <div class="text-white fw-bold display-6" style="font-family: 'Sora', sans-serif;">2026</div>
-              <div class="text-white-50 small">Tahun Akademik</div>
+              <div class="text-white-50 small">{{ __('Tahun Akademik') }}</div>
             </div>
           </div>
 
           <!-- Bottom Floating Scroll Indicator -->
           <div class="d-none d-lg-flex align-items-center text-white-50 mt-5 pt-3" style="opacity: 0.45;">
-            <span class="me-3 small">Scroll ke bawah untuk informasi lanjut</span>
+            <span class="me-3 small">{{ __('Scroll ke bawah untuk informasi lanjut') }}</span>
             <svg width="16" height="24" viewBox="0 0 16 24" fill="none" style="animation: bounce 2s infinite;">
               <rect x="1" y="1" width="14" height="22" rx="7" stroke="currentColor" stroke-width="2"/>
               <circle cx="8" cy="8" r="2" fill="currentColor">
@@ -864,8 +864,8 @@ $customizerHidden = 'customizer-hide';
 
             <!-- Card Form Header -->
             <div class="text-center mb-3">
-              <h4 class="fw-bold text-white mb-0">Daftar Sekarang</h4>
-              <p class="text-white-50 small mb-0 mt-1">Lengkapi data diri di bawah</p>
+              <h4 class="fw-bold text-white mb-0">{{ __('Daftar Sekarang') }}</h4>
+              <p class="text-white-50 small mb-0 mt-1">{{ __('Lengkapi data diri di bawah') }}</p>
             </div>
 
             <!-- Success Dynamic Laravel Alert -->
@@ -885,7 +885,7 @@ $customizerHidden = 'customizer-hide';
 
               <!-- Input Nama — Full width, auto uppercase -->
               <div class="mb-3">
-                <label for="name" class="form-label form-label-custom">Nama Lengkap (Sesuai KTP)</label>
+                <label for="name" class="form-label form-label-custom">{{ __('Nama Lengkap (Sesuai KTP)') }}</label>
                 <input type="text" id="name" name="name"
                   class="form-control form-control-custom @error('name') is-invalid @enderror"
                   placeholder="Contoh: ANDI PRATAMA" value="{{ old('name') }}"
@@ -897,7 +897,7 @@ $customizerHidden = 'customizer-hide';
               <!-- NIK + Email — Side by side (half-half) -->
               <div class="row mb-3">
                 <div class="col-md-6 mb-3 mb-md-0">
-                  <label for="nik" class="form-label form-label-custom">NIK (Nomor Induk Kependudukan)</label>
+                  <label for="nik" class="form-label form-label-custom">{{ __('NIK (Nomor Induk Kependudukan)') }}</label>
                   <input type="text" id="nik" name="nik"
                     class="form-control form-control-custom @error('nik') is-invalid @enderror"
                     placeholder="15-16 digit NIK" maxlength="16" inputmode="numeric" required />
@@ -905,7 +905,7 @@ $customizerHidden = 'customizer-hide';
                   @error('nik') <div class="invalid-feedback small mt-1 text-danger">{{ $message }}</div> @enderror
                 </div>
                 <div class="col-md-6">
-                  <label for="email" class="form-label form-label-custom">Alamat Email</label>
+                  <label for="email" class="form-label form-label-custom">{{ __('Alamat Email') }}</label>
                   <input type="email" id="email" name="email"
                     class="form-control form-control-custom @error('email') is-invalid @enderror"
                     placeholder="contoh@email.com" value="{{ old('email') }}" required />
@@ -915,7 +915,7 @@ $customizerHidden = 'customizer-hide';
 
               <!-- Input WhatsApp — Full width -->
               <div class="mb-3">
-                <label for="whatsapp" class="form-label form-label-custom">Nomor WhatsApp Aktif</label>
+                <label for="whatsapp" class="form-label form-label-custom">{{ __('Nomor WhatsApp Aktif') }}</label>
                 <input type="tel" id="whatsapp" name="whatsapp"
                   class="form-control form-control-custom @error('whatsapp') is-invalid @enderror"
                   placeholder="0821xxxxxxxx" value="{{ old('whatsapp') }}" required />
@@ -931,7 +931,7 @@ $customizerHidden = 'customizer-hide';
                 <i class="icon-base ti tabler-info-circle text-warning mt-1 flex-shrink-0"></i>
                 <div>
                   <p class="small text-white-50 mb-0" style="line-height: 1.45;">
-                    Password akun akan diisi otomatis.
+                    {{ __('Password akun akan diisi otomatis') }}.
                     <span class="text-warning fw-semibold">pelatihanku2026</span>
                   </p>
                 </div>
@@ -977,11 +977,11 @@ $customizerHidden = 'customizer-hide';
       <!-- Section Title Header -->
       <div class="text-center mb-5 pb-3 reveal">
         <span class="badge bg-primary bg-opacity-10 text-primary px-4 py-2 fw-semibold mb-3" style="font-size: 0.8rem; letter-spacing: 0.05em; border-radius: 5px;">
-          ALUR PENDAFTARAN
+          {{ strtoupper(__('Alur Pendaftaran')) }}
         </span>
-        <h2 class="fw-bold mb-3 display-6" style="color: #0b0f19;">Ikuti <span class="text-primary">3 Langkah</span> Mudah</h2>
+        <h2 class="fw-bold mb-3 display-6" style="color: #0b0f19;">{{ __('Ikuti') }} <span class="text-primary">3 {{ __('Langkah') }}</span> {{ __('Mudah') }}</h2>
         <p class="text-muted fs-5 mx-auto" style="max-width: 520px;">
-          Panduan ringkas pendaftaran hingga Anda dapat mengakses materi pelatihan kami
+          {{ __('Panduan ringkas pendaftaran hingga Anda dapat mengakses materi pelatihan kami') }}
         </p>
       </div>
 
@@ -990,13 +990,13 @@ $customizerHidden = 'customizer-hide';
         <!-- Step 1 -->
         <div class="col-md-4 reveal" style="transition-delay: 0.1s;">
           <div class="step-card-premium">
-            <span class="step-number-pill">Langkah 01</span>
+            <span class="step-number-pill">{{ __('Langkah') }} 01</span>
             <div class="step-icon-glow">
               <i class="icon-base ti tabler-user-check"></i>
             </div>
-            <h5 class="fw-bold mt-0 mb-3" style="color: #0b0f19; font-family: 'Sora', sans-serif;">Daftarkan Akun</h5>
+            <h5 class="fw-bold mt-0 mb-3" style="color: #0b0f19; font-family: 'Sora', sans-serif;">{{ __('Daftarkan Akun') }}</h5>
             <p class="text-muted mb-0" style="font-size: 0.95rem; line-height: 1.6;">
-              Lengkapi formulir pendaftaran di atas menggunakan data asli Anda. Tanpa pungutan biaya apa pun (100% Gratis).
+              {{ __('Lengkapi formulir pendaftaran di atas menggunakan data asli Anda. Tanpa pungutan biaya apa pun (100% Gratis).') }}
             </p>
           </div>
         </div>
@@ -1004,13 +1004,13 @@ $customizerHidden = 'customizer-hide';
         <!-- Step 2 -->
         <div class="col-md-4 reveal" style="transition-delay: 0.2s;">
           <div class="step-card-premium">
-            <span class="step-number-pill">Langkah 02</span>
+            <span class="step-number-pill">{{ __('Langkah') }} 02</span>
             <div class="step-icon-glow">
               <i class="icon-base ti tabler-school"></i>
             </div>
-            <h5 class="fw-bold mt-0 mb-3" style="color: #0b0f19; font-family: 'Sora', sans-serif;">Ikuti Kelas Pelatihan</h5>
+            <h5 class="fw-bold mt-0 mb-3" style="color: #0b0f19; font-family: 'Sora', sans-serif;">{{ __('Ikuti Kelas Pelatihan') }}</h5>
             <p class="text-muted mb-0" style="font-size: 0.95rem; line-height: 1.6;">
-              Gunakan NIK Anda untuk masuk, akses modul pembelajaran komprehensif, dan ikuti instruksi mentor kami secara terarah.
+              {{ __('Gunakan NIK Anda untuk masuk, akses modul pembelajaran komprehensif, dan ikuti instruksi mentor kami secara terarah.') }}
             </p>
           </div>
         </div>
@@ -1018,13 +1018,13 @@ $customizerHidden = 'customizer-hide';
         <!-- Step 3 -->
         <div class="col-md-4 reveal" style="transition-delay: 0.3s;">
           <div class="step-card-premium">
-            <span class="step-number-pill">Langkah 03</span>
+            <span class="step-number-pill">{{ __('Langkah') }} 03</span>
             <div class="step-icon-glow">
               <i class="icon-base ti tabler-award"></i>
             </div>
-            <h5 class="fw-bold mt-0 mb-3" style="color: #0b0f19; font-family: 'Sora', sans-serif;">Raih Hasil & Sertifikat</h5>
+            <h5 class="fw-bold mt-0 mb-3" style="color: #0b0f19; font-family: 'Sora', sans-serif;">{{ __('Raih Hasil & Sertifikat') }}</h5>
             <p class="text-muted mb-0" style="font-size: 0.95rem; line-height: 1.6;">
-              Tingkatkan nilai jual keterampilan, kembangkan usaha baru, dan dapatkan Sertifikat Kompetensi resmi di akhir pelatihan.
+              {{ __('Tingkatkan nilai jual keterampilan, kembangkan usaha baru, dan dapatkan Sertifikat Kompetensi resmi di akhir pelatihan.') }}
             </p>
           </div>
         </div>
@@ -1042,11 +1042,11 @@ $customizerHidden = 'customizer-hide';
       <!-- Section Header -->
       <div class="text-center mb-5 pb-3 reveal">
         <span class="badge bg-warning bg-opacity-10 text-warning px-4 py-2 fw-semibold mb-3" style="font-size: 0.8rem; letter-spacing: 0.05em; border: 1px solid rgba(245, 158, 11, 0.15); border-radius: 5px;">
-          MENGAPA MEMILIH {{ $institutionName }}
+          {{ __('Mengapa Memilih') }} {{ $institutionName }}
         </span>
-        <h2 class="fw-bold mb-3 display-6" style="color: #0b0f19; font-family: 'Sora', sans-serif;">Mengapa Memilih <span class="text-primary">Pelatihan Kami</span>?</h2>
+        <h2 class="fw-bold mb-3 display-6" style="color: #0b0f19; font-family: 'Sora', sans-serif;">{{ __('Mengapa Memilih') }} <span class="text-primary">{{ __('Pelatihan Kami') }}</span>?</h2>
         <p class="text-muted fs-5 mx-auto" style="max-width: 580px;">
-          Program pembinaan terstruktur yang dirancang agar setiap peserta siap terjun ke dunia industri dan wirausaha kreatif
+          {{ __('Program pembinaan terstruktur yang dirancang agar setiap peserta siap terjun ke dunia industri dan wirausaha kreatif') }}
         </p>
       </div>
 
@@ -1139,11 +1139,11 @@ $customizerHidden = 'customizer-hide';
       <!-- Section Title -->
       <div class="text-center mb-5 pb-3 reveal">
         <span class="badge bg-primary bg-opacity-10 text-primary px-4 py-2 fw-semibold mb-3" style="font-size: 0.8rem; letter-spacing: 0.05em; border-radius: 5px;">
-          PERTANYAAN UMUM
+          {{ __('PERTANYAAN UMUM') }}
         </span>
-        <h2 class="fw-bold mb-3 display-6" style="color: #0b0f19; font-family: 'Sora', sans-serif;">Pertanyaan yang <span class="text-primary">Sering Diajukan</span></h2>
+        <h2 class="fw-bold mb-3 display-6" style="color: #0b0f19; font-family: 'Sora', sans-serif;">{{ __('Pertanyaan yang Sering Diajukan') }}</h2>
         <p class="text-muted fs-5 mx-auto" style="max-width: 540px;">
-          Cari jawaban atas keraguan Anda mengenai pendaftaran dan metode pelatihan kami
+          {{ __('Cari jawaban atas keraguan Anda mengenai pendaftaran dan metode pelatihan kami') }}
         </p>
       </div>
 
@@ -1169,7 +1169,7 @@ $customizerHidden = 'customizer-hide';
               </div>
             @empty
               <div class="text-center py-4">
-                <p class="text-muted">Belum ada FAQ.</p>
+                <p class="text-muted">{{ __('Belum ada FAQ.') }}</p>
               </div>
             @endforelse
           </div>
@@ -1192,18 +1192,18 @@ $customizerHidden = 'customizer-hide';
 
         <div class="position-relative" style="z-index: 5;">
           <span class="badge bg-white bg-opacity-10 text-warning px-4 py-2 fw-semibold mb-4" style="font-size: 0.8rem; letter-spacing: 0.05em; border: 1px solid rgba(255,255,255,0.15); border-radius: 5px;">
-            🚀 SEGERA BERGABUNG
+            🚀 {{ __('SEGERA BERGABUNG') }}
           </span>
-          <h2 class="fw-bold text-white mb-3 display-5" style="font-family: 'Sora', sans-serif;">Siap Memulai Perjalanan Anda?</h2>
+          <h2 class="fw-bold text-white mb-3 display-5" style="font-family: 'Sora', sans-serif;">{{ __('Siap Memulai Perjalanan Anda?') }}</h2>
           <p class="fs-5 mb-5 text-white-50 mx-auto" style="max-width: 580px;">
-            Daftarkan diri Anda hari ini dan jadilah bagian dari perubahan ekonomi kreatif yang mandiri dan berdaya saing.
+            {{ __('Daftarkan diri Anda hari ini dan jadilah bagian dari perubahan ekonomi kreatif yang mandiri dan berdaya saing.') }}
           </p>
           <div class="d-flex gap-3 justify-content-center flex-wrap">
             <a href="#beranda" class="btn btn-warning btn-lg px-5 fw-semibold btn-glow py-3" style="font-family: 'Sora', sans-serif; border-radius: 5px;">
-              <i class="icon-base ti tabler-user-plus me-2"></i>Daftar Sekarang — Gratis!
+              <i class="icon-base ti tabler-user-plus me-2"></i>{{ __('Daftar Sekarang') }} — {{ __('Gratis') }}!
             </a>
             <a href="{{ route('login') }}" class="btn btn-glow-outline btn-lg px-5 fw-semibold py-3 d-flex align-items-center gap-2" style="border-radius: 5px;">
-              <i class="icon-base ti tabler-login fs-5"></i>Sudah Punya Akun? Login
+              <i class="icon-base ti tabler-login fs-5"></i>{{ __('Sudah Punya Akun? Login') }}
             </a>
           </div>
         </div>

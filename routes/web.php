@@ -38,6 +38,9 @@ use App\Http\Controllers\Admin\NotificationAdminController;
 use App\Http\Controllers\Admin\EnrollmentController;
 use App\Http\Controllers\Admin\AttendanceController;
 use App\Http\Controllers\Admin\CertificateController;
+use App\Http\Controllers\Admin\ExportController;
+use App\Http\Controllers\Admin\ScheduleController;
+use App\Http\Controllers\Admin\ActivityLogController;
 use App\Http\Controllers\KoordinatorRegisterController;
 use App\Http\Controllers\Peserta\PesertaFormController;
 use App\Http\Controllers\Admin\Auth\AdminLoginController;
@@ -65,9 +68,9 @@ Route::get('/pelatihan/{pelatihan}', [\App\Http\Controllers\PelatihanController:
 Route::get('/daftar', function () {
     return redirect('/#beranda');
 })->name('landing.register.form');
-Route::post('/daftar', [RegistrationController::class, 'register'])->name('landing.register');
-Route::post('/daftar/cek-nik', [RegistrationController::class, 'checkNik'])->name('landing.check-nik');
-Route::post('/daftar/cek-wa', [RegistrationController::class, 'checkWa'])->name('landing.check-wa');
+Route::post('/daftar', [RegistrationController::class, 'register'])->name('landing.register')->middleware('throttle:10,1');
+Route::post('/daftar/cek-nik', [RegistrationController::class, 'checkNik'])->name('landing.check-nik')->middleware('throttle:10,1');
+Route::post('/daftar/cek-wa', [RegistrationController::class, 'checkWa'])->name('landing.check-wa')->middleware('throttle:10,1');
 Route::get('/daftar/sukses', [RegistrationController::class, 'sukses'])->name('landing.sukses')->middleware('auth');
 
 // Home route - Jetstream redirects here after login/register
@@ -260,6 +263,30 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
         Route::put('notification-templates/{template}', [NotificationAdminController::class, 'updateTemplate'])->name('notification-templates.update');
         Route::delete('notification-templates/{template}', [NotificationAdminController::class, 'destroyTemplate'])->name('notification-templates.destroy');
         Route::post('notification-templates/{template}/test', [NotificationAdminController::class, 'testTemplate'])->name('notification-templates.test');
+
+        // ===== ACTIVITY LOGS =====
+        Route::get('/activity-logs', [ActivityLogController::class, 'index'])->name('activity-logs.index');
+
+        // ===== SCHEDULES / KALENDER JADWAL =====
+        Route::prefix('schedules')->name('schedules.')->group(function () {
+            Route::get('/', [ScheduleController::class, 'index'])->name('index');
+            Route::get('/data', [ScheduleController::class, 'data'])->name('data');
+            Route::post('/', [ScheduleController::class, 'store'])->name('store');
+            Route::put('/{schedule}', [ScheduleController::class, 'update'])->name('update');
+            Route::delete('/{schedule}', [ScheduleController::class, 'destroy'])->name('destroy');
+        });
+
+        // ===== EXPORT ROUTES =====
+        Route::prefix('exports')->name('exports.')->group(function () {
+            Route::get('peserta/pdf', [ExportController::class, 'exportPesertaPdf'])->name('peserta.pdf');
+            Route::get('peserta/excel', [ExportController::class, 'exportPesertaExcel'])->name('peserta.excel');
+            Route::get('enrollments/pdf/{pelatihan?}', [ExportController::class, 'exportEnrollmentsPdf'])->name('enrollments.pdf');
+            Route::get('enrollments/excel/{pelatihan?}', [ExportController::class, 'exportEnrollmentsExcel'])->name('enrollments.excel');
+            Route::get('attendance/pdf/{pelatihan}', [ExportController::class, 'exportAttendancePdf'])->name('attendance.pdf');
+            Route::get('attendance/excel/{pelatihan}', [ExportController::class, 'exportAttendanceExcel'])->name('attendance.excel');
+            Route::get('certificates/pdf', [ExportController::class, 'exportCertificatesPdf'])->name('certificates.pdf');
+            Route::get('certificates/excel', [ExportController::class, 'exportCertificatesExcel'])->name('certificates.excel');
+        });
     });
 });
 
@@ -279,6 +306,11 @@ Route::prefix('admin')->name('admin.')->group(function () {
         })->name('dashboard');
     });
 });
+
+// ===== PWA: Halaman Offline =====
+Route::get('/offline', function () {
+    return view('pages.offline');
+})->name('offline');
 
 // ===== PUBLIC: Verifikasi Sertifikat =====
 Route::get('/verifikasi-sertifikat', [\App\Http\Controllers\Admin\CertificateController::class, 'verify'])->name('certificates.verify');

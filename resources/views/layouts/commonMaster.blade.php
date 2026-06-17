@@ -35,7 +35,7 @@
 
 <html lang="{{ session()->get('locale') ?? app()->getLocale() }}"
   class="{{ $navbarType ?? '' }} {{ $contentLayout ?? '' }} {{ $menuFixed ?? '' }} {{ $menuCollapsed ?? '' }} {{ $footerFixed ?? '' }} {{ $customizerHidden ?? '' }}"
-  dir="{{ $configData['textDirection'] }}" data-skin="{{ $skinName }}" data-assets-path="{{ asset('/assets') . '/' }}"
+  dir="{{ session()->get('locale') === 'ar' ? 'rtl' : ($configData['textDirection'] ?? 'ltr') }}" data-skin="{{ $skinName }}" data-assets-path="{{ asset('/assets') . '/' }}"
   data-base-url="{{ url('/') }}" data-framework="laravel" data-template="{{ $configData['layout'] }}-menu-template"
   data-bs-theme="{{ $configData['theme'] }}" @if ($isAdminLayout && $semiDarkEnabled) data-semidark-menu="true" @endif>
 
@@ -57,6 +57,16 @@
   
   <!-- Favicon -->
   <link rel="icon" type="image/x-icon" href="{{ asset('assets/img/favicon/favicon.ico') }}" />
+
+  {{-- ===== PWA / Mobile Meta Tags ===== --}}
+  <link rel="manifest" href="{{ asset('manifest.json') }}">
+  <meta name="theme-color" content="#7367f0">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Pelatihanku">
+  <link rel="apple-touch-icon" href="{{ asset('icons/icon-192x192.png') }}">
+  <link rel="mask-icon" href="{{ asset('icons/icon.svg') }}" color="#7367f0">
+  {{-- ===== End PWA Meta Tags ===== --}}
 
   <!-- Include Styles -->
   <!-- $isFront is used to append the front layout styles only on the front layout otherwise the variable will be blank -->
@@ -89,6 +99,26 @@
   <!-- Include Scripts -->
   <!-- $isFront is used to append the front layout scripts only on the front layout otherwise the variable will be blank -->
   @include('layouts/sections/scripts' . $isFront)
+
+  {{-- ===== PWA: Register Service Worker ===== --}}
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function() {
+        navigator.serviceWorker.register('{{ asset("sw.js") }}').then(function(registration) {
+          console.log('PWA: ServiceWorker registered with scope:', registration.scope);
+
+          // Check for updates
+          registration.addEventListener('updatefound', function() {
+            const newWorker = registration.installing;
+            console.log('PWA: New service worker installing...');
+          });
+        }).catch(function(err) {
+          console.log('PWA: ServiceWorker registration failed: ', err);
+        });
+      });
+    }
+  </script>
+  {{-- ===== End PWA SW Registration ===== --}}
 </body>
 
 </html>

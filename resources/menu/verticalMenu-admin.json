@@ -69,6 +69,12 @@
       ]
     },
     {
+      "url": "/admin/schedules",
+      "name": "Kalender Jadwal",
+      "icon": "menu-icon icon-base ti tabler-calendar",
+      "slug": "admin.schedules.index"
+    },
+    {
       "menuHeader": "Koordinator"
     },
     {
@@ -142,6 +148,47 @@
       "name": "Broadcast WA",
       "icon": "menu-icon icon-base ti tabler-brand-whatsapp",
       "slug": "admin.notifications.broadcast"
+    },
+    {
+      "menuHeader": "Laporan"
+    },
+    {
+      "url": "#",
+      "name": "Laporan",
+      "icon": "menu-icon icon-base ti tabler-file-report",
+      "slug": "admin.exports",
+      "submenu": [
+        {
+          "url": "/admin/exports/peserta/pdf",
+          "name": "Export Peserta",
+          "icon": "menu-icon icon-base ti tabler-users",
+          "slug": "admin.exports.peserta.pdf"
+        },
+        {
+          "url": "/admin/exports/enrollments/pdf",
+          "name": "Export Pendaftaran",
+          "icon": "menu-icon icon-base ti tabler-clipboard-list",
+          "slug": "admin.exports.enrollments.pdf"
+        },
+        {
+          "url": "/admin/exports/attendance/pdf",
+          "name": "Export Absensi",
+          "icon": "menu-icon icon-base ti tabler-calendar-check",
+          "slug": "admin.exports.attendance.pdf"
+        },
+        {
+          "url": "/admin/exports/certificates/pdf",
+          "name": "Export Sertifikat",
+          "icon": "menu-icon icon-base ti tabler-certificate",
+          "slug": "admin.exports.certificates.pdf"
+        }
+      ]
+    },
+    {
+      "url": "/admin/activity-logs",
+      "name": "Log Aktivitas",
+      "icon": "menu-icon icon-base ti tabler-activity",
+      "slug": "admin.activity-logs.index"
     },
     {
       "menuHeader": "Informasi"

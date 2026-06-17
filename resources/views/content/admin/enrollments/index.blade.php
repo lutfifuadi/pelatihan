@@ -249,6 +249,18 @@ $configData = Helper::appClasses();
       </form>
     </div>
 
+    {{-- Export Buttons --}}
+    <div class="glass-card-premium px-4 py-3 mb-4">
+      <div class="d-flex justify-content-end align-items-center gap-2">
+        <a href="{{ request('pelatihan_id') ? route('admin.exports.enrollments.pdf', ['pelatihan' => request('pelatihan_id')]) : route('admin.exports.enrollments.pdf') }}" class="btn btn-outline-info btn-action" style="border-color: rgba(96,165,250,0.3); color: #93c5fd;">
+          <i class="icon-base ti tabler-file-export me-1"></i> 📄 Export PDF
+        </a>
+        <a href="{{ request('pelatihan_id') ? route('admin.exports.enrollments.excel', ['pelatihan' => request('pelatihan_id')]) : route('admin.exports.enrollments.excel') }}" class="btn btn-outline-success btn-action" style="border-color: rgba(16,185,129,0.3); color: #34d399;">
+          <i class="icon-base ti tabler-file-spreadsheet me-1"></i> 📊 Export Excel
+        </a>
+      </div>
+    </div>
+
     {{-- Table --}}
     <div class="glass-card-premium px-4 py-4">
       <div class="table-responsive">

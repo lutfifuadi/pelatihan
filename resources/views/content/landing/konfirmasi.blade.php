@@ -5,7 +5,7 @@ $customizerHidden = 'customizer-hide';
 
 @extends('layouts/blankLayout')
 
-@section('title', 'Pendaftaran Berhasil!')
+@section('title', __('Pendaftaran Berhasil!'))
 
 @section('page-style')
 <style>
@@ -205,13 +205,13 @@ $customizerHidden = 'customizer-hide';
 
       <!-- Main Title -->
       <h3 class="fw-bold text-white mb-2 fade-up" style="letter-spacing: -0.5px; font-size: 1.8rem;">
-        Pendaftaran Berhasil! 🎉
+        {{ __('Pendaftaran Berhasil!') }} 🎉
       </h3>
 
       <!-- Informative Subtitle -->
       <p class="text-white-50 mb-4 fade-up" style="max-width: 440px; margin-left: auto; margin-right: auto; line-height: 1.5; font-size: 0.98rem;">
-        Terima kasih telah mendaftar, <strong class="text-white fw-semibold">{{ $user->name }}</strong>!<br>
-        Data Anda telah berhasil direkam dalam sistem.
+        {{ __('Terima kasih telah mendaftar') }}, <strong class="text-white fw-semibold">{{ $user->name }}</strong>!<br>
+        {{ __('Data Anda telah berhasil direkam dalam sistem') }}.
       </p>
 
       <!-- Glass Information Cards -->
@@ -223,7 +223,7 @@ $customizerHidden = 'customizer-hide';
             <i class="icon-base ti tabler-id"></i>
           </div>
           <div>
-            <small class="text-white-50 d-block" style="font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 600;">NIK Anda (Username Login)</small>
+            <small class="text-white-50 d-block" style="font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 600;">{{ __('NIK Anda (Username Login)') }}</small>
             <span class="text-white fw-medium fs-5" style="font-family: 'Sora', sans-serif;">{{ $user->nik }}</span>
           </div>
         </div>
@@ -234,7 +234,7 @@ $customizerHidden = 'customizer-hide';
             <i class="icon-base ti tabler-mail"></i>
           </div>
           <div>
-            <small class="text-white-50 d-block" style="font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 600;">Alamat Email</small>
+            <small class="text-white-50 d-block" style="font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 600;">{{ __('Alamat Email') }}</small>
             <span class="text-white fw-medium fs-6">{{ $user->email }}</span>
           </div>
         </div>
@@ -245,7 +245,7 @@ $customizerHidden = 'customizer-hide';
             <i class="icon-base ti tabler-brand-whatsapp"></i>
           </div>
           <div>
-            <small class="text-white-50 d-block" style="font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 600;">Nomor WhatsApp</small>
+            <small class="text-white-50 d-block" style="font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 600;">{{ __('Nomor WhatsApp Aktif') }}</small>
             <span class="text-white fw-medium fs-6">+62{{ $user->whatsapp }}</span>
           </div>
         </div>
@@ -255,10 +255,10 @@ $customizerHidden = 'customizer-hide';
       <!-- Action Button Area -->
       <div class="fade-up">
         <a href="{{ route('dashboard.peserta') }}" class="btn btn-primary btn-lg px-5 py-3 fw-semibold btn-next d-inline-flex align-items-center gap-2">
-          Masuk ke Dashboard Peserta <i class="icon-base ti tabler-arrow-right fs-5"></i>
+          {{ __('Masuk ke Dashboard Peserta') }} <i class="icon-base ti tabler-arrow-right fs-5"></i>
         </a>
         <p class="text-white-50 small mt-4 mb-0">
-          Akun Anda telah masuk secara otomatis. Selamat belajar & berkarya! 🚀
+          {{ __('Selamat belajar & berkarya!') }} 🚀
         </p>
       </div>
 

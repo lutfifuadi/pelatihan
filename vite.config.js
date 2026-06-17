@@ -85,6 +85,44 @@ export default defineConfig({
   build: {
     commonjsOptions: {
       include: [/node_modules/] // Helps with importing CommonJS modules
+    },
+    rollupOptions: {
+      output: {
+        // Code splitting: vendor chunks terpisah agar lebih cacheable
+        manualChunks(id) {
+          // Pisahkan vendor/library besar ke chunk terpisah
+          if (id.includes('node_modules')) {
+            // Vendor utama yang sering berubah
+            if (id.includes('bootstrap') || id.includes('popper')) {
+              return 'vendor-bootstrap';
+            }
+            if (id.includes('chart.js') || id.includes('apexcharts')) {
+              return 'vendor-charts';
+            }
+            if (id.includes('flatpickr') || id.includes('daterangepicker')) {
+              return 'vendor-datepicker';
+            }
+            if (id.includes('sweetalert2') || id.includes('notyf') || id.includes('toastr')) {
+              return 'vendor-notifications';
+            }
+            if (id.includes('select2') || id.includes('tagify')) {
+              return 'vendor-forms';
+            }
+            // Vendor sisanya digabung
+            return 'vendor-other';
+          }
+          // Pisahkan template assets (core, theme)
+          if (id.includes('resources/assets/vendor/scss') || id.includes('resources/assets/vendor/css')) {
+            return 'theme-core';
+          }
+          if (id.includes('resources/assets/vendor/fonts')) {
+            return 'theme-fonts';
+          }
+          if (id.includes('resources/assets/vendor/libs')) {
+            return 'theme-libs';
+          }
+        }
+      }
     }
   }
 });

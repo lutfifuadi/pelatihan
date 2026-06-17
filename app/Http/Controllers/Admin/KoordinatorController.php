@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\Kecamatan;
+use App\Services\ActivityLogger;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 
@@ -62,6 +63,8 @@ class KoordinatorController extends Controller
             'email_verified_at' => now(),
         ]);
 
+        event(new \App\Events\DashboardUpdated());
+
         return redirect()->route('admin.koordinator.index')
             ->with('success', 'Koordinator berhasil ditambahkan.');
     }
@@ -115,6 +118,8 @@ class KoordinatorController extends Controller
 
         $koordinator->update($data);
 
+        event(new \App\Events\DashboardUpdated());
+
         return redirect()->route('admin.koordinator.index')
             ->with('success', 'Koordinator berhasil diperbarui.');
     }
@@ -144,6 +149,10 @@ class KoordinatorController extends Controller
 
         $koordinator->update(['is_active' => true]);
 
+        ActivityLogger::action('approved', 'Koordinator', "Koordinator {$koordinator->name} berhasil diaktifkan", $koordinator->id, $koordinator->name);
+
+        event(new \App\Events\DashboardUpdated());
+
         return redirect()->route('admin.koordinator.pending')
             ->with('success', 'Koordinator ' . $koordinator->name . ' berhasil diaktifkan.');
     }
@@ -160,6 +169,10 @@ class KoordinatorController extends Controller
         $nama = $koordinator->name;
         $koordinator->delete();
 
+        ActivityLogger::action('rejected', 'Koordinator', "Pendaftaran koordinator {$nama} ditolak dan dihapus", $koordinator->id, $nama);
+
+        event(new \App\Events\DashboardUpdated());
+
         return redirect()->route('admin.koordinator.pending')
             ->with('success', 'Pendaftaran koordinator ' . $nama . ' ditolak dan dihapus.');
     }
@@ -174,6 +187,8 @@ class KoordinatorController extends Controller
         }
 
         $koordinator->delete();
+
+        event(new \App\Events\DashboardUpdated());
 
         return redirect()->route('admin.koordinator.index')
             ->with('success', 'Koordinator berhasil dihapus.');

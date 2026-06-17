@@ -6,6 +6,8 @@ $configData = Helper::appClasses();
 
 @section('title', 'Dashboard Admin')
 
+{{-- DATA SUDAH DI-PASS DARI DashboardController DENGAN CACHE --}}
+
 @section('page-style')
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Sora:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
@@ -391,7 +393,7 @@ $configData = Helper::appClasses();
               </div>
               <div>
                 <p class="text-body-premium small mb-0">Total Pelatihan</p>
-                <h3 class="fw-bold text-white mb-0">{{ \App\Models\Pelatihan::count() }}</h3>
+                <h3 class="fw-bold text-white mb-0" id="stat-total-pelatihan">{{ $totalPelatihan }}</h3>
               </div>
             </div>
           </div>
@@ -406,7 +408,7 @@ $configData = Helper::appClasses();
             </div>
             <div>
               <p class="text-body-premium small mb-0">Total Peserta</p>
-              <h3 class="fw-bold text-white mb-0">{{ \App\Models\User::where('role', 'peserta')->count() }}</h3>
+              <h3 class="fw-bold text-white mb-0" id="stat-total-peserta">{{ $userCounts->total_peserta }}</h3>
             </div>
           </div>
         </div>
@@ -420,7 +422,7 @@ $configData = Helper::appClasses();
             </div>
             <div>
               <p class="text-body-premium small mb-0">Total Instruktur</p>
-              <h3 class="fw-bold text-white mb-0">{{ \App\Models\User::where('role', 'instruktur')->count() }}</h3>
+              <h3 class="fw-bold text-white mb-0" id="stat-total-instruktur">{{ $userCounts->total_instruktur }}</h3>
             </div>
           </div>
         </div>
@@ -435,7 +437,7 @@ $configData = Helper::appClasses();
               </div>
               <div>
                 <p class="text-body-premium small mb-0">Koordinator Wilayah</p>
-                <h3 class="fw-bold text-white mb-0">{{ \App\Models\User::where('role', 'koordinator')->count() }}</h3>
+                <h3 class="fw-bold text-white mb-0" id="stat-total-koordinator">{{ $userCounts->total_koordinator }}</h3>
               </div>
             </div>
           </div>
@@ -451,7 +453,7 @@ $configData = Helper::appClasses();
               </div>
               <div>
                 <p class="text-body-premium small mb-0">Kecamatan Terdaftar</p>
-                <h3 class="fw-bold text-white mb-0">{{ \App\Models\Kecamatan::count() }}</h3>
+                <h3 class="fw-bold text-white mb-0" id="stat-total-kecamatan">{{ $totalKecamatan }}</h3>
               </div>
             </div>
           </div>
@@ -472,8 +474,8 @@ $configData = Helper::appClasses();
               </div>
               <div>
                 <p class="text-body-premium small mb-0">WA Terkirim Hari Ini</p>
-                <h3 class="fw-bold text-white mb-0">
-                  {{ \App\Models\Notification::where('channel', 'whatsapp')->where('status', 'sent')->whereDate('sent_at', today())->count() }}
+                <h3 class="fw-bold text-white mb-0" id="stat-wa-sent-today">
+                  {{ $waSentToday }}
                 </h3>
               </div>
             </div>
@@ -489,8 +491,8 @@ $configData = Helper::appClasses();
               </div>
               <div>
                 <p class="text-body-premium small mb-0">Total WA Gagal</p>
-                <h3 class="fw-bold text-white mb-0">
-                  {{ \App\Models\Notification::where('channel', 'whatsapp')->where('status', 'failed')->count() }}
+                <h3 class="fw-bold text-white mb-0" id="stat-wa-failed">
+                  {{ $waFailed }}
                 </h3>
               </div>
             </div>
@@ -506,8 +508,8 @@ $configData = Helper::appClasses();
               </div>
               <div>
                 <p class="text-body-premium small mb-0">Template Aktif</p>
-                <h3 class="fw-bold text-white mb-0">
-                  {{ \App\Models\NotificationTemplate::where('is_active', true)->count() }}
+                <h3 class="fw-bold text-white mb-0" id="stat-active-templates">
+                  {{ $activeTemplates }}
                 </h3>
               </div>
             </div>
@@ -523,8 +525,8 @@ $configData = Helper::appClasses();
               </div>
               <div>
                 <p class="text-body-premium small mb-0">Notifikasi Pending</p>
-                <h3 class="fw-bold text-white mb-0">
-                  {{ \App\Models\Notification::where('status', 'pending')->count() }}
+                <h3 class="fw-bold text-white mb-0" id="stat-notif-pending">
+                  {{ $notifPending }}
                 </h3>
               </div>
             </div>
@@ -546,80 +548,70 @@ $configData = Helper::appClasses();
               <i class="icon-base ti tabler-user-check text-warning"></i>
               Approval Koordinator Pending
             </h5>
-            @php
-              $pendingCount = \App\Models\User::where('role', 'koordinator')->where('is_active', false)->count();
-            @endphp
-            <span class="badge-premium badge-premium-warning">{{ $pendingCount }} Menunggu</span>
+            <span class="badge-premium badge-premium-warning" id="badge-pending-koordinator">{{ $pendingKoordinatorCount }} Menunggu</span>
           </div>
 
-          @php
-            $pendingKoordinators = \App\Models\User::where('role', 'koordinator')
-              ->where('is_active', false)
-              ->with('kecamatan')
-              ->orderBy('created_at', 'desc')
-              ->take(5)
-              ->get();
-          @endphp
-
-          @if($pendingKoordinators->isEmpty())
-            <div class="text-center py-5">
-              <i class="icon-base ti tabler-discount-check fs-1 text-success mb-3"></i>
-              <h6 class="text-white">Semua pendaftaran bersih!</h6>
-              <p class="text-body-premium small mb-0">Tidak ada pengajuan koordinator yang tertunda.</p>
-            </div>
-          @else
-            <div class="table-responsive">
-              <table class="table table-borderless text-white align-middle">
-                <thead>
-                  <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.08);">
-                    <th class="text-body-premium small fw-semibold px-0">Nama / NIK</th>
-                    <th class="text-body-premium small fw-semibold">Kecamatan</th>
-                    <th class="text-body-premium small fw-semibold">WhatsApp</th>
-                    <th class="text-body-premium small fw-semibold text-end px-0">Aksi</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  @foreach($pendingKoordinators as $koor)
-                    <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.04);">
-                      <td class="px-0 py-3">
-                        <div class="fw-semibold text-white">{{ $koor->name }}</div>
-                        <small class="text-body-premium">{{ $koor->nik }}</small>
-                      </td>
-                      <td class="py-3">
-                        <span class="badge-premium badge-premium-info">{{ $koor->kecamatan->name ?? '-' }}</span>
-                      </td>
-                      <td class="py-3">
-                        <a href="https://wa.me/{{ $koor->whatsapp }}" target="_blank" class="text-warning text-decoration-none small">
-                          <i class="icon-base ti tabler-brand-whatsapp me-1"></i>{{ $koor->whatsapp }}
-                        </a>
-                      </td>
-                      <td class="text-end px-0 py-3">
-                        <div class="d-inline-flex gap-2">
-                          <form action="{{ route('admin.koordinator.approve', $koor->id) }}" method="POST">
-                            @csrf
-                            <button type="submit" class="btn btn-success btn-sm px-3" style="border-radius: 5px;">
-                              Approve
-                            </button>
-                          </form>
-                          <form action="{{ route('admin.koordinator.reject', $koor->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menolak koordinator ini?')">
-                            @csrf
-                            <button type="submit" class="btn btn-danger btn-sm px-3" style="border-radius: 5px;">
-                              Tolak
-                            </button>
-                          </form>
-                        </div>
-                      </td>
+          <div id="container-pending-koordinator">
+            @if($pendingKoordinators->isEmpty())
+              <div class="text-center py-5">
+                <i class="icon-base ti tabler-discount-check fs-1 text-success mb-3"></i>
+                <h6 class="text-white">Semua pendaftaran bersih!</h6>
+                <p class="text-body-premium small mb-0">Tidak ada pengajuan koordinator yang tertunda.</p>
+              </div>
+            @else
+              <div class="table-responsive">
+                <table class="table table-borderless text-white align-middle">
+                  <thead>
+                    <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.08);">
+                      <th class="text-body-premium small fw-semibold px-0">Nama / NIK</th>
+                      <th class="text-body-premium small fw-semibold">Kecamatan</th>
+                      <th class="text-body-premium small fw-semibold">WhatsApp</th>
+                      <th class="text-body-premium small fw-semibold text-end px-0">Aksi</th>
                     </tr>
-                  @endforeach
-                </tbody>
-              </table>
-            </div>
-            <div class="text-center mt-3">
-              <a href="{{ route('admin.koordinator.pending') }}" class="btn btn-glow-premium py-2 px-4 w-100">
-                <i class="icon-base ti tabler-list-check me-1"></i>Lihat Semua Pengajuan
-              </a>
-            </div>
-          @endif
+                  </thead>
+                  <tbody>
+                    @foreach($pendingKoordinators as $koor)
+                      <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.04);">
+                        <td class="px-0 py-3">
+                          <div class="fw-semibold text-white">{{ $koor->name }}</div>
+                          <small class="text-body-premium">{{ $koor->nik }}</small>
+                        </td>
+                        <td class="py-3">
+                          <span class="badge-premium badge-premium-info">{{ $koor->kecamatan->name ?? '-' }}</span>
+                        </td>
+                        <td class="py-3">
+                          <a href="https://wa.me/{{ $koor->whatsapp }}" target="_blank" class="text-warning text-decoration-none small">
+                            <i class="icon-base ti tabler-brand-whatsapp me-1"></i>{{ $koor->whatsapp }}
+                          </a>
+                        </td>
+                        <td class="text-end px-0 py-3">
+                          <div class="d-inline-flex gap-2">
+                            <form action="{{ route('admin.koordinator.approve', $koor->id) }}" method="POST">
+                              @csrf
+                              <button type="submit" class="btn btn-success btn-sm px-3" style="border-radius: 5px;">
+                                Approve
+                              </button>
+                            </form>
+                            <form action="{{ route('admin.koordinator.reject', $koor->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menolak koordinator ini?')">
+                              @csrf
+                              <button type="submit" class="btn btn-danger btn-sm px-3" style="border-radius: 5px;">
+                                Tolak
+                              </button>
+                            </form>
+                          </div>
+                        </td>
+                      </tr>
+                    @endforeach
+                  </tbody>
+                </table>
+              </div>
+              <div class="text-center mt-3">
+                <a href="{{ route('admin.koordinator.pending') }}" class="btn btn-glow-premium py-2 px-4 w-100">
+                  <i class="icon-base ti tabler-list-check me-1"></i>Lihat Semua Pengajuan
+                </a>
+              </div>
+            @endif
+          </div>
         </div>
       </div>
 
@@ -631,49 +623,44 @@ $configData = Helper::appClasses();
               <i class="icon-base ti tabler-book-2 text-primary"></i>
               Pelatihan Terbaru
             </h5>
-            @php
-              $activePelatihanCount = \App\Models\Pelatihan::where('is_active', true)->count();
-            @endphp
-            <span class="badge-premium badge-premium-primary">{{ $activePelatihanCount }} Aktif</span>
+            <span class="badge-premium badge-premium-primary" id="badge-active-pelatihan">{{ $activePelatihanCount }} Aktif</span>
           </div>
 
-          @php
-            $latestPelatihan = \App\Models\Pelatihan::orderBy('created_at', 'desc')->take(4)->get();
-          @endphp
-
-          @if($latestPelatihan->isEmpty())
-            <div class="text-center py-5">
-              <i class="icon-base ti tabler-book-off fs-1 text-warning mb-3"></i>
-              <h6 class="text-white">Belum ada pelatihan</h6>
-              <p class="text-body-premium small mb-0">Silakan tambahkan pelatihan baru.</p>
-            </div>
-          @else
-            <div class="d-flex flex-column gap-3 mb-4">
-              @foreach($latestPelatihan as $pel)
-                <div class="d-flex align-items-center gap-3">
-                  <div class="stat-icon-box stat-icon-primary" style="width: 42px; height: 42px; font-size: 1.25rem;">
-                    <i class="icon-base ti tabler-chef-hat"></i>
+          <div id="container-latest-pelatihan" class="d-flex flex-column h-100">
+            @if($latestPelatihan->isEmpty())
+              <div class="text-center py-5">
+                <i class="icon-base ti tabler-book-off fs-1 text-warning mb-3"></i>
+                <h6 class="text-white">Belum ada pelatihan</h6>
+                <p class="text-body-premium small mb-0">Silakan tambahkan pelatihan baru.</p>
+              </div>
+            @else
+              <div class="d-flex flex-column gap-3 mb-4">
+                @foreach($latestPelatihan as $pel)
+                  <div class="d-flex align-items-center gap-3">
+                    <div class="stat-icon-box stat-icon-primary" style="width: 42px; height: 42px; font-size: 1.25rem;">
+                      <i class="icon-base ti tabler-chef-hat"></i>
+                    </div>
+                    <div class="flex-grow-1">
+                      <h6 class="text-white fw-semibold mb-0" style="font-size: 0.85rem;">{{ $pel->nama }}</h6>
+                      <small class="text-body-premium">Batch {{ $pel->batch }} • Kuota {{ $pel->kuota }}</small>
+                    </div>
+                    <div>
+                      @if($pel->is_active)
+                        <span class="badge bg-success bg-opacity-20 text-success small px-2 py-1" style="border-radius: 4px; font-size: 10px;">Aktif</span>
+                      @else
+                        <span class="badge bg-secondary bg-opacity-20 text-white-50 small px-2 py-1" style="border-radius: 4px; font-size: 10px;">Nonaktif</span>
+                      @endif
+                    </div>
                   </div>
-                  <div class="flex-grow-1">
-                    <h6 class="text-white fw-semibold mb-0" style="font-size: 0.85rem;">{{ $pel->nama }}</h6>
-                    <small class="text-body-premium">Batch {{ $pel->batch }} • Kuota {{ $pel->kuota }}</small>
-                  </div>
-                  <div>
-                    @if($pel->is_active)
-                      <span class="badge bg-success bg-opacity-20 text-success small px-2 py-1" style="border-radius: 4px; font-size: 10px;">Aktif</span>
-                    @else
-                      <span class="badge bg-secondary bg-opacity-20 text-white-50 small px-2 py-1" style="border-radius: 4px; font-size: 10px;">Nonaktif</span>
-                    @endif
-                  </div>
-                </div>
-              @endforeach
-            </div>
-            <div class="text-center mt-auto">
-              <a href="{{ route('admin.pelatihan.index') }}" class="btn btn-glow-premium w-100 py-2">
-                <i class="icon-base ti tabler-settings me-1"></i>Kelola Pelatihan
-              </a>
-            </div>
-          @endif
+                @endforeach
+              </div>
+              <div class="text-center mt-auto">
+                <a href="{{ route('admin.pelatihan.index') }}" class="btn btn-glow-premium w-100 py-2">
+                  <i class="icon-base ti tabler-settings me-1"></i>Kelola Pelatihan
+                </a>
+              </div>
+            @endif
+          </div>
         </div>
       </div>
 
@@ -692,42 +679,34 @@ $configData = Helper::appClasses();
               <i class="icon-base ti tabler-users text-success"></i>
               Peserta Terdaftar Baru
             </h5>
-            @php
-              $pesertaCount = \App\Models\User::where('role', 'peserta')->count();
-            @endphp
-            <span class="badge-premium badge-premium-success">{{ $pesertaCount }} Peserta</span>
+            <span class="badge-premium badge-premium-success" id="badge-peserta-count">{{ $pesertaCount }} Peserta</span>
           </div>
 
-          @php
-            $latestPeserta = \App\Models\User::where('role', 'peserta')
-              ->orderBy('created_at', 'desc')
-              ->take(4)
-              ->get();
-          @endphp
-
-          @if($latestPeserta->isEmpty())
-            <div class="text-center py-4">
-              <i class="icon-base ti tabler-user-off fs-2 text-muted mb-2"></i>
-              <p class="text-body-premium small mb-0">Belum ada peserta yang mendaftar.</p>
-            </div>
-          @else
-            <div class="d-flex flex-column gap-3">
-              @foreach($latestPeserta as $p)
-                <div class="d-flex align-items-center justify-content-between">
-                  <div class="d-flex align-items-center gap-3">
-                    <div class="instructor-avatar text-white" style="background: rgba(16, 185, 129, 0.15); color: #34d399;">
-                      {{ strtoupper(substr($p->name, 0, 2)) }}
+          <div id="container-latest-peserta">
+            @if($latestPeserta->isEmpty())
+              <div class="text-center py-4">
+                <i class="icon-base ti tabler-user-off fs-2 text-muted mb-2"></i>
+                <p class="text-body-premium small mb-0">Belum ada peserta yang mendaftar.</p>
+              </div>
+            @else
+              <div class="d-flex flex-column gap-3">
+                @foreach($latestPeserta as $p)
+                  <div class="d-flex align-items-center justify-content-between">
+                    <div class="d-flex align-items-center gap-3">
+                      <div class="instructor-avatar text-white" style="background: rgba(16, 185, 129, 0.15); color: #34d399;">
+                        {{ strtoupper(substr($p->name, 0, 2)) }}
+                      </div>
+                      <div>
+                        <h6 class="text-white fw-semibold mb-0" style="font-size: 0.85rem;">{{ $p->name }}</h6>
+                        <small class="text-body-premium">{{ $p->nik ?? 'NIK Tidak Tersedia' }}</small>
+                      </div>
                     </div>
-                    <div>
-                      <h6 class="text-white fw-semibold mb-0" style="font-size: 0.85rem;">{{ $p->name }}</h6>
-                      <small class="text-body-premium">{{ $p->nik ?? 'NIK Tidak Tersedia' }}</small>
-                    </div>
+                    <span class="text-body-premium small">{{ $p->created_at->diffForHumans() }}</span>
                   </div>
-                  <span class="text-body-premium small">{{ $p->created_at->diffForHumans() }}</span>
-                </div>
-              @endforeach
-            </div>
-          @endif
+                @endforeach
+              </div>
+            @endif
+          </div>
         </div>
       </div>
 
@@ -739,52 +718,299 @@ $configData = Helper::appClasses();
               <i class="icon-base ti tabler-map-pins text-info"></i>
               Koordinator Wilayah Aktif
             </h5>
-            @php
-              $koorActiveCount = \App\Models\User::where('role', 'koordinator')->where('is_active', true)->count();
-            @endphp
-            <span class="badge-premium badge-premium-info">{{ $koorActiveCount }} Aktif</span>
+            <span class="badge-premium badge-premium-info" id="badge-active-koors">{{ $koorActiveCount }} Aktif</span>
           </div>
 
-          @php
-            $activeKoors = \App\Models\User::where('role', 'koordinator')
-              ->where('is_active', true)
-              ->with('kecamatan')
-              ->orderBy('created_at', 'desc')
-              ->take(4)
-              ->get();
-          @endphp
-
-          @if($activeKoors->isEmpty())
-            <div class="text-center py-4">
-              <i class="icon-base ti tabler-user-x fs-2 text-muted mb-2"></i>
-              <p class="text-body-premium small mb-0">Belum ada koordinator aktif.</p>
-            </div>
-          @else
-            <div class="d-flex flex-column gap-3">
-              @foreach($activeKoors as $k)
-                <div class="d-flex align-items-center justify-content-between">
-                  <div class="d-flex align-items-center gap-3">
-                    <div class="instructor-avatar text-white" style="background: rgba(6, 182, 212, 0.15); color: #22d3ee;">
-                      {{ strtoupper(substr($k->name, 0, 2)) }}
+          <div id="container-active-koors">
+            @if($activeKoors->isEmpty())
+              <div class="text-center py-4">
+                <i class="icon-base ti tabler-user-x fs-2 text-muted mb-2"></i>
+                <p class="text-body-premium small mb-0">Belum ada koordinator aktif.</p>
+              </div>
+            @else
+              <div class="d-flex flex-column gap-3">
+                @foreach($activeKoors as $k)
+                  <div class="d-flex align-items-center justify-content-between">
+                    <div class="d-flex align-items-center gap-3">
+                      <div class="instructor-avatar text-white" style="background: rgba(6, 182, 212, 0.15); color: #22d3ee;">
+                        {{ strtoupper(substr($k->name, 0, 2)) }}
+                      </div>
+                      <div>
+                        <h6 class="text-white fw-semibold mb-0" style="font-size: 0.85rem;">{{ $k->name }}</h6>
+                        <small class="text-body-premium">Kecamatan: {{ $k->kecamatan->name ?? '-' }}</small>
+                      </div>
                     </div>
-                    <div>
-                      <h6 class="text-white fw-semibold mb-0" style="font-size: 0.85rem;">{{ $k->name }}</h6>
-                      <small class="text-body-premium">Kecamatan: {{ $k->kecamatan->name ?? '-' }}</small>
-                    </div>
+                    @if($k->whatsapp)
+                      <a href="https://wa.me/{{ $k->whatsapp }}" target="_blank" class="btn btn-sm btn-outline-success px-2 py-1" style="border-radius: 4px; font-size: 11px;">
+                        <i class="icon-base ti tabler-brand-whatsapp"></i> Chat
+                      </a>
+                    @endif
                   </div>
-                  @if($k->whatsapp)
-                    <a href="https://wa.me/{{ $k->whatsapp }}" target="_blank" class="btn btn-sm btn-outline-success px-2 py-1" style="border-radius: 4px; font-size: 11px;">
-                      <i class="icon-base ti tabler-brand-whatsapp"></i> Chat
-                    </a>
-                  @endif
-                </div>
-              @endforeach
-            </div>
-          @endif
+                @endforeach
+              </div>
+            @endif
+          </div>
         </div>
       </div>
 
     </div>
 
   </div>
+@endsection
+
+@section('page-script')
+<script type="module">
+  document.addEventListener('DOMContentLoaded', () => {
+      if (window.Echo) {
+          window.Echo.channel('dashboard')
+              .listen('.dashboard.updated', (e) => {
+                  console.log('Dashboard updated event received:', e);
+                  const stats = e.stats;
+
+                  // Update simple stats
+                  if (document.getElementById('stat-total-pelatihan')) {
+                      document.getElementById('stat-total-pelatihan').innerText = stats.totalPelatihan;
+                  }
+                  if (document.getElementById('stat-total-peserta')) {
+                      document.getElementById('stat-total-peserta').innerText = stats.totalPeserta;
+                  }
+                  if (document.getElementById('stat-total-instruktur')) {
+                      document.getElementById('stat-total-instruktur').innerText = stats.totalInstruktur;
+                  }
+                  if (document.getElementById('stat-total-koordinator')) {
+                      document.getElementById('stat-total-koordinator').innerText = stats.totalKoordinator;
+                  }
+                  if (document.getElementById('stat-total-kecamatan')) {
+                      document.getElementById('stat-total-kecamatan').innerText = stats.totalKecamatan;
+                  }
+                  if (document.getElementById('stat-wa-sent-today')) {
+                      document.getElementById('stat-wa-sent-today').innerText = stats.waSentToday;
+                  }
+                  if (document.getElementById('stat-wa-failed')) {
+                      document.getElementById('stat-wa-failed').innerText = stats.waFailed;
+                  }
+                  if (document.getElementById('stat-active-templates')) {
+                      document.getElementById('stat-active-templates').innerText = stats.activeTemplates;
+                  }
+                  if (document.getElementById('stat-notif-pending')) {
+                      document.getElementById('stat-notif-pending').innerText = stats.notifPending;
+                  }
+
+                  // Update badges
+                  if (document.getElementById('badge-pending-koordinator')) {
+                      document.getElementById('badge-pending-koordinator').innerText = stats.pendingKoordinatorCount + ' Menunggu';
+                  }
+                  if (document.getElementById('badge-active-pelatihan')) {
+                      document.getElementById('badge-active-pelatihan').innerText = stats.activePelatihanCount + ' Aktif';
+                  }
+                  if (document.getElementById('badge-peserta-count')) {
+                      document.getElementById('badge-peserta-count').innerText = stats.totalPeserta + ' Peserta';
+                  }
+                  if (document.getElementById('badge-active-koors')) {
+                      document.getElementById('badge-active-koors').innerText = stats.koorActiveCount + ' Aktif';
+                  }
+
+                  // Update Pending Koordinator List/Table
+                  const containerPendingKoor = document.getElementById('container-pending-koordinator');
+                  if (containerPendingKoor) {
+                      if (stats.pendingKoordinators.length === 0) {
+                          containerPendingKoor.innerHTML = `
+                            <div class="text-center py-5">
+                              <i class="icon-base ti tabler-discount-check fs-1 text-success mb-3"></i>
+                              <h6 class="text-white">Semua pendaftaran bersih!</h6>
+                              <p class="text-body-premium small mb-0">Tidak ada pengajuan koordinator yang tertunda.</p>
+                            </div>
+                          `;
+                      } else {
+                          let rows = '';
+                          stats.pendingKoordinators.forEach(koor => {
+                              rows += `
+                                <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.04);">
+                                  <td class="px-0 py-3">
+                                    <div class="fw-semibold text-white">\${koor.name}</div>
+                                    <small class="text-body-premium">\${koor.nik}</small>
+                                  </td>
+                                  <td class="py-3">
+                                    <span class="badge-premium badge-premium-info">\${koor.kecamatan_name}</span>
+                                  </td>
+                                  <td class="py-3">
+                                    <a href="https://wa.me/\${koor.whatsapp}" target="_blank" class="text-warning text-decoration-none small">
+                                      <i class="icon-base ti tabler-brand-whatsapp me-1"></i>\${koor.whatsapp}
+                                    </a>
+                                  </td>
+                                  <td class="text-end px-0 py-3">
+                                    <div class="d-inline-flex gap-2">
+                                      <form action="\${koor.approve_route}" method="POST">
+                                        <input type="hidden" name="_token" value="\${document.querySelector('meta[name="csrf-token"]').getAttribute('content')}">
+                                        <button type="submit" class="btn btn-success btn-sm px-3" style="border-radius: 5px;">
+                                          Approve
+                                        </button>
+                                      </form>
+                                      <form action="\${koor.reject_route}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menolak koordinator ini?')">
+                                        <input type="hidden" name="_token" value="\${document.querySelector('meta[name="csrf-token"]').getAttribute('content')}">
+                                        <button type="submit" class="btn btn-danger btn-sm px-3" style="border-radius: 5px;">
+                                          Tolak
+                                        </button>
+                                      </form>
+                                    </div>
+                                  </td>
+                                </tr>
+                              `;
+                          });
+                          containerPendingKoor.innerHTML = `
+                            <div class="table-responsive">
+                              <table class="table table-borderless text-white align-middle">
+                                <thead>
+                                  <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.08);">
+                                    <th class="text-body-premium small fw-semibold px-0">Nama / NIK</th>
+                                    <th class="text-body-premium small fw-semibold">Kecamatan</th>
+                                    <th class="text-body-premium small fw-semibold">WhatsApp</th>
+                                    <th class="text-body-premium small fw-semibold text-end px-0">Aksi</th>
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  \${rows}
+                                </tbody>
+                              </table>
+                            </div>
+                            <div class="text-center mt-3">
+                              <a href="/admin/koordinator/pending" class="btn btn-glow-premium py-2 px-4 w-100">
+                                <i class="icon-base ti tabler-list-check me-1"></i>Lihat Semua Pengajuan
+                              </a>
+                            </div>
+                          `;
+                      }
+                  }
+
+                  // Update Latest Pelatihan
+                  const containerLatestPelatihan = document.getElementById('container-latest-pelatihan');
+                  if (containerLatestPelatihan) {
+                      if (stats.latestPelatihan.length === 0) {
+                          containerLatestPelatihan.innerHTML = `
+                            <div class="text-center py-5">
+                              <i class="icon-base ti tabler-book-off fs-1 text-warning mb-3"></i>
+                              <h6 class="text-white">Belum ada pelatihan</h6>
+                              <p class="text-body-premium small mb-0">Silakan tambahkan pelatihan baru.</p>
+                            </div>
+                          `;
+                      } else {
+                          let items = '';
+                          stats.latestPelatihan.forEach(pel => {
+                              const badge = pel.is_active
+                                  ? '<span class="badge bg-success bg-opacity-20 text-success small px-2 py-1" style="border-radius: 4px; font-size: 10px;">Aktif</span>'
+                                  : '<span class="badge bg-secondary bg-opacity-20 text-white-50 small px-2 py-1" style="border-radius: 4px; font-size: 10px;">Nonaktif</span>';
+
+                              items += `
+                                <div class="d-flex align-items-center gap-3">
+                                  <div class="stat-icon-box stat-icon-primary" style="width: 42px; height: 42px; font-size: 1.25rem;">
+                                    <i class="icon-base ti tabler-chef-hat"></i>
+                                  </div>
+                                  <div class="flex-grow-1">
+                                    <h6 class="text-white fw-semibold mb-0" style="font-size: 0.85rem;">\${pel.nama}</h6>
+                                    <small class="text-body-premium">Batch \${pel.batch} • Kuota \${pel.kuota}</small>
+                                  </div>
+                                  <div>
+                                    \${badge}
+                                  </div>
+                                </div>
+                              `;
+                          });
+                          containerLatestPelatihan.innerHTML = `
+                            <div class="d-flex flex-column gap-3 mb-4">
+                              \${items}
+                            </div>
+                            <div class="text-center mt-auto">
+                              <a href="/admin/pelatihan" class="btn btn-glow-premium w-100 py-2">
+                                <i class="icon-base ti tabler-settings me-1"></i>Kelola Pelatihan
+                              </a>
+                            </div>
+                          `;
+                      }
+                  }
+
+                  // Update Latest Peserta
+                  const containerLatestPeserta = document.getElementById('container-latest-peserta');
+                  if (containerLatestPeserta) {
+                      if (stats.latestPeserta.length === 0) {
+                          containerLatestPeserta.innerHTML = `
+                            <div class="text-center py-4">
+                              <i class="icon-base ti tabler-user-off fs-2 text-muted mb-2"></i>
+                              <p class="text-body-premium small mb-0">Belum ada peserta yang mendaftar.</p>
+                            </div>
+                          `;
+                      } else {
+                          let items = '';
+                          stats.latestPeserta.forEach(p => {
+                              const initials = p.name.substring(0, 2).toUpperCase();
+                              items += `
+                                <div class="d-flex align-items-center justify-content-between">
+                                  <div class="d-flex align-items-center gap-3">
+                                    <div class="instructor-avatar text-white" style="background: rgba(16, 185, 129, 0.15); color: #34d399;">
+                                      \${initials}
+                                    </div>
+                                    <div>
+                                      <h6 class="text-white fw-semibold mb-0" style="font-size: 0.85rem;">\${p.name}</h6>
+                                      <small class="text-body-premium">\${p.nik}</small>
+                                    </div>
+                                  </div>
+                                  <span class="text-body-premium small">\${p.diff_time}</span>
+                                </div>
+                              `;
+                          });
+                          containerLatestPeserta.innerHTML = `
+                            <div class="d-flex flex-column gap-3">
+                              \${items}
+                            </div>
+                          `;
+                      }
+                  }
+
+                  // Update Active Koors
+                  const containerActiveKoors = document.getElementById('container-active-koors');
+                  if (containerActiveKoors) {
+                      if (stats.activeKoors.length === 0) {
+                          containerActiveKoors.innerHTML = `
+                            <div class="text-center py-4">
+                              <i class="icon-base ti tabler-user-x fs-2 text-muted mb-2"></i>
+                              <p class="text-body-premium small mb-0">Belum ada koordinator aktif.</p>
+                            </div>
+                          `;
+                      } else {
+                          let items = '';
+                          stats.activeKoors.forEach(k => {
+                              const initials = k.name.substring(0, 2).toUpperCase();
+                              const chatBtn = k.whatsapp
+                                  ? `<a href="https://wa.me/\${k.whatsapp}" target="_blank" class="btn btn-sm btn-outline-success px-2 py-1" style="border-radius: 4px; font-size: 11px;">
+                                       <i class="icon-base ti tabler-brand-whatsapp"></i> Chat
+                                     </a>`
+                                  : '';
+
+                              items += `
+                                <div class="d-flex align-items-center justify-content-between">
+                                  <div class="d-flex align-items-center gap-3">
+                                    <div class="instructor-avatar text-white" style="background: rgba(6, 182, 212, 0.15); color: #22d3ee;">
+                                      \${initials}
+                                    </div>
+                                    <div>
+                                      <h6 class="text-white fw-semibold mb-0" style="font-size: 0.85rem;">\${k.name}</h6>
+                                      <small class="text-body-premium">Kecamatan: \${k.kecamatan_name}</small>
+                                    </div>
+                                  </div>
+                                  \${chatBtn}
+                                </div>
+                              `;
+                          });
+                          containerActiveKoors.innerHTML = `
+                            <div class="d-flex flex-column gap-3">
+                              \${items}
+                            </div>
+                          `;
+                      }
+                  }
+              });
+      } else {
+          console.warn('Laravel Echo is not loaded yet');
+      }
+  });
+</script>
 @endsection
