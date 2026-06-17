@@ -1306,6 +1306,8 @@ $customizerHidden = 'customizer-hide';
       </div>
 
       @php
+        \Carbon\Carbon::setLocale('id');
+
         $coverImages = [
           'kuliner' => 'https://images.unsplash.com/photo-1556910103-1c02745aae4d?q=80&w=800&auto=format&fit=crop',
           'kriya' => 'https://images.unsplash.com/photo-1452860606245-08befc0ff44b?q=80&w=800&auto=format&fit=crop',
@@ -1364,12 +1366,12 @@ $customizerHidden = 'customizer-hide';
               } elseif ($percentage >= 80) {
                 $statusClass = 'card-status-limited';
                 $statusText = __('Sisa Sedikit');
-                $quotaText = $quota - $approvedCount . ' ' . __('kursi tersisa');
+                $quotaText = ($quota - $approvedCount) . ' ' . __('kursi tersisa');
                 $barColor = 'bg-warning';
               } else {
                 $statusClass = 'card-status-open';
                 $statusText = __('Pendaftaran Dibuka');
-                $quotaText = $quota - $approvedCount . ' / ' . $quota . ' ' . __('kursi');
+                $quotaText = $approvedCount . ' / ' . $quota . ' ' . __('kursi terisi');
                 $barColor = 'bg-success';
               }
 
@@ -1383,7 +1385,20 @@ $customizerHidden = 'customizer-hide';
               }
 
               $kecamatanNames = $pelatihan->kecamatans->pluck('name')->filter()->values();
-              $lokasiText = $kecamatanNames->isNotEmpty() ? __('Khusus') . ': ' . $kecamatanNames->implode(', ') : __('Untuk semua kecamatan');
+              if ($kecamatanNames->isNotEmpty()) {
+                $displayKecamatan = $kecamatanNames->take(3)->implode(', ');
+                $remainingCount = $kecamatanNames->count() - 3;
+                if ($remainingCount > 0) {
+                  $displayKecamatan .= ' +' . $remainingCount . ' ' . __('lainnya');
+                }
+                $lokasiText = __('Khusus') . ': ' . $displayKecamatan;
+              } else {
+                $lokasiText = __('Untuk semua kecamatan');
+              }
+
+              $batchDisplay = str_starts_with(strtoupper($pelatihan->batch), 'BATCH ') 
+                ? substr($pelatihan->batch, 6) 
+                : $pelatihan->batch;
             @endphp
 
             <div class="col-md-6 col-lg-4 reveal" style="transition-delay: {{ $loop->iteration * 0.1 }}s;">
@@ -1397,7 +1412,7 @@ $customizerHidden = 'customizer-hide';
 
                 <!-- Card Body -->
                 <div class="card-body">
-                  <div class="batch-label">{{ __('Batch') }} {{ $pelatihan->batch }}</div>
+                  <div class="batch-label">{{ __('Batch') }} {{ $batchDisplay }}</div>
                   <h5 class="card-title">{{ $pelatihan->nama }}</h5>
 
                   <div class="card-meta">

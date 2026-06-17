@@ -40,6 +40,7 @@
         <h6 class="text-white fw-bold mb-4" style="font-family: 'Sora', sans-serif;">{{ __('Tautan Penting') }}</h6>
           <ul class="list-unstyled d-flex flex-column gap-2">
             <li><a href="#beranda" class="footer-link">{{ __('Beranda') }}</a></li>
+            <li><a href="#pelatihan" class="footer-link">{{ __('Pelatihan') }}</a></li>
             <li><a href="#langkah" class="footer-link">{{ __('Cara Daftar') }}</a></li>
             <li><a href="#mengapa" class="footer-link">{{ __('Keunggulan') }}</a></li>
             <li><a href="#faq" class="footer-link">{{ __('FAQ') }}</a></li>

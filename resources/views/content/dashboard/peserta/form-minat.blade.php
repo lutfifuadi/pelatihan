@@ -157,6 +157,156 @@ $configData = Helper::appClasses();
   .invalid-feedback-custom.d-block { display: block; }
 
   .checkbox-group label { font-size: 13px; }
+
+  /* Grid Cards Visual */
+  .grid-cards-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 16px;
+  }
+  @media (max-width: 660px) {
+    .grid-cards-container {
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+  }
+
+  .visual-card {
+    background: rgba(255, 255, 255, 0.02) !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    border-radius: 12px !important;
+    padding: 20px !important;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 200px;
+  }
+
+  .visual-card:hover:not(.disabled) {
+    transform: translateY(-4px) !important;
+    background: rgba(255, 255, 255, 0.04) !important;
+    border-color: rgba(99, 102, 241, 0.4) !important;
+    box-shadow: 0 12px 20px -10px rgba(99, 102, 241, 0.25) !important;
+  }
+
+  .visual-card.active {
+    background: rgba(99, 102, 241, 0.1) !important;
+    border-color: #6366f1 !important;
+    box-shadow: 0 0 20px rgba(99, 102, 241, 0.25), inset 0 0 12px rgba(99, 102, 241, 0.1) !important;
+  }
+
+  .visual-card.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background: rgba(239, 68, 68, 0.02) !important;
+    border-color: rgba(239, 68, 68, 0.15) !important;
+  }
+
+  .card-header-custom {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 14px;
+  }
+
+  .badge-batch {
+    background: rgba(99, 102, 241, 0.15) !important;
+    color: #a5b4fc !important;
+    font-size: 11px !important;
+    font-weight: 600 !important;
+    padding: 4px 10px !important;
+    border-radius: 6px !important;
+    letter-spacing: 0.05em !important;
+    text-transform: uppercase;
+  }
+  .visual-card.disabled .badge-batch {
+    background: rgba(239, 68, 68, 0.1) !important;
+    color: #fca5a5 !important;
+  }
+
+  .custom-radio-indicator {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    border: 2px solid rgba(255, 255, 255, 0.25);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+  }
+
+  .visual-card.active .custom-radio-indicator {
+    border-color: #6366f1 !important;
+    background: #6366f1 !important;
+  }
+
+  .radio-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #ffffff;
+  }
+
+  .pelatihan-title {
+    font-family: 'Sora', sans-serif !important;
+    font-weight: 700 !important;
+    font-size: 1.05rem !important;
+    color: #ffffff !important;
+    margin-bottom: 12px !important;
+    line-height: 1.4 !important;
+  }
+
+  .card-info-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px !important;
+    color: rgba(255, 255, 255, 0.7) !important;
+    margin-bottom: 8px;
+  }
+  .card-info-item i {
+    font-size: 16px !important;
+    color: rgba(255, 255, 255, 0.4) !important;
+  }
+
+  .visual-card.active .card-info-item i {
+    color: #a5b4fc !important;
+  }
+
+  .restricted-warning-box {
+    margin-top: 12px;
+    padding: 10px 12px;
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.2);
+    border-radius: 8px;
+    font-size: 11px;
+    color: #f87171;
+    display: flex;
+    align-items: flex-start;
+    gap: 6px;
+    line-height: 1.4;
+  }
+  .restricted-warning-box i {
+    margin-top: 2px;
+    font-size: 14px;
+    flex-shrink: 0;
+  }
+
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+  }
 </style>
 @endsection
 
@@ -203,40 +353,69 @@ $configData = Helper::appClasses();
             <p class="text-white-50-custom small mb-3" style="font-size: 12px; font-style: italic;">
               PELAKSANAAN BATCH SELANJUTNYA AKAN DI INFORMASIKAN LEWAT EMAIL ATAU WA TERDAFTAR
             </p>
-            <div class="mt-1" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+            <div class="grid-cards-container mt-1">
               <template x-for="(batch, index) in batchList" :key="index">
-                <div class="form-check" :class="{ 'opacity-50': batch.restricted }">
-                  <input class="form-check-input form-check-input-custom" type="radio" name="batch_pelatihan"
-                    :id="'batch_' + index" :value="batch.value" x-model="form.batch_pelatihan" :disabled="batch.restricted" />
-                  <label class="form-check-label text-white-70-custom small" :for="'batch_' + index" x-text="batch.label" style="line-height: 1.4;"></label>
-                  <template x-if="batch.restricted">
-                    <span class="d-block mt-1" style="font-size: 0.65rem;">
-                      <span class="badge bg-danger bg-opacity-25 text-danger fw-normal">
-                        <i class="icon-base ti tabler-alert-triangle me-1"></i>⛔ Sudah pernah mengikuti pelatihan di <span x-text="batch.restricted_dinas"></span>. Tersedia setelah <span x-text="batch.restricted_until"></span>
-                      </span>
-                    </span>
-                  </template>
-                  <template x-if="!batch.restricted">
-                    <span class="d-block mt-1" style="font-size: 0.65rem;">
-                      <span class="badge bg-info bg-opacity-25 text-info fw-normal">
-                        <i class="icon-base ti tabler-building me-1"></i><span x-text="batch.dinas_name"></span>
-                      </span>
-                    </span>
-                  </template>
-                  <template x-if="!batch.restricted && batch.kecamatans && batch.kecamatans.length > 0">
-                    <span class="d-block mt-1" style="font-size: 0.65rem;">
-                      <span class="badge bg-info bg-opacity-25 text-info fw-normal">
-                        <i class="icon-base ti tabler-map-pin me-1"></i>Khusus: <span x-text="batch.kecamatans.join(', ')"></span>
-                      </span>
-                    </span>
-                  </template>
-                  <template x-if="!batch.restricted && (!batch.kecamatans || batch.kecamatans.length === 0)">
-                    <span class="d-block mt-1" style="font-size: 0.65rem;">
-                      <span class="badge bg-secondary bg-opacity-25 text-white-50 fw-normal">
-                        <i class="icon-base ti tabler-world me-1"></i>Untuk semua kecamatan
-                      </span>
-                    </span>
-                  </template>
+                <div 
+                  class="visual-card"
+                  :class="{ 
+                    'active': form.batch_pelatihan === batch.value.toString() || form.batch_pelatihan === batch.value, 
+                    'disabled': batch.restricted 
+                  }"
+                  @click="if (!batch.restricted) { form.batch_pelatihan = batch.value.toString() }"
+                >
+                  <div>
+                    <!-- Card Header -->
+                    <div class="card-header-custom">
+                      <span class="badge-batch" x-text="'Batch ' + (batch.value.toUpperCase().startsWith('BATCH ') ? batch.value.substring(6) : batch.value)"></span>
+                      <div class="custom-radio-indicator">
+                        <div class="radio-dot" x-show="form.batch_pelatihan === batch.value.toString() || form.batch_pelatihan === batch.value"></div>
+                      </div>
+                    </div>
+
+                    <!-- Hidden Input for accessibility & standard form submit fallback -->
+                    <input 
+                      type="radio" 
+                      name="batch_pelatihan" 
+                      :value="batch.value" 
+                      :checked="form.batch_pelatihan === batch.value.toString() || form.batch_pelatihan === batch.value" 
+                      :disabled="batch.restricted" 
+                      class="sr-only"
+                    />
+
+                    <!-- Pelatihan Title/Name -->
+                    <h6 class="pelatihan-title" x-text="batch.label.split(' : ')[1] ? batch.label.split(' : ')[1].split(' (')[0] : batch.label"></h6>
+                  </div>
+
+                  <!-- Details & Meta Info -->
+                  <div>
+                    <!-- Dinas Badge -->
+                    <div class="card-info-item">
+                      <i class="icon-base ti tabler-building"></i>
+                      <span x-text="batch.dinas_name" class="font-medium"></span>
+                    </div>
+
+                    <!-- Date/Schedule -->
+                    <div class="card-info-item">
+                      <i class="icon-base ti tabler-calendar"></i>
+                      <span x-text="batch.label.includes('(') ? batch.label.substring(batch.label.indexOf('(') + 1, batch.label.lastIndexOf(')')) : 'COMING SOON'"></span>
+                    </div>
+
+                    <!-- Kecamatan Specific Info -->
+                    <div class="card-info-item">
+                      <i class="icon-base ti tabler-map-pin"></i>
+                      <span x-text="batch.kecamatans && batch.kecamatans.length > 0 ? 'Khusus: ' + batch.kecamatans.join(', ') : 'Untuk semua kecamatan'"></span>
+                    </div>
+
+                    <!-- Restriction Warnings if applicable -->
+                    <template x-if="batch.restricted">
+                      <div class="restricted-warning-box">
+                        <i class="icon-base ti tabler-alert-triangle"></i>
+                        <span>
+                          Sudah pernah mengikuti pelatihan di <strong x-text="batch.restricted_dinas"></strong>. Tersedia setelah <strong x-text="batch.restricted_until"></strong>
+                        </span>
+                      </div>
+                    </template>
+                  </div>
                 </div>
               </template>
             </div>

@@ -14,6 +14,7 @@
     </button>
     <nav class="d-none d-lg-flex align-items-center gap-4">
       <a href="#beranda" class="nav-link-premium">{{ __('Beranda') }}</a>
+      <a href="#pelatihan" class="nav-link-premium">{{ __('Pelatihan') }}</a>
       <a href="#langkah" class="nav-link-premium">{{ __('Alur Pendaftaran') }}</a>
       <a href="#mengapa" class="nav-link-premium">{{ __('Keunggulan') }}</a>
       <a href="#faq" class="nav-link-premium">{{ __('FAQ') }}</a>
@@ -81,6 +82,10 @@
     <a href="#beranda" class="panel-link">
       <i class="icon-base ti tabler-smart-home"></i>
       {{ __('Beranda') }}
+    </a>
+    <a href="#pelatihan" class="panel-link">
+      <i class="icon-base ti tabler-school"></i>
+      {{ __('Pelatihan') }}
     </a>
     <a href="#langkah" class="panel-link">
       <i class="icon-base ti tabler-list-check"></i>
