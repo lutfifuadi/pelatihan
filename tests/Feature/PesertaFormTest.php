@@ -159,7 +159,17 @@ class PesertaFormTest extends TestCase
 
     public function test_save_dokumen_redirects_and_marks_completed(): void
     {
-        $response = $this->post('/dashboard/peserta/form-dokumen', []);
+        $response = $this->post('/dashboard/peserta/form-dokumen', [
+            'pengetahuan_asep' => 'Beliau adalah seorang tokoh',
+            'alasan_pelatihan' => 'Ingin menambah ilmu',
+            'pengalaman_bisnis' => 'Sudah berjualan sejak 2020',
+            'rencana_setelah_pelatihan' => 'Ingin membuka usaha',
+            'punya_usaha' => 'Sudah',
+            'jenis_usaha' => 'Kuliner',
+            'usaha_dimiliki' => 'Belum Pernah',
+            'nama_usaha' => 'Belum Pernah',
+            'konfirmasi' => '1',
+        ]);
 
         $response->assertRedirect(route('dashboard.peserta'));
         $this->assertDatabaseHas('peserta_profiles', [

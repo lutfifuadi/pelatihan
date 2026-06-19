@@ -5,23 +5,22 @@ namespace App\Http\Controllers\Peserta;
 use App\Http\Controllers\Controller;
 use App\Models\Pelatihan;
 use App\Models\PesertaProfile;
+use App\Services\FormConfigService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Validation\Rules\File;
 
 class PesertaFormController extends Controller
 {
+    protected $formConfig;
+
+    public function __construct(FormConfigService $formConfig)
+    {
+        $this->formConfig = $formConfig;
+    }
+
     public function saveTab1(Request $request)
     {
-        $request->validate([
-            'nik' => 'nullable|string|digits_between:15,16',
-            'nama_lengkap' => 'nullable|string|max:255',
-            'jenis_kelamin' => 'nullable|in:L,P',
-            'tempat_lahir' => 'nullable|string|max:200',
-            'tanggal_lahir' => 'nullable|string|max:2',
-            'bulan_lahir' => 'nullable|string|max:20',
-            'tahun_lahir' => 'nullable|string|digits:4',
-        ]);
+        $rules = $this->formConfig->buildValidationRules('data_pribadi');
+        $request->validate($rules);
 
         $user = auth()->user();
 
@@ -54,25 +53,10 @@ class PesertaFormController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
-            'nik' => 'nullable|string|digits_between:15,16',
-            'nama_lengkap' => 'nullable|string|max:255',
-            'jenis_kelamin' => 'nullable|in:L,P',
-            'tempat_lahir' => 'nullable|string|max:200',
-            'tanggal_lahir' => 'nullable|string|max:2',
-            'bulan_lahir' => 'nullable|string|max:20',
-            'tahun_lahir' => 'nullable|string|digits:4',
-            'alamat_ktp' => 'nullable|string|max:500',
-            'rt' => 'nullable|string|max:5',
-            'rw' => 'nullable|string|max:5',
-            'kelurahan' => 'nullable|string|max:200',
-            'kecamatan' => 'nullable|string|max:200',
-            'kota' => 'nullable|string|max:200',
-            'provinsi' => 'nullable|string|max:200',
-            'kodepos' => 'nullable|string|max:10',
-            'whatsapp' => 'nullable|string|max:20',
-            'email' => 'nullable|email|max:255',
-        ]);
+        $rulesTab1 = $this->formConfig->buildValidationRules('data_pribadi');
+        $rulesTab2 = $this->formConfig->buildValidationRules('alamat_kontak');
+        $rules = array_merge($rulesTab1, $rulesTab2);
+        $request->validate($rules);
 
         $user = auth()->user();
 
@@ -118,19 +102,16 @@ class PesertaFormController extends Controller
     {
         $user = auth()->user();
         $profile = PesertaProfile::where('user_id', $user->id)->first();
-        return view('content.dashboard.peserta.form-pendidikan', compact('user', 'profile'));
+        $fields = $this->formConfig->getFieldsBySection('pendidikan');
+        $pendidikanOptions = $this->formConfig->getOptions('pendidikan_terakhir');
+        $pekerjaanOptions = $this->formConfig->getOptions('status_pekerjaan');
+        return view('content.dashboard.peserta.form-pendidikan', compact('user', 'profile', 'fields', 'pendidikanOptions', 'pekerjaanOptions'));
     }
 
     public function savePendidikan(Request $request)
     {
-        $request->validate([
-            'pendidikan_terakhir' => 'nullable|string|max:100',
-            'nama_institusi' => 'nullable|string|max:255',
-            'jurusan' => 'nullable|string|max:255',
-            'tahun_lulus' => 'nullable|string|digits:4',
-            'status_pekerjaan' => 'nullable|string|max:100',
-            'nama_perusahaan' => 'nullable|string|max:255',
-        ]);
+        $rules = $this->formConfig->buildValidationRules('pendidikan');
+        $request->validate($rules);
 
         $user = auth()->user();
         PesertaProfile::updateOrCreate(
@@ -208,7 +189,9 @@ class PesertaFormController extends Controller
             ];
         })->values();
 
-        return view('content.dashboard.peserta.form-minat', compact('user', 'profile', 'pelatihans', 'dinasRestrictions', 'batchList'));
+        $fields = $this->formConfig->getFieldsBySection('minat');
+
+        return view('content.dashboard.peserta.form-minat', compact('user', 'profile', 'pelatihans', 'dinasRestrictions', 'batchList', 'fields'));
     }
 
     public function saveMinat(Request $request)
@@ -263,56 +246,42 @@ class PesertaFormController extends Controller
     {
         $user = auth()->user();
         $profile = PesertaProfile::where('user_id', $user->id)->first();
-        return view('content.dashboard.peserta.form-dokumen', compact('user', 'profile'));
+        $fields = $this->formConfig->getFieldsBySection('dokumen');
+        return view('content.dashboard.peserta.form-dokumen', compact('user', 'profile', 'fields'));
     }
 
     public function saveDokumen(Request $request)
     {
-        $request->validate([
-            'foto_profil' => [
-                'nullable',
-                File::types(['jpg', 'jpeg', 'png', 'webp'])
-                    ->max(2 * 1024), // Maks 2MB
-            ],
-            'scan_ktp' => [
-                'nullable',
-                File::types(['jpg', 'jpeg', 'png', 'pdf'])
-                    ->max(5 * 1024), // Maks 5MB
-            ],
-        ], [
-            'foto_profil.max' => 'Ukuran foto profil maksimal 2MB.',
-            'scan_ktp.max' => 'Ukuran scan KTP maksimal 5MB.',
-        ]);
-
-        $fotoProfil = null;
-        $scanKtp = null;
-
-        if ($request->hasFile('foto_profil')) {
-            $fotoProfil = $request->file('foto_profil')->store('uploads/peserta', 'public');
-        }
-
-        if ($request->hasFile('scan_ktp')) {
-            $scanKtp = $request->file('scan_ktp')->store('uploads/peserta', 'public');
-        }
+        $rules = $this->formConfig->buildValidationRules('dokumen');
+        $request->validate($rules);
 
         $user = auth()->user();
         $profile = PesertaProfile::where('user_id', $user->id)->first();
 
-        $updateData = [
-            'is_completed' => true,
-        ];
+        // Kumpulkan semua jawaban pertanyaan dari section dokumen
+        $fields = $this->formConfig->getFieldsBySection('dokumen');
+        $jawaban = [];
 
-        if ($fotoProfil) {
-            $updateData['foto_profil'] = basename($fotoProfil);
-        }
-        if ($scanKtp) {
-            $updateData['scan_ktp'] = basename($scanKtp);
+        foreach ($fields as $field) {
+            if ($field->type === 'checkbox') continue; // skip konfirmasi
+
+            if ($field->type === 'radio_other') {
+                $jawaban[$field->field_key] = $request->input($field->field_key);
+                // Simpan juga input "other" jika ada
+                $otherKey = $field->field_key . '_other';
+                if ($request->filled($otherKey)) {
+                    $jawaban[$otherKey] = $request->input($otherKey);
+                }
+            } else {
+                if ($request->filled($field->field_key)) {
+                    $jawaban[$field->field_key] = $request->input($field->field_key);
+                }
+            }
         }
 
-        PesertaProfile::updateOrCreate(
-            ['user_id' => $user->id],
-            $updateData
-        );
+        $profile->jawaban_pertanyaan = $jawaban;
+        $profile->is_completed = true;
+        $profile->save();
 
         return redirect()->route('dashboard.peserta')->with('success', 'Pendaftaran berhasil! Data Anda telah tersimpan.');
     }

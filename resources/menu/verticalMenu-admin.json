@@ -117,6 +117,26 @@
       "slug": "admin.faqs.index"
     },
     {
+      "url": "#",
+      "name": "Form Config",
+      "icon": "menu-icon icon-base ti tabler-settings",
+      "slug": "admin.form",
+      "submenu": [
+        {
+          "url": "/admin/form-options",
+          "name": "Form Options",
+          "icon": "menu-icon icon-base ti tabler-list",
+          "slug": "admin.form-options.index"
+        },
+        {
+          "url": "/admin/form-config",
+          "name": "Form Field Config",
+          "icon": "menu-icon icon-base ti tabler-input-search",
+          "slug": "admin.form-config.index"
+        }
+      ]
+    },
+    {
       "menuHeader": "Notifikasi"
     },
     {

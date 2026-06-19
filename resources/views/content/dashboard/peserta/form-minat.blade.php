@@ -1,5 +1,10 @@
 @php
 $configData = Helper::appClasses();
+
+// Config lookup helpers
+$fLabels = $fields->pluck('label', 'field_key');
+$fPlaceholders = $fields->pluck('placeholder', 'field_key');
+$fActive = $fields->where('is_active', true)->pluck('field_key')->toArray();
 @endphp
 
 @extends('layouts/layoutMaster')
@@ -344,14 +349,17 @@ $configData = Helper::appClasses();
 
       <div class="tab-pane-step">
         <h5 class="text-white-70-custom fw-semibold mb-3" style="font-size: 0.95rem;">
-          <i class="icon-base ti tabler-heart me-2" style="color: #6366f1;"></i>MINAT PELATIHAN
+          <i class="icon-base ti tabler-heart me-2" style="color: #6366f1;"></i>{{ $fLabels['section_title'] ?? 'MINAT PELATIHAN' }}
         </h5>
 
         <div class="field-group">
           <div class="field-full">
-            <label class="form-label form-label-custom">PILIH PELATIHAN (BATCH) YANG ANDA MINATI *</label>
+            <label class="form-label form-label-custom">
+              {{ $fLabels['batch_pelatihan'] ?? 'PILIH PELATIHAN (BATCH) YANG ANDA MINATI' }}
+              @if($fields->where('field_key', 'batch_pelatihan')->first()?->is_required) <span class="text-danger">*</span> @endif
+            </label>
             <p class="text-white-50-custom small mb-3" style="font-size: 12px; font-style: italic;">
-              PELAKSANAAN BATCH SELANJUTNYA AKAN DI INFORMASIKAN LEWAT EMAIL ATAU WA TERDAFTAR
+              {{ $fPlaceholders['batch_pelatihan'] ?? 'PELAKSANAAN BATCH SELANJUTNYA AKAN DI INFORMASIKAN LEWAT EMAIL ATAU WA TERDAFTAR' }}
             </p>
             <div class="grid-cards-container mt-1">
               <template x-for="(batch, index) in batchList" :key="index">

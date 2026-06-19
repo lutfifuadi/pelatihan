@@ -1,5 +1,11 @@
 @php
 $configData = Helper::appClasses();
+
+// Config lookup helpers
+$fLabels = $fields->pluck('label', 'field_key');
+$fPlaceholders = $fields->pluck('placeholder', 'field_key');
+$fRequired = $fields->where('is_required', true)->pluck('field_key')->toArray();
+$fActive = $fields->where('is_active', true)->pluck('field_key')->toArray();
 @endphp
 
 @extends('layouts/layoutMaster')
@@ -260,72 +266,95 @@ $configData = Helper::appClasses();
         </h5>
 
         <div class="field-group">
+          @if(in_array('pendidikan_terakhir', $fActive))
           <div>
-            <label class="form-label form-label-custom" for="pendidikan_terakhir">Pendidikan Terakhir</label>
+            <label class="form-label form-label-custom" for="pendidikan_terakhir">
+              {{ $fLabels['pendidikan_terakhir'] ?? 'Pendidikan Terakhir' }}
+              @if(in_array('pendidikan_terakhir', $fRequired)) <span class="text-danger">*</span> @endif
+            </label>
             <select id="pendidikan_terakhir" name="pendidikan_terakhir" class="select2 form-select form-control form-control-custom" x-model="form.pendidikan_terakhir"
               :class="{ 'is-invalid': errors.pendidikan_terakhir }">
-              <option value="" disabled>PILIH PENDIDIKAN</option>
-              <option value="SD">SD</option>
-              <option value="SMP">SMP</option>
-              <option value="SMA">SMA</option>
-              <option value="D1">D1</option>
-              <option value="D2">D2</option>
-              <option value="D3">D3</option>
-              <option value="S1">S1</option>
-              <option value="S2">S2</option>
-              <option value="S3">S3</option>
+              <option value="" disabled>{{ $fPlaceholders['pendidikan_terakhir'] ?? 'PILIH PENDIDIKAN' }}</option>
+              @foreach($pendidikanOptions as $value => $label)
+                <option value="{{ $value }}">{{ $label }}</option>
+              @endforeach
             </select>
             <div class="invalid-feedback-custom" :class="{ 'd-block': errors.pendidikan_terakhir }" x-text="errors.pendidikan_terakhir"></div>
           </div>
+          @endif
+          @if(in_array('tahun_lulus', $fActive))
           <div>
-            <label class="form-label form-label-custom" for="tahun_lulus">Tahun Lulus</label>
+            <label class="form-label form-label-custom" for="tahun_lulus">
+              {{ $fLabels['tahun_lulus'] ?? 'Tahun Lulus' }}
+              @if(in_array('tahun_lulus', $fRequired)) <span class="text-danger">*</span> @endif
+            </label>
             <select id="tahun_lulus" name="tahun_lulus" class="select2 form-select form-control form-control-custom" x-model="form.tahun_lulus"
               :class="{ 'is-invalid': errors.tahun_lulus }">
-              <option value="" disabled>PILIH TAHUN</option>
+              <option value="" disabled>{{ $fPlaceholders['tahun_lulus'] ?? 'PILIH TAHUN' }}</option>
               <template x-for="tahun in tahunOptions" :key="tahun">
                 <option :value="tahun" x-text="tahun"></option>
               </template>
             </select>
             <div class="invalid-feedback-custom" :class="{ 'd-block': errors.tahun_lulus }" x-text="errors.tahun_lulus"></div>
           </div>
+          @endif
         </div>
 
         <div class="field-group mt-3">
+          @if(in_array('nama_institusi', $fActive))
           <div>
-            <label class="form-label form-label-custom" for="nama_institusi">Nama Institusi</label>
+            <label class="form-label form-label-custom" for="nama_institusi">
+              {{ $fLabels['nama_institusi'] ?? 'Nama Institusi' }}
+              @if(in_array('nama_institusi', $fRequired)) <span class="text-danger">*</span> @endif
+            </label>
             <input type="text" id="nama_institusi" name="nama_institusi" class="form-control form-control-custom form-control-uppercase"
-              x-model="form.nama_institusi" placeholder="NAMA SEKOLAH/UNIVERSITAS"
+              x-model="form.nama_institusi" placeholder="{{ $fPlaceholders['nama_institusi'] ?? 'NAMA SEKOLAH/UNIVERSITAS' }}"
               @input="form.nama_institusi = form.nama_institusi.toUpperCase()"
               :class="{ 'is-invalid': errors.nama_institusi }" />
             <div class="invalid-feedback-custom" :class="{ 'd-block': errors.nama_institusi }" x-text="errors.nama_institusi"></div>
           </div>
+          @endif
+          @if(in_array('jurusan', $fActive))
           <div>
-            <label class="form-label form-label-custom" for="jurusan">Jurusan</label>
+            <label class="form-label form-label-custom" for="jurusan">
+              {{ $fLabels['jurusan'] ?? 'Jurusan' }}
+              @if(in_array('jurusan', $fRequired)) <span class="text-danger">*</span> @endif
+            </label>
             <input type="text" id="jurusan" name="jurusan" class="form-control form-control-custom form-control-uppercase"
-              x-model="form.jurusan" placeholder="JURUSAN (JIKA ADA)"
+              x-model="form.jurusan" placeholder="{{ $fPlaceholders['jurusan'] ?? 'JURUSAN (JIKA ADA)' }}"
               @input="form.jurusan = form.jurusan.toUpperCase()" />
           </div>
+          @endif
         </div>
 
         <div class="field-group mt-3">
+          @if(in_array('status_pekerjaan', $fActive))
           <div>
-            <label class="form-label form-label-custom" for="status_pekerjaan">Status Pekerjaan</label>
+            <label class="form-label form-label-custom" for="status_pekerjaan">
+              {{ $fLabels['status_pekerjaan'] ?? 'Status Pekerjaan' }}
+              @if(in_array('status_pekerjaan', $fRequired)) <span class="text-danger">*</span> @endif
+            </label>
             <select id="status_pekerjaan" name="status_pekerjaan" class="select2 form-select form-control form-control-custom" x-model="form.status_pekerjaan"
               :class="{ 'is-invalid': errors.status_pekerjaan }">
-              <option value="" disabled>PILIH STATUS</option>
-              <option value="BEKERJA">BEKERJA</option>
-              <option value="BELUM BEKERJA">BELUM BEKERJA</option>
-              <option value="PELAJAR/MAHASISWA">PELAJAR/MAHASISWA</option>
-              <option value="WIRAUSAHA">WIRAUSAHA</option>
+              <option value="" disabled>{{ $fPlaceholders['status_pekerjaan'] ?? 'PILIH STATUS' }}</option>
+              @foreach($pekerjaanOptions as $value => $label)
+                <option value="{{ $value }}">{{ $label }}</option>
+              @endforeach
             </select>
             <div class="invalid-feedback-custom" :class="{ 'd-block': errors.status_pekerjaan }" x-text="errors.status_pekerjaan"></div>
           </div>
+          @endif
+          @if(in_array('nama_perusahaan', $fActive))
           <div x-show="form.status_pekerjaan === 'BEKERJA'">
-            <label class="form-label form-label-custom" for="nama_perusahaan">Nama Perusahaan</label>
+            <label class="form-label form-label-custom" for="nama_perusahaan">
+              {{ $fLabels['nama_perusahaan'] ?? 'Nama Perusahaan' }}
+              @if(in_array('nama_perusahaan', $fRequired)) <span class="text-danger">*</span> @endif
+            </label>
             <input type="text" id="nama_perusahaan" name="nama_perusahaan" class="form-control form-control-custom form-control-uppercase"
-              x-model="form.nama_perusahaan" placeholder="NAMA PERUSAHAAN / INSTANSI"
+              x-model="form.nama_perusahaan" placeholder="{{ $fPlaceholders['nama_perusahaan'] ?? 'NAMA PERUSAHAAN / INSTANSI' }}"
               @input="form.nama_perusahaan = form.nama_perusahaan.toUpperCase()" />
           </div>
+          @endif
         </div>
       </div>
 

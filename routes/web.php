@@ -41,6 +41,8 @@ use App\Http\Controllers\Admin\CertificateController;
 use App\Http\Controllers\Admin\ExportController;
 use App\Http\Controllers\Admin\ScheduleController;
 use App\Http\Controllers\Admin\ActivityLogController;
+use App\Http\Controllers\Admin\FormOptionController;
+use App\Http\Controllers\Admin\FormFieldConfigController;
 use App\Http\Controllers\KoordinatorRegisterController;
 use App\Http\Controllers\Peserta\PesertaFormController;
 use App\Http\Controllers\Admin\Auth\AdminLoginController;
@@ -138,7 +140,6 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
                     'nik' => $u->nik,
                     'whatsapp' => $u->whatsapp,
                     'email' => $u->email,
-                    // Data profile dari database (gunakan nullsafe operator)
                     'jenis_kelamin' => $profile?->jenis_kelamin ?? '',
                     'tempat_lahir' => $profile?->tempat_lahir ?? '',
                     'tanggal_lahir' => $profile?->tanggal_lahir ?? '',
@@ -154,7 +155,20 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
                     'kodepos' => $profile?->kodepos ?? '',
                     'link_medsos' => $profile?->link_medsos ?? '',
                 ];
-                return view('content.dashboard.peserta.form-pendaftaran', ['user' => $userData, 'kecamatans' => $kecamatans]);
+
+                // Config from database
+                $formConfig = app(\App\Services\FormConfigService::class);
+                $fieldsDataPribadi = $formConfig->getFieldsBySection('data_pribadi');
+                $fieldsAlamatKontak = $formConfig->getFieldsBySection('alamat_kontak');
+                $platformOptions = $formConfig->getOptions('platform_medsos');
+
+                return view('content.dashboard.peserta.form-pendaftaran', [
+                    'user' => $userData,
+                    'kecamatans' => $kecamatans,
+                    'fieldsDataPribadi' => $fieldsDataPribadi,
+                    'fieldsAlamatKontak' => $fieldsAlamatKontak,
+                    'platformOptions' => $platformOptions,
+                ]);
             })->name('form-pendaftaran');
             Route::post('/form-pendaftaran', [PesertaFormController::class, 'store'])->name('form-pendaftaran.store');
             Route::post('/save-tab1', [PesertaFormController::class, 'saveTab1'])->name('save-tab1');
@@ -287,6 +301,24 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
             Route::get('certificates/pdf', [ExportController::class, 'exportCertificatesPdf'])->name('certificates.pdf');
             Route::get('certificates/excel', [ExportController::class, 'exportCertificatesExcel'])->name('certificates.excel');
         });
+
+        // ===== FORM OPTIONS MANAGEMENT =====
+        Route::get('form-options', [FormOptionController::class, 'index'])->name('form-options.index');
+        Route::get('form-options/create', [FormOptionController::class, 'create'])->name('form-options.create');
+        Route::post('form-options', [FormOptionController::class, 'store'])->name('form-options.store');
+        Route::get('form-options/{masterOption}/edit', [FormOptionController::class, 'edit'])->name('form-options.edit');
+        Route::put('form-options/{masterOption}', [FormOptionController::class, 'update'])->name('form-options.update');
+        Route::delete('form-options/{masterOption}', [FormOptionController::class, 'destroy'])->name('form-options.destroy');
+        Route::post('form-options/{masterOption}/toggle-active', [FormOptionController::class, 'toggleActive'])->name('form-options.toggle-active');
+        Route::post('form-options/reorder', [FormOptionController::class, 'reorder'])->name('form-options.reorder');
+
+        // ===== FORM FIELD CONFIG MANAGEMENT =====
+        Route::get('form-config', [FormFieldConfigController::class, 'index'])->name('form-config.index');
+        Route::get('form-config/{formFieldConfig}/edit', [FormFieldConfigController::class, 'edit'])->name('form-config.edit');
+        Route::put('form-config/{formFieldConfig}', [FormFieldConfigController::class, 'update'])->name('form-config.update');
+        Route::post('form-config/{formFieldConfig}/toggle-active', [FormFieldConfigController::class, 'toggleActive'])->name('form-config.toggle-active');
+        Route::post('form-config/{formFieldConfig}/toggle-required', [FormFieldConfigController::class, 'toggleRequired'])->name('form-config.toggle-required');
+        Route::post('form-config/reorder', [FormFieldConfigController::class, 'reorder'])->name('form-config.reorder');
     });
 });
 

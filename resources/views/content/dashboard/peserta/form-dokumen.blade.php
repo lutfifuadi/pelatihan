@@ -1,5 +1,11 @@
 @php
 $configData = Helper::appClasses();
+
+// Config lookup helpers
+$fLabels = $fields->pluck('label', 'field_key');
+$fPlaceholders = $fields->pluck('placeholder', 'field_key');
+$fRequired = $fields->where('is_required', true)->pluck('field_key')->toArray();
+$fActive = $fields->where('is_active', true)->pluck('field_key')->toArray();
 @endphp
 
 @extends('layouts/layoutMaster')
@@ -216,61 +222,135 @@ $configData = Helper::appClasses();
           <i class="icon-base ti tabler-file-check me-2" style="color: #6366f1;"></i>Dokumen &amp; Konfirmasi
         </h5>
 
-        <div class="mb-3">
-          <label class="form-label form-label-custom">Upload Foto Profil</label>
-          <div class="file-upload-area" :class="{ 'has-file': form.foto_profil }"
-            @click="document.getElementById('foto_profil_input').click()">
-            <template x-if="!form.foto_profil">
-              <div>
-                <i class="icon-base ti tabler-photo-plus fs-2 mb-1 d-block" style="color: rgba(255,255,255,0.3);"></i>
-                <span class="text-white-50-custom small">Klik untuk upload foto profil</span>
-                <p class="text-white-50-custom mt-1 mb-0" style="font-size: 11px;">Format: JPG, PNG. Maks 2MB</p>
-              </div>
-            </template>
-            <template x-if="form.foto_profil">
-              <div>
-                <i class="icon-base ti tabler-file-check fs-2 mb-1 d-block" style="color: #10b981;"></i>
-                <span class="text-white-70-custom small fw-semibold" x-text="form.foto_profil.name"></span>
-                <button type="button" class="d-block mx-auto mt-1 btn btn-sm fw-semibold"
-                  style="background: none; border: none; color: #f87171; font-size: 11px;"
-                  @click.stop="form.foto_profil = null; $el.closest('.file-upload-area').querySelector('input[type=file]').value = ''">
-                  <i class="icon-base ti tabler-trash me-1"></i>Hapus
-                </button>
-              </div>
-            </template>
-          </div>
-          <input type="file" id="foto_profil_input" name="foto_profil" accept="image/*" class="d-none"
-            @change="handleFileUpload('foto_profil', $event)" />
-          <div class="invalid-feedback-custom" :class="{ 'd-block': errors.foto_profil }" x-text="errors.foto_profil"></div>
-        </div>
+        {{-- Dynamic Fields dari FormConfigService --}}
+        @foreach($fields as $field)
+            @if(!$field->is_active) @continue @endif
 
-        <div class="mb-3">
-          <label class="form-label form-label-custom">Upload Scan KTP</label>
-          <div class="file-upload-area" :class="{ 'has-file': form.scan_ktp }"
-            @click="document.getElementById('scan_ktp_input').click()">
-            <template x-if="!form.scan_ktp">
-              <div>
-                <i class="icon-base ti tabler-id fs-2 mb-1 d-block" style="color: rgba(255,255,255,0.3);"></i>
-                <span class="text-white-50-custom small">Klik untuk upload scan KTP</span>
-                <p class="text-white-50-custom mt-1 mb-0" style="font-size: 11px;">Format: PDF, JPG, PNG. Maks 2MB</p>
+            {{-- Sub-judul: PERTANYAAN UMUM --}}
+            @if($field->field_key === 'pengetahuan_asep')
+            <h6 class="text-white-70-custom fw-semibold mb-3 mt-2" style="font-size: 0.95rem;">
+              <i class="icon-base ti tabler-question-mark me-2" style="color: #6366f1;"></i>PERTANYAAN UMUM
+            </h6>
+            @endif
+
+            {{-- Sub-judul: PERTANYAAN MINAT & USAHA --}}
+            @if($field->field_key === 'rencana_setelah_pelatihan')
+            <h6 class="text-white-70-custom fw-semibold mb-3 mt-4" style="font-size: 0.95rem;">
+              <i class="icon-base ti tabler-briefcase me-2" style="color: #6366f1;"></i>PERTANYAAN MINAT & USAHA
+            </h6>
+            @endif
+
+            {{-- Sub-judul: PERTANYAAN USAHA & KENDALA --}}
+            @if($field->field_key === 'usaha_dimiliki')
+            <h6 class="text-white-70-custom fw-semibold mb-3 mt-4" style="font-size: 0.95rem;">
+              <i class="icon-base ti tabler-chart-bar me-2" style="color: #6366f1;"></i>PERTANYAAN USAHA & KENDALA
+            </h6>
+            @endif
+
+            @if($field->type === 'textarea')
+            <div class="field-group mb-3">
+              <div class="field-full">
+                <label class="form-label form-label-custom" for="{{ $field->field_key }}">
+                  {{ $field->label }}
+                  @if($field->is_required) <span class="text-danger">*</span> @endif
+                </label>
+                <textarea id="{{ $field->field_key }}" name="{{ $field->field_key }}"
+                  class="form-control form-control-custom"
+                  rows="4"
+                  placeholder="{{ $field->placeholder ?? 'Tulis jawaban anda...' }}"
+                  x-model="form.{{ $field->field_key }}"
+                  :class="{ 'is-invalid': errors.{{ $field->field_key }} }"
+                  {{ $field->is_required ? 'required' : '' }}></textarea>
+                <div class="invalid-feedback-custom" :class="{ 'd-block': errors.{{ $field->field_key }} }" x-text="errors.{{ $field->field_key }}"></div>
               </div>
-            </template>
-            <template x-if="form.scan_ktp">
-              <div>
-                <i class="icon-base ti tabler-file-check fs-2 mb-1 d-block" style="color: #10b981;"></i>
-                <span class="text-white-70-custom small fw-semibold" x-text="form.scan_ktp.name"></span>
-                <button type="button" class="d-block mx-auto mt-1 btn btn-sm fw-semibold"
-                  style="background: none; border: none; color: #f87171; font-size: 11px;"
-                  @click.stop="form.scan_ktp = null; $el.closest('.file-upload-area').querySelector('input[type=file]').value = ''">
-                  <i class="icon-base ti tabler-trash me-1"></i>Hapus
-                </button>
+            </div>
+            @elseif($field->type === 'radio')
+            @php
+              $options = app(\App\Services\FormConfigService::class)->getOptions($field->options_group);
+            @endphp
+            <div class="field-group mb-3">
+              <div class="{{ $field->width === 'full' ? 'field-full' : '' }}"
+                   style="grid-column: {{ $field->width === 'full' ? '1 / -1' : 'span 1' }}">
+                <label class="form-label form-label-custom">
+                  {{ $field->label }}
+                  @if($field->is_required) <span class="text-danger">*</span> @endif
+                </label>
+                <div class="d-flex flex-wrap gap-3 mt-1">
+                  @foreach($options as $val => $label)
+                  <div class="form-check">
+                    <input class="form-check-input form-check-input-custom" type="radio"
+                      id="{{ $field->field_key }}_{{ $loop->index }}"
+                      name="{{ $field->field_key }}"
+                      value="{{ $val }}"
+                      x-model="form.{{ $field->field_key }}" />
+                    <label class="form-check-label text-white-50-custom small" for="{{ $field->field_key }}_{{ $loop->index }}">
+                      {{ $label }}
+                    </label>
+                  </div>
+                  @endforeach
+                </div>
+                <div class="invalid-feedback-custom" :class="{ 'd-block': errors.{{ $field->field_key }} }" x-text="errors.{{ $field->field_key }}"></div>
               </div>
-            </template>
-          </div>
-          <input type="file" id="scan_ktp_input" name="scan_ktp" accept=".pdf,image/*" class="d-none"
-            @change="handleFileUpload('scan_ktp', $event)" />
-          <div class="invalid-feedback-custom" :class="{ 'd-block': errors.scan_ktp }" x-text="errors.scan_ktp"></div>
-        </div>
+            </div>
+            @elseif($field->type === 'radio_other')
+            @php
+              $options = app(\App\Services\FormConfigService::class)->getOptions($field->options_group);
+            @endphp
+            <div class="field-group mb-3">
+              <div class="{{ $field->width === 'full' ? 'field-full' : '' }}"
+                   style="grid-column: {{ $field->width === 'full' ? '1 / -1' : 'span 1' }}">
+                <label class="form-label form-label-custom">
+                  {{ $field->label }}
+                  @if($field->is_required) <span class="text-danger">*</span> @endif
+                </label>
+                @if($field->placeholder)
+                  <small class="text-white-50-custom d-block mb-2" style="font-size: 11px;">{{ $field->placeholder }}</small>
+                @endif
+                <div class="d-flex flex-wrap gap-3 mt-1">
+                  @foreach($options as $val => $label)
+                  <div class="form-check">
+                    <input class="form-check-input form-check-input-custom" type="radio"
+                      id="{{ $field->field_key }}_{{ $loop->index }}"
+                      name="{{ $field->field_key }}"
+                      value="{{ $val }}"
+                      x-model="form.{{ $field->field_key }}" />
+                    <label class="form-check-label text-white-50-custom small" for="{{ $field->field_key }}_{{ $loop->index }}">
+                      {{ $label }}
+                    </label>
+                  </div>
+                  @endforeach
+                </div>
+                <!-- Input untuk 'Yang lain' -->
+                <div x-show="form.{{ $field->field_key }} === 'Yang lain'" x-cloak class="mt-2">
+                  <input type="text"
+                    name="{{ $field->field_key }}_other"
+                    class="form-control form-control-custom form-control-uppercase"
+                    x-model="form.{{ $field->field_key }}_other"
+                    placeholder="TULISKAN JAWABAN ANDA..."
+                    @input="form.{{ $field->field_key }}_other = form.{{ $field->field_key }}_other.toUpperCase()" />
+                </div>
+                <div class="invalid-feedback-custom" :class="{ 'd-block': errors.{{ $field->field_key }} }" x-text="errors.{{ $field->field_key }}"></div>
+              </div>
+            </div>
+            @elseif($field->type === 'checkbox')
+            <div class="field-group mb-3">
+              <div class="field-full">
+                <div class="form-check">
+                  <input class="form-check-input form-check-input-custom" type="checkbox"
+                    id="{{ $field->field_key }}"
+                    name="{{ $field->field_key }}"
+                    value="1"
+                    x-model="form.{{ $field->field_key }}" />
+                  <label class="form-check-label text-white-50-custom small" for="{{ $field->field_key }}">
+                    {{ $field->label }}
+                    @if($field->is_required) <span class="text-danger">*</span> @endif
+                  </label>
+                </div>
+                <div class="invalid-feedback-custom" :class="{ 'd-block': errors.{{ $field->field_key }} }" x-text="errors.{{ $field->field_key }}"></div>
+              </div>
+            </div>
+            @endif
+        @endforeach
 
         <!-- Review Ringkasan Data -->
         <div class="mt-4">
@@ -473,8 +553,17 @@ $configData = Helper::appClasses();
     Alpine.data('dokumenForm', function() {
       return {
         form: {
-          foto_profil: null,
-          scan_ktp: null,
+          pengetahuan_asep: '',
+          alasan_pelatihan: '',
+          pengalaman_bisnis: '',
+          rencana_setelah_pelatihan: '',
+          punya_usaha: '',
+          jenis_usaha: '',
+          usaha_dimiliki: '',
+          usaha_dimiliki_other: '',
+          nama_usaha: '',
+          nama_usaha_other: '',
+          kendala_usaha: '',
           konfirmasi: false,
         },
         errors: {},
@@ -482,22 +571,22 @@ $configData = Helper::appClasses();
 
         clearErrors() { this.errors = {}; },
 
-        handleFileUpload(field, event) {
-          var file = event.target.files[0];
-          if (file) { this.form[field] = file; }
-          var errs = this.errors;
-          delete errs[field];
-          this.errors = errs;
-        },
-
         validate() {
           this.clearErrors();
           var errs = {};
           var valid = true;
 
-          if (!this.form.foto_profil) { errs.foto_profil = 'Upload foto profil'; valid = false; }
-          if (!this.form.scan_ktp) { errs.scan_ktp = 'Upload scan KTP'; valid = false; }
-          if (!this.form.konfirmasi) { errs.konfirmasi = 'Centang pernyataan data benar'; valid = false; }
+          @foreach($fields as $field)
+            @if($field->is_active && $field->is_required)
+              @if($field->type === 'textarea')
+          if (!this.form.{{ $field->field_key }}.trim()) { errs['{{ $field->field_key }}'] = '{{ $field->label }} wajib diisi'; valid = false; }
+              @elseif($field->type === 'radio' || $field->type === 'radio_other')
+          if (!this.form.{{ $field->field_key }}) { errs['{{ $field->field_key }}'] = 'Pilih salah satu opsi'; valid = false; }
+              @elseif($field->type === 'checkbox')
+          if (!this.form.{{ $field->field_key }}) { errs['{{ $field->field_key }}'] = 'Centang pernyataan ini'; valid = false; }
+              @endif
+            @endif
+          @endforeach
 
           this.errors = errs;
           return valid;

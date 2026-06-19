@@ -1,5 +1,18 @@
 @php
 $configData = Helper::appClasses();
+
+// Config lookup helpers
+$dpLabels = $fieldsDataPribadi->pluck('label', 'field_key');
+$dpPlaceholders = $fieldsDataPribadi->pluck('placeholder', 'field_key');
+$dpRequired = $fieldsDataPribadi->where('is_required', true)->pluck('field_key')->toArray();
+$dpActive = $fieldsDataPribadi->where('is_active', true)->pluck('field_key')->toArray();
+
+$akLabels = $fieldsAlamatKontak->pluck('label', 'field_key');
+$akPlaceholders = $fieldsAlamatKontak->pluck('placeholder', 'field_key');
+$akRequired = $fieldsAlamatKontak->where('is_required', true)->pluck('field_key')->toArray();
+$akActive = $fieldsAlamatKontak->where('is_active', true)->pluck('field_key')->toArray();
+
+$platList = $platformOptions->toArray();
 @endphp
 
 @extends('layouts/layoutMaster')
@@ -383,28 +396,42 @@ $configData = Helper::appClasses();
 
         <!-- Nama Lengkap + NIK -->
         <div class="field-group">
+          @if(in_array('nama_lengkap', $dpActive))
           <div>
-            <label class="form-label form-label-custom" for="nama_lengkap">Nama Lengkap Sesuai KTP</label>
+            <label class="form-label form-label-custom" for="nama_lengkap">
+              {{ $dpLabels['nama_lengkap'] ?? 'Nama Lengkap Sesuai KTP' }}
+              @if(in_array('nama_lengkap', $dpRequired)) <span class="text-danger">*</span> @endif
+            </label>
             <input type="text" id="nama_lengkap" name="nama_lengkap" class="form-control form-control-custom form-control-uppercase"
-              x-model="form.nama_lengkap" placeholder="NAMA LENGKAP SESUAI KTP"
+              x-model="form.nama_lengkap" placeholder="{{ $dpPlaceholders['nama_lengkap'] ?? 'NAMA LENGKAP SESUAI KTP' }}"
               @input="form.nama_lengkap = form.nama_lengkap.toUpperCase()"
               :class="{ 'is-invalid': errors.nama_lengkap }" />
             <div class="invalid-feedback-custom" :class="{ 'd-block': errors.nama_lengkap }" x-text="errors.nama_lengkap"></div>
           </div>
+          @endif
+          @if(in_array('nik', $dpActive))
           <div>
-            <label class="form-label form-label-custom" for="nik">NIK KTP</label>
+            <label class="form-label form-label-custom" for="nik">
+              {{ $dpLabels['nik'] ?? 'NIK KTP' }}
+              @if(in_array('nik', $dpRequired)) <span class="text-danger">*</span> @endif
+            </label>
             <input type="text" id="nik" name="nik" class="form-control form-control-custom"
-              x-model="form.nik" placeholder="15-16 DIGIT NIK" maxlength="16"
+              x-model="form.nik" placeholder="{{ $dpPlaceholders['nik'] ?? '15-16 DIGIT NIK' }}" maxlength="16"
               @input="form.nik = form.nik.replace(/\D/g, '')"
               :class="{ 'is-invalid': errors.nik }" />
             <div class="invalid-feedback-custom" :class="{ 'd-block': errors.nik }" x-text="errors.nik"></div>
           </div>
+          @endif
         </div>
 
         <!-- Jenis Kelamin -->
+        @if(in_array('jenis_kelamin', $dpActive))
         <div class="field-group mt-3">
           <div class="field-full">
-            <label class="form-label form-label-custom">Jenis Kelamin</label>
+            <label class="form-label form-label-custom">
+              {{ $dpLabels['jenis_kelamin'] ?? 'Jenis Kelamin' }}
+              @if(in_array('jenis_kelamin', $dpRequired)) <span class="text-danger">*</span> @endif
+            </label>
             <div class="d-flex gap-4 mt-1">
               <div class="form-check">
                 <input class="form-check-input form-check-input-custom" type="radio" id="jk_l" name="jenis_kelamin" value="LAKI-LAKI" x-model="form.jenis_kelamin" />
@@ -418,33 +445,48 @@ $configData = Helper::appClasses();
             <div class="invalid-feedback-custom" :class="{ 'd-block': errors.jenis_kelamin }" x-text="errors.jenis_kelamin"></div>
           </div>
         </div>
+        @endif
 
         <!-- Tempat, Tanggal, Bulan, Tahun Lahir -->
         <div class="field-group mt-3">
+          @if(in_array('tempat_lahir', $dpActive))
           <div>
-            <label class="form-label form-label-custom" for="tempat_lahir">Tempat Lahir</label>
+            <label class="form-label form-label-custom" for="tempat_lahir">
+              {{ $dpLabels['tempat_lahir'] ?? 'Tempat Lahir' }}
+              @if(in_array('tempat_lahir', $dpRequired)) <span class="text-danger">*</span> @endif
+            </label>
             <input type="text" id="tempat_lahir" name="tempat_lahir" class="form-control form-control-custom form-control-uppercase"
-              x-model="form.tempat_lahir" placeholder="JAKARTA"
+              x-model="form.tempat_lahir" placeholder="{{ $dpPlaceholders['tempat_lahir'] ?? 'JAKARTA' }}"
               @input="form.tempat_lahir = form.tempat_lahir.toUpperCase()"
               :class="{ 'is-invalid': errors.tempat_lahir }" />
             <div class="invalid-feedback-custom" :class="{ 'd-block': errors.tempat_lahir }" x-text="errors.tempat_lahir"></div>
           </div>
+          @endif
+          @if(in_array('tanggal_lahir', $dpActive))
           <div>
-            <label class="form-label form-label-custom" for="tanggal_lahir">Tanggal Lahir</label>
+            <label class="form-label form-label-custom" for="tanggal_lahir">
+              {{ $dpLabels['tanggal_lahir'] ?? 'Tanggal Lahir' }}
+              @if(in_array('tanggal_lahir', $dpRequired)) <span class="text-danger">*</span> @endif
+            </label>
             <select id="tanggal_lahir" name="tanggal_lahir" class="form-control form-control-custom" x-model="form.tanggal_lahir"
               :class="{ 'is-invalid': errors.tanggal_lahir }">
-              <option value="" disabled>PILIH TANGGAL</option>
+              <option value="" disabled>{{ $dpPlaceholders['tanggal_lahir'] ?? 'PILIH TANGGAL' }}</option>
               <template x-for="tgl in 31" :key="tgl">
                 <option :value="tgl" x-text="tgl"></option>
               </template>
             </select>
             <div class="invalid-feedback-custom" :class="{ 'd-block': errors.tanggal_lahir }" x-text="errors.tanggal_lahir"></div>
           </div>
+          @endif
+          @if(in_array('bulan_lahir', $dpActive))
           <div>
-            <label class="form-label form-label-custom" for="bulan_lahir">Bulan Lahir</label>
+            <label class="form-label form-label-custom" for="bulan_lahir">
+              {{ $dpLabels['bulan_lahir'] ?? 'Bulan Lahir' }}
+              @if(in_array('bulan_lahir', $dpRequired)) <span class="text-danger">*</span> @endif
+            </label>
             <select id="bulan_lahir" name="bulan_lahir" class="select2 form-select form-control form-control-custom form-control-uppercase" x-model="form.bulan_lahir"
               :class="{ 'is-invalid': errors.bulan_lahir }">
-              <option value="" disabled>PILIH BULAN</option>
+              <option value="" disabled>{{ $dpPlaceholders['bulan_lahir'] ?? 'PILIH BULAN' }}</option>
               <option value="Januari">Januari</option>
               <option value="Februari">Februari</option>
               <option value="Maret">Maret</option>
@@ -460,17 +502,23 @@ $configData = Helper::appClasses();
             </select>
             <div class="invalid-feedback-custom" :class="{ 'd-block': errors.bulan_lahir }" x-text="errors.bulan_lahir"></div>
           </div>
+          @endif
+          @if(in_array('tahun_lahir', $dpActive))
           <div>
-            <label class="form-label form-label-custom" for="tahun_lahir">Tahun Lahir</label>
+            <label class="form-label form-label-custom" for="tahun_lahir">
+              {{ $dpLabels['tahun_lahir'] ?? 'Tahun Lahir' }}
+              @if(in_array('tahun_lahir', $dpRequired)) <span class="text-danger">*</span> @endif
+            </label>
             <select id="tahun_lahir" name="tahun_lahir" class="select2 form-select form-control form-control-custom" x-model="form.tahun_lahir"
               :class="{ 'is-invalid': errors.tahun_lahir }">
-              <option value="" disabled>PILIH TAHUN</option>
+              <option value="" disabled>{{ $dpPlaceholders['tahun_lahir'] ?? 'PILIH TAHUN' }}</option>
               <template x-for="thn in tahunLahirOptions" :key="thn">
                 <option :value="thn" x-text="thn"></option>
               </template>
             </select>
             <div class="invalid-feedback-custom" :class="{ 'd-block': errors.tahun_lahir }" x-text="errors.tahun_lahir"></div>
           </div>
+          @endif
         </div>
 
         <div class="d-flex justify-content-end mt-4">
@@ -487,53 +535,77 @@ $configData = Helper::appClasses();
         </h5>
 
         <!-- Alamat (text input) -->
+        @if(in_array('alamat_ktp', $akActive))
         <div class="field-group">
           <div class="field-full">
-            <label class="form-label form-label-custom" for="alamat_ktp">Alamat Lengkap</label>
+            <label class="form-label form-label-custom" for="alamat_ktp">
+              {{ $akLabels['alamat_ktp'] ?? 'Alamat Lengkap' }}
+              @if(in_array('alamat_ktp', $akRequired)) <span class="text-danger">*</span> @endif
+            </label>
             <input type="text" id="alamat_ktp" name="alamat_ktp" class="form-control form-control-custom form-control-uppercase"
-              x-model="form.alamat_ktp" placeholder="ALAMAT LENGKAP SESUAI KTP"
+              x-model="form.alamat_ktp" placeholder="{{ $akPlaceholders['alamat_ktp'] ?? 'ALAMAT LENGKAP SESUAI KTP' }}"
               @input="form.alamat_ktp = form.alamat_ktp.toUpperCase()"
               :class="{ 'is-invalid': errors.alamat_ktp }" />
             <div class="invalid-feedback-custom" :class="{ 'd-block': errors.alamat_ktp }" x-text="errors.alamat_ktp"></div>
           </div>
         </div>
+        @endif
 
         <!-- RT, RW, Kecamatan (3 kolom) -->
         <div class="field-group-triple mt-3">
+          @if(in_array('rt', $akActive))
           <div>
-            <label class="form-label form-label-custom" for="rt">RT</label>
+            <label class="form-label form-label-custom" for="rt">
+              {{ $akLabels['rt'] ?? 'RT' }}
+              @if(in_array('rt', $akRequired)) <span class="text-danger">*</span> @endif
+            </label>
             <input type="text" id="rt" name="rt" class="form-control form-control-custom"
-              x-model="form.rt" placeholder="RT" maxlength="3"
+              x-model="form.rt" placeholder="{{ $akPlaceholders['rt'] ?? 'RT' }}" maxlength="3"
               @input="form.rt = form.rt.replace(/\D/g, '')"
               :class="{ 'is-invalid': errors.rt }" />
             <div class="invalid-feedback-custom" :class="{ 'd-block': errors.rt }" x-text="errors.rt"></div>
           </div>
+          @endif
+          @if(in_array('rw', $akActive))
           <div>
-            <label class="form-label form-label-custom" for="rw">RW</label>
+            <label class="form-label form-label-custom" for="rw">
+              {{ $akLabels['rw'] ?? 'RW' }}
+              @if(in_array('rw', $akRequired)) <span class="text-danger">*</span> @endif
+            </label>
             <input type="text" id="rw" name="rw" class="form-control form-control-custom"
-              x-model="form.rw" placeholder="RW" maxlength="3"
+              x-model="form.rw" placeholder="{{ $akPlaceholders['rw'] ?? 'RW' }}" maxlength="3"
               @input="form.rw = form.rw.replace(/\D/g, '')"
               :class="{ 'is-invalid': errors.rw }" />
             <div class="invalid-feedback-custom" :class="{ 'd-block': errors.rw }" x-text="errors.rw"></div>
           </div>
+          @endif
+          @if(in_array('kecamatan_id', $akActive))
           <div>
-            <label class="form-label form-label-custom" for="kecamatan_id">Kecamatan</label>
+            <label class="form-label form-label-custom" for="kecamatan_id">
+              {{ $akLabels['kecamatan_id'] ?? 'Kecamatan' }}
+              @if(in_array('kecamatan_id', $akRequired)) <span class="text-danger">*</span> @endif
+            </label>
             <select id="kecamatan_id" name="kecamatan_id" class="form-control form-control-custom"
               x-model="form.kecamatan_id"
               :class="{ 'is-invalid': errors.kecamatan_id }">
-              <option value="">PILIH KECAMATAN</option>
+              <option value="">{{ $akPlaceholders['kecamatan_id'] ?? 'PILIH KECAMATAN' }}</option>
               @foreach($kecamatans as $kec)
                 <option value="{{ $kec->id }}">{{ strtoupper($kec->name) }}</option>
               @endforeach
             </select>
             <div class="invalid-feedback-custom" :class="{ 'd-block': errors.kecamatan_id }" x-text="errors.kecamatan_id"></div>
           </div>
+          @endif
         </div>
 
         <!-- Kelurahan, Kota, Provinsi (3 kolom) -->
         <div class="field-group-triple mt-3">
+          @if(in_array('kelurahan_id', $akActive))
           <div>
-            <label class="form-label form-label-custom" for="kelurahan_id">Kelurahan</label>
+            <label class="form-label form-label-custom" for="kelurahan_id">
+              {{ $akLabels['kelurahan_id'] ?? 'Kelurahan' }}
+              @if(in_array('kelurahan_id', $akRequired)) <span class="text-danger">*</span> @endif
+            </label>
             <select id="kelurahan_id" name="kelurahan_id" class="form-control form-control-custom"
               x-model="form.kelurahan_id" disabled
               :class="{ 'is-invalid': errors.kelurahan_id }">
@@ -541,8 +613,12 @@ $configData = Helper::appClasses();
             </select>
             <div class="invalid-feedback-custom" :class="{ 'd-block': errors.kelurahan_id }" x-text="errors.kelurahan_id"></div>
           </div>
+          @endif
+          @if(in_array('kota', $akActive))
           <div>
-            <label class="form-label form-label-custom" for="kota">Kota/Kabupaten</label>
+            <label class="form-label form-label-custom" for="kota">
+              {{ $akLabels['kota'] ?? 'Kota/Kabupaten' }}
+            </label>
             <input type="text" id="kota" name="kota" class="form-control form-control-custom form-control-uppercase"
               x-model="form.kota" value="BANDUNG" readonly disabled
               style="opacity: 0.8; cursor: not-allowed;" />
@@ -550,8 +626,12 @@ $configData = Helper::appClasses();
               <i class="icon-base ti tabler-lock me-1"></i>Wilayah Kota Bandung
             </small>
           </div>
+          @endif
+          @if(in_array('provinsi', $akActive))
           <div>
-            <label class="form-label form-label-custom" for="provinsi">Provinsi</label>
+            <label class="form-label form-label-custom" for="provinsi">
+              {{ $akLabels['provinsi'] ?? 'Provinsi' }}
+            </label>
             <input type="text" id="provinsi" name="provinsi" class="form-control form-control-custom form-control-uppercase"
               x-model="form.provinsi" value="Jawa Barat" readonly disabled
               style="opacity: 0.8; cursor: not-allowed;" />
@@ -559,52 +639,66 @@ $configData = Helper::appClasses();
               <i class="icon-base ti tabler-lock me-1"></i>Provinsi Jawa Barat
             </small>
           </div>
+          @endif
         </div>
 
         <!-- Kode Pos, WhatsApp, Email (3 kolom) -->
         <div class="field-group-triple mt-3">
+          @if(in_array('kodepos', $akActive))
           <div>
-            <label class="form-label form-label-custom" for="kodepos">Kode Pos</label>
+            <label class="form-label form-label-custom" for="kodepos">
+              {{ $akLabels['kodepos'] ?? 'Kode Pos' }}
+              @if(in_array('kodepos', $akRequired)) <span class="text-danger">*</span> @endif
+            </label>
             <input type="text" id="kodepos" name="kodepos" class="form-control form-control-custom"
-              x-model="form.kodepos" placeholder="KODE POS"
+              x-model="form.kodepos" placeholder="{{ $akPlaceholders['kodepos'] ?? 'KODE POS' }}"
               @input="form.kodepos = form.kodepos.replace(/\D/g, '')" maxlength="5"
               :class="{ 'is-invalid': errors.kodepos }" />
             <div class="invalid-feedback-custom" :class="{ 'd-block': errors.kodepos }" x-text="errors.kodepos"></div>
           </div>
+          @endif
+          @if(in_array('whatsapp', $akActive))
           <div>
-            <label class="form-label form-label-custom" for="whatsapp">Nomor WhatsApp</label>
+            <label class="form-label form-label-custom" for="whatsapp">
+              {{ $akLabels['whatsapp'] ?? 'Nomor WhatsApp' }}
+              @if(in_array('whatsapp', $akRequired)) <span class="text-danger">*</span> @endif
+            </label>
             <input type="tel" id="whatsapp" name="whatsapp" class="form-control form-control-custom"
-              x-model="form.whatsapp" placeholder="08XXXXXXXXXX"
+              x-model="form.whatsapp" placeholder="{{ $akPlaceholders['whatsapp'] ?? '08XXXXXXXXXX' }}"
               @input="form.whatsapp = form.whatsapp.replace(/\D/g, ''); checkWa()"
               :class="{ 'is-invalid': errors.whatsapp }" />
             <div class="invalid-feedback-custom" :class="{ 'd-block': errors.whatsapp }" x-text="errors.whatsapp"></div>
             <div id="wa-feedback" class="small mt-1" :class="waFeedbackClass" x-show="waFeedbackShow" x-text="waFeedbackText"></div>
           </div>
+          @endif
+          @if(in_array('email', $akActive))
           <div>
-            <label class="form-label form-label-custom" for="email">Email</label>
+            <label class="form-label form-label-custom" for="email">
+              {{ $akLabels['email'] ?? 'Email' }}
+              @if(in_array('email', $akRequired)) <span class="text-danger">*</span> @endif
+            </label>
             <input type="email" id="email" name="email" class="form-control form-control-custom"
-              x-model="form.email" placeholder="CONTOH@EMAIL.COM"
+              x-model="form.email" placeholder="{{ $akPlaceholders['email'] ?? 'CONTOH@EMAIL.COM' }}"
               :class="{ 'is-invalid': errors.email }" />
             <div class="invalid-feedback-custom" :class="{ 'd-block': errors.email }" x-text="errors.email"></div>
           </div>
+          @endif
         </div>
 
         <!-- Link Media Sosial (Dinamis) -->
+        @if(in_array('link_medsos', $akActive))
         <div class="field-group mt-3">
           <div class="field-full">
-            <label class="form-label form-label-custom">Link Media Sosial</label>
+            <label class="form-label form-label-custom">
+              {{ $akLabels['link_medsos'] ?? 'Link Media Sosial' }}
+            </label>
 
             <template x-for="(medsos, index) in form.medsos_list" :key="index">
               <div class="d-flex align-items-center gap-2 mb-2">
                 <select x-model="medsos.platform" class="form-control form-control-custom" style="width: 140px; flex-shrink: 0;">
-                  <option value="Instagram">Instagram</option>
-                  <option value="Facebook">Facebook</option>
-                  <option value="LinkedIn">LinkedIn</option>
-                  <option value="Twitter">Twitter / X</option>
-                  <option value="TikTok">TikTok</option>
-                  <option value="YouTube">YouTube</option>
-                  <option value="Website">Website</option>
-                  <option value="Lainnya">Lainnya</option>
+                  @foreach($platList as $value => $label)
+                  <option value="{{ $value }}">{{ $label }}</option>
+                  @endforeach
                 </select>
                 <input type="url" x-model="medsos.url" class="form-control form-control-custom"
                   placeholder="HTTPS://..."
@@ -617,13 +711,14 @@ $configData = Helper::appClasses();
             </template>
 
             <button type="button" class="btn btn-sm mt-1" style="background: rgba(99,102,241,0.1); border: 1px dashed rgba(99,102,241,0.3); color: #818cf8; border-radius: 5px; padding: 6px 14px; font-size: 12px;"
-              @click="form.medsos_list.push({platform: 'Instagram', url: ''})">
+              @click="form.medsos_list.push({platform: '{{ collect($platList)->keys()->first() ?? 'Instagram' }}', url: ''})">
               <i class="icon-base ti tabler-plus me-1"></i> Tambah Media Sosial
             </button>
 
             <input type="hidden" name="link_medsos" x-bind:value="JSON.stringify(form.medsos_list)" />
           </div>
         </div>
+        @endif
 
         <div class="d-flex justify-content-between mt-4">
           <button type="button" class="btn btn-glow-outline fw-semibold py-2 px-4" style="border-radius: 5px; font-size: 13px;" @click="prevTab()">

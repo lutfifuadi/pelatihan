@@ -58,6 +58,9 @@ class DatabaseSeeder extends Seeder
         // Seed Notification Templates
         $this->call(NotificationTemplateSeeder::class);
 
+        // Seed Form Configuration
+        $this->call(FormConfigSeeder::class);
+
         // Note: Peserta akan mendaftar sendiri melalui halaman landing page
     }
 }
