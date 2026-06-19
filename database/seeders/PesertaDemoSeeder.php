@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\PesertaProfile;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
@@ -11,7 +12,7 @@ class PesertaDemoSeeder extends Seeder
     public function run(): void
     {
         // 1. Buat user peserta (jika belum ada)
-        User::firstOrCreate(
+        $user = User::firstOrCreate(
             ['email' => 'peserta@demo.test'],
             [
                 'name' => 'Peserta Demo',
@@ -26,7 +27,56 @@ class PesertaDemoSeeder extends Seeder
             ]
         );
 
-        // 2. Catat data profile lengkap ke data-user.txt
+        // 2. Buat / update PesertaProfile dengan data lengkap
+        PesertaProfile::updateOrCreate(
+            ['user_id' => $user->id],
+            [
+                'nama_lengkap' => 'Peserta Demo',
+                'nik' => '3273010101000001',
+                'jenis_kelamin' => 'L',
+                'tempat_lahir' => 'Bandung',
+                'tanggal_lahir' => '01',
+                'bulan_lahir' => 'Januari',
+                'tahun_lahir' => '2000',
+                'alamat_ktp' => 'Jl. Contoh No. 123',
+                'rt' => '001',
+                'rw' => '002',
+                'kecamatan' => 'Cicendo',
+                'kelurahan' => 'Husen Sastranegara',
+                'kota' => 'Bandung',
+                'provinsi' => 'Jawa Barat',
+                'kodepos' => '40171',
+                'whatsapp' => '6281234567890',
+                'email' => 'peserta@demo.test',
+                'link_medsos' => json_encode([
+                    ['platform' => 'Instagram', 'url' => 'https://instagram.com/pesertademo'],
+                ]),
+                'pendidikan_terakhir' => 'S1',
+                'nama_institusi' => 'Universitas Contoh',
+                'jurusan' => 'Teknik Informatika',
+                'tahun_lulus' => '2023',
+                'status_pekerjaan' => 'BEKERJA',
+                'nama_perusahaan' => 'PT Contoh Maju',
+                'batch_pelatihan' => null,
+                'pelatihan_id' => null,
+                'is_completed' => true,
+                'jawaban_pertanyaan' => json_encode([
+                    'pengetahuan_asep' => 'Beliau adalah seorang tokoh masyarakat yang peduli terhadap pendidikan dan pelatihan kerja di Kota Bandung.',
+                    'alasan_pelatihan' => 'Saya ingin menambah skill baru di bidang teknologi informasi agar bisa bersaing di dunia kerja.',
+                    'pengalaman_bisnis' => 'Saya sudah memulai usaha kecil-kecilan sejak 2022, yaitu jualan online melalui marketplace.',
+                    'rencana_setelah_pelatihan' => 'Setelah pelatihan, saya ingin membuka jasa desain grafis dan mengembangkan usaha yang sudah ada.',
+                    'punya_usaha' => 'Sudah',
+                    'jenis_usaha' => 'Kuliner',
+                    'usaha_dimiliki' => 'Yang lain',
+                    'usaha_dimiliki_other' => 'Katering dan snack box',
+                    'nama_usaha' => 'Yang lain',
+                    'nama_usaha_other' => 'Cemilan Sehat Bandung',
+                    'kendala_usaha' => 'Sulit mendapatkan konsumen baru dan masih kurang modal untuk promosi.',
+                ]),
+            ]
+        );
+
+        // 3. Catat data profile lengkap ke data-user.txt
         $text = "========================================\n";
         $text .= "        DATA PENDAFTARAN PESERTA\n";
         $text .= "========================================\n";
@@ -68,6 +118,18 @@ class PesertaDemoSeeder extends Seeder
         $text .= "----------------------------------------\n";
         $text .= "Foto Profil     : -\n";
         $text .= "Scan KTP        : -\n";
+        $text .= "========================================\n";
+        $text .= "JAWABAN PERTANYAAN TAHAP 5\n";
+        $text .= "----------------------------------------\n";
+        $text .= "Pengetahuan Asep Mulyadi : Beliau adalah tokoh masyarakat peduli pendidikan\n";
+        $text .= "Alasan Pelatihan         : Ingin menambah skill TI\n";
+        $text .= "Pengalaman Bisnis        : Jualan online sejak 2022\n";
+        $text .= "Rencana Setelah Pelatihan: Buka jasa desain grafis\n";
+        $text .= "Punya Usaha              : Sudah\n";
+        $text .= "Jenis Usaha              : Kuliner\n";
+        $text .= "Usaha Dimiliki           : Katering dan snack box\n";
+        $text .= "Nama Usaha               : Cemilan Sehat Bandung\n";
+        $text .= "Kendala Usaha            : Sulit konsumen baru, kurang modal\n";
         $text .= "========================================\n\n";
 
         $dirPath = storage_path('app/demo');
