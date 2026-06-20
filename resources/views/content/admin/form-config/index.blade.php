@@ -672,7 +672,6 @@ $configData = Helper::appClasses();
 
 {{-- Modal --}}
 @include('content.admin.form-config._modal')
-@endsection
 
 {{-- Modal Tambah Field Baru --}}
 <div class="modal fade" id="modalCreateField" tabindex="-1" aria-hidden="true">
@@ -790,6 +789,8 @@ $configData = Helper::appClasses();
     </div>
   </div>
 </div>
+
+@endsection
 
 @section('page-script')
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
