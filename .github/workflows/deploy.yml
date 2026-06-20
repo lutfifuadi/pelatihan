@@ -292,22 +292,11 @@ jobs:
             fi
 
             # Validasi isi manifest: pastikan entry `resources/js/app.js` ada
-            if command -v python3 &> /dev/null; then
-              if ! python3 -c "
-        import json, sys
-        try:
-            m = json.load(open('public/build/manifest.json'))
-            if 'resources/js/app.js' not in m:
-                print('[ERROR] resources/js/app.js tidak ditemukan di manifest.json - build tidak cocok dengan kode')
-                sys.exit(1)
-            print('[OK] manifest.json valid - entry resources/js/app.js ditemukan')
-        except Exception as e:
-            print(f'[ERROR] manifest.json tidak valid: {e}')
-            sys.exit(1)
-        "; then
-                die "Manifest.json tidak valid. Build assets mungkin outdated atau corrupt."
-              fi
+            # (ganti heredoc Python multi-line dengan grep — sederhana & YAML-safe)
+            if ! grep -q '"resources/js/app.js"' public/build/manifest.json 2>/dev/null; then
+              die "Manifest.json tidak valid. Entry resources/js/app.js tidak ditemukan. Build assets mungkin outdated atau corrupt."
             fi
+            log "[OK] manifest.json valid - entry resources/js/app.js ditemukan."
 
             # ============================================================
             # 6. Migrasi database
