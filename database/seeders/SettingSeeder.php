@@ -26,8 +26,8 @@ class SettingSeeder extends Seeder
             ['key' => 'institution_description', 'value' => 'Program pelatihan pengembangan kompetensi dan keterampilan praktis yang mandiri, kreatif, dan berdaya saing.', 'group' => 'general', 'label' => 'Deskripsi Institusi'],
 
             // ===== LANDING PAGE: Hero Section =====
-            ['key' => 'hero_title', 'value' => 'Akselerasi Kompetensi, Siap Kerja & Mandiri Berwirausaha', 'group' => 'landing', 'label' => 'Hero: Judul Utama'],
-            ['key' => 'hero_subtitle', 'value' => 'Program Pelatihan Keterampilan Praktis Terpadu', 'group' => 'landing', 'label' => 'Hero: Subjudul'],
+            ['key' => 'hero_title', 'value' => 'Keahlian Unggul, Kerja & Wirausaha', 'group' => 'landing', 'label' => 'Hero: Judul Utama'],
+            ['key' => 'hero_subtitle', 'value' => 'Pusat Pelatihan Terintegrasi', 'group' => 'landing', 'label' => 'Hero: Subjudul'],
             ['key' => 'hero_description', 'value' => 'Tingkatkan keahlian relevan Anda melalui program pelatihan terstruktur yang dirancang khusus untuk menjawab tantangan dunia kerja modern dan mempersiapkan langkah awal wirausaha yang sukses.', 'group' => 'landing', 'label' => 'Hero: Deskripsi'],
             ['key' => 'hero_stat_1_value', 'value' => '100% Gratis', 'group' => 'landing', 'label' => 'Hero: Statistik 1 - Angka'],
             ['key' => 'hero_stat_1_label', 'value' => 'Tanpa Biaya Pendaftaran', 'group' => 'landing', 'label' => 'Hero: Statistik 1 - Label'],
