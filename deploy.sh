@@ -189,7 +189,7 @@ if wget -q --timeout=120 -O "$TEMP_FILE" "$BUILD_DOWNLOAD_URL" 2>&1 | tee -a "$D
     log_ok "public/build berhasil diperbarui dari release ($BUILD_RELEASE_TAG)."
 else
     log_warn "Download dari $BUILD_RELEASE_TAG gagal. Coba fallback API..."
-    # Fallback: cari browser_download_url dari API (endpoint yang sama mungkin sudah outdated)
+    # Fallback 1: API dengan tag eksplisit
     AUTH_HEADER=""
     if [ -n "${GITHUB_TOKEN:-}" ]; then
         AUTH_HEADER="-H Authorization: token $GITHUB_TOKEN"
@@ -209,15 +209,28 @@ else
             rm -f "$TEMP_FILE"
             log_ok "public/build berhasil diperbarui dari release (fallback)."
         else
-            log_warn "Fallback gagal. Mempertahankan public/build yang sudah ada."
-            if [ ! -d "public/build" ] || [ ! -f "public/build/manifest.json" ]; then
-                die "Tidak ada public/build yang valid. Deploy blank putih tidak bisa dilanjutkan."
-            fi
+            log_warn "Fallback 1 gagal."
         fi
     else
-        log_warn "Tidak ada release $BUILD_RELEASE_TAG. Mempertahankan public/build yang sudah ada."
-        if [ ! -d "public/build" ] || [ ! -f "public/build/manifest.json" ]; then
-            die "Tidak ada public/build yang valid. Deploy blank putih tidak bisa dilanjutkan."
+        log_warn "Tidak ada release $BUILD_RELEASE_TAG."
+    fi
+
+    # Fallback 2: latest release dari API (mungkin v1.1.0)
+    if [ ! -d "public/build/manifest.json" ]; then
+        LATEST_URL=$(curl -sL $AUTH_HEADER \
+            "https://api.github.com/repos/$GITHUB_OWNER/$GITHUB_REPO/releases/latest" 2>/dev/null \
+            | grep "browser_download_url" \
+            | grep "$BUILD_ASSET_NAME" \
+            | cut -d '"' -f 4) || true
+        if [ -n "$LATEST_URL" ]; then
+            log_info "Mengunduh (fallback 2): $LATEST_URL"
+            if wget -q --timeout=120 -O "$TEMP_FILE" "$LATEST_URL" 2>&1 | tee -a "$DEPLOY_LOG"; then
+                rm -rf public/build
+                unzip -o "$TEMP_FILE" 'public/build/*' -d "$APP_PATH" > /dev/null \
+                    || die "Gagal mengekstrak asset release."
+                rm -f "$TEMP_FILE"
+                log_ok "public/build berhasil diperbarui dari release (fallback 2)."
+            fi
         fi
     fi
 fi
