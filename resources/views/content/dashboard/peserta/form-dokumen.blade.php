@@ -383,21 +383,25 @@ $fActive = $fields->where('is_active', true)->pluck('field_key')->toArray();
 
 @section('page-script')
 <script>
+  // Data dari server untuk diisi otomatis ke form (Pola PMBM)
+  window._formData = {!! json_encode($data) !!};
+
   document.addEventListener('alpine:init', function() {
     Alpine.data('dokumenForm', function() {
+      var fd = window._formData || {};
       return {
         form: {
-          pengetahuan_asep: '',
-          alasan_pelatihan: '',
-          pengalaman_bisnis: '',
-          rencana_setelah_pelatihan: '',
-          punya_usaha: '',
-          jenis_usaha: '',
-          usaha_dimiliki: '',
-          usaha_dimiliki_other: '',
-          nama_usaha: '',
-          nama_usaha_other: '',
-          kendala_usaha: '',
+          pengetahuan_asep: fd.pengetahuan_asep || '',
+          alasan_pelatihan: fd.alasan_pelatihan || '',
+          pengalaman_bisnis: fd.pengalaman_bisnis || '',
+          rencana_setelah_pelatihan: fd.rencana_setelah_pelatihan || '',
+          punya_usaha: fd.punya_usaha || '',
+          jenis_usaha: fd.jenis_usaha || '',
+          usaha_dimiliki: fd.usaha_dimiliki || '',
+          usaha_dimiliki_other: fd.usaha_dimiliki_other || '',
+          nama_usaha: fd.nama_usaha || '',
+          nama_usaha_other: fd.nama_usaha_other || '',
+          kendala_usaha: fd.kendala_usaha || '',
         },
         errors: {},
         submitting: false,

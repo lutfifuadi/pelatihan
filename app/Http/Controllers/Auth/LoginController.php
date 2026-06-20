@@ -32,6 +32,12 @@ class LoginController extends Controller
                 ]);
             }
 
+            // Clear intended URL if it points to notifications or API to prevent loop/wrong redirection
+            $intended = session()->get('url.intended');
+            if ($intended && (str_contains($intended, '/notifications') || str_contains($intended, '/api/'))) {
+                session()->forget('url.intended');
+            }
+
             // Redirect based on role
             return match ($user->role) {
                 'admin' => redirect()->intended(route('dashboard.admin')),

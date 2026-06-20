@@ -310,23 +310,23 @@ $configData = Helper::appClasses();
         <div class="data-grid">
           <div class="data-item">
             <span class="data-label">Nama Lengkap</span>
-            <span class="data-value">{{ $profile->nama_lengkap ?? '-' }}</span>
+            <span class="data-value">{{ $allData['nama_lengkap'] ?? $profile->nama_lengkap ?? '-' }}</span>
           </div>
           <div class="data-item">
             <span class="data-label">Jenis Kelamin</span>
-            <span class="data-value">{{ $profile->jenis_kelamin ?? '-' }}</span>
+            <span class="data-value">{{ $allData['jenis_kelamin'] ?? $profile->jenis_kelamin ?? '-' }}</span>
           </div>
           <div class="data-item">
             <span class="data-label">Tempat Lahir</span>
-            <span class="data-value">{{ $profile->tempat_lahir ?? '-' }}</span>
+            <span class="data-value">{{ $allData['tempat_lahir'] ?? $profile->tempat_lahir ?? '-' }}</span>
           </div>
           <div class="data-item">
             <span class="data-label">Tanggal Lahir</span>
-            <span class="data-value">{{ ($profile->tanggal_lahir ?? '-') . ' ' . ($profile->bulan_lahir ?? '') . ' ' . ($profile->tahun_lahir ?? '') }}</span>
+            <span class="data-value">{{ ($allData['tanggal_lahir'] ?? $profile->tanggal_lahir ?? '-') . ' ' . ($allData['bulan_lahir'] ?? $profile->bulan_lahir ?? '') . ' ' . ($allData['tahun_lahir'] ?? $profile->tahun_lahir ?? '') }}</span>
           </div>
           <div class="data-item full-width">
             <span class="data-label">NIK</span>
-            <span class="data-value">{{ $profile->nik ?? '-' }}</span>
+            <span class="data-value">{{ $allData['nik'] ?? $profile->nik ?? '-' }}</span>
           </div>
         </div>
       </div>
@@ -343,18 +343,18 @@ $configData = Helper::appClasses();
               <i class="icon-base ti tabler-check" style="font-size: 10px;"></i> Lengkap
             </span>
           </div>
-          <a href="{{ route('dashboard.peserta.form-pendaftaran') }}" class="edit-btn">
+          <a href="{{ route('dashboard.peserta.form-alamat') }}" class="edit-btn">
             <i class="icon-base ti tabler-pencil"></i> Ubah
           </a>
         </div>
         <div class="data-grid">
           <div class="data-item full-width">
             <span class="data-label">Alamat</span>
-            <span class="data-value">{{ $profile->alamat_ktp ?? '-' }}</span>
+            <span class="data-value">{{ $allData['alamat_ktp'] ?? $profile->alamat_ktp ?? '-' }}</span>
           </div>
           <div class="data-item">
             <span class="data-label">RT / RW</span>
-            <span class="data-value">{{ ($profile->rt ?? '-') . ' / ' . ($profile->rw ?? '-') }}</span>
+            <span class="data-value">{{ ($allData['rt'] ?? $profile->rt ?? '-') . ' / ' . ($allData['rw'] ?? $profile->rw ?? '-') }}</span>
           </div>
           <div class="data-item">
             <span class="data-label">Kelurahan</span>
@@ -362,33 +362,33 @@ $configData = Helper::appClasses();
           </div>
           <div class="data-item">
             <span class="data-label">Kecamatan</span>
-            <span class="data-value">{{ $profile->kecamatan ?? '-' }}</span>
+            <span class="data-value">{{ $allData['kecamatan_id'] ?? $profile->kecamatan ?? '-' }}</span>
           </div>
           <div class="data-item">
             <span class="data-label">Kota</span>
-            <span class="data-value">{{ $profile->kota ?? '-' }}</span>
+            <span class="data-value">{{ $allData['kota'] ?? $profile->kota ?? '-' }}</span>
           </div>
           <div class="data-item">
             <span class="data-label">Provinsi</span>
-            <span class="data-value">{{ $profile->provinsi ?? '-' }}</span>
+            <span class="data-value">{{ $allData['provinsi'] ?? $profile->provinsi ?? '-' }}</span>
           </div>
           <div class="data-item">
             <span class="data-label">Kode Pos</span>
-            <span class="data-value">{{ $profile->kodepos ?? '-' }}</span>
+            <span class="data-value">{{ $allData['kodepos'] ?? $profile->kodepos ?? '-' }}</span>
           </div>
           <div class="data-item">
             <span class="data-label">WhatsApp</span>
-            <span class="data-value">{{ $profile->whatsapp ?? '-' }}</span>
+            <span class="data-value">{{ $allData['whatsapp'] ?? $profile->whatsapp ?? '-' }}</span>
           </div>
           <div class="data-item">
             <span class="data-label">Email</span>
-            <span class="data-value">{{ $profile->email ?? '-' }}</span>
+            <span class="data-value">{{ $allData['email'] ?? $profile->email ?? '-' }}</span>
           </div>
           <div class="data-item full-width">
             <span class="data-label">Link Medsos</span>
             <span class="data-value">
               @php
-                $linkMedsos = $profile->link_medsos ?? [];
+                $linkMedsos = $allData['link_medsos'] ?? $profile->link_medsos ?? [];
                 if (is_string($linkMedsos)) $linkMedsos = json_decode($linkMedsos, true) ?? [];
               @endphp
               @if(!empty($linkMedsos) && is_array($linkMedsos))
@@ -422,28 +422,29 @@ $configData = Helper::appClasses();
         <div class="data-grid">
           <div class="data-item full-width">
             <span class="data-label">Pendidikan Terakhir</span>
-            <span class="data-value">{{ $profile->pendidikan_terakhir ?? '-' }}</span>
+            <span class="data-value">{{ $allData['pendidikan_terakhir'] ?? $profile->pendidikan_terakhir ?? '-' }}</span>
           </div>
           <div class="data-item">
             <span class="data-label">Institusi</span>
-            <span class="data-value">{{ $profile->nama_institusi ?? '-' }}</span>
+            <span class="data-value">{{ $allData['nama_institusi'] ?? $profile->nama_institusi ?? '-' }}</span>
           </div>
           <div class="data-item">
             <span class="data-label">Jurusan</span>
-            <span class="data-value">{{ $profile->jurusan ?? '-' }}</span>
+            <span class="data-value">{{ $allData['jurusan'] ?? $profile->jurusan ?? '-' }}</span>
           </div>
           <div class="data-item">
             <span class="data-label">Tahun Lulus</span>
-            <span class="data-value">{{ $profile->tahun_lulus ?? '-' }}</span>
+            <span class="data-value">{{ $allData['tahun_lulus'] ?? $profile->tahun_lulus ?? '-' }}</span>
           </div>
           <div class="data-item">
             <span class="data-label">Status Pekerjaan</span>
-            <span class="data-value">{{ $profile->status_pekerjaan ?? '-' }}</span>
+            <span class="data-value">{{ $allData['status_pekerjaan'] ?? $profile->status_pekerjaan ?? '-' }}</span>
           </div>
-          @if($profile->status_pekerjaan === 'Bekerja')
+          @php $statusPekerjaan = $allData['status_pekerjaan'] ?? $profile->status_pekerjaan ?? ''; @endphp
+          @if($statusPekerjaan === 'BEKERJA' || $statusPekerjaan === 'Bekerja')
           <div class="data-item full-width">
             <span class="data-label">Nama Perusahaan</span>
-            <span class="data-value">{{ $profile->nama_perusahaan ?? '-' }}</span>
+            <span class="data-value">{{ $allData['nama_perusahaan'] ?? $profile->nama_perusahaan ?? '-' }}</span>
           </div>
           @endif
         </div>
@@ -467,33 +468,19 @@ $configData = Helper::appClasses();
         </div>
         <div class="data-grid">
           <div class="data-item full-width">
-            <span class="data-label">Bidang Minat</span>
-            <span class="data-value">
-              @php
-                $bidangMinat = $profile->bidang_minat ?? [];
-                if (is_string($bidangMinat)) $bidangMinat = [$bidangMinat];
-              @endphp
-              {{ !empty($bidangMinat) ? implode(', ', $bidangMinat) : '-' }}
-            </span>
-          </div>
-          <div class="data-item full-width">
-            <span class="data-label">Tujuan Pelatihan</span>
-            <span class="data-value">{{ $profile->tujuan_pelatihan ?? '-' }}</span>
-          </div>
-          <div class="data-item">
-            <span class="data-label">Preferensi Jadwal</span>
-            <span class="data-value">{{ $profile->preferensi_jadwal ?? '-' }}</span>
-          </div>
-          <div class="data-item">
-            <span class="data-label">Preferensi Mode</span>
-            <span class="data-value">{{ $profile->preferensi_mode ?? '-' }}</span>
+            <span class="data-label">Batch Pelatihan</span>
+            <span class="data-value">{{ $allData['batch_pelatihan'] ?? $profile->batch_pelatihan ?? '-' }}</span>
           </div>
           @if($profile->pelatihan)
           <div class="data-item full-width">
             <span class="data-label">Pelatihan Terpilih</span>
-            <span class="data-value">{{ $profile->batch_pelatihan }} : {{ $profile->pelatihan->nama ?? '-' }}</span>
+            <span class="data-value">{{ $allData['batch_pelatihan'] ?? $profile->batch_pelatihan ?? '-' }} : {{ $profile->pelatihan->nama ?? '-' }}</span>
           </div>
           @endif
+          <div class="data-item full-width">
+            <span class="data-label">Dinas Pelaksana</span>
+            <span class="data-value">{{ $profile->pelatihan->dinas->nama_dinas ?? '-' }}</span>
+          </div>
         </div>
       </div>
 

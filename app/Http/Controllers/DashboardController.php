@@ -128,14 +128,53 @@ class DashboardController extends Controller
      */
     public function peserta()
     {
+        $user = auth()->user();
+        $profile = \App\Models\PesertaProfile::where('user_id', $user->id)
+            ->with(['pelatihan.dinas'])
+            ->first();
+
+        $enrollment = \App\Models\Enrollment::where('user_id', $user->id)
+            ->with(['pelatihan.dinas', 'attendances', 'certificate'])
+            ->first();
+
+        // Hitung persentase kehadiran
+        $attendanceRate = 0;
+        if ($enrollment && $enrollment->attendances->count() > 0) {
+            $hadir = $enrollment->attendances->where('status', 'hadir')->count();
+            $attendanceRate = round(($hadir / $enrollment->attendances->count()) * 100);
+        }
+
+        // Persentase kelengkapan profil (hitung manual untuk progress bar)
+        $profileCompletion = 0;
+        if ($profile) {
+            $fields = [
+                'nama_lengkap', 'jenis_kelamin', 'tempat_lahir', 'tanggal_lahir', 'bulan_lahir', 'tahun_lahir', 'nik',
+                'alamat_ktp', 'rt', 'rw', 'kelurahan_id', 'kecamatan_id', 'kodepos', 'whatsapp', 'email',
+                'pendidikan_terakhir', 'nama_institusi', 'tahun_lulus', 'status_pekerjaan', 'pelatihan_id'
+            ];
+            $filled = 0;
+            foreach ($fields as $f) {
+                if (!empty($profile->$f)) {
+                    $filled++;
+                }
+            }
+            $profileCompletion = round(($filled / count($fields)) * 100);
+        }
+
+        // Kumpulkan data statistik dashboard
+        $whatsappSender = \App\Models\Setting::where('key', 'whatsapp_sender')->value('value') ?? '62888888888';
         $data = [
-            'totalPelatihan' => 3,
-            'tugasSelesai' => 12,
-            'sertifikat' => 1,
-            'jamBelajar' => 47,
-            'nilaiRata' => '85.5',
+            'isProfileCompleted' => $profile ? $profile->is_completed : false,
+            'profileCompletion' => $profileCompletion,
+            'hasPelatihan' => $profile && $profile->pelatihan_id,
+            'pelatihan' => $profile ? $profile->pelatihan : null,
+            'enrollment' => $enrollment,
+            'attendanceRate' => $attendanceRate,
+            'hasCertificate' => $enrollment && $enrollment->certificate()->exists(),
+            'certificate' => $enrollment ? $enrollment->certificate : null,
+            'whatsapp_sender' => $whatsappSender,
         ];
 
-        return view('content.dashboard.peserta', compact('data'));
+        return view('content.dashboard.peserta', compact('profile', 'data'));
     }
 }

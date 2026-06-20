@@ -359,11 +359,12 @@ $fActive = $fields->where('is_active', true)->pluck('field_key')->toArray();
       </div>
 
       <div class="d-flex justify-content-between mt-4">
-        <a href="{{ route('dashboard.peserta.form-pendaftaran') }}" class="btn btn-glow-outline fw-semibold py-2 px-4" style="border-radius: 5px; font-size: 13px;">
+        <a href="{{ route('dashboard.peserta.form-alamat') }}" class="btn btn-glow-outline fw-semibold py-2 px-4" style="border-radius: 5px; font-size: 13px;">
           <i class="icon-base ti tabler-arrow-left me-1"></i> Sebelumnya
         </a>
-        <button type="button" class="btn btn-glow fw-semibold py-2 px-4" style="border-radius: 5px; font-size: 13px;" @click="submitForm()">
-          Selanjutnya <i class="icon-base ti tabler-arrow-right ms-1"></i>
+        <button type="button" class="btn btn-glow fw-semibold py-2 px-4" style="border-radius: 5px; font-size: 13px;" @click="submitForm()" :disabled="saving">
+          <span x-show="!saving">Selanjutnya <i class="icon-base ti tabler-arrow-right ms-1"></i></span>
+          <span x-show="saving"><i class="icon-base ti tabler-loader animate-spin me-1"></i> Menyimpan...</span>
         </button>
       </div>
 
@@ -421,17 +422,21 @@ window.reinitSelect2 = function() {
 </script>
 
 <script>
+  // Data dari server untuk diisi otomatis ke form (Pola PMBM)
+  window._formData = {!! json_encode($data) !!};
+
   document.addEventListener('alpine:init', function() {
     Alpine.data('pendidikanForm', function() {
-      var profile = @json($profile);
+      var fd = window._formData || {};
       return {
+        saving: false,
         form: {
-          pendidikan_terakhir: profile ? (profile.pendidikan_terakhir || '') : '',
-          tahun_lulus: profile ? (profile.tahun_lulus || '') : '',
-          nama_institusi: profile ? (profile.nama_institusi || '') : '',
-          jurusan: profile ? (profile.jurusan || '') : '',
-          status_pekerjaan: profile ? (profile.status_pekerjaan || '') : '',
-          nama_perusahaan: profile ? (profile.nama_perusahaan || '') : '',
+          pendidikan_terakhir: fd.pendidikan_terakhir || '',
+          tahun_lulus: fd.tahun_lulus || '',
+          nama_institusi: fd.nama_institusi || '',
+          jurusan: fd.jurusan || '',
+          status_pekerjaan: fd.status_pekerjaan || '',
+          nama_perusahaan: fd.nama_perusahaan || '',
         },
         errors: {},
         tahunOptions: (function() {
@@ -458,6 +463,7 @@ window.reinitSelect2 = function() {
 
         submitForm() {
           if (!this.validate()) return;
+          this.saving = true;
           document.getElementById('formPendidikan').submit();
         },
       };

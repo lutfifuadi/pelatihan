@@ -234,6 +234,10 @@ $configData = Helper::appClasses();
     background: rgba(248, 113, 113, 0.12);
     color: #f87171;
   }
+  .stat-icon-secondary {
+    background: rgba(255, 255, 255, 0.06);
+    color: rgba(255, 255, 255, 0.4);
+  }
 
   .progress-dark-premium {
     background: rgba(255, 255, 255, 0.06);
@@ -326,6 +330,20 @@ $configData = Helper::appClasses();
     color: #0b0f19 !important;
   }
 
+  .btn-outline-glass {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: rgba(255, 255, 255, 0.8);
+    border-radius: 5px;
+    transition: all 0.3s ease;
+  }
+  .btn-outline-glass:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.2);
+    color: #ffffff;
+    transform: translateY(-2px);
+  }
+
   /* --- Pagination styling --- */
   .pagination .page-item .page-link {
     background: rgba(255, 255, 255, 0.04) !important;
@@ -369,6 +387,29 @@ $configData = Helper::appClasses();
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
+
+  .hover-text-primary:hover {
+    color: #818cf8 !important;
+  }
+
+  .info-label {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: rgba(255, 255, 255, 0.4);
+    font-weight: 600;
+    margin-bottom: 2px;
+  }
+  .info-value {
+    font-size: 0.95rem;
+    color: #f8fafc;
+    font-weight: 500;
+  }
+
+  /* Override container-p-y padding top khusus halaman ini */
+  body .content-wrapper > .container-p-y {
+    padding-top: 1.5rem !important; /* Disamakan persis dengan admin dashboard (1.5rem) */
+  }
 </style>
 @endsection
 
@@ -380,6 +421,8 @@ $configData = Helper::appClasses();
 
   <!-- Main Content container with z-index to sit on top of orbs -->
   <div class="container-fluid px-4 px-lg-6 position-relative" style="z-index: 1;">
+    
+    {{-- Welcoming Header --}}
     <div class="glass-card-premium px-4 px-xl-5 py-4 mb-4">
       <div class="row align-items-center">
         <div class="col-12 col-lg-8">
@@ -388,7 +431,7 @@ $configData = Helper::appClasses();
               <i class="icon-base ti tabler-user-star fs-4"></i>
             </div>
             <div>
-              <h4 class="fw-bold text-white mb-0">Selamat datang, <span class="text-gradient fw-extrabold">{{ auth()->user()->name }}</span> 👋</h4>
+              <h4 class="fw-bold text-white mb-0">Selamat datang, <span class="text-gradient fw-extrabold">{{ optional($profile)->nama_lengkap ?? auth()->user()->name }}</span> <i class="icon-base ti tabler-hand-wave"></i></h4>
               <p class="text-body-premium mb-0 mt-1" style="font-size: 0.95rem;">
                 Terus semangat belajar dan tingkatkan skill kreatifmu!
               </p>
@@ -397,214 +440,520 @@ $configData = Helper::appClasses();
         </div>
         <div class="col-12 col-lg-4 mt-3 mt-lg-0">
           <div class="d-flex align-items-center gap-4 justify-content-lg-end">
-            <div class="text-center">
-              <p class="text-body-premium small mb-0">Jam Belajar</p>
-              <h5 class="text-white fw-bold mb-0">12<span class="text-body-premium fs-sm">j</span> 30<span class="text-body-premium fs-sm">m</span></h5>
-            </div>
-            <div class="text-center">
-              <p class="text-body-premium small mb-0">Nilai Rata-rata</p>
-              <h5 class="text-white fw-bold mb-0">85<span class="text-body-premium fs-sm">/100</span></h5>
-            </div>
+            @if($data['isProfileCompleted'] && $data['hasPelatihan'] && $data['enrollment'] && $data['enrollment']->status === 'approved')
+              <div class="text-center">
+                <p class="text-body-premium small mb-0">Kehadiran</p>
+                <h5 class="text-white fw-bold mb-0">{{ $data['attendanceRate'] }}%</h5>
+              </div>
+              <div class="text-center">
+                <p class="text-body-premium small mb-0">Sertifikat</p>
+                <h5 class="text-white fw-bold mb-0">
+                  @if($data['hasCertificate'])
+                    <span class="text-success"><i class="icon-base ti tabler-certificate me-1"></i>Ada</span>
+                  @else
+                    <span class="text-muted"><i class="icon-base ti tabler-certificate-off me-1"></i>Belum</span>
+                  @endif
+                </h5>
+              </div>
+            @else
+              <div class="text-center">
+                <p class="text-body-premium small mb-0">Kelengkapan Profil</p>
+                <h5 class="text-white fw-bold mb-0">{{ $data['profileCompletion'] }}%</h5>
+              </div>
+            @endif
           </div>
         </div>
       </div>
     </div>
 
     <!-- ============================================================
-         STATISTICS CARDS
+         STATE 1: Pendaftaran Belum Lengkap
          ============================================================ -->
-    <div class="row g-4 mb-4">
-      <div class="col-lg-3 col-md-6 col-sm-6">
-        <div class="glass-card-premium px-4 py-4">
-          <div class="d-flex align-items-center gap-3">
-            <div class="stat-icon-box stat-icon-primary">
-              <i class="icon-base ti tabler-books"></i>
+    @if(!$data['isProfileCompleted'])
+      <div class="row g-4 mb-4">
+        <div class="col-12 col-xl-8">
+          <div class="glass-card-premium px-4 px-xl-5 py-4 h-100">
+            <div class="d-flex align-items-center justify-content-between mb-4">
+              <h5 class="fw-bold text-white mb-0 d-flex align-items-center gap-2">
+                <i class="icon-base ti tabler-user text-primary"></i>
+                Kelengkapan Profil &amp; Pendaftaran
+              </h5>
+              <span class="badge-premium badge-premium-warning">{{ $data['profileCompletion'] }}% Selesai</span>
             </div>
-            <div>
-              <p class="text-body-premium small mb-0">Total Pelatihan</p>
-              <h3 class="fw-bold text-white mb-0">6</h3>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="col-lg-3 col-md-6 col-sm-6">
-        <div class="glass-card-premium px-4 py-4">
-          <div class="d-flex align-items-center gap-3">
-            <div class="stat-icon-box stat-icon-success">
-              <i class="icon-base ti tabler-clipboard-check"></i>
-            </div>
-            <div>
-              <p class="text-body-premium small mb-0">Tugas Selesai</p>
-              <h3 class="fw-bold text-white mb-0">24</h3>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="col-lg-3 col-md-6 col-sm-6">
-        <div class="glass-card-premium px-4 py-4">
-          <div class="d-flex align-items-center gap-3">
-            <div class="stat-icon-box stat-icon-info">
-              <i class="icon-base ti tabler-certificate"></i>
-            </div>
-            <div>
-              <p class="text-body-premium small mb-0">Sertifikat</p>
-              <h3 class="fw-bold text-white mb-0">3</h3>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="col-lg-3 col-md-6 col-sm-6">
-        <div class="glass-card-premium px-4 py-4">
-          <div class="d-flex align-items-center gap-3">
-            <div class="stat-icon-box stat-icon-warning">
-              <i class="icon-base ti tabler-clock-hour-4"></i>
-            </div>
-            <div>
-              <p class="text-body-premium small mb-0">Total Jam Belajar</p>
-              <h3 class="fw-bold text-white mb-0">12.5j</h3>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
 
-    <!-- ============================================================
-         MAIN CONTENT ROW
-         ============================================================ -->
-    <div class="row g-4 mb-4">
+            <div class="mb-4">
+              <p class="text-body-premium" style="font-size: 0.95rem;">
+                Profil Anda belum lengkap. Silakan lengkapi data profil Anda terlebih dahulu melalui tahapan formulir pendaftaran untuk dapat memilih dan mengikuti pelatihan yang tersedia.
+              </p>
+            </div>
 
-      <!-- LEFT: Progress Pelatihan -->
-      <div class="col-12 col-xl-8">
-        <div class="glass-card-premium px-4 px-xl-5 py-4 h-100">
-          <div class="d-flex align-items-center justify-content-between mb-4">
-            <h5 class="fw-bold text-white mb-0 d-flex align-items-center gap-2">
-              <i class="icon-base ti tabler-trending-up text-primary"></i>
-              Progress Pelatihan
+            <div class="mb-4">
+              <div class="progress progress-dark-premium" style="height: 12px;">
+                <div class="progress-bar" style="width: {{ $data['profileCompletion'] }}%;"></div>
+              </div>
+            </div>
+
+            <hr class="dark-premium my-4">
+
+            <h6 class="text-white fw-semibold mb-3">Tahapan Pendaftaran:</h6>
+            <div class="row g-3 mb-4">
+              {{-- Tahap 1: Data Pribadi & Alamat --}}
+              @php
+                $step1Done = !empty($profile->nama_lengkap) && !empty($profile->nik);
+              @endphp
+              <div class="col-12 col-md-6">
+                <div class="d-flex align-items-center gap-3 p-3 rounded bg-white bg-opacity-5" style="border: 1px solid rgba(255,255,255,0.04);">
+                  <div class="stat-icon-box stat-icon-{{ $step1Done ? 'success' : 'secondary' }}" style="width: 38px; height: 38px; font-size: 1.1rem;">
+                    <i class="icon-base ti tabler-{{ $step1Done ? 'check' : 'user' }}"></i>
+                  </div>
+                  <div>
+                    <a href="{{ route('dashboard.peserta.form-pendaftaran') }}" class="text-white fw-semibold text-decoration-none hover-text-primary" style="font-size: 0.9rem;">1. Data Pribadi</a>
+                    <p class="text-body-premium mb-0 small" style="font-size: 0.75rem;">
+                      {{ $step1Done ? 'Sudah Diisi' : 'Belum Lengkap' }}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {{-- Tahap 2: Alamat & Kontak --}}
+              @php
+                $step2Done = !empty($profile->alamat_ktp) && !empty($profile->whatsapp);
+              @endphp
+              <div class="col-12 col-md-6">
+                <div class="d-flex align-items-center gap-3 p-3 rounded bg-white bg-opacity-5" style="border: 1px solid rgba(255,255,255,0.04);">
+                  <div class="stat-icon-box stat-icon-{{ $step2Done ? 'success' : 'secondary' }}" style="width: 38px; height: 38px; font-size: 1.1rem;">
+                    <i class="icon-base ti tabler-{{ $step2Done ? 'check' : 'map-pin' }}"></i>
+                  </div>
+                  <div>
+                    <a href="{{ $step1Done ? route('dashboard.peserta.form-alamat') : 'javascript:void(0);' }}" 
+                       class="text-white fw-semibold text-decoration-none {{ !$step1Done ? 'text-muted' : 'hover-text-primary' }}" 
+                       style="font-size: 0.9rem; @if(!$step1Done) cursor: not-allowed; opacity: 0.5; @endif">2. Alamat &amp; Kontak</a>
+                    <p class="text-body-premium mb-0 small" style="font-size: 0.75rem;">
+                      {{ $step2Done ? 'Sudah Diisi' : 'Belum Lengkap' }}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {{-- Tahap 3: Pendidikan --}}
+              @php
+                $step3Done = !empty($profile->pendidikan_terakhir) && !empty($profile->nama_institusi);
+              @endphp
+              <div class="col-12 col-md-6">
+                <div class="d-flex align-items-center gap-3 p-3 rounded bg-white bg-opacity-5" style="border: 1px solid rgba(255,255,255,0.04);">
+                  <div class="stat-icon-box stat-icon-{{ $step3Done ? 'success' : 'secondary' }}" style="width: 38px; height: 38px; font-size: 1.1rem;">
+                    <i class="icon-base ti tabler-{{ $step3Done ? 'check' : 'school' }}"></i>
+                  </div>
+                  <div>
+                    <a href="{{ $step2Done ? route('dashboard.peserta.form-pendidikan') : 'javascript:void(0);' }}" 
+                       class="text-white fw-semibold text-decoration-none {{ !$step2Done ? 'text-muted' : 'hover-text-primary' }}" 
+                       style="font-size: 0.9rem; @if(!$step2Done) cursor: not-allowed; opacity: 0.5; @endif">3. Riwayat Pendidikan</a>
+                    <p class="text-body-premium mb-0 small" style="font-size: 0.75rem;">
+                      {{ $step3Done ? 'Sudah Diisi' : 'Belum Lengkap' }}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {{-- Tahap 4: Minat Pelatihan --}}
+              @php
+                $step4Done = !empty($profile->pelatihan_id);
+              @endphp
+              <div class="col-12 col-md-6">
+                <div class="d-flex align-items-center gap-3 p-3 rounded bg-white bg-opacity-5" style="border: 1px solid rgba(255,255,255,0.04);">
+                  <div class="stat-icon-box stat-icon-{{ $step4Done ? 'success' : 'secondary' }}" style="width: 38px; height: 38px; font-size: 1.1rem;">
+                    <i class="icon-base ti tabler-{{ $step4Done ? 'check' : 'heart' }}"></i>
+                  </div>
+                  <div>
+                    <a href="{{ $step3Done ? route('dashboard.peserta.form-minat') : 'javascript:void(0);' }}" 
+                       class="text-white fw-semibold text-decoration-none {{ !$step3Done ? 'text-muted' : 'hover-text-primary' }}" 
+                       style="font-size: 0.9rem; @if(!$step3Done) cursor: not-allowed; opacity: 0.5; @endif">4. Pilihan Pelatihan</a>
+                    <p class="text-body-premium mb-0 small" style="font-size: 0.75rem;">
+                      {{ $step4Done ? 'Sudah Diisi' : 'Belum Lengkap' }}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {{-- Tahap 5: Dokumen & Pertanyaan --}}
+              @php
+                $step5Done = !empty($profile->jawaban_pertanyaan);
+              @endphp
+              <div class="col-12 col-md-6">
+                <div class="d-flex align-items-center gap-3 p-3 rounded bg-white bg-opacity-5" style="border: 1px solid rgba(255,255,255,0.04);">
+                  <div class="stat-icon-box stat-icon-{{ $step5Done ? 'success' : 'secondary' }}" style="width: 38px; height: 38px; font-size: 1.1rem;">
+                    <i class="icon-base ti tabler-{{ $step5Done ? 'check' : 'file-check' }}"></i>
+                  </div>
+                  <div>
+                    <a href="{{ $step4Done ? route('dashboard.peserta.form-dokumen') : 'javascript:void(0);' }}" 
+                       class="text-white fw-semibold text-decoration-none {{ !$step4Done ? 'text-muted' : 'hover-text-primary' }}" 
+                       style="font-size: 0.9rem; @if(!$step4Done) cursor: not-allowed; opacity: 0.5; @endif">5. Dokumen &amp; Pertanyaan</a>
+                    <p class="text-body-premium mb-0 small" style="font-size: 0.75rem;">
+                      {{ $step5Done ? 'Sudah Diisi' : 'Belum Lengkap' }}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {{-- Tahap 6: Review & Kirim --}}
+              <div class="col-12 col-md-6">
+                <div class="d-flex align-items-center gap-3 p-3 rounded bg-white bg-opacity-5" style="border: 1px solid rgba(255,255,255,0.04);">
+                  <div class="stat-icon-box stat-icon-{{ $step5Done ? 'success' : 'secondary' }}" style="width: 38px; height: 38px; font-size: 1.1rem;">
+                    <i class="icon-base ti tabler-{{ $step5Done ? 'check' : 'send' }}"></i>
+                  </div>
+                  <div>
+                    <a href="{{ $step5Done ? route('dashboard.peserta.form-review') : 'javascript:void(0);' }}" 
+                       class="text-white fw-semibold text-decoration-none {{ !$step5Done ? 'text-muted' : 'hover-text-primary' }}" 
+                       style="font-size: 0.9rem; @if(!$step5Done) cursor: not-allowed; opacity: 0.5; @endif">6. Review &amp; Kirim</a>
+                    <p class="text-body-premium mb-0 small" style="font-size: 0.75rem;">
+                      {{ $step5Done ? 'Siap Dikirim' : 'Belum Lengkap' }}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="text-center mt-3">
+              @php
+                $nextRoute = route('dashboard.peserta.form-pendaftaran');
+                if ($step5Done) {
+                    $nextRoute = route('dashboard.peserta.form-review');
+                } elseif ($step4Done) {
+                    $nextRoute = route('dashboard.peserta.form-dokumen');
+                } elseif ($step3Done) {
+                    $nextRoute = route('dashboard.peserta.form-minat');
+                } elseif ($step2Done) {
+                    $nextRoute = route('dashboard.peserta.form-pendidikan');
+                } elseif ($step1Done) {
+                    $nextRoute = route('dashboard.peserta.form-alamat');
+                }
+              @endphp
+              <a href="{{ $nextRoute }}" class="btn btn-glow-premium px-5 py-2 fw-bold text-uppercase" style="letter-spacing: 0.05em;">
+                <i class="icon-base ti tabler-player-play me-1"></i> Mulai / Lanjutkan Pengisian
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-12 col-xl-4">
+          <div class="glass-card-premium px-4 px-xl-5 py-4 h-100">
+            <h5 class="fw-bold text-white mb-4 d-flex align-items-center gap-2">
+              <i class="icon-base ti tabler-help-circle text-info"></i>
+              Butuh Bantuan?
             </h5>
-            <span class="badge-premium badge-premium-primary">4 Aktif</span>
-          </div>
-
-          <div class="mb-4">
-            <div class="d-flex justify-content-between align-items-center mb-2">
-              <div>
-                <h6 class="text-white fw-semibold mb-0" style="font-size: 0.9rem;">Kuliner Kreatif — Dasar Memasak Modern</h6>
-                <small class="text-body-premium">12 dari 20 Modul</small>
+            <p class="text-body-premium mb-4" style="font-size: 0.9rem; line-height: 1.5;">
+              Jika Anda mengalami kesulitan saat mengisi formulir pendaftaran atau membutuhkan informasi lebih lanjut mengenai pelatihan kerja, silakan hubungi kami.
+            </p>
+            
+            <div class="d-flex align-items-center gap-3 mb-4">
+              <div class="stat-icon-box stat-icon-success" style="width: 40px; height: 40px; font-size: 1.2rem;">
+                <i class="icon-base ti tabler-brand-whatsapp"></i>
               </div>
-              <span class="text-white fw-bold small">60%</span>
-            </div>
-            <div class="progress progress-dark-premium">
-              <div class="progress-bar" style="width: 60%;"></div>
-            </div>
-          </div>
-
-          <div class="mb-4">
-            <div class="d-flex justify-content-between align-items-center mb-2">
               <div>
-                <h6 class="text-white fw-semibold mb-0" style="font-size: 0.9rem;">Konten Kreator — Video & Fotografi</h6>
-                <small class="text-body-premium">8 dari 15 Modul</small>
+                <span class="info-label d-block">WhatsApp Service</span>
+                <a href="https://wa.me/{{ $data['whatsapp_sender'] }}" target="_blank" class="text-white fw-bold text-decoration-none hover-text-primary">Hubungi Admin</a>
               </div>
-              <span class="text-white fw-bold small">53%</span>
             </div>
-            <div class="progress progress-dark-premium">
-              <div class="progress-bar" style="width: 53%;"></div>
+            
+            <div class="d-flex align-items-center gap-3">
+              <div class="stat-icon-box stat-icon-primary" style="width: 40px; height: 40px; font-size: 1.2rem;">
+                <i class="icon-base ti tabler-info-circle"></i>
+              </div>
+              <div>
+                <span class="info-label d-block">FAQ &amp; Panduan</span>
+                <a href="{{ url('/#faq') }}" target="_blank" class="text-white fw-bold text-decoration-none hover-text-primary">Lihat Tanya Jawab</a>
+              </div>
             </div>
           </div>
+        </div>
+      </div>
 
-          <div class="mb-4">
-            <div class="d-flex justify-content-between align-items-center mb-2">
-              <div>
-                <h6 class="text-white fw-semibold mb-0" style="font-size: 0.9rem;">Desain Grafis — Canva & Adobe Express</h6>
-                <small class="text-body-premium">5 dari 12 Modul</small>
+    <!-- ============================================================
+         STATE 2: Pendaftaran Selesai, Menunggu Verifikasi / Cadangan / Ditolak
+         ============================================================ -->
+    @elseif(!$data['enrollment'] || $data['enrollment']->status !== 'approved')
+      <div class="row g-4 mb-4">
+        <div class="col-12 col-xl-8">
+          <div class="glass-card-premium px-4 px-xl-5 py-4 h-100">
+            <div class="text-center py-4">
+              <div class="stat-icon-box stat-icon-info mx-auto mb-3" style="width: 64px; height: 64px; font-size: 2rem; border-radius: 50% !important;">
+                <i class="icon-base ti tabler-send fs-1"></i>
               </div>
-              <span class="text-white fw-bold small">42%</span>
+              <h4 class="fw-bold text-white mb-2">Pendaftaran Anda Berhasil Dikirim!</h4>
+              <p class="text-body-premium mx-auto" style="max-width: 550px; font-size: 0.95rem; line-height: 1.6;">
+                Terima kasih telah melengkapi data pendaftaran Anda. Saat ini data Anda sedang dalam proses peninjauan dan verifikasi oleh tim Admin/Dinas penyelenggara.
+              </p>
+
+              @if($data['enrollment'] && $data['enrollment']->status === 'waitlist')
+                <div class="alert alert-warning border-warning border-opacity-20 bg-warning bg-opacity-10 text-warning mx-auto p-3 mt-4 text-start" style="max-width: 550px; border-radius: 5px;">
+                  <div class="d-flex gap-2">
+                    <i class="icon-base ti tabler-alert-triangle mt-1 flex-shrink-0"></i>
+                    <div>
+                      <strong class="d-block mb-1">Status: Cadangan (Waiting List)</strong>
+                      <span>Kuota utama untuk pelatihan ini saat ini sudah penuh. Anda masuk ke daftar cadangan dan akan otomatis dipromosikan jika ada peserta utama yang mengundurkan diri atau ditolak.</span>
+                      @if($data['enrollment']->notes)
+                        <p class="mb-0 mt-2 small text-warning text-opacity-80">Catatan Admin: {{ $data['enrollment']->notes }}</p>
+                      @endif
+                    </div>
+                  </div>
+                </div>
+              @elseif($data['enrollment'] && $data['enrollment']->status === 'rejected')
+                <div class="alert alert-danger border-danger border-opacity-20 bg-danger bg-opacity-10 text-danger mx-auto p-3 mt-4 text-start" style="max-width: 550px; border-radius: 5px;">
+                  <div class="d-flex gap-2">
+                    <i class="icon-base ti tabler-circle-x mt-1 flex-shrink-0"></i>
+                    <div>
+                      <strong class="d-block mb-1">Status: Pendaftaran Ditolak</strong>
+                      <span>Mohon maaf, pendaftaran Anda belum dapat disetujui.</span>
+                      @if($data['enrollment']->notes)
+                        <p class="mb-0 mt-2 small text-danger text-opacity-80">Alasan Penolakan: <strong>{{ $data['enrollment']->notes }}</strong></p>
+                      @endif
+                      <div class="mt-3">
+                        <a href="{{ route('dashboard.peserta.form-minat') }}" class="btn btn-sm btn-danger fw-semibold px-3 py-1" style="border-radius: 5px;">
+                          <i class="icon-base ti tabler-refresh me-1"></i> Pilih Pelatihan Lain
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              @else
+                <div class="d-inline-flex align-items-center gap-2 badge bg-primary bg-opacity-15 text-white border border-primary border-opacity-30 px-3 py-2 mt-3" style="border-radius: 20px;">
+                  <span class="spinner-grow spinner-grow-sm text-white" role="status"></span>
+                  <span class="fw-semibold small text-uppercase" style="letter-spacing: 0.05em;">Menunggu Verifikasi Admin</span>
+                </div>
+              @endif
             </div>
-            <div class="progress progress-dark-premium">
-              <div class="progress-bar" style="width: 42%;"></div>
+
+            <hr class="dark-premium my-4">
+
+            {{-- Link ke halaman Status Pendaftaran --}}
+            <div class="text-center">
+              <a href="{{ route('dashboard.peserta.status') }}" class="btn btn-outline-glass px-4 py-2 fw-semibold" style="border-radius: 5px; font-size: 0.85rem;">
+                <i class="icon-base ti tabler-external-link me-1"></i> Lihat Status Lengkap <span aria-hidden="true">&rarr;</span>
+              </a>
             </div>
+
+            @if($data['pelatihan'])
+              <hr class="dark-premium my-4">
+              <h5 class="fw-bold text-white mb-3">Detail Pelatihan Pilihan:</h5>
+              <div class="p-3 rounded" style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06);">
+                <div class="row g-3">
+                  <div class="col-12 col-md-6">
+                    <span class="info-label d-block">Nama Pelatihan</span>
+                    <span class="info-value fw-bold text-white">{{ $data['pelatihan']->nama }}</span>
+                  </div>
+                  <div class="col-6 col-md-3">
+                    <span class="info-label d-block">Batch</span>
+                    <span class="info-value text-white">{{ $data['pelatihan']->batch }}</span>
+                  </div>
+                  <div class="col-6 col-md-3">
+                    <span class="info-label d-block">Dinas Penyelenggara</span>
+                    <span class="info-value text-white">{{ $data['pelatihan']->dinas->nama_dinas ?? '-' }}</span>
+                  </div>
+                  <div class="col-12">
+                    <span class="info-label d-block">Tanggal Pelaksanaan</span>
+                    <span class="info-value text-white">
+                      @if($data['pelatihan']->tanggal_mulai)
+                        {{ $data['pelatihan']->tanggal_mulai->format('d M Y') }} s/d {{ $data['pelatihan']->tanggal_selesai ? $data['pelatihan']->tanggal_selesai->format('d M Y') : '-' }}
+                      @else
+                        Akan segera diumumkan
+                      @endif
+                    </span>
+                  </div>
+                </div>
+              </div>
+            @endif
           </div>
+        </div>
 
-          <div>
-            <div class="d-flex justify-content-between align-items-center mb-2">
-              <div>
-                <h6 class="text-white fw-semibold mb-0" style="font-size: 0.9rem;">Kriya & Seni Tradisional</h6>
-                <small class="text-body-premium">18 dari 18 Modul — Selesai</small>
-              </div>
-              <span class="text-success fw-bold small">
-                <i class="icon-base ti tabler-check-circle me-1"></i>100%
+        <div class="col-12 col-xl-4">
+          <div class="glass-card-premium px-4 px-xl-5 py-4 h-100">
+            <h5 class="fw-bold text-white mb-4 d-flex align-items-center gap-2">
+              <i class="icon-base ti tabler-clock text-info"></i>
+              Proses Selanjutnya
+            </h5>
+            <ul class="timeline-custom mb-0 ps-0" style="list-style: none;">
+              <li class="d-flex gap-3 mb-4">
+                <div class="stat-icon-box stat-icon-success" style="width: 32px; height: 32px; font-size: 1rem; border-radius: 50% !important;">
+                  <i class="icon-base ti tabler-check"></i>
+                </div>
+                <div>
+                  <h6 class="text-white fw-bold mb-1" style="font-size: 0.85rem;">1. Data Dikirim</h6>
+                  <p class="text-body-premium mb-0 small" style="font-size: 0.75rem;">Anda telah mengirimkan seluruh data pendaftaran.</p>
+                </div>
+              </li>
+              <li class="d-flex gap-3 mb-4">
+                <div class="stat-icon-box stat-icon-warning" style="width: 32px; height: 32px; font-size: 1rem; border-radius: 50% !important;">
+                  <span class="spinner-border spinner-border-sm" role="status" style="width: 14px; height: 14px; color: #fbbf24;"></span>
+                </div>
+                <div>
+                  <h6 class="text-white fw-bold mb-1" style="font-size: 0.85rem;">2. Verifikasi Data</h6>
+                  <p class="text-body-premium mb-0 small" style="font-size: 0.75rem;">Tim Admin akan memverifikasi kesesuaian berkas dan kuota.</p>
+                </div>
+              </li>
+              <li class="d-flex gap-3">
+                <div class="stat-icon-box stat-icon-secondary" style="width: 32px; height: 32px; font-size: 1rem; border-radius: 50% !important;">
+                  <i class="icon-base ti tabler-bell"></i>
+                </div>
+                <div>
+                  <h6 class="text-white fw-bold mb-1" style="font-size: 0.85rem;">3. Hasil Seleksi</h6>
+                  <p class="text-body-premium mb-0 small" style="font-size: 0.75rem;">Hasil seleksi akan diumumkan di dashboard dan dikirimkan via WhatsApp.</p>
+                </div>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+    <!-- ============================================================
+         STATE 3: Pelatihan Aktif / Approved
+         ============================================================ -->
+    @else
+      <div class="row g-4 mb-4">
+        {{-- Left: Progress & Absensi --}}
+        <div class="col-12 col-xl-8">
+          <div class="glass-card-premium px-4 px-xl-5 py-4 h-100">
+            <div class="d-flex align-items-center justify-content-between mb-4">
+              <h5 class="fw-bold text-white mb-0 d-flex align-items-center gap-2">
+                <i class="icon-base ti tabler-trending-up text-primary"></i>
+                Progress &amp; Kehadiran Pelatihan
+              </h5>
+              <span class="badge-premium {{ $data['pelatihan']->tanggal_selesai && now()->gt($data['pelatihan']->tanggal_selesai) ? 'badge-premium-info' : 'badge-premium-success' }}">
+                {{ $data['pelatihan']->tanggal_selesai && now()->gt($data['pelatihan']->tanggal_selesai) ? 'Selesai' : 'Aktif' }}
               </span>
             </div>
-            <div class="progress progress-dark-premium">
-              <div class="progress-bar" style="width: 100%; background: linear-gradient(90deg, #10b981, #34d399);"></div>
+
+            <div class="mb-4">
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <div>
+                  <h6 class="text-white fw-semibold mb-0" style="font-size: 0.95rem;">{{ $data['pelatihan']->nama }}</h6>
+                  <small class="text-body-premium">Penyelenggara: {{ $data['pelatihan']->dinas->nama_dinas ?? '-' }}</small>
+                </div>
+                <span class="text-white fw-bold small">{{ $data['attendanceRate'] }}% Kehadiran</span>
+              </div>
+              <div class="progress progress-dark-premium" style="height: 10px;">
+                <div class="progress-bar" style="width: {{ $data['attendanceRate'] }}%;"></div>
+              </div>
             </div>
+
+            <hr class="dark-premium my-4">
+
+            <h6 class="text-white fw-semibold mb-3">Daftar Pertemuan &amp; Absensi:</h6>
+            @if($data['enrollment']->attendances && $data['enrollment']->attendances->count() > 0)
+              <div class="row g-3">
+                @foreach($data['enrollment']->attendances->sortBy('pertemuan_ke') as $att)
+                  <div class="col-12 col-sm-6">
+                    <div class="d-flex align-items-center justify-content-between p-3 rounded bg-white bg-opacity-5" style="border: 1px solid rgba(255,255,255,0.04);">
+                      <div class="d-flex align-items-center gap-3">
+                        <div class="stat-icon-box stat-icon-primary" style="width: 36px; height: 36px; font-size: 1rem;">
+                          {{ $att->pertemuan_ke }}
+                        </div>
+                        <div>
+                          <span class="text-white fw-semibold small d-block">Pertemuan {{ $att->pertemuan_ke }}</span>
+                          <small class="text-body-premium" style="font-size: 0.75rem;">{{ $att->created_at ? $att->created_at->format('d/m/Y') : '-' }}</small>
+                        </div>
+                      </div>
+                      <div>
+                        @switch($att->status)
+                          @case('hadir')
+                            <span class="badge bg-success bg-opacity-15 text-success border border-success border-opacity-30 px-2.5 py-1 small" style="border-radius: 4px;">Hadir</span>
+                            @break
+                          @case('izin')
+                            <span class="badge bg-warning bg-opacity-15 text-warning border border-warning border-opacity-30 px-2.5 py-1 small" style="border-radius: 4px;">Izin</span>
+                            @break
+                          @case('sakit')
+                            <span class="badge bg-info bg-opacity-15 text-info border border-info border-opacity-30 px-2.5 py-1 small" style="border-radius: 4px;">Sakit</span>
+                            @break
+                          @case('alpa')
+                            <span class="badge bg-danger bg-opacity-15 text-danger border border-danger border-opacity-30 px-2.5 py-1 small" style="border-radius: 4px;">Alpa</span>
+                            @break
+                          @default
+                            <span class="badge bg-secondary bg-opacity-15 text-secondary border border-secondary border-opacity-30 px-2.5 py-1 small" style="border-radius: 4px;">-</span>
+                        @endswitch
+                      </div>
+                    </div>
+                  </div>
+                @endforeach
+              </div>
+            @else
+              <div class="text-center py-4 bg-white bg-opacity-5 rounded border border-white border-opacity-5">
+                <i class="icon-base ti tabler-calendar-off fs-2 text-muted mb-2 d-block"></i>
+                <span class="text-body-premium small">Belum ada riwayat absensi yang tercatat untuk pelatihan ini.</span>
+              </div>
+            @endif
           </div>
         </div>
-      </div>
 
-      <!-- RIGHT: Jadwal Mendatang -->
-      <div class="col-12 col-xl-4">
-        <div class="glass-card-premium px-4 px-xl-5 py-4 h-100">
-          <div class="d-flex align-items-center justify-content-between mb-4">
-            <h5 class="fw-bold text-white mb-0 d-flex align-items-center gap-2">
-              <i class="icon-base ti tabler-calendar-event text-info"></i>
-              Jadwal Mendatang
+        {{-- Right: Status & Sertifikat --}}
+        <div class="col-12 col-xl-4">
+          <div class="glass-card-premium px-4 px-xl-5 py-4 h-100">
+            <h5 class="fw-bold text-white mb-4 d-flex align-items-center gap-2">
+              <i class="icon-base ti tabler-certificate text-warning"></i>
+              Sertifikat &amp; Kelulusan
             </h5>
-            <span class="badge-premium badge-premium-info">3 Event</span>
-          </div>
 
-          <div class="schedule-item mb-4">
-            <h6 class="text-white fw-semibold mb-1" style="font-size: 0.9rem;">Webinar: Tips Konten Viral</h6>
-            <div class="d-flex align-items-center gap-3">
-              <small class="text-body-premium d-flex align-items-center gap-1">
-                <i class="icon-base ti tabler-calendar"></i> 15 Jun 2026
-              </small>
-              <small class="text-body-premium d-flex align-items-center gap-1">
-                <i class="icon-base ti tabler-clock"></i> 09:00 WIB
-              </small>
-            </div>
-          </div>
+            @if($data['hasCertificate'])
+              <div class="text-center py-3">
+                <div class="stat-icon-box stat-icon-warning mx-auto mb-3" style="width: 58px; height: 58px; font-size: 1.8rem; border-radius: 50% !important; background: rgba(251,191,36,0.15); color: #fbbf24;">
+                  <i class="icon-base ti tabler-award fs-1"></i>
+                </div>
+                <h5 class="fw-bold text-white mb-2">Selamat, Anda Lulus!</h5>
+                <p class="text-body-premium small mb-3" style="line-height: 1.4;">
+                  Anda dinyatakan lulus dari pelatihan <strong>{{ $data['pelatihan']->nama }}</strong>. Sertifikat resmi Anda telah diterbitkan.
+                </p>
 
-          <div class="schedule-item mb-4">
-            <h6 class="text-white fw-semibold mb-1" style="font-size: 0.9rem;">Workshop: Desain Grafis Lanjutan</h6>
-            <div class="d-flex align-items-center gap-3">
-              <small class="text-body-premium d-flex align-items-center gap-1">
-                <i class="icon-base ti tabler-calendar"></i> 20 Jun 2026
-              </small>
-              <small class="text-body-premium d-flex align-items-center gap-1">
-                <i class="icon-base ti tabler-clock"></i> 13:00 WIB
-              </small>
-            </div>
-          </div>
+                <div class="p-3 mb-4 rounded bg-white bg-opacity-5 border border-white border-opacity-5 text-start">
+                  <span class="info-label d-block">Nomor Sertifikat</span>
+                  <span class="info-value fw-mono text-warning" style="font-size: 0.85rem; font-family: monospace;">{{ $data['certificate']->certificate_number }}</span>
+                </div>
 
-          <div class="schedule-item">
-            <h6 class="text-white fw-semibold mb-1" style="font-size: 0.9rem;">Ujian Akhir Pelatihan</h6>
-            <div class="d-flex align-items-center gap-3">
-              <small class="text-body-premium d-flex align-items-center gap-1">
-                <i class="icon-base ti tabler-calendar"></i> 28 Jun 2026
-              </small>
-              <small class="text-body-premium d-flex align-items-center gap-1">
-                <i class="icon-base ti tabler-clock"></i> 08:00 WIB
-              </small>
-            </div>
-          </div>
+                <div class="d-flex flex-column gap-2">
+                  <a href="{{ route('admin.certificates.download', $data['certificate']->id) }}" class="btn btn-glow-premium w-100 py-2">
+                    <i class="icon-base ti tabler-download me-1"></i> Unduh Sertifikat PDF
+                  </a>
+                  <a href="{{ route('certificates.verify', ['nomor' => $data['certificate']->certificate_number]) }}" target="_blank" class="btn btn-outline-secondary w-100 py-2" style="border-color: rgba(255,255,255,0.1); color: rgba(255,255,255,0.7);">
+                    <i class="icon-base ti tabler-qrcode me-1"></i> Verifikasi Online
+                  </a>
+                </div>
+              </div>
+            @else
+              <div class="text-center py-4 bg-white bg-opacity-5 rounded border border-white border-opacity-5">
+                <i class="icon-base ti tabler-award fs-2 text-muted mb-2 d-block"></i>
+                <span class="text-white fw-semibold d-block mb-1">Pelatihan Sedang Berlangsung</span>
+                <p class="text-body-premium mb-0 small" style="font-size: 0.75rem; line-height: 1.4;">
+                  Sertifikat kelulusan akan diterbitkan oleh Admin/Dinas setelah seluruh rangkaian pelatihan dan absensi selesai diverifikasi.
+                </p>
+              </div>
+            @endif
 
-          <hr class="dark-premium my-4">
+            <hr class="dark-premium my-4">
 
-          <div class="text-center">
-            <a href="javascript:void(0);" class="btn btn-glow-premium w-100 py-2">
-              <i class="icon-base ti tabler-plus me-1"></i>Lihat Semua Jadwal
-            </a>
+            <h6 class="text-white fw-semibold mb-3">Info Kelas Offline:</h6>
+            <ul class="list-unstyled mb-0">
+              <li class="d-flex justify-content-between mb-2">
+                <span class="text-body-premium small">Batch</span>
+                <span class="text-white small fw-semibold">{{ $data['pelatihan']->batch }}</span>
+              </li>
+              <li class="d-flex justify-content-between mb-2">
+                <span class="text-body-premium small">Mulai</span>
+                <span class="text-white small fw-semibold">{{ $data['pelatihan']->tanggal_mulai ? $data['pelatihan']->tanggal_mulai->format('d M Y') : '-' }}</span>
+              </li>
+              <li class="d-flex justify-content-between">
+                <span class="text-body-premium small">Selesai</span>
+                <span class="text-white small fw-semibold">{{ $data['pelatihan']->tanggal_selesai ? $data['pelatihan']->tanggal_selesai->format('d M Y') : '-' }}</span>
+              </li>
+            </ul>
           </div>
         </div>
       </div>
-
-    </div>
+    @endif
 
     <!-- ============================================================
-         BOTTOM ROW: Instruktur & Aktivitas Terakhir
+         BOTTOM ROW: Hanya tampil di State 3 (Approved)
          ============================================================ -->
+    @if($data['isProfileCompleted'] && $data['enrollment'] && $data['enrollment']->status === 'approved')
     <div class="row g-4">
 
-      <!-- Instruktur Saya -->
+      <!-- Instruktur Saya (Placeholder) -->
       <div class="col-12 col-xl-4">
         <div class="glass-card-premium px-4 px-xl-5 py-4 h-100">
           <div class="d-flex align-items-center justify-content-between mb-4">
@@ -612,38 +961,28 @@ $configData = Helper::appClasses();
               <i class="icon-base ti tabler-users text-success"></i>
               Instruktur Saya
             </h5>
-            <span class="badge-premium badge-premium-success">4 Aktif</span>
+            <span class="badge-premium badge-premium-success">Info</span>
           </div>
 
-          <div class="d-flex align-items-center gap-3 mb-4">
-            <div class="instructor-avatar" style="background: rgba(99, 102, 241, 0.15); color: #818cf8;">AS</div>
-            <div>
-              <h6 class="text-white fw-semibold mb-0" style="font-size: 0.9rem;">Ahmad Syarif</h6>
-              <small class="text-body-premium">Kuliner Kreatif</small>
+          <div class="text-center py-4">
+            <div class="stat-icon-box stat-icon-success mx-auto mb-3" style="width: 56px; height: 56px; font-size: 1.6rem; border-radius: 50% !important;">
+              <i class="icon-base ti tabler-users"></i>
             </div>
+            <h6 class="text-white fw-semibold mb-2" style="font-size: 0.95rem;">Data Instruktur Segera Hadir</h6>
+            <p class="text-body-premium mb-0" style="font-size: 0.85rem; line-height: 1.5;">
+              Informasi instruktur akan ditampilkan setelah pelatihan <strong class="text-white">{{ $data['pelatihan']->nama ?? 'Anda' }}</strong> resmi dimulai dan jadwal pertemuan telah diterbitkan oleh penyelenggara.
+            </p>
           </div>
 
-          <div class="d-flex align-items-center gap-3 mb-4">
-            <div class="instructor-avatar" style="background: rgba(16, 185, 129, 0.15); color: #34d399;">DN</div>
-            <div>
-              <h6 class="text-white fw-semibold mb-0" style="font-size: 0.9rem;">Dewi Nuraini</h6>
-              <small class="text-body-premium">Konten Kreator</small>
+          <hr class="dark-premium my-4">
+
+          <div class="d-flex align-items-center gap-3 p-3 rounded" style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06);">
+            <div class="stat-icon-box stat-icon-primary" style="width: 36px; height: 36px; font-size: 1rem;">
+              <i class="icon-base ti tabler-bell"></i>
             </div>
-          </div>
-
-          <div class="d-flex align-items-center gap-3 mb-4">
-            <div class="instructor-avatar" style="background: rgba(6, 182, 212, 0.15); color: #22d3ee;">RF</div>
             <div>
-              <h6 class="text-white fw-semibold mb-0" style="font-size: 0.9rem;">Rizky Firmansyah</h6>
-              <small class="text-body-premium">Desain Grafis</small>
-            </div>
-          </div>
-
-          <div class="d-flex align-items-center gap-3">
-            <div class="instructor-avatar" style="background: rgba(245, 158, 11, 0.15); color: #fbbf24;">SW</div>
-            <div>
-              <h6 class="text-white fw-semibold mb-0" style="font-size: 0.9rem;">Siti Wulandari</h6>
-              <small class="text-body-premium">Kriya & Seni</small>
+              <span class="text-white fw-semibold small d-block">Notifikasi</span>
+              <small class="text-body-premium" style="font-size: 0.75rem;">Kami akan memberitahu Anda saat data instruktur tersedia.</small>
             </div>
           </div>
         </div>
@@ -657,108 +996,128 @@ $configData = Helper::appClasses();
               <i class="icon-base ti tabler-activity text-warning"></i>
               Aktivitas Terakhir
             </h5>
-            <span class="badge-premium badge-premium-warning">Hari Ini</span>
+            <span class="badge-premium badge-premium-warning">Update</span>
           </div>
 
-          <div class="d-flex align-items-start gap-3 mb-3">
-            <div class="stat-icon-box stat-icon-success" style="width: 36px; height: 36px; font-size: 1rem;">
-              <i class="icon-base ti tabler-check"></i>
+          @if($data['enrollment'])
+            {{-- Baris 1: Pendaftaran dikirim --}}
+            <div class="d-flex align-items-start gap-3 mb-3">
+              <div class="stat-icon-box stat-icon-success" style="width: 36px; height: 36px; font-size: 1rem;">
+                <i class="icon-base ti tabler-send"></i>
+              </div>
+              <div>
+                <h6 class="text-white fw-semibold mb-0" style="font-size: 0.85rem;">Pendaftaran dikirim</h6>
+                <small class="text-body-premium">
+                  @if($data['enrollment']->created_at)
+                    {{ $data['enrollment']->created_at->format('d M Y H:i') }}
+                  @else
+                    Semua data pribadi dan dokumen lengkap
+                  @endif
+                </small>
+              </div>
             </div>
-            <div>
-              <h6 class="text-white fw-semibold mb-0" style="font-size: 0.85rem;">Tugas Modul 5 selesai</h6>
-              <small class="text-body-premium">Kuliner Kreatif — 2 jam lalu</small>
-            </div>
-          </div>
 
-          <div class="d-flex align-items-start gap-3 mb-3">
-            <div class="stat-icon-box stat-icon-primary" style="width: 36px; height: 36px; font-size: 1rem;">
-              <i class="icon-base ti tabler-video"></i>
+            {{-- Baris 2: Status berdasarkan enrollment --}}
+            @if($data['enrollment']->status === 'approved' && $data['enrollment']->approved_at)
+              <div class="d-flex align-items-start gap-3 mb-3">
+                <div class="stat-icon-box stat-icon-success" style="width: 36px; height: 36px; font-size: 1rem;">
+                  <i class="icon-base ti tabler-check"></i>
+                </div>
+                <div>
+                  <h6 class="text-white fw-semibold mb-0" style="font-size: 0.85rem;">Disetujui</h6>
+                  <small class="text-body-premium">
+                    {{ $data['enrollment']->approved_at->format('d M Y H:i') }}
+                  </small>
+                </div>
+              </div>
+            @elseif($data['enrollment']->status === 'waitlist')
+              <div class="d-flex align-items-start gap-3 mb-3">
+                <div class="stat-icon-box stat-icon-warning" style="width: 36px; height: 36px; font-size: 1rem;">
+                  <i class="icon-base ti tabler-clock"></i>
+                </div>
+                <div>
+                  <h6 class="text-white fw-semibold mb-0" style="font-size: 0.85rem;">Masuk antrean cadangan</h6>
+                  <small class="text-body-premium">Pelatihan: {{ $data['pelatihan']->nama ?? '-' }}</small>
+                </div>
+              </div>
+            @elseif($data['enrollment']->status === 'rejected')
+              <div class="d-flex align-items-start gap-3 mb-3">
+                <div class="stat-icon-box stat-icon-danger" style="width: 36px; height: 36px; font-size: 1rem;">
+                  <i class="icon-base ti tabler-circle-x"></i>
+                </div>
+                <div>
+                  <h6 class="text-white fw-semibold mb-0" style="font-size: 0.85rem;">Pendaftaran ditolak Admin</h6>
+                  <small class="text-body-premium">Silakan pilih pelatihan lain</small>
+                </div>
+              </div>
+            @else
+              <div class="d-flex align-items-start gap-3 mb-3">
+                <div class="stat-icon-box stat-icon-info" style="width: 36px; height: 36px; font-size: 1rem;">
+                  <i class="icon-base ti tabler-clock"></i>
+                </div>
+                <div>
+                  <h6 class="text-white fw-semibold mb-0" style="font-size: 0.85rem;">Menunggu Verifikasi</h6>
+                  <small class="text-body-premium">Data sedang diperiksa oleh Admin</small>
+                </div>
+              </div>
+            @endif
+          @else
+            {{-- Fallback jika enrollment tidak ada --}}
+            <div class="d-flex align-items-start gap-3 mb-3">
+              <div class="stat-icon-box stat-icon-secondary" style="width: 36px; height: 36px; font-size: 1rem;">
+                <i class="icon-base ti tabler-minus"></i>
+              </div>
+              <div>
+                <h6 class="text-white fw-semibold mb-0" style="font-size: 0.85rem;">Belum ada aktivitas</h6>
+                <small class="text-body-premium">Lengkapi pendaftaran Anda untuk memulai</small>
+              </div>
             </div>
-            <div>
-              <h6 class="text-white fw-semibold mb-0" style="font-size: 0.85rem;">Menonton video tutorial</h6>
-              <small class="text-body-premium">Konten Kreator — 5 jam lalu</small>
-            </div>
-          </div>
-
-          <div class="d-flex align-items-start gap-3 mb-3">
-            <div class="stat-icon-box stat-icon-info" style="width: 36px; height: 36px; font-size: 1rem;">
-              <i class="icon-base ti tabler-file-text"></i>
-            </div>
-            <div>
-              <h6 class="text-white fw-semibold mb-0" style="font-size: 0.85rem;">Mengunduh materi PDF</h6>
-              <small class="text-body-premium">Desain Grafis — 1 hari lalu</small>
-            </div>
-          </div>
-
-          <div class="d-flex align-items-start gap-3">
-            <div class="stat-icon-box stat-icon-warning" style="width: 36px; height: 36px; font-size: 1rem;">
-              <i class="icon-base ti tabler-message"></i>
-            </div>
-            <div>
-              <h6 class="text-white fw-semibold mb-0" style="font-size: 0.85rem;">Diskusi grup: Tanya jawab</h6>
-              <small class="text-body-premium">Kriya & Seni — 2 hari lalu</small>
-            </div>
-          </div>
+          @endif
         </div>
       </div>
 
-      <!-- Pelatihan Populer -->
+      <!-- Rekomendasi Pelatihan Lainnya -->
       <div class="col-12 col-xl-4">
-        <div class="glass-card-premium px-4 px-xl-5 py-4 h-100">
+        <div class="glass-card-premium px-4 px-xl-5 py-4 h-100 d-flex flex-column">
           <div class="d-flex align-items-center justify-content-between mb-4">
             <h5 class="fw-bold text-white mb-0 d-flex align-items-center gap-2">
               <i class="icon-base ti tabler-star text-danger"></i>
-              Pelatihan Terpopuler
+              Rekomendasi Pelatihan Lainnya
             </h5>
-            <span class="badge-premium badge-premium-primary">Top</span>
+            <span class="badge-premium badge-premium-primary">Baru</span>
           </div>
 
-          <div class="d-flex align-items-center gap-3 mb-4">
-            <div class="stat-icon-box stat-icon-primary" style="width: 42px; height: 42px; font-size: 1.2rem;">
-              <i class="icon-base ti tabler-chef-hat"></i>
+          <div class="text-center py-3 flex-grow-1 d-flex flex-column align-items-center justify-content-center">
+            <div class="stat-icon-box stat-icon-danger mx-auto mb-3" style="width: 56px; height: 56px; font-size: 1.6rem; border-radius: 50% !important;">
+              <i class="icon-base ti tabler-library"></i>
             </div>
-            <div class="flex-grow-1">
-              <h6 class="text-white fw-semibold mb-0" style="font-size: 0.85rem;">Kuliner Kreatif</h6>
-              <small class="text-body-premium">120 peserta terdaftar</small>
-            </div>
-            <span class="badge-premium badge-premium-success">#1</span>
+            <h6 class="text-white fw-semibold mb-2" style="font-size: 0.95rem;">Jelajahi Pelatihan Lainnya</h6>
+            <p class="text-body-premium mb-3" style="font-size: 0.85rem; line-height: 1.5; max-width: 280px;">
+              Temukan berbagai pelatihan kreatif dan kejuruan lainnya yang tersedia untuk Anda ikuti.
+            </p>
+
+            <a href="{{ route('pelatihan.index') }}" class="btn btn-glow-premium px-4 py-2 fw-semibold">
+              <i class="icon-base ti tabler-arrow-right me-1"></i> Lihat Semua Pelatihan
+            </a>
           </div>
 
-          <div class="d-flex align-items-center gap-3 mb-4">
-            <div class="stat-icon-box stat-icon-success" style="width: 42px; height: 42px; font-size: 1.2rem;">
-              <i class="icon-base ti tabler-camera"></i>
-            </div>
-            <div class="flex-grow-1">
-              <h6 class="text-white fw-semibold mb-0" style="font-size: 0.85rem;">Konten Kreator</h6>
-              <small class="text-body-premium">98 peserta terdaftar</small>
-            </div>
-            <span class="badge-premium badge-premium-info">#2</span>
-          </div>
+          <hr class="dark-premium my-4">
 
-          <div class="d-flex align-items-center gap-3 mb-4">
-            <div class="stat-icon-box stat-icon-warning" style="width: 42px; height: 42px; font-size: 1.2rem;">
-              <i class="icon-base ti tabler-palette"></i>
+          <div class="d-flex align-items-center gap-3 p-3 rounded" style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06);">
+            <div class="stat-icon-box stat-icon-primary" style="width: 36px; height: 36px; font-size: 1rem;">
+              <i class="icon-base ti tabler-info-circle"></i>
             </div>
-            <div class="flex-grow-1">
-              <h6 class="text-white fw-semibold mb-0" style="font-size: 0.85rem;">Desain Grafis</h6>
-              <small class="text-body-premium">85 peserta terdaftar</small>
+            <div>
+              <span class="text-white fw-semibold small d-block">Sedang Aktif</span>
+              <small class="text-body-premium" style="font-size: 0.75rem;">
+                Anda saat ini mengikuti <strong class="text-white">{{ $data['pelatihan']->nama ?? 'pelatihan' }}</strong>
+              </small>
             </div>
-            <span class="badge-premium badge-premium-warning">#3</span>
-          </div>
-
-          <div class="d-flex align-items-center gap-3">
-            <div class="stat-icon-box stat-icon-danger" style="width: 42px; height: 42px; font-size: 1.2rem;">
-              <i class="icon-base ti tabler-scissors"></i>
-            </div>
-            <div class="flex-grow-1">
-              <h6 class="text-white fw-semibold mb-0" style="font-size: 0.85rem;">Kriya & Seni Tradisional</h6>
-              <small class="text-body-premium">62 peserta terdaftar</small>
-            </div>
-            <span class="badge-premium">#4</span>
           </div>
         </div>
       </div>
 
     </div>
+    @endif
   </div>
 @endsection

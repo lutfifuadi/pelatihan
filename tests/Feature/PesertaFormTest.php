@@ -101,7 +101,49 @@ class PesertaFormTest extends TestCase
             'email' => 'peserta@form.test',
         ]);
 
+        $response->assertRedirect(route('dashboard.peserta.form-alamat'));
+    }
+
+    public function test_form_alamat_page_accessible(): void
+    {
+        $response = $this->get('/dashboard/peserta/form-alamat');
+        $response->assertStatus(200);
+    }
+
+    public function test_save_alamat_redirects(): void
+    {
+        $kecamatan = Kecamatan::first();
+        $kelurahan = \App\Models\Kelurahan::create([
+            'kecamatan_id' => $kecamatan->id,
+            'name' => 'Arjuna',
+            'kodepos' => '40172',
+            'is_active' => true,
+        ]);
+
+        $response = $this->post('/dashboard/peserta/form-alamat', [
+            'provinsi' => 'Jawa Barat',
+            'kota' => 'BANDUNG',
+            'kecamatan_id' => $kecamatan->id,
+            'kelurahan_id' => $kelurahan->id,
+            'rt' => '001',
+            'rw' => '002',
+            'alamat_ktp' => 'JL. HOS COKROAMINOTO NO 1',
+            'kodepos' => '40172',
+            'whatsapp' => '6281234567890',
+            'email' => 'peserta@form.test',
+            'link_medsos' => '[]',
+        ]);
+
         $response->assertRedirect(route('dashboard.peserta.form-pendidikan'));
+
+        $this->assertDatabaseHas('peserta_profiles', [
+            'user_id' => $this->peserta->id,
+            'rt' => '001',
+            'rw' => '002',
+            'kelurahan_id' => $kelurahan->id,
+            'kecamatan' => $kecamatan->name,
+            'kelurahan' => $kelurahan->name,
+        ]);
     }
 
     public function test_form_pendidikan_page_accessible(): void
@@ -214,7 +256,7 @@ class PesertaFormTest extends TestCase
             'konfirmasi' => '1',
         ]);
 
-        $response->assertRedirect(route('dashboard.peserta'));
+        $response->assertRedirect(route('dashboard.peserta.pendaftaran-sukses'));
         $this->assertDatabaseHas('peserta_profiles', [
             'user_id' => $this->peserta->id,
             'is_completed' => 1,
@@ -242,5 +284,115 @@ class PesertaFormTest extends TestCase
             'user_id' => $this->peserta->id,
             'is_completed' => 0,
         ]);
+    }
+
+    public function test_status_pendaftaran_redirects_without_profile(): void
+    {
+        $user = User::factory()->create(['role' => 'peserta']);
+        Sanctum::actingAs($user);
+
+        $response = $this->get('/dashboard/peserta/status');
+
+        $response->assertRedirect(route('dashboard.peserta'));
+        $response->assertSessionHas('error');
+    }
+
+    public function test_status_pendaftaran_page_accessible_with_no_enrollment(): void
+    {
+        $response = $this->get('/dashboard/peserta/status');
+
+        $response->assertStatus(200);
+        $response->assertSee('Belum Mendaftar');
+        $response->assertSee('Peserta Lengkap');
+    }
+
+    private function prepareStatusScenario(string $status, ?array $extra = []): Pelatihan
+    {
+        $kecamatan = Kecamatan::first();
+        $kelurahan = \App\Models\Kelurahan::create([
+            'kecamatan_id' => $kecamatan->id,
+            'name' => 'Test Kelurahan',
+            'kodepos' => '40172',
+            'is_active' => true,
+        ]);
+
+        $pelatihan = Pelatihan::create([
+            'nama' => 'Status Test Pelatihan',
+            'batch' => 'STATUS-BATCH-' . strtoupper($status),
+            'is_active' => true,
+            'tanggal_mulai' => now()->addMonth()->format('Y-m-d'),
+        ]);
+
+        $this->peserta->kelurahan_id = $kelurahan->id;
+        $this->peserta->save();
+
+        PesertaProfile::where('user_id', $this->peserta->id)->update([
+            'alamat_ktp' => 'Jl. Status No. 1',
+            'kelurahan_id' => $kelurahan->id,
+            'kelurahan' => $kelurahan->name,
+            'kecamatan' => $kecamatan->name,
+            'kota' => 'BANDUNG',
+            'provinsi' => 'Jawa Barat',
+            'pelatihan_id' => $pelatihan->id,
+        ]);
+
+        \App\Models\Enrollment::create(array_merge([
+            'user_id' => $this->peserta->id,
+            'pelatihan_id' => $pelatihan->id,
+            'status' => $status,
+        ], $extra));
+
+        return $pelatihan;
+    }
+
+    public function test_status_pendaftaran_page_shows_pending(): void
+    {
+        $pelatihan = $this->prepareStatusScenario('pending');
+
+        $response = $this->get('/dashboard/peserta/status');
+
+        $response->assertStatus(200);
+        $response->assertSee('Menunggu Verifikasi');
+        $response->assertSee($pelatihan->nama);
+        $response->assertSee('Test Kelurahan');
+    }
+
+    public function test_status_pendaftaran_page_shows_approved(): void
+    {
+        $pelatihan = $this->prepareStatusScenario('approved', ['approved_at' => now()]);
+
+        $response = $this->get('/dashboard/peserta/status');
+
+        $response->assertStatus(200);
+        $response->assertSee('Disetujui');
+        $response->assertSee('Pelatihan Dimulai');
+        $response->assertSee($pelatihan->nama);
+    }
+
+    public function test_status_pendaftaran_page_shows_rejected(): void
+    {
+        $pelatihan = $this->prepareStatusScenario('rejected', [
+            'rejected_at' => now(),
+            'notes' => 'Dokumen tidak lengkap',
+        ]);
+
+        $response = $this->get('/dashboard/peserta/status');
+
+        $response->assertStatus(200);
+        $response->assertSee('Ditolak');
+        $response->assertSee('Dokumen tidak lengkap');
+        $response->assertSee('Pilih Pelatihan Lain');
+        $response->assertSee($pelatihan->nama);
+    }
+
+    public function test_status_pendaftaran_page_shows_waitlist(): void
+    {
+        $pelatihan = $this->prepareStatusScenario('waitlist');
+
+        $response = $this->get('/dashboard/peserta/status');
+
+        $response->assertStatus(200);
+        $response->assertSee('Cadangan (Waitlist)');
+        $response->assertSee($pelatihan->nama);
     }
 }

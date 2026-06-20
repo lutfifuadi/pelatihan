@@ -106,7 +106,7 @@ Route::get('/api/kelurahan', function (Illuminate\Http\Request $request) {
     $kelurahans = App\Models\Kelurahan::where('kecamatan_id', $kecamatanId)
         ->where('is_active', true)
         ->orderBy('name')
-        ->get(['id', 'name']);
+        ->get(['id', 'name', 'kodepos']);
     return response()->json($kelurahans);
 })->name('api.kelurahan');
 
@@ -137,49 +137,14 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
 
         // Form pendaftaran di dalam dashboard/peserta/
         Route::prefix('dashboard/peserta')->name('dashboard.peserta.')->group(function () {
-            Route::get('/form-pendaftaran', function () {
-                $u = auth()->user();
-                $profile = \App\Models\PesertaProfile::where('user_id', $u->id)->first();
-                $kecamatans = \App\Models\Kecamatan::orderBy('name')->get();
-                $lockKota = \App\Models\Setting::where('key', 'lock_kota')->value('value') ?? 'BANDUNG';
-                $lockProvinsi = \App\Models\Setting::where('key', 'lock_provinsi')->value('value') ?? 'Jawa Barat';
-                $userData = [
-                    'name' => $u->name,
-                    'nik' => $u->nik,
-                    'whatsapp' => $u->whatsapp,
-                    'email' => $u->email,
-                    'jenis_kelamin' => $profile?->jenis_kelamin ?? '',
-                    'tempat_lahir' => $profile?->tempat_lahir ?? '',
-                    'tanggal_lahir' => $profile?->tanggal_lahir ?? '',
-                    'bulan_lahir' => $profile?->bulan_lahir ?? '',
-                    'tahun_lahir' => $profile?->tahun_lahir ?? '',
-                    'alamat_ktp' => $profile?->alamat_ktp ?? '',
-                    'rt' => $profile?->rt ?? '',
-                    'rw' => $profile?->rw ?? '',
-                    'kelurahan' => $profile?->kelurahan ?? '',
-                    'kecamatan' => $profile?->kecamatan ?? '',
-                    'kota' => $lockKota,
-                    'provinsi' => $lockProvinsi,
-                    'kodepos' => $profile?->kodepos ?? '',
-                    'link_medsos' => $profile?->link_medsos ?? '',
-                ];
-
-                // Config from database
-                $formConfig = app(\App\Services\FormConfigService::class);
-                $fieldsDataPribadi = $formConfig->getFieldsBySection('data_pribadi');
-                $fieldsAlamatKontak = $formConfig->getFieldsBySection('alamat_kontak');
-                $platformOptions = $formConfig->getOptions('platform_medsos');
-
-                return view('content.dashboard.peserta.form-pendaftaran', [
-                    'user' => $userData,
-                    'kecamatans' => $kecamatans,
-                    'fieldsDataPribadi' => $fieldsDataPribadi,
-                    'fieldsAlamatKontak' => $fieldsAlamatKontak,
-                    'platformOptions' => $platformOptions,
-                ]);
-            })->name('form-pendaftaran');
+            // Halaman 1: Data Pribadi
+            Route::get('/form-pendaftaran', [PesertaFormController::class, 'formPendaftaran'])->name('form-pendaftaran');
             Route::post('/form-pendaftaran', [PesertaFormController::class, 'store'])->name('form-pendaftaran.store');
             Route::post('/save-tab1', [PesertaFormController::class, 'saveTab1'])->name('save-tab1');
+
+            // Halaman 2: Alamat & Kontak
+            Route::get('/form-alamat', [PesertaFormController::class, 'formAlamat'])->name('form-alamat');
+            Route::post('/form-alamat', [PesertaFormController::class, 'storeAlamat'])->name('form-alamat.store');
 
             // Form Tahap 3 - Pendidikan & Pekerjaan
             Route::get('/form-pendidikan', [PesertaFormController::class, 'pendidikan'])->name('form-pendidikan');
@@ -196,6 +161,12 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
             // Form Tahap 6 - Review Data & Submit Final
             Route::get('/form-review', [PesertaFormController::class, 'review'])->name('form-review');
             Route::post('/form-review', [PesertaFormController::class, 'submitFinal'])->name('form-review.submit');
+
+            // Halaman Sukses setelah submit final
+            Route::get('/pendaftaran-sukses', [PesertaFormController::class, 'pendaftaranSukses'])->name('pendaftaran-sukses');
+
+            // Halaman Status Pendaftaran
+            Route::get('/status', [PesertaFormController::class, 'statusPendaftaran'])->name('status');
         });
     });
 

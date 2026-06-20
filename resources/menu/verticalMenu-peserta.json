@@ -16,31 +16,49 @@
       "slug": "dashboard.peserta"
     },
     {
-      "menuHeader": "Form Pendaftaran"
+      "url": "/dashboard/peserta/status",
+      "name": "Status Pendaftaran",
+      "icon": "menu-icon icon-base ti tabler-clipboard-check",
+      "slug": "dashboard.peserta.status"
+    },
+    {
+      "menuHeader": "Pendaftaran"
     },
     {
       "url": "/dashboard/peserta/form-pendaftaran",
-      "name": "1. Data Pribadi & Alamat",
+      "name": "1. Data Pribadi",
       "icon": "menu-icon icon-base ti tabler-user",
       "slug": "dashboard.peserta.form-pendaftaran"
     },
     {
+      "url": "/dashboard/peserta/form-alamat",
+      "name": "2. Alamat & Kontak",
+      "icon": "menu-icon icon-base ti tabler-map-pin",
+      "slug": "dashboard.peserta.form-alamat"
+    },
+    {
       "url": "/dashboard/peserta/form-pendidikan",
-      "name": "2. Pendidikan & Pekerjaan",
+      "name": "3. Pendidikan",
       "icon": "menu-icon icon-base ti tabler-school",
       "slug": "dashboard.peserta.form-pendidikan"
     },
     {
       "url": "/dashboard/peserta/form-minat",
-      "name": "3. Minat Pelatihan",
+      "name": "4. Minat Pelatihan",
       "icon": "menu-icon icon-base ti tabler-heart",
       "slug": "dashboard.peserta.form-minat"
     },
     {
       "url": "/dashboard/peserta/form-dokumen",
-      "name": "4. Dokumen & Konfirmasi",
+      "name": "5. Dokumen",
       "icon": "menu-icon icon-base ti tabler-file-check",
       "slug": "dashboard.peserta.form-dokumen"
+    },
+    {
+      "url": "/dashboard/peserta/form-review",
+      "name": "6. Review & Kirim",
+      "icon": "menu-icon icon-base ti tabler-send",
+      "slug": "dashboard.peserta.form-review"
     },
     {
       "menuHeader": "Notifikasi"

@@ -82,7 +82,10 @@ class FormConfigService
             if ($field->validation_rules) {
                 // Merge custom rules dari konfigurasi
                 $customRules = explode('|', $field->validation_rules);
-                $rule = array_merge($rule, $customRules);
+                // Filter: uppercase & readonly bukan rule validasi backend
+                // (uppercase sudah ditangani JS frontend, readonly hanya hint display)
+                $customRules = array_filter($customRules, fn($r) => !in_array($r, ['uppercase', 'readonly']));
+                $rule = array_merge($rule, array_values($customRules));
             }
 
             $rules[$field->field_key] = $rule;

@@ -438,8 +438,9 @@ $fActive = $fields->where('is_active', true)->pluck('field_key')->toArray();
         <a href="{{ route('dashboard.peserta.form-pendidikan') }}" class="btn btn-glow-outline fw-semibold py-2 px-4" style="border-radius: 5px; font-size: 13px;">
           <i class="icon-base ti tabler-arrow-left me-1"></i> Sebelumnya
         </a>
-        <button type="button" class="btn btn-glow fw-semibold py-2 px-4" style="border-radius: 5px; font-size: 13px;" @click="submitForm()">
-          Selanjutnya <i class="icon-base ti tabler-arrow-right ms-1"></i>
+        <button type="button" class="btn btn-glow fw-semibold py-2 px-4" style="border-radius: 5px; font-size: 13px;" @click="submitForm()" :disabled="saving">
+          <span x-show="!saving">Selanjutnya <i class="icon-base ti tabler-arrow-right ms-1"></i></span>
+          <span x-show="saving"><i class="icon-base ti tabler-loader animate-spin me-1"></i> Menyimpan...</span>
         </button>
       </div>
 
@@ -458,13 +459,17 @@ $fActive = $fields->where('is_active', true)->pluck('field_key')->toArray();
 
 @section('page-script')
 <script>
+  // Data dari server untuk diisi otomatis ke form (Pola PMBM)
+  window._formData = {!! json_encode($data) !!};
+
   document.addEventListener('alpine:init', function() {
     Alpine.data('minatForm', function() {
-      var profile = @json($profile);
+      var fd = window._formData || {};
       return {
+        saving: false,
         batchList: @json($batchList ?? []),
         form: {
-          batch_pelatihan: profile ? (profile.batch_pelatihan || '') : '',
+          batch_pelatihan: fd.batch_pelatihan || '',
         },
         errors: {},
 
@@ -483,6 +488,7 @@ $fActive = $fields->where('is_active', true)->pluck('field_key')->toArray();
 
         submitForm() {
           if (!this.validate()) return;
+          this.saving = true;
           document.getElementById('formMinat').submit();
         },
       };

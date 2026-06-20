@@ -13,6 +13,7 @@ class Kelurahan extends Model
         'name',
         'kecamatan_id',
         'is_active',
+        'kodepos',
     ];
 
     protected function casts(): array

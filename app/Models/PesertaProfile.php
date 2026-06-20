@@ -42,6 +42,7 @@ class PesertaProfile extends Model
         'scan_ktp',
         'batch_pelatihan',
         'pelatihan_id',
+        'jawaban_pertanyaan',
         'is_completed',
     ];
 
@@ -59,9 +60,9 @@ class PesertaProfile extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function kelurahan(): BelongsTo
+    public function dataKelurahan(): BelongsTo
     {
-        return $this->belongsTo(Kelurahan::class);
+        return $this->belongsTo(Kelurahan::class, 'kelurahan_id');
     }
 
     public function pelatihan()

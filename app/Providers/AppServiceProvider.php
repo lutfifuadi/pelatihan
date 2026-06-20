@@ -41,6 +41,10 @@ class AppServiceProvider extends ServiceProvider
             return [];
         });
 
+        \Illuminate\Support\Facades\Validator::extend('readonly', function ($attribute, $value, $parameters, $validator) {
+            return true;
+        });
+
 
     }
 }

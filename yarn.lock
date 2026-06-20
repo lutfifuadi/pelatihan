@@ -2018,6 +2018,18 @@
   dependencies:
     "@types/node" "*"
 
+"@vue/reactivity@~3.1.1":
+  version "3.1.5"
+  resolved "https://registry.npmjs.org/@vue/reactivity/-/reactivity-3.1.5.tgz"
+  integrity sha512-1tdfLmNjWG6t/CsPldh+foumYFo3cpyCHgBYQ34ylaMsJ+SNHQ1kApMIa8jN+i593zQuaw3AdWH0nJTARzCFhg==
+  dependencies:
+    "@vue/shared" "3.1.5"
+
+"@vue/shared@3.1.5":
+  version "3.1.5"
+  resolved "https://registry.npmjs.org/@vue/shared/-/shared-3.1.5.tgz"
+  integrity sha512-oJ4F3TnvpXaQwZJNF3ZK+kLPHKarDmJjJ6jyzVNDKH9md1dptjC7lWR//jrGuLdek/U6iltWxqAnYOu8gCiOvA==
+
 "@yaireo/tagify@4.32.2":
   version "4.32.2"
   resolved "https://registry.npmjs.org/@yaireo/tagify/-/tagify-4.32.2.tgz"
@@ -2087,6 +2099,13 @@ ajv@^8.0.0, ajv@^8.0.1, ajv@^8.9.0, ajv@8.17.1:
     fast-uri "^3.0.1"
     json-schema-traverse "^1.0.0"
     require-from-string "^2.0.2"
+
+alpinejs@^3.15.12:
+  version "3.15.12"
+  resolved "https://registry.npmjs.org/alpinejs/-/alpinejs-3.15.12.tgz"
+  integrity sha512-nJvPAQVNPdZZ0NrExJ/kzQco3ijR8LwvCOadQecllESiqT4NyZ/57sN9V2XyvhlBGAbmlKYgeWZvYdKq99ij/Q==
+  dependencies:
+    "@vue/reactivity" "~3.1.1"
 
 animate.css@4.1.1:
   version "4.1.1"

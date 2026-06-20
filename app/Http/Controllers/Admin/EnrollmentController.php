@@ -134,6 +134,9 @@ class EnrollmentController extends Controller
             'notes' => request('notes', 'Dipromosikan dari daftar cadangan'),
         ]);
 
+        // Dispatch notifikasi bahwa pendaftaran disetujui
+        \App\Events\PendaftaranApproved::dispatch($enrollment->user, $enrollment->pelatihan);
+
         ActivityLogger::action('approved', 'Enrollment', "Pendaftaran {$enrollment->user?->name} untuk pelatihan {$enrollment->pelatihan?->nama} dipromosikan dari daftar cadangan", $enrollment->id, $enrollment->user?->name);
 
         event(new \App\Events\DashboardUpdated());
@@ -156,15 +159,24 @@ class EnrollmentController extends Controller
         $availableSlots = $pelatihan->kuota - $approvedCount;
 
         if ($availableSlots > 0) {
-            // Optimasi: batch update dengan subquery, hindari foreach
-            $idsToPromote = Enrollment::where('pelatihan_id', $pelatihanId)
+            // Ambil data enrollment yang akan dipromosikan (dengan relasi)
+            $enrollmentsToPromote = Enrollment::with(['user', 'pelatihan'])
+                ->where('pelatihan_id', $pelatihanId)
                 ->where('status', 'waitlist')
                 ->orderBy('created_at', 'asc')
                 ->limit($availableSlots)
-                ->pluck('id');
+                ->get();
 
-            if ($idsToPromote->isNotEmpty()) {
-                Enrollment::whereIn('id', $idsToPromote)
+            if ($enrollmentsToPromote->isNotEmpty()) {
+                // Dispatch notifikasi untuk setiap peserta sebelum batch update
+                foreach ($enrollmentsToPromote as $enrollment) {
+                    if ($enrollment->user && $enrollment->pelatihan) {
+                        \App\Events\PendaftaranApproved::dispatch($enrollment->user, $enrollment->pelatihan);
+                    }
+                }
+
+                // Batch update status
+                Enrollment::whereIn('id', $enrollmentsToPromote->pluck('id'))
                     ->update([
                         'status' => 'approved',
                         'approved_at' => now(),

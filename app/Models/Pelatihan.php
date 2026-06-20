@@ -20,6 +20,7 @@ class Pelatihan extends Model
         'tanggal_mulai',
         'tanggal_selesai',
         'kuota',
+        'auto_approve',
         'is_active',
         'dinas_id',
     ];
@@ -28,6 +29,7 @@ class Pelatihan extends Model
     {
         return [
             'is_active' => 'boolean',
+            'auto_approve' => 'boolean',
             'batas_pendaftaran' => 'date',
             'tanggal_mulai' => 'date',
             'tanggal_selesai' => 'date',

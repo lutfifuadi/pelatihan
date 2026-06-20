@@ -219,27 +219,28 @@ class FormConfigSeeder extends Seeder
 
             // ============================================
             // Section: Alamat & Kontak
+            // Urutan: dari global ke lokal
             // ============================================
-            // 1. alamat_ktp
+            // 1. provinsi
             [
                 'section' => 'alamat_kontak',
-                'field_key' => 'alamat_ktp',
-                'label' => 'Alamat Lengkap',
+                'field_key' => 'provinsi',
+                'label' => 'Provinsi',
                 'placeholder' => null,
                 'type' => 'text',
                 'is_required' => true,
                 'is_active' => true,
                 'order' => 1,
-                'width' => 'full',
+                'width' => 'third',
                 'options_group' => null,
-                'validation_rules' => 'uppercase',
+                'validation_rules' => 'readonly',
                 'show_if' => null,
             ],
-            // 2. rt
+            // 2. kota
             [
                 'section' => 'alamat_kontak',
-                'field_key' => 'rt',
-                'label' => 'RT',
+                'field_key' => 'kota',
+                'label' => 'Kota/Kabupaten',
                 'placeholder' => null,
                 'type' => 'text',
                 'is_required' => true,
@@ -247,29 +248,29 @@ class FormConfigSeeder extends Seeder
                 'order' => 2,
                 'width' => 'third',
                 'options_group' => null,
-                'validation_rules' => 'digits',
+                'validation_rules' => 'readonly',
                 'show_if' => null,
             ],
-            // 3. rw
+            // 3. kecamatan_id
             [
                 'section' => 'alamat_kontak',
-                'field_key' => 'rw',
-                'label' => 'RW',
+                'field_key' => 'kecamatan_id',
+                'label' => 'Kecamatan',
                 'placeholder' => null,
-                'type' => 'text',
+                'type' => 'select2',
                 'is_required' => true,
                 'is_active' => true,
                 'order' => 3,
                 'width' => 'third',
                 'options_group' => null,
-                'validation_rules' => 'digits',
+                'validation_rules' => null,
                 'show_if' => null,
             ],
-            // 4. kecamatan_id
+            // 4. kelurahan_id
             [
                 'section' => 'alamat_kontak',
-                'field_key' => 'kecamatan_id',
-                'label' => 'Kecamatan',
+                'field_key' => 'kelurahan_id',
+                'label' => 'Kelurahan',
                 'placeholder' => null,
                 'type' => 'select2',
                 'is_required' => true,
@@ -280,26 +281,26 @@ class FormConfigSeeder extends Seeder
                 'validation_rules' => null,
                 'show_if' => null,
             ],
-            // 5. kelurahan_id
+            // 5. rt
             [
                 'section' => 'alamat_kontak',
-                'field_key' => 'kelurahan_id',
-                'label' => 'Kelurahan',
+                'field_key' => 'rt',
+                'label' => 'RT',
                 'placeholder' => null,
-                'type' => 'select2',
+                'type' => 'text',
                 'is_required' => true,
                 'is_active' => true,
                 'order' => 5,
                 'width' => 'third',
                 'options_group' => null,
-                'validation_rules' => null,
+                'validation_rules' => 'digits',
                 'show_if' => null,
             ],
-            // 6. kota
+            // 6. rw
             [
                 'section' => 'alamat_kontak',
-                'field_key' => 'kota',
-                'label' => 'Kota/Kabupaten',
+                'field_key' => 'rw',
+                'label' => 'RW',
                 'placeholder' => null,
                 'type' => 'text',
                 'is_required' => true,
@@ -307,22 +308,22 @@ class FormConfigSeeder extends Seeder
                 'order' => 6,
                 'width' => 'third',
                 'options_group' => null,
-                'validation_rules' => 'readonly',
+                'validation_rules' => 'digits',
                 'show_if' => null,
             ],
-            // 7. provinsi
+            // 7. alamat_ktp
             [
                 'section' => 'alamat_kontak',
-                'field_key' => 'provinsi',
-                'label' => 'Provinsi',
-                'placeholder' => null,
+                'field_key' => 'alamat_ktp',
+                'label' => 'Nama Jalan/Gang',
+                'placeholder' => 'NAMA JALAN/GANG',
                 'type' => 'text',
                 'is_required' => true,
                 'is_active' => true,
                 'order' => 7,
-                'width' => 'third',
+                'width' => 'full',
                 'options_group' => null,
-                'validation_rules' => 'readonly',
+                'validation_rules' => 'uppercase',
                 'show_if' => null,
             ],
             // 8. kodepos

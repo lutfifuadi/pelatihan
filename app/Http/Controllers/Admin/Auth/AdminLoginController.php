@@ -60,7 +60,13 @@ class AdminLoginController extends Controller
                 ])->onlyInput('email');
             }
 
-            return redirect()->intended(route('dashboard.admin'));
+            // Clear intended URL if it points to notifications or API to prevent loop/wrong redirection
+            $intended = session()->get('url.intended');
+            if ($intended && (str_contains($intended, '/notifications') || str_contains($intended, '/api/'))) {
+                session()->forget('url.intended');
+            }
+
+            return redirect()->route('dashboard.admin'); // Admin login page should always redirect to admin dashboard, not intended
         }
 
         return back()->withErrors([

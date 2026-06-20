@@ -1,18 +1,11 @@
 @php
 $configData = Helper::appClasses();
 
-// Config lookup helpers
+// Config lookup helpers untuk data pribadi
 $dpLabels = $fieldsDataPribadi->pluck('label', 'field_key');
 $dpPlaceholders = $fieldsDataPribadi->pluck('placeholder', 'field_key');
 $dpRequired = $fieldsDataPribadi->where('is_required', true)->pluck('field_key')->toArray();
 $dpActive = $fieldsDataPribadi->where('is_active', true)->pluck('field_key')->toArray();
-
-$akLabels = $fieldsAlamatKontak->pluck('label', 'field_key');
-$akPlaceholders = $fieldsAlamatKontak->pluck('placeholder', 'field_key');
-$akRequired = $fieldsAlamatKontak->where('is_required', true)->pluck('field_key')->toArray();
-$akActive = $fieldsAlamatKontak->where('is_active', true)->pluck('field_key')->toArray();
-
-$platList = $platformOptions->toArray();
 @endphp
 
 @extends('layouts/layoutMaster')
@@ -240,9 +233,59 @@ $platList = $platformOptions->toArray();
     grid-template-columns: 1fr 1fr 1fr;
     gap: 16px;
   }
+  .field-group-quad {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    gap: 16px;
+  }
+  @media (max-width: 760px) {
+    .field-group-quad { grid-template-columns: 1fr 1fr; gap: 12px; }
+  }
   @media (max-width: 660px) {
     .field-group-triple { grid-template-columns: 1fr; gap: 12px; }
+    .field-group-quad { grid-template-columns: 1fr; gap: 12px; }
   }
+
+  /* Modal Sukses */
+  .modal-overlay {
+    position: fixed; inset: 0; z-index: 99999;
+    background: rgba(0,0,0,0.6); backdrop-filter: blur(4px);
+    display: none; align-items: center; justify-content: center;
+    padding: 20px;
+  }
+  .modal-overlay.show { display: flex; }
+  .modal-box {
+    background: #1a1f2e; border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 5px; padding: 32px 28px 24px;
+    max-width: 400px; width: 100%; text-align: center;
+    box-shadow: 0 25px 70px rgba(0,0,0,0.5);
+    animation: modalIn 0.3s ease;
+    margin: auto; /* Centering helper */
+  }
+  @keyframes modalIn {
+    0% { transform: scale(0.9); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+  .modal-icon {
+    width: 64px; height: 64px; border-radius: 50%;
+    background: rgba(16,185,129,0.15); border: 2px solid #10b981;
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 16px; font-size: 28px; color: #10b981;
+  }
+  .modal-title {
+    font-family: 'Sora', sans-serif; font-size: 18px; font-weight: 700;
+    color: #f8fafc; margin-bottom: 8px;
+  }
+  .modal-body-text {
+    color: rgba(255,255,255,0.6); font-size: 14px; margin-bottom: 24px; line-height: 1.5;
+  }
+  .modal-btn {
+    background: linear-gradient(135deg, #10b981, #059669);
+    border: none; padding: 10px 28px; border-radius: 5px;
+    color: #fff; font-weight: 600; font-size: 14px; cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  .modal-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(16,185,129,0.4); }
 
   /* Step Indicator */
   .step-indicator {
@@ -266,9 +309,11 @@ $platList = $platformOptions->toArray();
     top: 18px;
     left: 40px;
     height: 2px;
+    width: calc(100% - 80px);
     background: linear-gradient(90deg, #6366f1, #d946ef);
     z-index: 2;
-    transition: width 0.5s ease;
+    transform-origin: left center;
+    transition: transform 0.5s ease;
   }
   .step-item {
     display: flex;
@@ -304,10 +349,17 @@ $platList = $platformOptions->toArray();
   }
   .step-item.active .step-label { color: rgba(255, 255, 255, 0.85); }
   .step-item.completed .step-label { color: rgba(16, 185, 129, 0.8); }
+  .step-item.has-error .step-circle {
+    background: #f87171; border-color: #f87171; color: #fff;
+    box-shadow: 0 0 12px rgba(248, 113, 113, 0.3);
+  }
+  .step-item.has-error .step-label {
+    color: #f87171;
+  }
   @media (max-width: 660px) {
     .step-label { display: none; }
     .step-indicator::before { left: 20px; right: 20px; }
-    .step-indicator .step-progress-line { left: 20px; }
+    .step-indicator .step-progress-line { left: 20px; width: calc(100% - 40px); }
   }
 
   .tab-pane-step { animation: fadeSlideIn 0.35s ease forwards; }
@@ -359,6 +411,11 @@ $platList = $platformOptions->toArray();
   .invalid-feedback-custom.d-block { display: block; }
 
   .checkbox-group label { font-size: 13px; }
+
+  /* Override container-p-y padding top khusus halaman ini */
+  body .content-wrapper > .container-p-y {
+    padding-top: 0.75rem !important;
+  }
 </style>
 @endsection
 
@@ -367,7 +424,7 @@ $platList = $platformOptions->toArray();
 <div class="glow-orb orb-2"></div>
 <div class="glow-orb orb-3"></div>
 
-<div class="container-fluid px-4 px-lg-6 position-relative" style="z-index: 1;">
+<div class="container-fluid px-4 px-lg-6 position-relative" style="z-index: 1; margin-top: -1.5rem;">
   <!-- Header -->
   <div class="glass-card-dashboard mb-4">
     <div class="d-flex align-items-center gap-3">
@@ -376,20 +433,33 @@ $platList = $platformOptions->toArray();
       </div>
       <div>
         <h4 class="fw-bold text-white mb-0" style="font-family: 'Sora', sans-serif;">Form Pendaftaran Peserta</h4>
-        <p class="text-white-50-custom mb-0 small">Lengkapi data diri Anda di 2 tahapan berikut</p>
+        <p class="text-white-50-custom mb-0 small">Lengkapi data pribadi Anda terlebih dahulu</p>
       </div>
     </div>
   </div>
 
   <!-- Form Card -->
-  <div class="glass-card-dashboard" x-data="multiStepForm()" x-cloak>
+  <div class="glass-card-dashboard" x-data="dataPribadiForm()" x-cloak>
+
+    <!-- Modal Sukses -->
+    <div class="modal-overlay" :class="{ 'show': modal.show }">
+      <div class="modal-box">
+        <div class="modal-icon">
+          <i class="icon-base ti tabler-check"></i>
+        </div>
+        <div class="modal-title">Data Tersimpan!</div>
+        <div class="modal-body-text" x-text="modal.message"></div>
+        <button type="button" class="modal-btn" @click="modalLanjut()">
+          Lanjutkan <i class="icon-base ti tabler-arrow-right ms-1"></i>
+        </button>
+      </div>
+    </div>
 
     <!-- FORM -->
-    <form id="formPeserta" action="{{ route('dashboard.peserta.form-pendaftaran.store') }}" method="POST">
+    <form id="formPeserta" @submit.prevent="submitForm()">
       @csrf
 
-      <!-- TAB 1: DATA PRIBADI -->
-      <div x-show="currentTab === 1" class="tab-pane-step">
+      <div class="tab-pane-step">
         <h5 class="text-white-70-custom fw-semibold mb-3" style="font-size: 0.95rem;">
           <i class="icon-base ti tabler-user me-2" style="color: #6366f1;"></i>Data Pribadi
         </h5>
@@ -434,11 +504,11 @@ $platList = $platformOptions->toArray();
             </label>
             <div class="d-flex gap-4 mt-1">
               <div class="form-check">
-                <input class="form-check-input form-check-input-custom" type="radio" id="jk_l" name="jenis_kelamin" value="LAKI-LAKI" x-model="form.jenis_kelamin" />
+                <input class="form-check-input form-check-input-custom" type="radio" id="jk_l" name="jenis_kelamin" value="L" x-model="form.jenis_kelamin" />
                 <label class="form-check-label text-white-50-custom small" for="jk_l">LAKI-LAKI</label>
               </div>
               <div class="form-check">
-                <input class="form-check-input form-check-input-custom" type="radio" id="jk_p" name="jenis_kelamin" value="PEREMPUAN" x-model="form.jenis_kelamin" />
+                <input class="form-check-input form-check-input-custom" type="radio" id="jk_p" name="jenis_kelamin" value="P" x-model="form.jenis_kelamin" />
                 <label class="form-check-label text-white-50-custom small" for="jk_p">PEREMPUAN</label>
               </div>
             </div>
@@ -522,210 +592,12 @@ $platList = $platformOptions->toArray();
         </div>
 
         <div class="d-flex justify-content-end mt-4">
-          <button type="button" class="btn btn-glow fw-semibold py-2 px-4" style="border-radius: 5px; font-size: 13px;" @click="nextTab()">
-            Selanjutnya <i class="icon-base ti tabler-arrow-right ms-1"></i>
-          </button>
-        </div>
-      </div>
-
-      <!-- TAB 2: ALAMAT KTP & KONTAK -->
-      <div x-show="currentTab === 2" class="tab-pane-step">
-        <h5 class="text-white-70-custom fw-semibold mb-3" style="font-size: 0.95rem;">
-          <i class="icon-base ti tabler-map-pin me-2" style="color: #6366f1;"></i>Alamat KTP &amp; Kontak
-        </h5>
-
-        <!-- Alamat (text input) -->
-        @if(in_array('alamat_ktp', $akActive))
-        <div class="field-group">
-          <div class="field-full">
-            <label class="form-label form-label-custom" for="alamat_ktp">
-              {{ $akLabels['alamat_ktp'] ?? 'Alamat Lengkap' }}
-              @if(in_array('alamat_ktp', $akRequired)) <span class="text-danger">*</span> @endif
-            </label>
-            <input type="text" id="alamat_ktp" name="alamat_ktp" class="form-control form-control-custom form-control-uppercase"
-              x-model="form.alamat_ktp" placeholder="{{ $akPlaceholders['alamat_ktp'] ?? 'ALAMAT LENGKAP SESUAI KTP' }}"
-              @input="form.alamat_ktp = form.alamat_ktp.toUpperCase()"
-              :class="{ 'is-invalid': errors.alamat_ktp }" />
-            <div class="invalid-feedback-custom" :class="{ 'd-block': errors.alamat_ktp }" x-text="errors.alamat_ktp"></div>
-          </div>
-        </div>
-        @endif
-
-        <!-- RT, RW, Kecamatan (3 kolom) -->
-        <div class="field-group-triple mt-3">
-          @if(in_array('rt', $akActive))
-          <div>
-            <label class="form-label form-label-custom" for="rt">
-              {{ $akLabels['rt'] ?? 'RT' }}
-              @if(in_array('rt', $akRequired)) <span class="text-danger">*</span> @endif
-            </label>
-            <input type="text" id="rt" name="rt" class="form-control form-control-custom"
-              x-model="form.rt" placeholder="{{ $akPlaceholders['rt'] ?? 'RT' }}" maxlength="3"
-              @input="form.rt = form.rt.replace(/\D/g, '')"
-              :class="{ 'is-invalid': errors.rt }" />
-            <div class="invalid-feedback-custom" :class="{ 'd-block': errors.rt }" x-text="errors.rt"></div>
-          </div>
-          @endif
-          @if(in_array('rw', $akActive))
-          <div>
-            <label class="form-label form-label-custom" for="rw">
-              {{ $akLabels['rw'] ?? 'RW' }}
-              @if(in_array('rw', $akRequired)) <span class="text-danger">*</span> @endif
-            </label>
-            <input type="text" id="rw" name="rw" class="form-control form-control-custom"
-              x-model="form.rw" placeholder="{{ $akPlaceholders['rw'] ?? 'RW' }}" maxlength="3"
-              @input="form.rw = form.rw.replace(/\D/g, '')"
-              :class="{ 'is-invalid': errors.rw }" />
-            <div class="invalid-feedback-custom" :class="{ 'd-block': errors.rw }" x-text="errors.rw"></div>
-          </div>
-          @endif
-          @if(in_array('kecamatan_id', $akActive))
-          <div>
-            <label class="form-label form-label-custom" for="kecamatan_id">
-              {{ $akLabels['kecamatan_id'] ?? 'Kecamatan' }}
-              @if(in_array('kecamatan_id', $akRequired)) <span class="text-danger">*</span> @endif
-            </label>
-            <select id="kecamatan_id" name="kecamatan_id" class="form-control form-control-custom"
-              x-model="form.kecamatan_id"
-              :class="{ 'is-invalid': errors.kecamatan_id }">
-              <option value="">{{ $akPlaceholders['kecamatan_id'] ?? 'PILIH KECAMATAN' }}</option>
-              @foreach($kecamatans as $kec)
-                <option value="{{ $kec->id }}">{{ strtoupper($kec->name) }}</option>
-              @endforeach
-            </select>
-            <div class="invalid-feedback-custom" :class="{ 'd-block': errors.kecamatan_id }" x-text="errors.kecamatan_id"></div>
-          </div>
-          @endif
-        </div>
-
-        <!-- Kelurahan, Kota, Provinsi (3 kolom) -->
-        <div class="field-group-triple mt-3">
-          @if(in_array('kelurahan_id', $akActive))
-          <div>
-            <label class="form-label form-label-custom" for="kelurahan_id">
-              {{ $akLabels['kelurahan_id'] ?? 'Kelurahan' }}
-              @if(in_array('kelurahan_id', $akRequired)) <span class="text-danger">*</span> @endif
-            </label>
-            <select id="kelurahan_id" name="kelurahan_id" class="form-control form-control-custom"
-              x-model="form.kelurahan_id" disabled
-              :class="{ 'is-invalid': errors.kelurahan_id }">
-              <option value="">-- Pilih Kecamatan Dahulu --</option>
-            </select>
-            <div class="invalid-feedback-custom" :class="{ 'd-block': errors.kelurahan_id }" x-text="errors.kelurahan_id"></div>
-          </div>
-          @endif
-          @if(in_array('kota', $akActive))
-          <div>
-            <label class="form-label form-label-custom" for="kota">
-              {{ $akLabels['kota'] ?? 'Kota/Kabupaten' }}
-            </label>
-            <input type="text" id="kota" name="kota" class="form-control form-control-custom form-control-uppercase"
-              x-model="form.kota" value="BANDUNG" readonly disabled
-              style="opacity: 0.8; cursor: not-allowed;" />
-            <small style="color: rgba(255,255,255,0.4); font-size: 0.7rem;">
-              <i class="icon-base ti tabler-lock me-1"></i>Wilayah Kota Bandung
-            </small>
-          </div>
-          @endif
-          @if(in_array('provinsi', $akActive))
-          <div>
-            <label class="form-label form-label-custom" for="provinsi">
-              {{ $akLabels['provinsi'] ?? 'Provinsi' }}
-            </label>
-            <input type="text" id="provinsi" name="provinsi" class="form-control form-control-custom form-control-uppercase"
-              x-model="form.provinsi" value="Jawa Barat" readonly disabled
-              style="opacity: 0.8; cursor: not-allowed;" />
-            <small style="color: rgba(255,255,255,0.4); font-size: 0.7rem;">
-              <i class="icon-base ti tabler-lock me-1"></i>Provinsi Jawa Barat
-            </small>
-          </div>
-          @endif
-        </div>
-
-        <!-- Kode Pos, WhatsApp, Email (3 kolom) -->
-        <div class="field-group-triple mt-3">
-          @if(in_array('kodepos', $akActive))
-          <div>
-            <label class="form-label form-label-custom" for="kodepos">
-              {{ $akLabels['kodepos'] ?? 'Kode Pos' }}
-              @if(in_array('kodepos', $akRequired)) <span class="text-danger">*</span> @endif
-            </label>
-            <input type="text" id="kodepos" name="kodepos" class="form-control form-control-custom"
-              x-model="form.kodepos" placeholder="{{ $akPlaceholders['kodepos'] ?? 'KODE POS' }}"
-              @input="form.kodepos = form.kodepos.replace(/\D/g, '')" maxlength="5"
-              :class="{ 'is-invalid': errors.kodepos }" />
-            <div class="invalid-feedback-custom" :class="{ 'd-block': errors.kodepos }" x-text="errors.kodepos"></div>
-          </div>
-          @endif
-          @if(in_array('whatsapp', $akActive))
-          <div>
-            <label class="form-label form-label-custom" for="whatsapp">
-              {{ $akLabels['whatsapp'] ?? 'Nomor WhatsApp' }}
-              @if(in_array('whatsapp', $akRequired)) <span class="text-danger">*</span> @endif
-            </label>
-            <input type="tel" id="whatsapp" name="whatsapp" class="form-control form-control-custom"
-              x-model="form.whatsapp" placeholder="{{ $akPlaceholders['whatsapp'] ?? '08XXXXXXXXXX' }}"
-              @input="form.whatsapp = form.whatsapp.replace(/\D/g, ''); checkWa()"
-              :class="{ 'is-invalid': errors.whatsapp }" />
-            <div class="invalid-feedback-custom" :class="{ 'd-block': errors.whatsapp }" x-text="errors.whatsapp"></div>
-            <div id="wa-feedback" class="small mt-1" :class="waFeedbackClass" x-show="waFeedbackShow" x-text="waFeedbackText"></div>
-          </div>
-          @endif
-          @if(in_array('email', $akActive))
-          <div>
-            <label class="form-label form-label-custom" for="email">
-              {{ $akLabels['email'] ?? 'Email' }}
-              @if(in_array('email', $akRequired)) <span class="text-danger">*</span> @endif
-            </label>
-            <input type="email" id="email" name="email" class="form-control form-control-custom"
-              x-model="form.email" placeholder="{{ $akPlaceholders['email'] ?? 'CONTOH@EMAIL.COM' }}"
-              :class="{ 'is-invalid': errors.email }" />
-            <div class="invalid-feedback-custom" :class="{ 'd-block': errors.email }" x-text="errors.email"></div>
-          </div>
-          @endif
-        </div>
-
-        <!-- Link Media Sosial (Dinamis) -->
-        @if(in_array('link_medsos', $akActive))
-        <div class="field-group mt-3">
-          <div class="field-full">
-            <label class="form-label form-label-custom">
-              {{ $akLabels['link_medsos'] ?? 'Link Media Sosial' }}
-            </label>
-
-            <template x-for="(medsos, index) in form.medsos_list" :key="index">
-              <div class="d-flex align-items-center gap-2 mb-2">
-                <select x-model="medsos.platform" class="form-control form-control-custom" style="width: 140px; flex-shrink: 0;">
-                  @foreach($platList as $value => $label)
-                  <option value="{{ $value }}">{{ $label }}</option>
-                  @endforeach
-                </select>
-                <input type="url" x-model="medsos.url" class="form-control form-control-custom"
-                  placeholder="HTTPS://..."
-                  @input="medsos.url = medsos.url.toLowerCase()" />
-                <button type="button" class="btn btn-sm" style="background: none; border: none; color: #f87171; padding: 4px 8px;"
-                  @click="form.medsos_list.splice(index, 1)" x-show="form.medsos_list.length > 1">
-                  <i class="icon-base ti tabler-trash"></i>
-                </button>
-              </div>
-            </template>
-
-            <button type="button" class="btn btn-sm mt-1" style="background: rgba(99,102,241,0.1); border: 1px dashed rgba(99,102,241,0.3); color: #818cf8; border-radius: 5px; padding: 6px 14px; font-size: 12px;"
-              @click="form.medsos_list.push({platform: '{{ collect($platList)->keys()->first() ?? 'Instagram' }}', url: ''})">
-              <i class="icon-base ti tabler-plus me-1"></i> Tambah Media Sosial
-            </button>
-
-            <input type="hidden" name="link_medsos" x-bind:value="JSON.stringify(form.medsos_list)" />
-          </div>
-        </div>
-        @endif
-
-        <div class="d-flex justify-content-between mt-4">
-          <button type="button" class="btn btn-glow-outline fw-semibold py-2 px-4" style="border-radius: 5px; font-size: 13px;" @click="prevTab()">
-            <i class="icon-base ti tabler-arrow-left me-1"></i> Sebelumnya
-          </button>
-          <button type="submit" class="btn btn-glow fw-semibold py-2 px-4" style="border-radius: 5px; font-size: 13px;">
-            Selanjutnya <i class="icon-base ti tabler-arrow-right ms-1"></i>
+          <button type="button" class="btn btn-glow fw-semibold py-2 px-4"
+            style="border-radius: 5px; font-size: 13px;"
+            @click="submitForm()"
+            :disabled="saving">
+            <span x-show="!saving">Selanjutnya <i class="icon-base ti tabler-arrow-right ms-1"></i></span>
+            <span x-show="saving"><i class="icon-base ti tabler-loader animate-spin me-1"></i> Menyimpan...</span>
           </button>
         </div>
       </div>
@@ -791,222 +663,133 @@ window.reinitSelect2 = function() {
 </script>
 
 <script>
-  // Data user dari server untuk diisi otomatis ke form
-  window._userData = {!! json_encode($user) !!};
+  // Data dari server untuk diisi otomatis ke form (Pola PMBM)
+  window._formData = {!! json_encode($data) !!};
 
   document.addEventListener('alpine:init', function() {
-    Alpine.data('multiStepForm', function() {
-      var user = window._userData || {};
+    Alpine.data('dataPribadiForm', function() {
+      var fd = window._formData || {};
       return {
-        currentTab: 1,
+        saving: false,
+        modal: { show: false, message: '' },
+        _redirectUrl: '',
         init() {
           this.$nextTick(() => {
             if (typeof window.reinitSelect2 === 'function') {
               setTimeout(window.reinitSelect2, 150);
             }
           });
-          this.$watch('currentTab', () => {
-            if (typeof window.reinitSelect2 === 'function') {
-              setTimeout(window.reinitSelect2, 150);
-            }
-          });
         },
-        steps: [
-          { id: 1, label: 'Data Pribadi' },
-          { id: 2, label: 'Alamat & Kontak' },
-        ],
         errors: {},
-        waFeedbackShow: false,
-        waFeedbackText: '',
-        waFeedbackClass: '',
-        waTimeout: null,
         tahunLahirOptions: (function() {
           var years = [];
           for (var y = new Date().getFullYear(); y >= 1940; y--) { years.push(y); }
           return years;
         })(),
         form: {
-          nama_lengkap: user.name || '',
-          jenis_kelamin: user.jenis_kelamin || '',
-          tempat_lahir: user.tempat_lahir || '',
-          tanggal_lahir: user.tanggal_lahir || '',
-          bulan_lahir: user.bulan_lahir || '',
-          tahun_lahir: user.tahun_lahir || '',
-          nik: user.nik || '',
-          alamat_ktp: user.alamat_ktp || '',
-          rt: user.rt || '',
-          rw: user.rw || '',
-          kelurahan_id: user.kelurahan_id || '',
-          kecamatan_id: user.kecamatan_id || '',
-          kota: user.kota || 'BANDUNG',
-          provinsi: user.provinsi || 'Jawa Barat',
-          kodepos: user.kodepos || '',
-          whatsapp: user.whatsapp || '',
-          email: user.email || '',
-          medsos_list: (function() {
-            var saved = user.link_medsos;
-            if (saved && Array.isArray(saved) && saved.length > 0) {
-              return saved;
-            }
-            return [{platform: 'Instagram', url: ''}];
-          })(),
+          nama_lengkap: fd.nama_lengkap || '',
+          jenis_kelamin: fd.jenis_kelamin || '',
+          tempat_lahir: fd.tempat_lahir || '',
+          tanggal_lahir: fd.tanggal_lahir || '',
+          bulan_lahir: fd.bulan_lahir || '',
+          tahun_lahir: fd.tahun_lahir || '',
+          nik: fd.nik || '',
         },
 
         clearErrors() { this.errors = {}; },
 
-        convertWaNumber(num) {
-          num = num.replace(/\D/g, '');
-          if (num.startsWith('0')) return '62' + num.substring(1);
-          if (num.startsWith('62') && num.length >= 10) return num;
-          return '62' + num;
+        showModal(message, redirectUrl) {
+          this.modal = { show: true, message: message };
+          this._redirectUrl = redirectUrl;
         },
-
-        checkWa() {
-          var raw = this.form.whatsapp.replace(/\D/g, '');
-          if (raw.length < 8) {
-            this.waFeedbackShow = false;
-            return;
+        modalLanjut() {
+          this.modal.show = false;
+          if (this._redirectUrl) {
+            window.location.href = this._redirectUrl;
           }
-          var self = this;
-          clearTimeout(this.waTimeout);
-          this.waFeedbackShow = true;
-          this.waFeedbackText = 'Memeriksa nomor WhatsApp...';
-          this.waFeedbackClass = 'd-flex align-items-center text-info';
-          this.waTimeout = setTimeout(function() {
-            var finalNumber = self.convertWaNumber(raw);
-            fetch('{{ route('landing.check-wa') }}', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
-              body: JSON.stringify({ number: finalNumber })
-            })
-            .then(function(res) { return res.json(); })
-            .then(function(data) {
-              if (data.exists) {
-                self.waFeedbackText = '✓ Nomor WhatsApp terdaftar';
-                self.waFeedbackClass = 'd-flex align-items-center text-success';
-              } else {
-                self.waFeedbackText = '⚠ Nomor tidak terdaftar di WA';
-                self.waFeedbackClass = 'd-flex align-items-center text-danger';
-              }
-            })
-            .catch(function() {
-              self.waFeedbackText = '⚠ Gagal verifikasi WA';
-              self.waFeedbackClass = 'd-flex align-items-center text-warning';
-            });
-          }, 600);
         },
 
-        validateTab(tabNumber) {
+        validate() {
           this.clearErrors();
           var errs = {};
           var valid = true;
 
-          if (tabNumber === 1) {
-            if (!this.form.nama_lengkap.trim()) { errs.nama_lengkap = 'Nama lengkap wajib diisi'; valid = false; }
-            if (!this.form.jenis_kelamin) { errs.jenis_kelamin = 'Pilih jenis kelamin'; valid = false; }
-            if (!this.form.tempat_lahir.trim()) { errs.tempat_lahir = 'Tempat lahir wajib diisi'; valid = false; }
-            if (!this.form.tanggal_lahir) { errs.tanggal_lahir = 'Pilih tanggal lahir'; valid = false; }
-            if (!this.form.bulan_lahir) { errs.bulan_lahir = 'Pilih bulan lahir'; valid = false; }
-            if (!this.form.tahun_lahir) { errs.tahun_lahir = 'Pilih tahun lahir'; valid = false; }
-            if (!this.form.nik.trim() || this.form.nik.length < 15 || this.form.nik.length > 16) { errs.nik = 'NIK harus 15-16 digit angka'; valid = false; }
-          }
-
-          if (tabNumber === 2) {
-            if (!this.form.alamat_ktp.trim()) { errs.alamat_ktp = 'Alamat KTP wajib diisi'; valid = false; }
-            if (!this.form.rt.trim()) { errs.rt = 'RT wajib diisi'; valid = false; }
-            if (!this.form.rw.trim()) { errs.rw = 'RW wajib diisi'; valid = false; }
-            if (!this.form.kelurahan_id) { errs.kelurahan_id = 'Pilih kelurahan'; valid = false; }
-            if (!this.form.kecamatan_id) { errs.kecamatan_id = 'Pilih kecamatan'; valid = false; }
-            if (!this.form.kodepos.trim()) { errs.kodepos = 'Kode pos wajib diisi'; valid = false; }
-            if (!this.form.whatsapp.trim()) { errs.whatsapp = 'Nomor WA wajib diisi'; valid = false; }
-            if (!this.form.email.trim()) { errs.email = 'Email wajib diisi'; valid = false; }
-          }
+          if (!this.form.nama_lengkap.trim()) { errs.nama_lengkap = 'Nama lengkap wajib diisi'; valid = false; }
+          if (!this.form.jenis_kelamin) { errs.jenis_kelamin = 'Pilih jenis kelamin'; valid = false; }
+          if (!this.form.tempat_lahir.trim()) { errs.tempat_lahir = 'Tempat lahir wajib diisi'; valid = false; }
+          if (!this.form.tanggal_lahir) { errs.tanggal_lahir = 'Pilih tanggal lahir'; valid = false; }
+          if (!this.form.bulan_lahir) { errs.bulan_lahir = 'Pilih bulan lahir'; valid = false; }
+          if (!this.form.tahun_lahir) { errs.tahun_lahir = 'Pilih tahun lahir'; valid = false; }
+          if (!this.form.nik.trim() || this.form.nik.length < 15 || this.form.nik.length > 16) { errs.nik = 'NIK harus 15-16 digit angka'; valid = false; }
 
           this.errors = errs;
+
+          if (!valid) {
+            this.$nextTick(() => {
+              var firstInvalid = document.querySelector('.is-invalid');
+              if (firstInvalid) {
+                firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+              }
+            });
+          }
+
           return valid;
         },
 
-        nextTab() {
-          if (this.currentTab === 1 && this.validateTab(1)) {
-            var formData = new FormData();
-            formData.append('nama_lengkap', this.form.nama_lengkap);
-            formData.append('jenis_kelamin', this.form.jenis_kelamin);
-            formData.append('tempat_lahir', this.form.tempat_lahir);
-            formData.append('tanggal_lahir', this.form.tanggal_lahir);
-            formData.append('bulan_lahir', this.form.bulan_lahir);
-            formData.append('tahun_lahir', this.form.tahun_lahir);
-            formData.append('nik', this.form.nik);
-            formData.append('_token', '{{ csrf_token() }}');
+        submitForm() {
+          if (!this.validate()) return;
 
-            fetch('{{ route('dashboard.peserta.save-tab1') }}', {
-              method: 'POST',
-              body: formData
-            }).catch(function(e) { console.warn('Auto-save error:', e); });
-          }
+          this.saving = true;
+          var self = this;
+          var formData = new FormData();
+          formData.append('nama_lengkap', this.form.nama_lengkap);
+          formData.append('jenis_kelamin', this.form.jenis_kelamin);
+          formData.append('tempat_lahir', this.form.tempat_lahir);
+          formData.append('tanggal_lahir', this.form.tanggal_lahir);
+          formData.append('bulan_lahir', this.form.bulan_lahir);
+          formData.append('tahun_lahir', this.form.tahun_lahir);
+          formData.append('nik', this.form.nik);
+          formData.append('_token', '{{ csrf_token() }}');
 
-          if (this.currentTab >= 2) return;
-          if (this.validateTab(this.currentTab)) {
-            this.currentTab++;
-            this.clearErrors();
-            setTimeout(function() {
-              if (typeof window.reinitSelect2 === 'function') window.reinitSelect2();
-            }, 150);
-          }
-        },
-
-        prevTab() {
-          if (this.currentTab <= 1) return;
-          this.currentTab--;
-          this.clearErrors();
-          setTimeout(function() {
-            if (typeof window.reinitSelect2 === 'function') window.reinitSelect2();
-          }, 150);
+          fetch('{{ route('dashboard.peserta.save-tab1') }}', {
+            method: 'POST',
+            body: formData
+          })
+          .then(function(res) {
+            return res.json().then(function(data) {
+              if (!res.ok) {
+                var msg = 'Gagal menyimpan';
+                if (data && data.message) msg = data.message;
+                if (data && data.errors) {
+                  var errList = Object.values(data.errors).flat();
+                  if (errList.length) msg = errList.join(', ');
+                }
+                throw new Error(msg);
+              }
+              return data;
+            }).catch(function(parseErr) {
+              if (parseErr instanceof SyntaxError) {
+                throw new Error('Server error (HTTP ' + res.status + ')');
+              }
+              throw parseErr;
+            });
+          })
+            .then(function(data) {
+              if (data.success) {
+                self.saving = false;
+                self.showModal('Data pribadi Anda berhasil disimpan. Silakan lanjutkan ke pengisian alamat & kontak.', '/dashboard/peserta/form-alamat');
+              } else {
+                throw new Error(data.message || 'Gagal menyimpan');
+              }
+            })
+            .catch(function(e) {
+              self.saving = false;
+              console.error('Save error:', e);
+              alert('Gagal menyimpan: ' + e.message);
+            });
         },
       };
     });
   });
-</script>
-
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-  const kecamatanSelect = document.getElementById('kecamatan_id');
-  const kelurahanSelect = document.getElementById('kelurahan_id');
-
-  if (kecamatanSelect && kelurahanSelect) {
-    kecamatanSelect.addEventListener('change', function() {
-      const kecamatanId = this.value;
-      kelurahanSelect.innerHTML = '<option value="">-- Pilih Kelurahan --</option>';
-      kelurahanSelect.disabled = true;
-
-      if (!kecamatanId) {
-        kelurahanSelect.innerHTML = '<option value="">-- Pilih Kecamatan Dahulu --</option>';
-        return;
-      }
-
-      fetch('/api/kelurahan?kecamatan_id=' + kecamatanId)
-        .then(function(res) {
-          if (!res.ok) throw new Error('Gagal');
-          return res.json();
-        })
-        .then(function(data) {
-          data.forEach(function(k) {
-            const opt = document.createElement('option');
-            opt.value = k.id;
-            opt.textContent = k.name;
-            kelurahanSelect.appendChild(opt);
-          });
-          kelurahanSelect.disabled = false;
-        })
-        .catch(function() {
-          kelurahanSelect.innerHTML = '<option value="">— Gagal memuat data —</option>';
-          kelurahanSelect.disabled = false;
-        });
-    });
-
-    if (kecamatanSelect.value) {
-      kecamatanSelect.dispatchEvent(new Event('change'));
-    }
-  }
-});
 </script>
 @endsection
