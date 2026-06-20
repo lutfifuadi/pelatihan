@@ -314,6 +314,7 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
 
         // ===== FORM FIELD CONFIG MANAGEMENT =====
         Route::get('form-config', [FormFieldConfigController::class, 'index'])->name('form-config.index');
+        Route::post('form-config', [FormFieldConfigController::class, 'store'])->name('form-config.store');
         Route::get('form-config/{formFieldConfig}/edit', [FormFieldConfigController::class, 'edit'])->name('form-config.edit');
         Route::put('form-config/{formFieldConfig}', [FormFieldConfigController::class, 'update'])->name('form-config.update');
         Route::post('form-config/{formFieldConfig}/toggle-active', [FormFieldConfigController::class, 'toggleActive'])->name('form-config.toggle-active');

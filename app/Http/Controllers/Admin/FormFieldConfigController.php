@@ -33,6 +33,39 @@ class FormFieldConfigController extends Controller
     }
 
     /**
+     * Simpan field config baru.
+     */
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'section'          => 'required|string|max:50',
+            'field_key'        => 'required|string|max:100|unique:form_field_configs,field_key',
+            'label'            => 'required|string|max:255',
+            'placeholder'      => 'nullable|string|max:255',
+            'type'             => 'required|string|in:text,textarea,select,radio,checkbox,number,email,date,file',
+            'options_group'    => 'nullable|string|max:100',
+            'width'            => 'nullable|string|in:full,half,third',
+            'validation_rules' => 'nullable|string|max:255',
+            'is_required'      => 'nullable|boolean',
+            'is_active'        => 'nullable|boolean',
+            'show_if'          => 'nullable|string|max:255',
+        ]);
+
+        // Auto-generate order: max order + 1 di section yang sama
+        $maxOrder = FormFieldConfig::where('section', $validated['section'])->max('order');
+        $validated['order'] = ($maxOrder ?? 0) + 1;
+
+        // Default values
+        $validated['is_required'] = $validated['is_required'] ?? false;
+        $validated['is_active'] = $validated['is_active'] ?? true;
+
+        FormFieldConfig::create($validated);
+
+        return redirect()->route('admin.form-config.index', ['section' => $validated['section']])
+            ->with('success', 'Field "' . $validated['label'] . '" berhasil ditambahkan.');
+    }
+
+    /**
      * Tampilkan form edit field config (untuk modal/sidebar).
      */
     public function edit(FormFieldConfig $formFieldConfig)

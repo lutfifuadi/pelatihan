@@ -513,7 +513,7 @@ $configData = Helper::appClasses();
 
   {{-- Header --}}
   <div class="glass-card-premium px-4 px-xl-5 py-4 mb-4">
-    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+      <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
       <div class="d-flex align-items-center gap-3">
         <div class="stat-icon-box stat-icon-primary">
           <i class="icon-base ti tabler-input-search fs-4"></i>
@@ -525,6 +525,10 @@ $configData = Helper::appClasses();
           </p>
         </div>
       </div>
+      <button type="button" class="btn btn-glow-premium px-4 py-2 d-flex align-items-center gap-2"
+              data-bs-toggle="modal" data-bs-target="#modalCreateField">
+        <i class="icon-base ti tabler-plus"></i> Tambah Field Baru
+      </button>
     </div>
   </div>
 
@@ -669,6 +673,123 @@ $configData = Helper::appClasses();
 {{-- Modal --}}
 @include('content.admin.form-config._modal')
 @endsection
+
+{{-- Modal Tambah Field Baru --}}
+<div class="modal fade" id="modalCreateField" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content modal-content-premium">
+      <div class="modal-header modal-header-premium">
+        <h5 class="modal-title text-white fw-bold">
+          <i class="icon-base ti tabler-plus me-2 text-warning"></i>Tambah Field Baru
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form action="{{ route('admin.form-config.store') }}" method="POST">
+        @csrf
+        <div class="modal-body px-4 py-4">
+          <div class="row g-4">
+            {{-- Section --}}
+            <div class="col-md-6">
+              <label class="form-label form-label-custom">Section</label>
+              <select name="section" class="form-control form-control-custom" required>
+                @foreach($sections as $secKey => $secLabel)
+                  <option value="{{ $secKey }}" {{ $secKey === $section ? 'selected' : '' }}>{{ $secLabel }}</option>
+                @endforeach
+              </select>
+            </div>
+            {{-- Type --}}
+            <div class="col-md-6">
+              <label class="form-label form-label-custom">Tipe Field</label>
+              <select name="type" class="form-control form-control-custom" required>
+                <option value="text">Text</option>
+                <option value="textarea">Textarea</option>
+                <option value="select">Select (Dropdown)</option>
+                <option value="radio">Radio</option>
+                <option value="checkbox">Checkbox</option>
+                <option value="number">Number</option>
+                <option value="email">Email</option>
+                <option value="date">Date</option>
+                <option value="file">File Upload</option>
+              </select>
+            </div>
+            {{-- Label --}}
+            <div class="col-12">
+              <label class="form-label form-label-custom">Label</label>
+              <input type="text" name="label" class="form-control form-control-custom" placeholder="Nama field yang tampil di form" required>
+            </div>
+            {{-- Field Key --}}
+            <div class="col-md-6">
+              <label class="form-label form-label-custom">Field Key <small class="text-body-premium">(identifier unik)</small></label>
+              <input type="text" name="field_key" class="form-control form-control-custom" placeholder="contoh: nomor_darurat" required>
+            </div>
+            {{-- Placeholder --}}
+            <div class="col-md-6">
+              <label class="form-label form-label-custom">Placeholder</label>
+              <input type="text" name="placeholder" class="form-control form-control-custom" placeholder="Teks petunjuk di dalam field">
+            </div>
+            {{-- Options Group --}}
+            <div class="col-md-6">
+              <label class="form-label form-label-custom">Options Group <small class="text-body-premium">(untuk select/radio/checkbox)</small></label>
+              <select name="options_group" class="form-control form-control-custom">
+                <option value="">-- Tidak pakai --</option>
+                @if(isset($optionGroups) && count($optionGroups) > 0)
+                  @foreach($optionGroups as $ogKey => $ogLabel)
+                    <option value="{{ $ogKey }}">{{ $ogLabel }}</option>
+                  @endforeach
+                @else
+                  @php
+                    $groups = App\Models\MasterOption::select('group_key')->distinct()->pluck('group_key');
+                  @endphp
+                  @foreach($groups as $gk)
+                    <option value="{{ $gk }}">{{ $gk }}</option>
+                  @endforeach
+                @endif
+              </select>
+            </div>
+            {{-- Width --}}
+            <div class="col-md-3">
+              <label class="form-label form-label-custom">Lebar</label>
+              <select name="width" class="form-control form-control-custom">
+                <option value="full">Full (100%)</option>
+                <option value="half">Half (50%)</option>
+                <option value="third">Third (33%)</option>
+              </select>
+            </div>
+            {{-- Validation Rules --}}
+            <div class="col-md-6">
+              <label class="form-label form-label-custom">Validation Rules <small class="text-body-premium">(opsional)</small></label>
+              <input type="text" name="validation_rules" class="form-control form-control-custom" placeholder="contoh: min:3|max:255">
+            </div>
+            {{-- Show If --}}
+            <div class="col-md-6">
+              <label class="form-label form-label-custom">Show If <small class="text-body-premium">(conditional, opsional)</small></label>
+              <input type="text" name="show_if" class="form-control form-control-custom" placeholder="contoh: status_pekerjaan=bekerja">
+            </div>
+            {{-- Toggles --}}
+            <div class="col-md-6">
+              <div class="d-flex gap-4 mt-3">
+                <div class="form-check">
+                  <input type="hidden" name="is_required" value="0">
+                  <input type="checkbox" name="is_required" value="1" class="form-check-input form-check-input-custom" id="create_is_required" checked>
+                  <label class="form-check-label text-white-50" for="create_is_required">Required</label>
+                </div>
+                <div class="form-check">
+                  <input type="hidden" name="is_active" value="0">
+                  <input type="checkbox" name="is_active" value="1" class="form-check-input form-check-input-custom" id="create_is_active" checked>
+                  <label class="form-check-label text-white-50" for="create_is_active">Aktif</label>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer modal-footer-premium">
+          <button type="button" class="btn btn-glow-primary px-3" data-bs-dismiss="modal">Batal</button>
+          <button type="submit" class="btn btn-glow-premium px-4">Simpan Field</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
 
 @section('page-script')
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
