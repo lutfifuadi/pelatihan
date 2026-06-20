@@ -5,166 +5,124 @@
 # Server: VPS / aaPanel
 # Jalankan setiap ada update kode:
 #   bash deploy.sh
+#
+# Best practices yang diterapkan:
+#   - set -euo pipefail (henti pada error kritis)
+#   - Maintenance mode aman dengan trap up
+#   - Verifikasi manifest.json setelah build/fallback
+#   - Health check curl ke homepage setelah deploy
+#   - Logging ke storage/logs/deploy-*.log
 # ============================================================
 
-APP_PATH="$(cd "$(dirname "$0")" && pwd)"
-WEB_USER="www"
+set -euo pipefail
 
-# Trap: pastikan maintenance mode OFF meskipun script error di tengah jalan
+# ----------------------------------------------------------
+# Konfigurasi
+# ----------------------------------------------------------
+APP_PATH="$(cd "$(dirname "$0")" && pwd)"
+WEB_USER="${WEB_USER:-www-data}"
+WEB_GROUP="${WEB_GROUP:-www-data}"
+DEPLOY_LOG_DIR="$APP_PATH/storage/logs"
+DEPLOY_LOG="$DEPLOY_LOG_DIR/deploy-$(date +%Y%m%d_%H%M%S).log"
+HEALTH_URL="${HEALTH_URL:-https://pelatihanku.my.id}"
+BUILD_ASSET_NAME="aplikasi-pelatihan-build.zip"
+GITHUB_OWNER=""
+GITHUB_REPO=""
+MAINTENANCE_ACTIVE=false
+
+# Pastikan direktori log ada
+mkdir -p "$DEPLOY_LOG_DIR"
+
+# ----------------------------------------------------------
+# Logging helpers
+# ----------------------------------------------------------
+log() {
+    local msg="[$(date '+%Y-%m-%d %H:%M:%S')] $1"
+    echo "$msg" | tee -a "$DEPLOY_LOG"
+}
+
+log_info()  { log "[INFO]  $1"; }
+log_ok()    { log "[OK]    $1"; }
+log_warn()  { log "[WARN]  $1"; }
+log_error() { log "[ERROR] $1"; }
+
+die() {
+    log_error "$1"
+    log_error "Deploy GAGAL. Lihat log lengkap: $DEPLOY_LOG"
+    exit 1
+}
+
+# ----------------------------------------------------------
+# Trap: selalu matikan maintenance mode jika sempat dinyalakan
+# ----------------------------------------------------------
 cleanup() {
-    echo ""
-    echo "[INFO] Cleanup: mematikan maintenance mode..."
-    cd "$APP_PATH" 2>/dev/null && php artisan up 2>/dev/null || true
-    echo "[INFO] Maintenance mode OFF."
+    local exit_code=$?
+    if [ "$MAINTENANCE_ACTIVE" = true ]; then
+        log_warn "Cleanup: maintenance mode masih aktif, mencoba mematikan..."
+        cd "$APP_PATH" && php artisan up 2>&1 | tee -a "$DEPLOY_LOG" || true
+        log_info "Maintenance mode OFF."
+    fi
+    if [ $exit_code -ne 0 ]; then
+        log_error "Script berakhir dengan exit code $exit_code."
+    fi
 }
 trap cleanup EXIT
 
-echo "=========================================="
-echo "  Deploy Aplikasi Pelatihan - VPS"
-echo "=========================================="
-echo "  Path terdeteksi: $APP_PATH"
-echo "=========================================="
-
-# Pastikan dijalankan dari direktori aplikasi
-cd "$APP_PATH" || { echo "[ERROR] Path tidak ditemukan: $APP_PATH"; exit 1; }
-
+# ----------------------------------------------------------
 # Auto-detect GitHub owner & repo dari git remote
-GITHUB_OWNER=""
-GITHUB_REPO=""
-
-if command -v git &> /dev/null && git rev-parse --git-dir &> /dev/null 2>&1; then
-    REMOTE_URL=$(git remote get-url origin 2>/dev/null)
-    if [ -n "$REMOTE_URL" ]; then
-        OWNER_HTTPS=$(echo "$REMOTE_URL" | sed -n 's|https://github.com/\([^/]*\)/\(.*\)\.git|\1|p')
-        REPO_HTTPS=$(echo "$REMOTE_URL" | sed -n 's|https://github.com/\([^/]*\)/\(.*\)\.git|\2|p')
-        OWNER_SSH=$(echo "$REMOTE_URL" | sed -n 's|git@github.com:\([^/]*\)/\(.*\)\.git|\1|p')
-        REPO_SSH=$(echo "$REMOTE_URL" | sed -n 's|git@github.com:\([^/]*\)/\(.*\)\.git|\2|p')
-        GITHUB_OWNER="${OWNER_HTTPS:-$OWNER_SSH}"
-        GITHUB_REPO="${REPO_HTTPS:-$REPO_SSH}"
-        echo "[INFO] Git remote terdeteksi: $GITHUB_OWNER/$GITHUB_REPO"
+# ----------------------------------------------------------
+detect_github_repo() {
+    if command -v git &> /dev/null && git rev-parse --git-dir &> /dev/null; then
+        local remote_url
+        remote_url=$(git remote get-url origin 2>/dev/null || true)
+        if [ -n "$remote_url" ]; then
+            local owner_https repo_https owner_ssh repo_ssh
+            owner_https=$(echo "$remote_url" | sed -n 's|https://github.com/\([^/]*\)/\(.*\)\.git|\1|p')
+            repo_https=$(echo "$remote_url" | sed -n 's|https://github.com/\([^/]*\)/\(.*\)\.git|\2|p')
+            owner_ssh=$(echo "$remote_url" | sed -n 's|git@github.com:\([^/]*\)/\(.*\)\.git|\1|p')
+            repo_ssh=$(echo "$remote_url" | sed -n 's|git@github.com:\([^/]*\)/\(.*\)\.git|\2|p')
+            GITHUB_OWNER="${owner_https:-$owner_ssh}"
+            GITHUB_REPO="${repo_https:-$repo_ssh}"
+        fi
     fi
-fi
 
-if [ -z "$GITHUB_OWNER" ] || [ -z "$GITHUB_REPO" ]; then
-    GITHUB_OWNER="lutfifuadi"
-    GITHUB_REPO="pelatihan"
-    echo "[INFO] Git remote tidak terdeteksi. Menggunakan default: $GITHUB_OWNER/$GITHUB_REPO"
-fi
+    if [ -z "$GITHUB_OWNER" ] || [ -z "$GITHUB_REPO" ]; then
+        GITHUB_OWNER="lutfifuadi"
+        GITHUB_REPO="pelatihan"
+        log_warn "Git remote tidak terdeteksi. Menggunakan default: $GITHUB_OWNER/$GITHUB_REPO"
+    else
+        log_info "Git remote terdeteksi: $GITHUB_OWNER/$GITHUB_REPO"
+    fi
+}
 
-# Muat variabel dari .env
+# ----------------------------------------------------------
+# Pastikan dijalankan dari direktori aplikasi
+# ----------------------------------------------------------
+cd "$APP_PATH" || die "Path tidak ditemukan: $APP_PATH"
+
+# Muat variabel dari .env (untuk GITHUB_TOKEN, APP_URL, dsb.)
 if [ -f ".env" ]; then
     set -a
-    [ -f .env ] && . ./.env
+    # shellcheck source=/dev/null
+    . ./.env
     set +a
 fi
 
-# ----------------------------------------------------------
-# 1. Pull kode terbaru dari Git
-# ----------------------------------------------------------
-echo ""
-echo "[1/11] Pull kode terbaru dari Git..."
-
-if [ -n "$GITHUB_TOKEN" ]; then
-    echo "[INFO] Menggunakan GITHUB_TOKEN untuk autentikasi Git..."
-    REMOTE_URL=$(git remote get-url origin)
-    if [[ $REMOTE_URL == https://github.com* ]]; then
-        NEW_URL="https://$GITHUB_TOKEN@${REMOTE_URL#https://}"
-        git remote set-url origin "$NEW_URL"
-    fi
+# Jika HEALTH_URL tidak di-set di env, gunakan APP_URL
+if [ -n "${APP_URL:-}" ] && [ "$HEALTH_URL" = "https://pelatihanku.my.id" ]; then
+    HEALTH_URL="$APP_URL"
 fi
 
-git pull origin main
-if [ $? -ne 0 ]; then
-    echo "[ERROR] Git pull gagal. Periksa koneksi, token, atau konflik."
-    exit 1
-fi
+detect_github_repo
 
-# ----------------------------------------------------------
-# 2. Install / update Composer dependencies
-# ----------------------------------------------------------
-echo ""
-echo "[2/11] Install Composer dependencies..."
-composer install --no-dev --optimize-autoloader --no-interaction
-
-# ----------------------------------------------------------
-# 3. Build frontend assets — fallback ke GitHub Release
-# ----------------------------------------------------------
-echo ""
-echo "[3/11] Build frontend assets..."
-
-BUILD_SUCCESS=false
-if command -v node &> /dev/null && command -v npm &> /dev/null; then
-    echo "[INFO] Node.js ditemukan, menjalankan npm ci && npm run build..."
-    npm ci --no-audit --no-fund 2>/dev/null && npm run build 2>/dev/null
-    if [ $? -eq 0 ] && [ -d "public/build" ] && [ "$(ls -A public/build 2>/dev/null)" ]; then
-        BUILD_SUCCESS=true
-        echo "[OK] Frontend assets berhasil dibuild dari source."
-    else
-        echo "[WARN] npm build gagal. Mencoba download dari GitHub Release..."
-    fi
-else
-    echo "[WARN] Node.js tidak ditemukan. Mencoba download dari GitHub Release..."
-fi
-
-# Fallback: download public/build dari GitHub Release
-if [ "$BUILD_SUCCESS" = false ]; then
-    echo "[INFO] Mencoba download public/build dari GitHub Release..."
-
-    AUTH_HEADER=""
-    WGET_HEADER=""
-    if [ -n "$GITHUB_TOKEN" ]; then
-        AUTH_HEADER="-H \"Authorization: token $GITHUB_TOKEN\""
-        WGET_HEADER="--header=\"Authorization: token $GITHUB_TOKEN\""
-        echo "[INFO] Menggunakan GITHUB_TOKEN untuk autentikasi API."
-    fi
-
-    LATEST_URL=$(curl -s $AUTH_HEADER "https://api.github.com/repos/$GITHUB_OWNER/$GITHUB_REPO/releases/latest" \
-        | grep "browser_download_url" \
-        | grep "aplikasi-pelatihan-build.zip" \
-        | cut -d '"' -f 4)
-
-    if [ -n "$LATEST_URL" ]; then
-        echo "[INFO] Mengunduh: $LATEST_URL"
-        if [ -n "$GITHUB_TOKEN" ]; then
-            ASSET_ID=$(curl -s $AUTH_HEADER "https://api.github.com/repos/$GITHUB_OWNER/$GITHUB_REPO/releases/latest" \
-                | grep -B 1 "aplikasi-pelatihan-build.zip" \
-                | grep "\"id\":" \
-                | head -n 1 \
-                | cut -d ':' -f 2 \
-                | tr -d ' ,')
-
-            wget -q $WGET_HEADER --header="Accept: application/octet-stream" \
-                -O /tmp/aplikasi-pelatihan-build.zip \
-                "https://api.github.com/repos/$GITHUB_OWNER/$GITHUB_REPO/releases/assets/$ASSET_ID"
-        else
-            wget -q -O /tmp/aplikasi-pelatihan-build.zip "$LATEST_URL"
-        fi
-
-        if [ $? -eq 0 ]; then
-            rm -rf public/build
-            unzip -o /tmp/aplikasi-pelatihan-build.zip 'public/build/*' -d "$APP_PATH" > /dev/null
-            rm /tmp/aplikasi-pelatihan-build.zip
-            echo "[OK] public/build berhasil diperbarui dari release."
-        else
-            echo "[WARN] Gagal mengunduh build asset. public/build tetap menggunakan versi sebelumnya."
-        fi
-    else
-        echo "[WARN] Tidak ada release ditemukan, public/build tetap menggunakan versi sebelumnya."
-    fi
-fi
-
-# ----------------------------------------------------------
-# 4. Cek file .env & update GitHub config
-# ----------------------------------------------------------
-echo ""
-echo "[4/11] Cek file .env..."
-if [ ! -f ".env" ]; then
-    cp .env.example .env
-    php artisan key:generate --force
-    echo "[INFO] File .env dibuat dari .env.example. Harap sesuaikan konfigurasi database!"
-else
-    echo "[OK] File .env sudah ada."
-fi
+echo "==========================================" | tee -a "$DEPLOY_LOG"
+echo "  Deploy Aplikasi Pelatihan - VPS" | tee -a "$DEPLOY_LOG"
+echo "==========================================" | tee -a "$DEPLOY_LOG"
+echo "  Path terdeteksi : $APP_PATH" | tee -a "$DEPLOY_LOG"
+echo "  Web user/group  : $WEB_USER:$WEB_GROUP" | tee -a "$DEPLOY_LOG"
+echo "  Health URL      : $HEALTH_URL" | tee -a "$DEPLOY_LOG"
+echo "  Log file        : $DEPLOY_LOG" | tee -a "$DEPLOY_LOG"
+echo "==========================================" | tee -a "$DEPLOY_LOG"
 
 # Pastikan GITHUB_REPO_OWNER & GITHUB_REPO_NAME selalu terkini di .env
 if grep -q "^GITHUB_REPO_OWNER=" .env; then
@@ -179,95 +137,258 @@ else
 fi
 
 # ----------------------------------------------------------
-# 5. Jalankan migrasi database
+# 0. Maintenance mode ON
 # ----------------------------------------------------------
-echo ""
-echo "[5/11] Migrasi database..."
-php artisan migrate --force
+log_info "[0/12] Maintenance mode ON..."
+php artisan down --retry=60 --refresh=15 --message="Sedang maintenance, mohon tunggu sebentar." \
+    || die "Gagal mengaktifkan maintenance mode."
+MAINTENANCE_ACTIVE=true
+log_ok "Maintenance mode aktif."
 
 # ----------------------------------------------------------
-# 6. Pastikan symlink storage ada
+# 1. Pull kode terbaru dari Git
 # ----------------------------------------------------------
-echo ""
-echo "[6/11] Cek symlink storage..."
+log_info "[1/12] Pull kode terbaru dari Git..."
+
+if [ -n "${GITHUB_TOKEN:-}" ]; then
+    log_info "Menggunakan GITHUB_TOKEN untuk autentikasi Git..."
+    REMOTE_URL=$(git remote get-url origin)
+    if [[ "$REMOTE_URL" == https://github.com* ]]; then
+        NEW_URL="https://$GITHUB_TOKEN@${REMOTE_URL#https://}"
+        git remote set-url origin "$NEW_URL"
+    fi
+fi
+
+git pull origin main 2>&1 | tee -a "$DEPLOY_LOG" || die "Git pull gagal. Periksa koneksi, token, atau konflik."
+log_ok "Git pull berhasil."
+
+# ----------------------------------------------------------
+# 2. Install / update Composer dependencies
+# ----------------------------------------------------------
+log_info "[2/12] Install Composer dependencies..."
+composer install --no-dev --optimize-autoloader --no-interaction 2>&1 | tee -a "$DEPLOY_LOG" \
+    || die "Composer install gagal."
+log_ok "Composer dependencies terinstall."
+
+# ----------------------------------------------------------
+# 3. Build frontend assets — fallback ke GitHub Release
+# ----------------------------------------------------------
+log_info "[3/12] Build frontend assets..."
+
+BUILD_SUCCESS=false
+BUILD_BACKUP_DIR=""
+
+# Backup build lama jika ada, agar bisa di-rollback manual jika gagal
+if [ -d "public/build" ]; then
+    BUILD_BACKUP_DIR="/tmp/public_build_backup_$(date +%s)"
+    cp -a public/build "$BUILD_BACKUP_DIR"
+    log_info "Backup build lama di $BUILD_BACKUP_DIR"
+fi
+
+if command -v node &> /dev/null && command -v npm &> /dev/null; then
+    log_info "Node.js ditemukan, menjalankan npm ci && npm run build..."
+    if npm ci --no-audit --no-fund 2>&1 | tee -a "$DEPLOY_LOG" \
+        && npm run build 2>&1 | tee -a "$DEPLOY_LOG"; then
+        BUILD_SUCCESS=true
+        log_ok "Frontend assets berhasil dibuild dari source."
+    else
+        log_warn "npm build gagal. Mencoba download dari GitHub Release..."
+    fi
+else
+    log_warn "Node.js/npm tidak ditemukan. Mencoba download dari GitHub Release..."
+fi
+
+# Fallback: download public/build dari GitHub Release
+if [ "$BUILD_SUCCESS" = false ]; then
+    log_info "Mencoba download public/build dari GitHub Release..."
+
+    AUTH_HEADER=""
+    WGET_HEADER=""
+    if [ -n "${GITHUB_TOKEN:-}" ]; then
+        AUTH_HEADER="-H Authorization: token $GITHUB_TOKEN"
+        WGET_HEADER="--header=Authorization: token $GITHUB_TOKEN"
+        log_info "Menggunakan GITHUB_TOKEN untuk autentikasi API."
+    fi
+
+    LATEST_URL=$(curl -sL $AUTH_HEADER "https://api.github.com/repos/$GITHUB_OWNER/$GITHUB_REPO/releases/latest" \
+        | grep "browser_download_url" \
+        | grep "$BUILD_ASSET_NAME" \
+        | cut -d '"' -f 4) || true
+
+    if [ -n "$LATEST_URL" ]; then
+        log_info "Mengunduh: $LATEST_URL"
+
+        if [ -n "${GITHUB_TOKEN:-}" ]; then
+            ASSET_ID=$(curl -sL $AUTH_HEADER "https://api.github.com/repos/$GITHUB_OWNER/$GITHUB_REPO/releases/latest" \
+                | grep -B 1 "$BUILD_ASSET_NAME" \
+                | grep '"id":' \
+                | head -n 1 \
+                | cut -d ':' -f 2 \
+                | tr -d ' ,') || true
+
+            wget -q $WGET_HEADER --header="Accept: application/octet-stream" \
+                -O "/tmp/$BUILD_ASSET_NAME" \
+                "https://api.github.com/repos/$GITHUB_OWNER/$GITHUB_REPO/releases/assets/$ASSET_ID" 2>&1 | tee -a "$DEPLOY_LOG" \
+                || die "Gagal mengunduh asset release (private repo / asset ID tidak ditemukan)."
+        else
+            wget -q -O "/tmp/$BUILD_ASSET_NAME" "$LATEST_URL" 2>&1 | tee -a "$DEPLOY_LOG" \
+                || die "Gagal mengunduh asset release."
+        fi
+
+        rm -rf public/build
+        unzip -o "/tmp/$BUILD_ASSET_NAME" 'public/build/*' -d "$APP_PATH" > /dev/null \
+            || die "Gagal mengekstrak asset release."
+        rm -f "/tmp/$BUILD_ASSET_NAME"
+        log_ok "public/build berhasil diperbarui dari release."
+    else
+        log_warn "Tidak ada release ditemukan."
+        # Jika backup ada, restore build lama supaya tidak blank
+        if [ -n "$BUILD_BACKUP_DIR" ] && [ -d "$BUILD_BACKUP_DIR" ]; then
+            rm -rf public/build
+            cp -a "$BUILD_BACKUP_DIR" public/build
+            log_warn "Build lama di-restore dari backup."
+        else
+            die "Tidak ada build lama maupun release yang tersedia."
+        fi
+    fi
+fi
+
+# ----------------------------------------------------------
+# 4. Verifikasi manifest.json
+# ----------------------------------------------------------
+log_info "[4/12] Verifikasi build assets (manifest.json)..."
+if [ ! -f "public/build/manifest.json" ]; then
+    die "public/build/manifest.json tidak ditemukan. Halaman akan blank putih."
+fi
+# Pastikan file tidak kosong dan valid JSON minimal
+if [ ! -s "public/build/manifest.json" ]; then
+    die "public/build/manifest.json kosong."
+fi
+log_ok "manifest.json ditemukan ($(wc -c < public/build/manifest.json) bytes)."
+
+# ----------------------------------------------------------
+# 5. Cek file .env
+# ----------------------------------------------------------
+log_info "[5/12] Cek file .env..."
+if [ ! -f ".env" ]; then
+    cp .env.example .env
+    php artisan key:generate --force
+    log_warn "File .env dibuat dari .env.example. Harap sesuaikan konfigurasi database!"
+else
+    log_ok "File .env sudah ada."
+fi
+
+# ----------------------------------------------------------
+# 6. Jalankan migrasi database
+# ----------------------------------------------------------
+log_info "[6/12] Migrasi database..."
+php artisan migrate --force 2>&1 | tee -a "$DEPLOY_LOG" || die "Migrasi database gagal. Aplikasi bisa QueryException/blank."
+log_ok "Migrasi database berhasil."
+
+# ----------------------------------------------------------
+# 7. Pastikan symlink storage ada
+# ----------------------------------------------------------
+log_info "[7/12] Cek symlink storage..."
 if [ ! -L "public/storage" ]; then
-    echo "[INFO] Membuat symlink storage..."
-    php artisan storage:link
+    log_info "Membuat symlink storage..."
+    php artisan storage:link || die "Gagal membuat storage symlink."
 else
-    echo "[OK] Symlink storage sudah ada."
+    log_ok "Symlink storage sudah ada."
 fi
 
 # ----------------------------------------------------------
-# 7. Optimasi Laravel
+# 8. Optimasi Laravel
 # ----------------------------------------------------------
-echo ""
-echo "[7/11] Optimasi Laravel..."
-php artisan config:clear
-php artisan route:clear
-php artisan view:clear
-php artisan cache:clear
-php artisan config:cache
-php artisan route:cache
-php artisan view:cache
-echo "[OK] Optimasi selesai."
+log_info "[8/12] Optimasi Laravel..."
+php artisan config:clear 2>&1 | tee -a "$DEPLOY_LOG" || true
+php artisan route:clear 2>&1 | tee -a "$DEPLOY_LOG" || true
+php artisan view:clear 2>&1 | tee -a "$DEPLOY_LOG" || true
+php artisan cache:clear 2>&1 | tee -a "$DEPLOY_LOG" || true
+php artisan config:cache 2>&1 | tee -a "$DEPLOY_LOG" || die "config:cache gagal."
+php artisan route:cache 2>&1 | tee -a "$DEPLOY_LOG" || die "route:cache gagal."
+php artisan view:cache 2>&1 | tee -a "$DEPLOY_LOG" || die "view:cache gagal."
+log_ok "Optimasi selesai."
 
 # ----------------------------------------------------------
-# 8. Deploy Notification System
+# 9. Deploy Notification System & Queue
 # ----------------------------------------------------------
-echo ""
-echo "[8/11] Deploy Notification System..."
+log_info "[9/12] Deploy Notification System..."
+php artisan db:seed --class=NotificationTemplateSeeder --force 2>&1 | tee -a "$DEPLOY_LOG" \
+    || log_warn "NotificationTemplateSeeder tidak ditemukan atau gagal, dilewati."
+php artisan queue:restart 2>&1 | tee -a "$DEPLOY_LOG" || log_warn "queue:restart gagal, mungkin tidak ada queue worker."
 
-# Seed notification templates (jika belum ada)
-php artisan db:seed --class=NotificationTemplateSeeder --force 2>/dev/null || echo "[WARN] NotificationTemplateSeeder tidak ditemukan, lewati..."
-
-# Queue & Scheduler
-php artisan queue:restart 2>/dev/null || echo "[WARN] queue:restart gagal, mungkin tidak ada queue worker."
-
-# Restart supervisor services (jika ada)
 if command -v supervisorctl &> /dev/null; then
-    sudo supervisorctl reread 2>/dev/null || true
-    sudo supervisorctl update 2>/dev/null || true
-    sudo supervisorctl restart laravel-worker:* 2>/dev/null || echo "[WARN] laravel-worker belum terdaftar di supervisor."
-    sudo supervisorctl restart laravel-scheduler 2>/dev/null || echo "[WARN] laravel-scheduler belum terdaftar di supervisor."
-    echo "[OK] Supervisor services restarted."
+    sudo supervisorctl reread 2>&1 | tee -a "$DEPLOY_LOG" || true
+    sudo supervisorctl update 2>&1 | tee -a "$DEPLOY_LOG" || true
+    sudo supervisorctl restart laravel-worker:* 2>&1 | tee -a "$DEPLOY_LOG" || log_warn "laravel-worker belum terdaftar di supervisor."
+    sudo supervisorctl restart laravel-scheduler 2>&1 | tee -a "$DEPLOY_LOG" || log_warn "laravel-scheduler belum terdaftar di supervisor."
+    log_ok "Supervisor services restarted."
 else
-    echo "[INFO] supervisorctl tidak ditemukan, lewati restart supervisor."
+    log_info "supervisorctl tidak ditemukan, lewati restart supervisor."
 fi
 
-echo "[OK] Notification System deployed."
+# ----------------------------------------------------------
+# 10. Set permission
+# ----------------------------------------------------------
+log_info "[10/12] Set permission folder & ownership..."
 
-# ----------------------------------------------------------
-# 9. Set permission
-# ----------------------------------------------------------
-echo ""
-echo "[9/11] Set permission folder & ownership..."
-chown -R "$WEB_USER":"$WEB_USER" "$APP_PATH"
+# Pastikan storage & bootstrap/cache writable
+chmod -R 775 storage bootstrap/cache 2>&1 | tee -a "$DEPLOY_LOG" || die "Gagal set permission storage/cache."
+
+# Set ownership hanya untuk direktori yang memang perlu diakses web server
+if id "$WEB_USER" &>/dev/null; then
+    chown -R "$WEB_USER":"$WEB_GROUP" storage bootstrap/cache public/build 2>&1 | tee -a "$DEPLOY_LOG" \
+        || log_warn "Gagal chown beberapa direktori (mungkin butuh sudo)."
+else
+    log_warn "User '$WEB_USER' tidak ditemukan di sistem. Lewati chown."
+fi
+
+# Pastikan artisan executable dan direktori root tetap readable
+chmod 755 artisan
 find "$APP_PATH" -type f -exec chmod 644 {} \;
 find "$APP_PATH" -type d -exec chmod 755 {} \;
 chmod -R 775 storage bootstrap/cache
-echo "[OK] Permission selesai."
+
+# Restart PHP-FPM jika tersedia (membersihkan opcache/realpath cache)
+if command -v systemctl &> /dev/null && systemctl list-units --type=service | grep -q php.*-fpm; then
+    log_info "Restart PHP-FPM..."
+    sudo systemctl restart php*-fpm 2>&1 | tee -a "$DEPLOY_LOG" || log_warn "Gagal restart php-fpm."
+fi
+
+log_ok "Permission selesai."
 
 # ----------------------------------------------------------
-# 10. Informasi versi
+# 11. Health check homepage
 # ----------------------------------------------------------
-echo ""
-echo "[10/11] Informasi deploy..."
+log_info "[11/12] Health check ke $HEALTH_URL ..."
+HEALTH_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$HEALTH_URL" 2>&1 || true)
+if [ "$HEALTH_STATUS" = "200" ] || [ "$HEALTH_STATUS" = "302" ] || [ "$HEALTH_STATUS" = "301" ]; then
+    log_ok "Health check OK (HTTP $HEALTH_STATUS)."
+else
+    log_warn "Health check tidak OK (HTTP $HEALTH_STATUS). Cek server/Nginx segera."
+fi
+
+# ----------------------------------------------------------
+# 12. Maintenance mode OFF
+# ----------------------------------------------------------
+log_info "[12/12] Maintenance mode OFF..."
+php artisan up 2>&1 | tee -a "$DEPLOY_LOG" || die "Gagal mematikan maintenance mode."
+MAINTENANCE_ACTIVE=false
+log_ok "Maintenance mode nonaktif."
+
+# ----------------------------------------------------------
+# Informasi versi
+# ----------------------------------------------------------
 DEPLOY_TIME=$(date "+%Y-%m-%d %H:%M:%S")
 GIT_HASH=$(git rev-parse --short HEAD 2>/dev/null || echo "unknown")
 GIT_BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "unknown")
-echo "  Waktu deploy : $DEPLOY_TIME"
-echo "  Branch       : $GIT_BRANCH"
-echo "  Commit       : $GIT_HASH"
 
-# ----------------------------------------------------------
-# 11. Selesai
-# ----------------------------------------------------------
-echo ""
-echo "[11/11] Selesai."
-echo ""
-echo "=========================================="
-echo "  Deploy Selesai!"
-echo "=========================================="
-echo "  Versi: $GIT_BRANCH ($GIT_HASH)"
-echo "=========================================="
-echo ""
+echo "" | tee -a "$DEPLOY_LOG"
+echo "==========================================" | tee -a "$DEPLOY_LOG"
+echo "  Deploy Selesai!" | tee -a "$DEPLOY_LOG"
+echo "==========================================" | tee -a "$DEPLOY_LOG"
+echo "  Waktu deploy : $DEPLOY_TIME" | tee -a "$DEPLOY_LOG"
+echo "  Branch       : $GIT_BRANCH" | tee -a "$DEPLOY_LOG"
+echo "  Commit       : $GIT_HASH" | tee -a "$DEPLOY_LOG"
+echo "  Log file     : $DEPLOY_LOG" | tee -a "$DEPLOY_LOG"
+echo "==========================================" | tee -a "$DEPLOY_LOG"
