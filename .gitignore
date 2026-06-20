@@ -19,6 +19,7 @@
 
 # Internal tools & planning (hanya untuk local)
 /.agents
+/.planning
 /.planing
 
 # IDE & Tools
