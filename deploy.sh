@@ -175,7 +175,7 @@ log_ok "Composer dependencies terinstall."
 # ----------------------------------------------------------
 log_info "[3/12] Download frontend assets dari GitHub Release..."
 
-BUILD_RELEASE_TAG="latest-full-package"
+BUILD_RELEASE_TAG="latest-build"
 BUILD_DOWNLOAD_URL="https://github.com/$GITHUB_OWNER/$GITHUB_REPO/releases/download/$BUILD_RELEASE_TAG/$BUILD_ASSET_NAME"
 
 log_info "Mengunduh: $BUILD_DOWNLOAD_URL"
@@ -216,7 +216,7 @@ else
     fi
 
     # Fallback 2: latest release dari API (mungkin v1.1.0)
-    if [ ! -d "public/build/manifest.json" ]; then
+    if [ ! -f "public/build/manifest.json" ]; then
         LATEST_URL=$(curl -sL $AUTH_HEADER \
             "https://api.github.com/repos/$GITHUB_OWNER/$GITHUB_REPO/releases/latest" 2>/dev/null \
             | grep "browser_download_url" \

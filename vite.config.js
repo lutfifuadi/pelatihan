@@ -1,6 +1,5 @@
 import { defineConfig } from 'vite';
 import laravel from 'laravel-vite-plugin';
-import html from '@rollup/plugin-html';
 import { glob } from 'glob';
 import path from 'path';
 import iconsPlugin from './vite.icons.plugin.js';
@@ -70,7 +69,6 @@ export default defineConfig({
       ],
       refresh: true
     }),
-    html(),
     libsWindowAssignment(),
     iconsPlugin()
   ],
