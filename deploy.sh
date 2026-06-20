@@ -10,6 +10,15 @@
 APP_PATH="$(cd "$(dirname "$0")" && pwd)"
 WEB_USER="www"
 
+# Trap: pastikan maintenance mode OFF meskipun script error di tengah jalan
+cleanup() {
+    echo ""
+    echo "[INFO] Cleanup: mematikan maintenance mode..."
+    cd "$APP_PATH" 2>/dev/null && php artisan up 2>/dev/null || true
+    echo "[INFO] Maintenance mode OFF."
+}
+trap cleanup EXIT
+
 echo "=========================================="
 echo "  Deploy Aplikasi Pelatihan - VPS"
 echo "=========================================="
