@@ -13,9 +13,9 @@ class FormOptionController extends Controller
      */
     public function index(Request $request)
     {
-        $groupKey = $request->get('group_key', 'pendidikan_terakhir');
+        $groupKey = $request->get('group_key', $request->get('group', 'pendidikan_terakhir'));
 
-        $groupKeys = [
+        $groups = [
             'pendidikan_terakhir' => 'Pendidikan Terakhir',
             'status_pekerjaan'    => 'Status Pekerjaan',
             'platform_medsos'     => 'Platform Medsos',
@@ -25,7 +25,9 @@ class FormOptionController extends Controller
             ->orderBy('order')
             ->get();
 
-        return view('content.admin.form-options.index', compact('groupKeys', 'groupKey', 'options'));
+        $activeGroup = $groupKey;
+
+        return view('content.admin.form-options.index', compact('groups', 'groupKey', 'activeGroup', 'options'));
     }
 
     /**

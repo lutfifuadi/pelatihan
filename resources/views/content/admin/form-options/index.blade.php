@@ -665,7 +665,7 @@ $configData = Helper::appClasses();
         const id = this.dataset.id;
         const isActive = this.checked ? 1 : 0;
 
-        fetch('{{ route("admin.form-options.toggle-active") }}', {
+        fetch('{{ route("admin.form-options.toggle-active", ["masterOption" => "PLACEHOLDER"]) }}'.replace('PLACEHOLDER', id), {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -705,7 +705,7 @@ $configData = Helper::appClasses();
 
         if (confirm('Yakin ingin menghapus opsi "' + label + '"?')) {
           const deleteForm = document.getElementById('deleteForm');
-          deleteForm.action = '{{ route("admin.form-options.destroy", "") }}/' + id;
+          deleteForm.action = '{{ route("admin.form-options.destroy", ["masterOption" => "PLACEHOLDER"]) }}'.replace('PLACEHOLDER', id);
           deleteForm.submit();
         }
       });
@@ -730,7 +730,7 @@ $configData = Helper::appClasses();
 
         if (mode === 'edit') {
           modalTitle.textContent = 'Edit Opsi';
-          form.action = '{{ route("admin.form-options.update", "") }}/' + button.getAttribute('data-id');
+          form.action = '{{ route("admin.form-options.update", ["masterOption" => "PLACEHOLDER"]) }}'.replace('PLACEHOLDER', button.getAttribute('data-id'));
           methodInput.value = 'PUT';
           groupKeySelect.value = button.getAttribute('data-group_key');
           labelInput.value = button.getAttribute('data-label');

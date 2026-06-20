@@ -27,7 +27,9 @@ class FormFieldConfigController extends Controller
             ->orderBy('order')
             ->get();
 
-        return view('content.admin.form-config.index', compact('sections', 'section', 'fields'));
+        $activeSection = $section;
+
+        return view('content.admin.form-config.index', compact('sections', 'section', 'activeSection', 'fields'));
     }
 
     /**

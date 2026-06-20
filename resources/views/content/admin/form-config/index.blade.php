@@ -735,7 +735,7 @@ $configData = Helper::appClasses();
         const id = this.dataset.id;
         const isRequired = this.checked ? 1 : 0;
 
-        fetch('{{ route("admin.form-config.toggle-required") }}', {
+        fetch('{{ route("admin.form-config.toggle-required", ["formFieldConfig" => "PLACEHOLDER"]) }}'.replace('PLACEHOLDER', id), {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -771,7 +771,7 @@ $configData = Helper::appClasses();
         const id = this.dataset.id;
         const isActive = this.checked ? 1 : 0;
 
-        fetch('{{ route("admin.form-config.toggle-active") }}', {
+        fetch('{{ route("admin.form-config.toggle-active", ["formFieldConfig" => "PLACEHOLDER"]) }}'.replace('PLACEHOLDER', id), {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -811,7 +811,7 @@ $configData = Helper::appClasses();
         const modalTitle = this.querySelector('.modal-title');
 
         modalTitle.textContent = 'Edit Field Config';
-        form.action = '{{ route("admin.form-config.update", "") }}/' + button.getAttribute('data-id');
+        form.action = '{{ route("admin.form-config.update", ["formFieldConfig" => "PLACEHOLDER"]) }}'.replace('PLACEHOLDER', button.getAttribute('data-id'));
 
         form.querySelector('#edit_label').value = button.getAttribute('data-label');
         form.querySelector('#edit_placeholder').value = button.getAttribute('data-placeholder');
