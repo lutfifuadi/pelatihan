@@ -171,85 +171,54 @@ composer install --no-dev --optimize-autoloader --no-interaction 2>&1 | tee -a "
 log_ok "Composer dependencies terinstall."
 
 # ----------------------------------------------------------
-# 3. Build frontend assets — fallback ke GitHub Release
+# 3. Download frontend assets dari GitHub Release (build sudah di-CI)
 # ----------------------------------------------------------
-log_info "[3/12] Build frontend assets..."
+log_info "[3/12] Download frontend assets dari GitHub Release..."
 
-BUILD_SUCCESS=false
-BUILD_BACKUP_DIR=""
+BUILD_DOWNLOADED=false
 
-# Backup build lama jika ada, agar bisa di-rollback manual jika gagal
-if [ -d "public/build" ]; then
-    BUILD_BACKUP_DIR="/tmp/public_build_backup_$(date +%s)"
-    cp -a public/build "$BUILD_BACKUP_DIR"
-    log_info "Backup build lama di $BUILD_BACKUP_DIR"
+AUTH_HEADER=""
+WGET_HEADER=""
+if [ -n "${GITHUB_TOKEN:-}" ]; then
+    AUTH_HEADER="-H Authorization: token $GITHUB_TOKEN"
+    WGET_HEADER="--header=Authorization: token $GITHUB_TOKEN"
+    log_info "Menggunakan GITHUB_TOKEN untuk autentikasi API."
 fi
 
-if command -v node &> /dev/null && command -v npm &> /dev/null; then
-    log_info "Node.js ditemukan, menjalankan npm ci && npm run build..."
-    if npm ci --legacy-peer-deps --no-audit --no-fund 2>&1 | tee -a "$DEPLOY_LOG" \
-        && npm run build 2>&1 | tee -a "$DEPLOY_LOG"; then
-        BUILD_SUCCESS=true
-        log_ok "Frontend assets berhasil dibuild dari source."
-    else
-        log_warn "npm build gagal. Mencoba download dari GitHub Release..."
-    fi
-else
-    log_warn "Node.js/npm tidak ditemukan. Mencoba download dari GitHub Release..."
-fi
+LATEST_URL=$(curl -sL $AUTH_HEADER "https://api.github.com/repos/$GITHUB_OWNER/$GITHUB_REPO/releases/latest" \
+    | grep "browser_download_url" \
+    | grep "$BUILD_ASSET_NAME" \
+    | cut -d '"' -f 4) || true
 
-# Fallback: download public/build dari GitHub Release
-if [ "$BUILD_SUCCESS" = false ]; then
-    log_info "Mencoba download public/build dari GitHub Release..."
+if [ -n "$LATEST_URL" ]; then
+    log_info "Mengunduh: $LATEST_URL"
 
-    AUTH_HEADER=""
-    WGET_HEADER=""
     if [ -n "${GITHUB_TOKEN:-}" ]; then
-        AUTH_HEADER="-H Authorization: token $GITHUB_TOKEN"
-        WGET_HEADER="--header=Authorization: token $GITHUB_TOKEN"
-        log_info "Menggunakan GITHUB_TOKEN untuk autentikasi API."
+        ASSET_ID=$(curl -sL $AUTH_HEADER "https://api.github.com/repos/$GITHUB_OWNER/$GITHUB_REPO/releases/latest" \
+            | grep -B 1 "$BUILD_ASSET_NAME" \
+            | grep '"id":' \
+            | head -n 1 \
+            | cut -d ':' -f 2 \
+            | tr -d ' ,') || true
+
+        wget -q $WGET_HEADER --header="Accept: application/octet-stream" \
+            -O "/tmp/$BUILD_ASSET_NAME" \
+            "https://api.github.com/repos/$GITHUB_OWNER/$GITHUB_REPO/releases/assets/$ASSET_ID" 2>&1 | tee -a "$DEPLOY_LOG" \
+            || die "Gagal mengunduh asset release (private repo / asset ID tidak ditemukan)."
+    else
+        wget -q -O "/tmp/$BUILD_ASSET_NAME" "$LATEST_URL" 2>&1 | tee -a "$DEPLOY_LOG" \
+            || die "Gagal mengunduh asset release."
     fi
 
-    LATEST_URL=$(curl -sL $AUTH_HEADER "https://api.github.com/repos/$GITHUB_OWNER/$GITHUB_REPO/releases/latest" \
-        | grep "browser_download_url" \
-        | grep "$BUILD_ASSET_NAME" \
-        | cut -d '"' -f 4) || true
-
-    if [ -n "$LATEST_URL" ]; then
-        log_info "Mengunduh: $LATEST_URL"
-
-        if [ -n "${GITHUB_TOKEN:-}" ]; then
-            ASSET_ID=$(curl -sL $AUTH_HEADER "https://api.github.com/repos/$GITHUB_OWNER/$GITHUB_REPO/releases/latest" \
-                | grep -B 1 "$BUILD_ASSET_NAME" \
-                | grep '"id":' \
-                | head -n 1 \
-                | cut -d ':' -f 2 \
-                | tr -d ' ,') || true
-
-            wget -q $WGET_HEADER --header="Accept: application/octet-stream" \
-                -O "/tmp/$BUILD_ASSET_NAME" \
-                "https://api.github.com/repos/$GITHUB_OWNER/$GITHUB_REPO/releases/assets/$ASSET_ID" 2>&1 | tee -a "$DEPLOY_LOG" \
-                || die "Gagal mengunduh asset release (private repo / asset ID tidak ditemukan)."
-        else
-            wget -q -O "/tmp/$BUILD_ASSET_NAME" "$LATEST_URL" 2>&1 | tee -a "$DEPLOY_LOG" \
-                || die "Gagal mengunduh asset release."
-        fi
-
-        rm -rf public/build
-        unzip -o "/tmp/$BUILD_ASSET_NAME" 'public/build/*' -d "$APP_PATH" > /dev/null \
-            || die "Gagal mengekstrak asset release."
-        rm -f "/tmp/$BUILD_ASSET_NAME"
-        log_ok "public/build berhasil diperbarui dari release."
-    else
-        log_warn "Tidak ada release ditemukan."
-        # Jika backup ada, restore build lama supaya tidak blank
-        if [ -n "$BUILD_BACKUP_DIR" ] && [ -d "$BUILD_BACKUP_DIR" ]; then
-            rm -rf public/build
-            cp -a "$BUILD_BACKUP_DIR" public/build
-            log_warn "Build lama di-restore dari backup."
-        else
-            die "Tidak ada build lama maupun release yang tersedia."
-        fi
+    rm -rf public/build
+    unzip -o "/tmp/$BUILD_ASSET_NAME" 'public/build/*' -d "$APP_PATH" > /dev/null \
+        || die "Gagal mengekstrak asset release."
+    rm -f "/tmp/$BUILD_ASSET_NAME"
+    log_ok "public/build berhasil diperbarui dari release."
+else
+    log_warn "Tidak ada release ditemukan. Mempertahankan public/build yang sudah ada."
+    if [ ! -d "public/build" ] || [ ! -f "public/build/manifest.json" ]; then
+        die "Tidak ada public/build dari release maupun local. Halaman akan blank putih."
     fi
 fi
 
