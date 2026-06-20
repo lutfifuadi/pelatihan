@@ -33,6 +33,18 @@ jobs:
       - name: Install Composer dependencies
         run: composer install --no-interaction --prefer-dist --optimize-autoloader
 
+      - name: Setup Node.js for test
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Build frontend assets (needed for PHPUnit views)
+        run: |
+          cp .env.example .env
+          npm ci --no-audit --no-fund
+          npm run build
+
       - name: Run PHPUnit
         run: php vendor/bin/phpunit
 
