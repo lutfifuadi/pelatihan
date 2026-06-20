@@ -187,7 +187,7 @@ fi
 
 if command -v node &> /dev/null && command -v npm &> /dev/null; then
     log_info "Node.js ditemukan, menjalankan npm ci && npm run build..."
-    if npm ci --no-audit --no-fund 2>&1 | tee -a "$DEPLOY_LOG" \
+    if npm ci --legacy-peer-deps --no-audit --no-fund 2>&1 | tee -a "$DEPLOY_LOG" \
         && npm run build 2>&1 | tee -a "$DEPLOY_LOG"; then
         BUILD_SUCCESS=true
         log_ok "Frontend assets berhasil dibuild dari source."
@@ -358,23 +358,23 @@ fi
 log_ok "Permission selesai."
 
 # ----------------------------------------------------------
-# 11. Health check homepage
+# 11. Maintenance mode OFF
 # ----------------------------------------------------------
-log_info "[11/12] Health check ke $HEALTH_URL ..."
+log_info "[11/12] Maintenance mode OFF..."
+php artisan up 2>&1 | tee -a "$DEPLOY_LOG" || die "Gagal mematikan maintenance mode."
+MAINTENANCE_ACTIVE=false
+log_ok "Maintenance mode nonaktif."
+
+# ----------------------------------------------------------
+# 12. Health check homepage
+# ----------------------------------------------------------
+log_info "[12/12] Health check ke $HEALTH_URL ..."
 HEALTH_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$HEALTH_URL" 2>&1 || true)
 if [ "$HEALTH_STATUS" = "200" ] || [ "$HEALTH_STATUS" = "302" ] || [ "$HEALTH_STATUS" = "301" ]; then
     log_ok "Health check OK (HTTP $HEALTH_STATUS)."
 else
     log_warn "Health check tidak OK (HTTP $HEALTH_STATUS). Cek server/Nginx segera."
 fi
-
-# ----------------------------------------------------------
-# 12. Maintenance mode OFF
-# ----------------------------------------------------------
-log_info "[12/12] Maintenance mode OFF..."
-php artisan up 2>&1 | tee -a "$DEPLOY_LOG" || die "Gagal mematikan maintenance mode."
-MAINTENANCE_ACTIVE=false
-log_ok "Maintenance mode nonaktif."
 
 # ----------------------------------------------------------
 # Informasi versi
