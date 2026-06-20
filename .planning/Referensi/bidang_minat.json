@@ -1,0 +1,10 @@
+[
+  { "id": 1, "name": "Teknologi Informasi" },
+  { "id": 2, "name": "Desain Grafis" },
+  { "id": 3, "name": "Bisnis & Marketing" },
+  { "id": 4, "name": "Bahasa" },
+  { "id": 5, "name": "Kesehatan" },
+  { "id": 6, "name": "Pertanian" },
+  { "id": 7, "name": "Otomotif" },
+  { "id": 8, "name": "Lainnya" }
+]

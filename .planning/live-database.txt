@@ -1,0 +1,6 @@
+Database name : pelatihanku
+Username : pelatihanku
+password : Di6YNZsZnHCmXfMD
+port : 3306
+host : 103.197.191.226
+tipe : maridb

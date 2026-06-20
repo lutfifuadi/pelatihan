@@ -6,10 +6,10 @@
 // $font-size-root: 14px !default;
 // $success: #00ff00 !default;
 
-// Font family override — DM Sans untuk body, Sora untuk headings via CSS
+// Font family override — Public Sans untuk body, Sora untuk headings via CSS
 $font-family-sans-serif:
-  "DM Sans",
   "Public Sans",
+  "DM Sans",
   -apple-system,
   blinkmacsystemfont,
   "Segoe UI",
@@ -26,3 +26,8 @@ $border-radius: .3125rem !default;     // 5px (sebelumnya .375rem / 6px)
 $border-radius-lg: .3125rem !default;  // 5px (sebelumnya .5rem / 8px)
 $border-radius-xl: .3125rem !default;  // 5px (sebelumnya .625rem / 10px)
 $border-radius-xxl: .3125rem !default; // 5px (sebelumnya 1rem / 16px)
+
+// Responsivitas ukuran font berbasis root font-size (fluid typography)
+$font-size-root: calc(12px + 0.15vw) !default; // ~12.5px pada mobile (320px), ~14.4px pada laptop (1600px), dan ~15.3px pada layar desktop besar (2200px)
+$font-size-base: 0.9375rem !default; 
+
