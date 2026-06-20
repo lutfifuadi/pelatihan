@@ -93,7 +93,10 @@ export default defineConfig({
           // Pisahkan vendor/library besar ke chunk terpisah
           if (id.includes('node_modules')) {
             // Vendor utama yang sering berubah
-            if (id.includes('bootstrap') || id.includes('popper')) {
+            // Hanya Bootstrap core + Popper; wrapper CJS seperti datatables.net-bs5,
+            // bootstrap-select, bootstrap-daterangeparker, dan plugin Bootstrap lainnya
+            // harus masuk ke chunk lain untuk menghindari circular chunk.
+            if (id.includes('/bootstrap/') || id.includes('@popperjs/core')) {
               return 'vendor-bootstrap';
             }
             if (id.includes('chart.js') || id.includes('apexcharts')) {
