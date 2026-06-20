@@ -236,43 +236,21 @@ fi
 log_ok "manifest.json ditemukan ($(wc -c < public/build/manifest.json) bytes)."
 
 # Validasi: pastikan manifest berisi entry minimal dari kode terbaru
-validate_manifest() {
-    if command -v python3 &> /dev/null; then
-        python3 -c "
+if command -v python3 &> /dev/null; then
+    if ! python3 -c "
 import json, sys
 try:
     m = json.load(open('public/build/manifest.json'))
-    # Cek minimal entry yang pasti ada di setiap build baru
     key = 'resources/js/app.js'
     if key not in m:
-        print('$key tidak ditemukan di manifest.json')
+        print(f'ERROR: {key} tidak ditemukan di manifest.json — release outdated')
         sys.exit(1)
-    print('manifest.json valid: $key ditemukan')
+    print(f'OK: {key} ditemukan')
 except Exception as e:
-    print('manifest.json error:', e)
+    print(f'ERROR: manifest.json tidak valid — {e}')
     sys.exit(1)
-" 2>&1 | tee -a "$DEPLOY_LOG" || return 1
-    fi
-    return 0
-}
-
-if ! validate_manifest; then
-    log_warn "manifest.json tidak mengandung entry kode terbaru. Release mungkin outdated."
-    # Coba build lokal jika node tersedia
-    if command -v node &> /dev/null && command -v npm &> /dev/null; then
-        log_info "Mencoba build dari source (npm ci && npm run build)..."
-        rm -rf public/build
-        if npm ci --legacy-peer-deps --no-audit --no-fund 2>&1 | tee -a "$DEPLOY_LOG" \
-            && npm run build 2>&1 | tee -a "$DEPLOY_LOG"; then
-            log_ok "Frontend assets berhasil dibuild dari source."
-            if ! validate_manifest; then
-                die "Build lokal menghasilkan manifest.json yang tidak valid."
-            fi
-        else
-            die "npm build gagal. Tidak ada build asset yang valid. Halaman akan blank putih."
-        fi
-    else
-        die "manifest.json tidak valid dan Node.js tidak tersedia. Halaman akan blank putih."
+" 2>&1 | tee -a "$DEPLOY_LOG"; then
+        die "Release asset outdated. Jalankan workflow 'Build Frontend Assets Release' di GitHub Actions terlebih dahulu."
     fi
 fi
 
