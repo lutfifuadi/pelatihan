@@ -244,7 +244,9 @@ document.addEventListener('DOMContentLoaded', function () {
     for (let i = 0; i < dropdownItems.length; i++) {
       dropdownItems[i].addEventListener('click', function () {
         let textDirection = this.getAttribute('data-text-direction');
-        window.templateCustomizer.setLang(this.getAttribute('data-language'));
+        if (window.templateCustomizer) {
+          window.templateCustomizer.setLang(this.getAttribute('data-language'));
+        }
         directionChange(textDirection);
       });
     }
