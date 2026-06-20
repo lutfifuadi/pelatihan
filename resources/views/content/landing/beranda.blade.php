@@ -1518,6 +1518,16 @@ $customizerHidden = 'customizer-hide';
         </div>
       @endif
 
+      @if($pelatihans->count() > 0)
+        <div class="text-center mt-5 reveal">
+          <a href="{{ route('pelatihan.index') }}" class="btn btn-outline-light btn-lg px-5 py-3 fw-semibold" style="border-radius: 5px; border-width: 2px; font-family: 'Sora', sans-serif;">
+            <i class="icon-base ti tabler-grid-dots me-2"></i>
+            Lihat Semua Pelatihan
+            <i class="icon-base ti tabler-arrow-right ms-2"></i>
+          </a>
+        </div>
+      @endif
+
     </div>
   </section>
 
@@ -1964,7 +1974,41 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 
   // ============================================================
-  // 7. MOBILE SLIDE-IN MENU — Toggle, Overlay, Auto-close
+  // 7. SMART NAVIGATION: Intercept internal anchor links (full URL)
+  //    Contoh: / -> #beranda, #pelatihan, dll.
+  //    Agar smooth scroll tetap bekerja walau link pakai full route
+  // ============================================================
+  document.querySelectorAll('a[href*="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function(e) {
+      const href = this.getAttribute('href');
+      // Hanya proses jika ini link ke halaman yang sama (current origin + path)
+      const url = new URL(href, window.location.origin);
+      const currentPath = window.location.pathname;
+      const targetPath = url.pathname;
+
+      // Jika path sama (halaman yang sama), lakukan smooth scroll
+      if (targetPath === currentPath || (targetPath === '/' && currentPath === '')) {
+        const targetId = url.hash;
+        if (targetId) {
+          e.preventDefault();
+          const target = document.querySelector(targetId);
+          if (target) {
+            const headerOffset = 90;
+            const elementPosition = target.getBoundingClientRect().top;
+            const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+            window.scrollTo({
+              top: offsetPosition,
+              behavior: 'smooth'
+            });
+          }
+        }
+      }
+      // Jika path berbeda, biarkan default (navigasi ke halaman lain)
+    });
+  });
+
+  // ============================================================
+  // 8. MOBILE SLIDE-IN MENU — Toggle, Overlay, Auto-close
   // ============================================================
   const mobileToggle = document.getElementById('mobileMenuToggle');
   const mobileClose = document.getElementById('mobileMenuClose');
@@ -2019,7 +2063,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Tutup saat link di panel diklik
-    // (smooth scroll tetap jalan oleh handler #6 di atas)
+    // (smooth scroll tetap jalan oleh handler #6 dan #7 di atas)
     mobilePanel.querySelectorAll('a').forEach(function(link) {
       link.addEventListener('click', function() {
         // Beri jeda kecil agar scroll mulai dulu sebelum panel nutup

@@ -1,6 +1,6 @@
 <header class="navbar-glass-floating">
   <div class="container d-flex align-items-center justify-content-between p-0">
-    <a href="#beranda" class="navbar-logo d-flex align-items-center gap-2 text-decoration-none">
+    <a href="{{ route('pages-home') }}#beranda" class="navbar-logo d-flex align-items-center gap-2 text-decoration-none">
       <div class="logo-icon-glow">
         <i class="icon-base ti tabler-bulb text-white fs-4"></i>
       </div>
@@ -13,11 +13,11 @@
       <span class="bar"></span>
     </button>
     <nav class="d-none d-lg-flex align-items-center gap-4">
-      <a href="#beranda" class="nav-link-premium">{{ __('Beranda') }}</a>
-      <a href="#pelatihan" class="nav-link-premium">{{ __('Pelatihan') }}</a>
-      <a href="#langkah" class="nav-link-premium">{{ __('Alur Pendaftaran') }}</a>
-      <a href="#mengapa" class="nav-link-premium">{{ __('Keunggulan') }}</a>
-      <a href="#faq" class="nav-link-premium">{{ __('FAQ') }}</a>
+      <a href="{{ route('pages-home') }}#beranda" class="nav-link-premium">{{ __('Beranda') }}</a>
+      <a href="{{ route('pages-home') }}#pelatihan" class="nav-link-premium">{{ __('Pelatihan') }}</a>
+      <a href="{{ route('pages-home') }}#langkah" class="nav-link-premium">{{ __('Alur Pendaftaran') }}</a>
+      <a href="{{ route('pages-home') }}#mengapa" class="nav-link-premium">{{ __('Keunggulan') }}</a>
+      <a href="{{ route('pages-home') }}#faq" class="nav-link-premium">{{ __('FAQ') }}</a>
     </nav>
     <div class="d-flex align-items-center gap-2">
       @auth
@@ -46,23 +46,23 @@
   </div>
 
   <nav class="panel-nav">
-    <a href="#beranda" class="panel-link">
+    <a href="{{ route('pages-home') }}#beranda" class="panel-link">
       <i class="icon-base ti tabler-smart-home"></i>
       {{ __('Beranda') }}
     </a>
-    <a href="#pelatihan" class="panel-link">
+    <a href="{{ route('pages-home') }}#pelatihan" class="panel-link">
       <i class="icon-base ti tabler-school"></i>
       {{ __('Pelatihan') }}
     </a>
-    <a href="#langkah" class="panel-link">
+    <a href="{{ route('pages-home') }}#langkah" class="panel-link">
       <i class="icon-base ti tabler-list-check"></i>
       {{ __('Alur Pendaftaran') }}
     </a>
-    <a href="#mengapa" class="panel-link">
+    <a href="{{ route('pages-home') }}#mengapa" class="panel-link">
       <i class="icon-base ti tabler-star"></i>
       {{ __('Keunggulan') }}
     </a>
-    <a href="#faq" class="panel-link">
+    <a href="{{ route('pages-home') }}#faq" class="panel-link">
       <i class="icon-base ti tabler-question-mark"></i>
       {{ __('FAQ') }}
     </a>

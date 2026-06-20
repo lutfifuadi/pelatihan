@@ -18,20 +18,12 @@ $customizerHidden = 'customizer-hide';
     background-color: #070b14;
     color: #e2e8f0;
     overflow: hidden;
-    height: 100vh;
+    height: 100dvh;
     width: 100%;
     display: flex;
     align-items: center;
     justify-content: center;
     position: relative;
-  }
-  @media (max-height: 600px) {
-    #admin-auth-wrapper {
-      height: auto;
-      min-height: 100vh;
-      overflow-y: auto;
-      padding: 20px 0;
-    }
   }
   #admin-auth-wrapper h1,
   #admin-auth-wrapper h2,
@@ -125,6 +117,13 @@ $customizerHidden = 'customizer-hide';
     box-shadow:
       0 20px 60px rgba(0, 0, 0, 0.5),
       0 0 40px rgba(56, 189, 248, 0.05);
+  }
+  @media (max-width: 576px) {
+    .admin-card {
+      padding: 24px 20px;
+      max-width: calc(100% - 24px);
+      margin: 0 12px;
+    }
   }
 
   /* --- Admin Shield Logo --- */
@@ -296,6 +295,13 @@ $customizerHidden = 'customizer-hide';
 
   .text-admin-muted {
     color: rgba(148, 163, 184, 0.5) !important;
+  }
+
+  @media (max-width: 576px) {
+    .admin-orb-1,
+    .admin-orb-2 {
+      opacity: 0.15;
+    }
   }
 </style>
 @endsection

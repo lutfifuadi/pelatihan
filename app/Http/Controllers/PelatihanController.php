@@ -6,6 +6,26 @@ use App\Models\Pelatihan;
 
 class PelatihanController extends Controller
 {
+    public function index()
+    {
+        app()->setLocale('id');
+
+        $pelatihans = Pelatihan::with(['dinas', 'kecamatans'])
+            ->withCount(['approvedEnrollments'])
+            ->where('is_active', true)
+            ->orderBy('tanggal_mulai', 'asc')
+            ->orderBy('batch', 'asc')
+            ->get();
+
+        seo()->staticPage('pelatihan.index');
+
+        $pageConfigs = ['myLayout' => 'blank'];
+        return view('content.landing.pelatihan-index', [
+            'pageConfigs' => $pageConfigs,
+            'pelatihans' => $pelatihans,
+        ]);
+    }
+
     public function show(Pelatihan $pelatihan)
     {
         seo()->fromModel($pelatihan)

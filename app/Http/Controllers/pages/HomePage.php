@@ -22,7 +22,7 @@ class HomePage extends Controller
       ->where('is_active', true)
       ->orderBy('tanggal_mulai', 'asc')
       ->orderBy('batch', 'asc')
-      ->get();
+      ->take(3)->get();
 
     seo()->staticPage('home')
          ->addJsonLd(seo()->faqPageSchema($faqs));

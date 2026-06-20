@@ -63,6 +63,9 @@ Route::get('/daftar-koordinator', [KoordinatorRegisterController::class, 'showFo
 Route::post('/daftar-koordinator', [KoordinatorRegisterController::class, 'register']);
 Route::get('/daftar-koordinator/sukses', [KoordinatorRegisterController::class, 'sukses'])->name('koordinator.register.sukses');
 
+// ===== PUBLIC: Semua Pelatihan =====
+Route::get('/pelatihan', [\App\Http\Controllers\PelatihanController::class, 'index'])->name('pelatihan.index');
+
 // ===== PUBLIC: Detail Pelatihan (untuk SEO & Sitemap) =====
 Route::get('/pelatihan/{pelatihan}', [\App\Http\Controllers\PelatihanController::class, 'show'])
     ->name('pelatihan.show');
