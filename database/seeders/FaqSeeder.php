@@ -11,26 +11,26 @@ class FaqSeeder extends Seeder
     {
         $faqs = [
             [
-                'question' => 'Apakah program ini hanya untuk siswa MAN SABA?',
-                'answer' => 'Tidak. Pelatihan ini terbuka secara umum baik untuk siswa aktif MAN SABA, para alumni, pelaku UMKM pemula, maupun masyarakat umum yang berminat besar mengembangkan keterampilan ekonomi kreatif.',
+                'question' => 'Apakah program ini hanya untuk siswa tertentu?',
+                'answer' => 'Tidak. Pelatihan ini terbuka secara umum bagi siapa saja yang berminat mengembangkan keterampilan dan kompetensi diri.',
                 'order' => 1,
                 'is_active' => true,
             ],
             [
-                'question' => 'Apakah ada biaya untuk mengikuti program ini?',
-                'answer' => 'Ya, program ini sepenuhnya dibiayai oleh MAN SABA dalam upaya memberdayakan perekonomian masyarakat sekitar. Tidak ada biaya tersembunyi apa pun dari awal pendaftaran hingga selesai pelatihan.',
+                'question' => 'Apakah program ini benar-benar gratis?',
+                'answer' => 'Ya, program ini sepenuhnya gratis tanpa biaya pendaftaran maupun biaya pelatihan. Tidak ada biaya tersembunyi apa pun dari awal pendaftaran hingga selesai pelatihan.',
                 'order' => 2,
                 'is_active' => true,
             ],
             [
-                'question' => 'Bagaimana cara mendaftar?',
-                'answer' => 'Cukup klik tombol "Daftar Sekarang" yang tersedia di halaman ini, isi formulir pendaftaran dengan data diri Anda, lalu submit. Setelah itu Anda akan mendapatkan nomor pendaftaran dan instruksi selanjutnya melalui WhatsApp.',
+                'question' => 'Apakah saya akan mendapatkan sertifikat setelah menyelesaikan pelatihan?',
+                'answer' => 'Setelah menyelesaikan seluruh rangkaian pelatihan, Anda akan mendapatkan Sertifikat Resmi yang dapat digunakan sebagai portofolio dan penunjang karir atau usaha Anda.',
                 'order' => 3,
                 'is_active' => true,
             ],
             [
-                'question' => 'Apa saja yang akan saya dapatkan setelah lulus?',
-                'answer' => 'Setelah menyelesaikan seluruh rangkaian pelatihan, Anda akan mendapatkan Sertifikat Resmi MAN SABA yang dapat digunakan sebagai portofolio dan penunjang karir atau usaha Anda.',
+                'question' => 'Berapa lama waktu pelatihan?',
+                'answer' => 'Durasi pelatihan bervariasi tergantung program yang dipilih. Informasi lengkap mengenai jadwal dan durasi dapat dilihat di halaman detail pelatihan masing-masing.',
                 'order' => 4,
                 'is_active' => true,
             ],

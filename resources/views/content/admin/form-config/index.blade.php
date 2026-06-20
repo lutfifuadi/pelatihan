@@ -572,7 +572,7 @@ $configData = Helper::appClasses();
         <thead>
           <tr>
             <th class="text-body-premium small fw-semibold px-0" style="width: 40px;"></th>
-            <th class="text-body-premium small fw-semibold" style="width: 140px;">Section</th>
+            <th class="text-body-premium small fw-semibold text-nowrap" style="width: 140px;">Section</th>
             <th class="text-body-premium small fw-semibold" style="width: 160px;">Field Key</th>
             <th class="text-body-premium small fw-semibold">Label</th>
             <th class="text-body-premium small fw-semibold text-center" style="width: 100px;">Tipe</th>
@@ -588,7 +588,7 @@ $configData = Helper::appClasses();
               <td class="px-0 py-3 text-center drag-handle">
                 <i class="icon-base ti tabler-grip-vertical fs-5"></i>
               </td>
-              <td class="py-3">
+              <td class="py-3 text-nowrap">
                 <span class="badge-premium badge-premium-info">
                   {{ $sections[$field->section] ?? $field->section }}
                 </span>

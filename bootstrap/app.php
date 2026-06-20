@@ -19,6 +19,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'role'              => \App\Http\Middleware\RoleMiddleware::class,
             'user.active'       => \App\Http\Middleware\CheckUserActive::class,
             'redirect.if.installed' => \App\Http\Middleware\RedirectIfInstalled::class,
+            'can.impersonate'   => \App\Http\Middleware\CanImpersonate::class,
         ]);
 
         // Middleware untuk cek user aktif, dijalankan setelah session & auth

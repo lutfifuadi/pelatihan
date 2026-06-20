@@ -1,8 +1,8 @@
 @php
-  $institutionDesc = \App\Models\Setting::where('key', 'institution_description')->value('value') ?? 'Program Pelatihan Ekonomi Kreatif diselenggarakan oleh MAN SABA sebagai wadah pembekalan kompetensi keahlian praktis yang mandiri, kreatif, dan mandiri secara finansial.';
+  $institutionDesc = \App\Models\Setting::where('key', 'institution_description')->value('value') ?? 'Program pelatihan pengembangan kompetensi dan keterampilan praktis yang mandiri, kreatif, dan berdaya saing.';
   $institutionAddress = \App\Models\Setting::where('key', 'institution_address')->value('value') ?? '';
   $institutionPhone = \App\Models\Setting::where('key', 'institution_phone')->value('value') ?? '';
-  $footerCopyright = \App\Models\Setting::where('key', 'footer_copyright')->value('value') ?? 'Pelatihan Ekonomi Kreatif';
+  $footerCopyright = \App\Models\Setting::where('key', 'footer_copyright')->value('value') ?? 'Pelatihan — Pengembangan Kompetensi';
 @endphp
 
 <footer class="footer-premium py-6 py-lg-7 text-white">

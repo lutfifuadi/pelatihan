@@ -69,6 +69,110 @@ class SettingController extends Controller
             ->with('success', 'Pengaturan branding berhasil diperbarui.');
     }
 
+    public function landing()
+    {
+        $settings = Setting::where('group', 'landing')
+            ->get()
+            ->keyBy('key');
+
+        return view('content.admin.branding.landing', compact('settings'));
+    }
+
+    public function updateLanding(Request $request)
+    {
+        $rules = [];
+        $keys = [
+            'hero_title', 'hero_subtitle', 'hero_description',
+            'hero_stat_1_value', 'hero_stat_1_label',
+            'hero_stat_2_value', 'hero_stat_2_label',
+            'hero_stat_3_value', 'hero_stat_3_label',
+            'hero_scroll_text',
+            'hero_tag_1_icon', 'hero_tag_1_text',
+            'hero_tag_2_icon', 'hero_tag_2_text',
+            'hero_tag_3_icon', 'hero_tag_3_text',
+            'form_title', 'form_password_info', 'form_password_value',
+            'form_button_text', 'form_button_loading',
+            'form_login_text', 'form_login_link',
+            'steps_badge', 'steps_title', 'steps_subtitle',
+            'steps_1_title', 'steps_1_desc',
+            'steps_2_title', 'steps_2_desc',
+            'steps_3_title', 'steps_3_desc',
+            'pelatihan_badge', 'pelatihan_title', 'pelatihan_subtitle',
+            'pelatihan_empty_title', 'pelatihan_empty_desc',
+            'why_badge', 'why_title', 'why_subtitle',
+            'cta_badge', 'cta_title', 'cta_subtitle',
+            'cta_button_text', 'cta_login_text',
+        ];
+
+        $labels = [
+            'hero_title' => 'Hero: Judul Utama',
+            'hero_subtitle' => 'Hero: Subjudul',
+            'hero_description' => 'Hero: Deskripsi',
+            'hero_stat_1_value' => 'Hero: Statistik 1 - Angka',
+            'hero_stat_1_label' => 'Hero: Statistik 1 - Label',
+            'hero_stat_2_value' => 'Hero: Statistik 2 - Angka',
+            'hero_stat_2_label' => 'Hero: Statistik 2 - Label',
+            'hero_stat_3_value' => 'Hero: Statistik 3 - Angka',
+            'hero_stat_3_label' => 'Hero: Statistik 3 - Label',
+            'hero_scroll_text' => 'Hero: Teks Scroll Info',
+            'hero_tag_1_icon' => 'Hero: Tag 1 - Icon',
+            'hero_tag_1_text' => 'Hero: Tag 1 - Teks',
+            'hero_tag_2_icon' => 'Hero: Tag 2 - Icon',
+            'hero_tag_2_text' => 'Hero: Tag 2 - Teks',
+            'hero_tag_3_icon' => 'Hero: Tag 3 - Icon',
+            'hero_tag_3_text' => 'Hero: Tag 3 - Teks',
+            'form_title' => 'Form: Judul',
+            'form_password_info' => 'Form: Info Password',
+            'form_password_value' => 'Form: Default Password',
+            'form_button_text' => 'Form: Tombol',
+            'form_button_loading' => 'Form: Loading State',
+            'form_login_text' => 'Form: Teks Login',
+            'form_login_link' => 'Form: Link Login',
+            'steps_badge' => 'Langkah: Badge',
+            'steps_title' => 'Langkah: Judul',
+            'steps_subtitle' => 'Langkah: Subjudul',
+            'steps_1_title' => 'Langkah 1: Judul',
+            'steps_1_desc' => 'Langkah 1: Deskripsi',
+            'steps_2_title' => 'Langkah 2: Judul',
+            'steps_2_desc' => 'Langkah 2: Deskripsi',
+            'steps_3_title' => 'Langkah 3: Judul',
+            'steps_3_desc' => 'Langkah 3: Deskripsi',
+            'pelatihan_badge' => 'Pelatihan: Badge',
+            'pelatihan_title' => 'Pelatihan: Judul',
+            'pelatihan_subtitle' => 'Pelatihan: Subjudul',
+            'pelatihan_empty_title' => 'Pelatihan: Empty Title',
+            'pelatihan_empty_desc' => 'Pelatihan: Empty Desc',
+            'why_badge' => 'Mengapa: Badge',
+            'why_title' => 'Mengapa: Judul',
+            'why_subtitle' => 'Mengapa: Subjudul',
+            'cta_badge' => 'CTA: Badge',
+            'cta_title' => 'CTA: Judul',
+            'cta_subtitle' => 'CTA: Subjudul',
+            'cta_button_text' => 'CTA: Tombol',
+            'cta_login_text' => 'CTA: Tombol Login',
+        ];
+
+        foreach ($keys as $key) {
+            $rules[$key] = 'nullable|string|max:500';
+        }
+
+        $request->validate($rules);
+
+        foreach ($keys as $key) {
+            Setting::updateOrCreate(
+                ['key' => $key],
+                [
+                    'value' => $request->input($key, ''),
+                    'group' => 'landing',
+                    'label' => $labels[$key] ?? '',
+                ]
+            );
+        }
+
+        return redirect()->route('admin.settings.landing')
+            ->with('success', 'Konten halaman publik berhasil diperbarui.');
+    }
+
     public function seo()
     {
         $settings = Setting::whereIn('key', [

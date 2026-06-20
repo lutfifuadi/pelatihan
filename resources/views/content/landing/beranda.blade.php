@@ -4,13 +4,66 @@ $customizerHidden = 'customizer-hide';
 @endphp
 
 @php
-    $institutionName = \App\Models\Setting::where('key', 'institution_name')->value('value') ?? 'MAN SABA';
-    $institutionAddress = \App\Models\Setting::where('key', 'institution_address')->value('value') ?? 'MAN SABA, Gedung Pusat Pembelajaran Kreatif';
+    $institutionName = \App\Models\Setting::where('key', 'institution_name')->value('value') ?? 'Lembaga Pelatihan';
+    $institutionAddress = \App\Models\Setting::where('key', 'institution_address')->value('value') ?? 'Gedung Pusat Pembelajaran Kreatif';
     $institutionPhone = \App\Models\Setting::where('key', 'institution_phone')->value('value') ?? '+62 812-3456-7890';
     $institutionEmail = \App\Models\Setting::where('key', 'institution_email')->value('value') ?? 'admin@sabakreatif.com';
-    $institutionDesc = \App\Models\Setting::where('key', 'institution_description')->value('value') ?? 'Program Pelatihan Ekonomi Kreatif diselenggarakan oleh MAN SABA sebagai wadah pembekalan kompetensi keahlian praktis yang mandiri, kreatif, dan mandiri secara finansial.';
-    $footerCopyright = \App\Models\Setting::where('key', 'footer_copyright')->value('value') ?? 'Pelatihan Ekonomi Kreatif — MAN SABA';
+    $institutionDesc = \App\Models\Setting::where('key', 'institution_description')->value('value') ?? 'Program pelatihan pengembangan kompetensi dan keterampilan praktis yang mandiri, kreatif, dan berdaya saing.';
+    $footerCopyright = \App\Models\Setting::where('key', 'footer_copyright')->value('value') ?? 'Pelatihan — Pengembangan Kompetensi';
     $faqs = \App\Models\Faq::active()->ordered()->get();
+
+    // Landing page settings
+    $landingSettings = \App\Models\Setting::where('group', 'landing')->get()->keyBy('key');
+    if (!function_exists('landingVal')) {
+        function landingVal($settings, $key, $default) {
+            return $settings[$key]->value ?? $default;
+        }
+    }
+    $hero_title = landingVal($landingSettings, 'hero_title', 'Pendaftaran');
+    $hero_subtitle = landingVal($landingSettings, 'hero_subtitle', 'Pelatihan Ekonomi Kreatif');
+    $hero_description = landingVal($landingSettings, 'hero_description', 'Dapatkan keterampilan praktis dan kembangkan potensi diri melalui program pelatihan berbasis ekonomi kreatif yang dirancang khusus untuk Anda.');
+    $hero_tag_1_icon = landingVal($landingSettings, 'hero_tag_1_icon', 'chef-hat');
+    $hero_tag_1_text = landingVal($landingSettings, 'hero_tag_1_text', 'Kuliner Kreatif');
+    $hero_tag_2_icon = landingVal($landingSettings, 'hero_tag_2_icon', 'camera');
+    $hero_tag_2_text = landingVal($landingSettings, 'hero_tag_2_text', 'Konten Kreator');
+    $hero_tag_3_icon = landingVal($landingSettings, 'hero_tag_3_icon', 'palette');
+    $hero_tag_3_text = landingVal($landingSettings, 'hero_tag_3_text', 'Desain Grafis');
+    $hero_stat_1_value = landingVal($landingSettings, 'hero_stat_1_value', '4+');
+    $hero_stat_1_label = landingVal($landingSettings, 'hero_stat_1_label', 'Bidang Kreatif');
+    $hero_stat_2_value = landingVal($landingSettings, 'hero_stat_2_value', 'Gratis');
+    $hero_stat_2_label = landingVal($landingSettings, 'hero_stat_2_label', 'Tanpa Biaya');
+    $hero_stat_3_value = landingVal($landingSettings, 'hero_stat_3_value', '2026');
+    $hero_stat_3_label = landingVal($landingSettings, 'hero_stat_3_label', 'Tahun Akademik');
+    $hero_scroll_text = landingVal($landingSettings, 'hero_scroll_text', 'Scroll ke bawah untuk informasi lanjut');
+    $form_title = landingVal($landingSettings, 'form_title', 'Daftar Sekarang');
+    $form_password_info = landingVal($landingSettings, 'form_password_info', 'Password akun akan diisi otomatis');
+    $form_password_value = landingVal($landingSettings, 'form_password_value', 'pelatihanku2026');
+    $form_button_text = landingVal($landingSettings, 'form_button_text', 'Daftar Sekarang');
+    $form_button_loading = landingVal($landingSettings, 'form_button_loading', 'Memproses Pendaftaran...');
+    $form_login_text = landingVal($landingSettings, 'form_login_text', 'Sudah memiliki akun?');
+    $form_login_link = landingVal($landingSettings, 'form_login_link', 'Login di sini');
+    $steps_badge = landingVal($landingSettings, 'steps_badge', 'Alur Pendaftaran');
+    $steps_title = landingVal($landingSettings, 'steps_title', 'Ikuti 3 Langkah Mudah');
+    $steps_subtitle = landingVal($landingSettings, 'steps_subtitle', 'Panduan ringkas pendaftaran hingga Anda dapat mengakses materi pelatihan kami');
+    $steps_1_title = landingVal($landingSettings, 'steps_1_title', 'Daftarkan Akun');
+    $steps_1_desc = landingVal($landingSettings, 'steps_1_desc', 'Lengkapi formulir pendaftaran di atas menggunakan data asli Anda. Tanpa pungutan biaya apa pun (100% Gratis).');
+    $steps_2_title = landingVal($landingSettings, 'steps_2_title', 'Ikuti Kelas Pelatihan');
+    $steps_2_desc = landingVal($landingSettings, 'steps_2_desc', 'Gunakan NIK Anda untuk masuk, akses modul pembelajaran komprehensif, dan ikuti instruksi mentor kami secara terarah.');
+    $steps_3_title = landingVal($landingSettings, 'steps_3_title', 'Raih Hasil & Sertifikat');
+    $steps_3_desc = landingVal($landingSettings, 'steps_3_desc', 'Tingkatkan nilai jual keterampilan, kembangkan usaha baru, dan dapatkan Sertifikat Kompetensi resmi di akhir pelatihan.');
+    $pelatihan_badge = landingVal($landingSettings, 'pelatihan_badge', 'Program Unggulan');
+    $pelatihan_title = landingVal($landingSettings, 'pelatihan_title', 'Pelatihan yang Tersedia');
+    $pelatihan_subtitle = landingVal($landingSettings, 'pelatihan_subtitle', 'Pilih kelas sesuai minat Anda. Kuota terbatas, segera daftar sebelum pendaftaran ditutup.');
+    $pelatihan_empty_title = landingVal($landingSettings, 'pelatihan_empty_title', 'Belum Ada Pelatihan Aktif');
+    $pelatihan_empty_desc = landingVal($landingSettings, 'pelatihan_empty_desc', 'Silakan kembali beberapa saat lagi untuk melihat program pelatihan terbaru kami.');
+    $why_badge = landingVal($landingSettings, 'why_badge', 'Mengapa Memilih');
+    $why_title = landingVal($landingSettings, 'why_title', 'Mengapa Memilih Pelatihan Kami?');
+    $why_subtitle = landingVal($landingSettings, 'why_subtitle', 'Program pembinaan terstruktur yang dirancang agar setiap peserta siap terjun ke dunia industri dan wirausaha kreatif');
+    $cta_badge = landingVal($landingSettings, 'cta_badge', 'SEGERA BERGABUNG');
+    $cta_title = landingVal($landingSettings, 'cta_title', 'Siap Memulai Perjalanan Anda?');
+    $cta_subtitle = landingVal($landingSettings, 'cta_subtitle', 'Daftarkan diri Anda hari ini dan jadilah bagian dari perubahan ekonomi kreatif yang mandiri dan berdaya saing.');
+    $cta_button_text = landingVal($landingSettings, 'cta_button_text', 'Daftar Sekarang — Gratis!');
+    $cta_login_text = landingVal($landingSettings, 'cta_login_text', 'Sudah Punya Akun? Login');
 @endphp
 
 @extends('layouts/blankLayout')
@@ -1059,50 +1112,50 @@ $customizerHidden = 'customizer-hide';
 
           <!-- Main Typography Heading -->
           <h1 class="display-4 fw-bold text-white mb-4 hero-title" style="line-height: 1.15; font-family: 'Sora', sans-serif;">
-            {{ __('Pendaftaran') }}<br/>
-            <span class="text-warning text-gradient-creative">{{ __('Pelatihan') }} {{ __('Ekonomi Kreatif') }}</span><br/>
+            {{ $hero_title }}<br/>
+            <span class="text-warning text-gradient-creative">{{ $hero_subtitle }}</span><br/>
           </h1>
 
           <!-- Body Description -->
           <p class="text-white-50 fs-5 mb-4 lh-lg" style="max-width: 560px;">
-            {{ __('Dapatkan keterampilan praktis') }}
+            {{ $hero_description }}
           </p>
 
           <!-- Interactive Category Tags -->
           <div class="d-flex flex-wrap gap-3 mb-5 justify-content-center justify-content-lg-start">
             <div class="benefit-badge">
-              <i class="icon-base ti tabler-chef-hat fs-5 text-warning"></i>
-              <span>Kuliner Kreatif</span>
+              <i class="icon-base ti tabler-{{ $hero_tag_1_icon }} fs-5 text-warning"></i>
+              <span>{{ $hero_tag_1_text }}</span>
             </div>
             <div class="benefit-badge">
-              <i class="icon-base ti tabler-camera fs-5 text-warning"></i>
-              <span>Konten Kreator</span>
+              <i class="icon-base ti tabler-{{ $hero_tag_2_icon }} fs-5 text-warning"></i>
+              <span>{{ $hero_tag_2_text }}</span>
             </div>
             <div class="benefit-badge">
-              <i class="icon-base ti tabler-palette fs-5 text-warning"></i>
-              <span>Desain Grafis</span>
+              <i class="icon-base ti tabler-{{ $hero_tag_3_icon }} fs-5 text-warning"></i>
+              <span>{{ $hero_tag_3_text }}</span>
             </div>
           </div>
 
           <!-- Elevated Statistics Grid -->
           <div class="row g-4 pt-4 border-top border-white-subtle" style="border-top: 1px solid rgba(255, 255, 255, 0.08) !important;">
             <div class="col-4 col-sm-4">
-              <div class="text-white fw-bold display-6" style="font-family: 'Sora', sans-serif;">4+</div>
-              <div class="text-white-50 small">{{ __('Bidang Kreatif') }}</div>
+              <div class="text-white fw-bold display-6" style="font-family: 'Sora', sans-serif;">{{ $hero_stat_1_value }}</div>
+              <div class="text-white-50 small">{{ $hero_stat_1_label }}</div>
             </div>
             <div class="col-4 col-sm-4">
-              <div class="text-white fw-bold display-6 text-gradient-creative" style="font-family: 'Sora', sans-serif;">{{ __('Gratis') }}</div>
-              <div class="text-white-50 small">{{ __('Tanpa Biaya') }}</div>
+              <div class="text-white fw-bold display-6 text-gradient-creative" style="font-family: 'Sora', sans-serif;">{{ $hero_stat_2_value }}</div>
+              <div class="text-white-50 small">{{ $hero_stat_2_label }}</div>
             </div>
             <div class="col-4 col-sm-4">
-              <div class="text-white fw-bold display-6" style="font-family: 'Sora', sans-serif;">2026</div>
-              <div class="text-white-50 small">{{ __('Tahun Akademik') }}</div>
+              <div class="text-white fw-bold display-6" style="font-family: 'Sora', sans-serif;">{{ $hero_stat_3_value }}</div>
+              <div class="text-white-50 small">{{ $hero_stat_3_label }}</div>
             </div>
           </div>
 
           <!-- Bottom Floating Scroll Indicator -->
           <div class="d-none d-lg-flex align-items-center text-white-50 mt-5 pt-3" style="opacity: 0.45;">
-            <span class="me-3 small">{{ __('Scroll ke bawah untuk informasi lanjut') }}</span>
+            <span class="me-3 small">{{ $hero_scroll_text }}</span>
             <svg width="16" height="24" viewBox="0 0 16 24" fill="none" style="animation: bounce 2s infinite;">
               <rect x="1" y="1" width="14" height="22" rx="7" stroke="currentColor" stroke-width="2"/>
               <circle cx="8" cy="8" r="2" fill="currentColor">
@@ -1118,7 +1171,7 @@ $customizerHidden = 'customizer-hide';
 
             <!-- Card Form Header -->
             <div class="text-center mb-3">
-              <h4 class="fw-bold text-white mb-0">{{ __('Daftar Sekarang') }}</h4>
+              <h4 class="fw-bold text-white mb-0">{{ $form_title }}</h4>
             </div>
 
             <!-- Success Dynamic Laravel Alert -->
@@ -1184,25 +1237,25 @@ $customizerHidden = 'customizer-hide';
                 <i class="icon-base ti tabler-info-circle text-warning mt-1 flex-shrink-0"></i>
                 <div>
                   <p class="small text-white-50 mb-0" style="line-height: 1.45;">
-                    {{ __('Password akun akan diisi otomatis') }}.
-                    <span class="text-warning fw-semibold">pelatihanku2026</span>
+                    {{ $form_password_info }}.
+                    <span class="text-warning fw-semibold">{{ $form_password_value }}</span>
                   </p>
                 </div>
               </div>
 
               <!-- Animated Button Submit -->
               <button type="submit" id="btnDaftar" class="btn btn-warning btn-lg w-100 fw-semibold btn-glow py-3" style="font-family: 'Sora', sans-serif; border-radius: 5px;">
-                <span id="btn-text">Daftar Sekarang <i class="icon-base ti tabler-arrow-right ms-2"></i></span>
+                <span id="btn-text">{{ $form_button_text }} <i class="icon-base ti tabler-arrow-right ms-2"></i></span>
                 <span id="btn-loading" class="d-none">
                   <span class="spinner-border spinner-border-sm me-2" role="status"></span>
-                  Memproses Pendaftaran...
+                  {{ $form_button_loading }}
                 </span>
               </button>
 
               <!-- Link back to login -->
               <p class="text-center mt-3 mb-0">
-                <span class="text-white-50 small">Sudah memiliki akun? </span>
-                <a href="{{ route('login') }}" class="small fw-semibold text-warning text-decoration-none hover-white">Login di sini</a>
+                <span class="text-white-50 small">{{ $form_login_text }} </span>
+                <a href="{{ route('login') }}" class="small fw-semibold text-warning text-decoration-none hover-white">{{ $form_login_link }}</a>
               </p>
             </form>
           </div>
@@ -1230,11 +1283,11 @@ $customizerHidden = 'customizer-hide';
       <!-- Section Title Header -->
       <div class="text-center mb-5 pb-3 reveal">
         <span class="badge bg-primary bg-opacity-10 text-primary px-4 py-2 fw-semibold mb-3" style="font-size: 0.8rem; letter-spacing: 0.05em; border-radius: 5px;">
-          {{ strtoupper(__('Alur Pendaftaran')) }}
+          {{ strtoupper($steps_badge) }}
         </span>
-        <h2 class="fw-bold mb-3 display-6" style="color: #0b0f19;">{{ __('Ikuti') }} <span class="text-primary">3 {{ __('Langkah') }}</span> {{ __('Mudah') }}</h2>
+        <h2 class="fw-bold mb-3 display-6" style="color: #0b0f19;">{{ $steps_title }}</h2>
         <p class="text-muted fs-5 mx-auto" style="max-width: 520px;">
-          {{ __('Panduan ringkas pendaftaran hingga Anda dapat mengakses materi pelatihan kami') }}
+          {{ $steps_subtitle }}
         </p>
       </div>
 
@@ -1247,9 +1300,9 @@ $customizerHidden = 'customizer-hide';
             <div class="step-icon-glow">
               <i class="icon-base ti tabler-user-check"></i>
             </div>
-            <h5 class="fw-bold mt-0 mb-3" style="color: #0b0f19; font-family: 'Sora', sans-serif;">{{ __('Daftarkan Akun') }}</h5>
+            <h5 class="fw-bold mt-0 mb-3" style="color: #0b0f19; font-family: 'Sora', sans-serif;">{{ $steps_1_title }}</h5>
             <p class="text-muted mb-0" style="font-size: 0.95rem; line-height: 1.6;">
-              {{ __('Lengkapi formulir pendaftaran di atas menggunakan data asli Anda. Tanpa pungutan biaya apa pun (100% Gratis).') }}
+              {{ $steps_1_desc }}
             </p>
           </div>
         </div>
@@ -1261,9 +1314,9 @@ $customizerHidden = 'customizer-hide';
             <div class="step-icon-glow">
               <i class="icon-base ti tabler-school"></i>
             </div>
-            <h5 class="fw-bold mt-0 mb-3" style="color: #0b0f19; font-family: 'Sora', sans-serif;">{{ __('Ikuti Kelas Pelatihan') }}</h5>
+            <h5 class="fw-bold mt-0 mb-3" style="color: #0b0f19; font-family: 'Sora', sans-serif;">{{ $steps_2_title }}</h5>
             <p class="text-muted mb-0" style="font-size: 0.95rem; line-height: 1.6;">
-              {{ __('Gunakan NIK Anda untuk masuk, akses modul pembelajaran komprehensif, dan ikuti instruksi mentor kami secara terarah.') }}
+              {{ $steps_2_desc }}
             </p>
           </div>
         </div>
@@ -1275,9 +1328,9 @@ $customizerHidden = 'customizer-hide';
             <div class="step-icon-glow">
               <i class="icon-base ti tabler-award"></i>
             </div>
-            <h5 class="fw-bold mt-0 mb-3" style="color: #0b0f19; font-family: 'Sora', sans-serif;">{{ __('Raih Hasil & Sertifikat') }}</h5>
+            <h5 class="fw-bold mt-0 mb-3" style="color: #0b0f19; font-family: 'Sora', sans-serif;">{{ $steps_3_title }}</h5>
             <p class="text-muted mb-0" style="font-size: 0.95rem; line-height: 1.6;">
-              {{ __('Tingkatkan nilai jual keterampilan, kembangkan usaha baru, dan dapatkan Sertifikat Kompetensi resmi di akhir pelatihan.') }}
+              {{ $steps_3_desc }}
             </p>
           </div>
         </div>
@@ -1295,13 +1348,13 @@ $customizerHidden = 'customizer-hide';
       <!-- Section Header -->
       <div class="text-center mb-5 pb-3 reveal">
         <span class="badge bg-warning bg-opacity-10 text-warning px-4 py-2 fw-semibold mb-3" style="font-size: 0.8rem; letter-spacing: 0.05em; border: 1px solid rgba(245, 158, 11, 0.2); border-radius: 5px;">
-          {{ __('Program Unggulan') }}
+          {{ $pelatihan_badge }}
         </span>
         <h2 class="fw-bold mb-3 display-6" style="color: #ffffff; font-family: 'Sora', sans-serif;">
-          {{ __('Pelatihan yang Tersedia') }}
+          {{ $pelatihan_title }}
         </h2>
         <p class="text-white-50 fs-5 mx-auto" style="max-width: 580px;">
-          {{ __('Pilih kelas sesuai minat Anda. Kuota terbatas, segera daftar sebelum pendaftaran ditutup.') }}
+          {{ $pelatihan_subtitle }}
         </p>
       </div>
 
@@ -1460,8 +1513,8 @@ $customizerHidden = 'customizer-hide';
       @else
         <div class="pelatihan-empty-state reveal">
           <i class="icon-base ti tabler-calendar-off"></i>
-          <h5>{{ __('Belum Ada Pelatihan Aktif') }}</h5>
-          <p>{{ __('Silakan kembali beberapa saat lagi untuk melihat program pelatihan terbaru kami.') }}</p>
+          <h5>{{ $pelatihan_empty_title }}</h5>
+          <p>{{ $pelatihan_empty_desc }}</p>
         </div>
       @endif
 
@@ -1477,11 +1530,11 @@ $customizerHidden = 'customizer-hide';
       <!-- Section Header -->
       <div class="text-center mb-5 pb-3 reveal">
         <span class="badge bg-warning bg-opacity-10 text-warning px-4 py-2 fw-semibold mb-3" style="font-size: 0.8rem; letter-spacing: 0.05em; border: 1px solid rgba(245, 158, 11, 0.15); border-radius: 5px;">
-          {{ __('Mengapa Memilih') }} {{ $institutionName }}
+          {{ $why_badge }} {{ $institutionName }}
         </span>
-        <h2 class="fw-bold mb-3 display-6" style="color: #0b0f19; font-family: 'Sora', sans-serif;">{{ __('Mengapa Memilih') }} <span class="text-primary">{{ __('Pelatihan Kami') }}</span>?</h2>
+        <h2 class="fw-bold mb-3 display-6" style="color: #0b0f19; font-family: 'Sora', sans-serif;">{{ $why_title }}</h2>
         <p class="text-muted fs-5 mx-auto" style="max-width: 580px;">
-          {{ __('Program pembinaan terstruktur yang dirancang agar setiap peserta siap terjun ke dunia industri dan wirausaha kreatif') }}
+          {{ $why_subtitle }}
         </p>
       </div>
 
@@ -1627,18 +1680,18 @@ $customizerHidden = 'customizer-hide';
 
         <div class="position-relative" style="z-index: 5;">
           <span class="badge bg-white bg-opacity-10 text-warning px-4 py-2 fw-semibold mb-4" style="font-size: 0.8rem; letter-spacing: 0.05em; border: 1px solid rgba(255,255,255,0.15); border-radius: 5px;">
-            🚀 {{ __('SEGERA BERGABUNG') }}
+            🚀 {{ $cta_badge }}
           </span>
-          <h2 class="fw-bold text-white mb-3 display-5" style="font-family: 'Sora', sans-serif;">{{ __('Siap Memulai Perjalanan Anda?') }}</h2>
+          <h2 class="fw-bold text-white mb-3 display-5" style="font-family: 'Sora', sans-serif;">{{ $cta_title }}</h2>
           <p class="fs-5 mb-5 text-white-50 mx-auto" style="max-width: 580px;">
-            {{ __('Daftarkan diri Anda hari ini dan jadilah bagian dari perubahan ekonomi kreatif yang mandiri dan berdaya saing.') }}
+            {{ $cta_subtitle }}
           </p>
           <div class="d-flex gap-3 justify-content-center flex-wrap">
             <a href="#beranda" class="btn btn-warning btn-lg px-5 fw-semibold btn-glow py-3" style="font-family: 'Sora', sans-serif; border-radius: 5px;">
-              <i class="icon-base ti tabler-user-plus me-2"></i>{{ __('Daftar Sekarang') }} — {{ __('Gratis') }}!
+              <i class="icon-base ti tabler-user-plus me-2"></i>{{ $cta_button_text }}
             </a>
             <a href="{{ route('login') }}" class="btn btn-glow-outline btn-lg px-5 fw-semibold py-3 d-flex align-items-center gap-2" style="border-radius: 5px;">
-              <i class="icon-base ti tabler-login fs-5"></i>{{ __('Sudah Punya Akun? Login') }}
+              <i class="icon-base ti tabler-login fs-5"></i>{{ $cta_login_text }}
             </a>
           </div>
         </div>

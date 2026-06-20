@@ -224,4 +224,95 @@ class AdminTest extends TestCase
         $response = $this->get('/admin/dinas');
         $response->assertStatus(403);
     }
+
+    // === USER MANAGEMENT (Integrated) ===
+
+    public function test_admin_can_view_users_index(): void
+    {
+        $response = $this->get('/admin/users');
+        $response->assertStatus(200);
+        $response->assertViewIs('content.admin.users.index');
+    }
+
+    public function test_admin_can_search_and_filter_users(): void
+    {
+        $user1 = User::factory()->create([
+            'name' => 'John Doe Search',
+            'email' => 'john@search.com',
+            'role' => 'instruktur',
+            'is_active' => true,
+        ]);
+
+        $user2 = User::factory()->create([
+            'name' => 'Jane Smith',
+            'email' => 'jane@smith.com',
+            'role' => 'koordinator',
+            'is_active' => false,
+        ]);
+
+        // Search match
+        $response = $this->get('/admin/users?search=John');
+        $response->assertStatus(200);
+        $response->assertSee('John Doe Search');
+        $response->assertDontSee('Jane Smith');
+
+        // Role filter
+        $response = $this->get('/admin/users?role=instruktur');
+        $response->assertStatus(200);
+        $response->assertSee('John Doe Search');
+        $response->assertDontSee('Jane Smith');
+
+        // Status filter
+        $response = $this->get('/admin/users?status=0');
+        $response->assertStatus(200);
+        $response->assertSee('Jane Smith');
+        $response->assertDontSee('John Doe Search');
+    }
+
+    public function test_admin_can_toggle_user_status(): void
+    {
+        $user = User::factory()->create([
+            'role' => 'instruktur',
+            'is_active' => true,
+        ]);
+
+        $response = $this->patch('/admin/users/' . $user->id . '/toggle-status');
+        $response->assertRedirect();
+        
+        $this->assertDatabaseHas('users', [
+            'id' => $user->id,
+            'is_active' => false,
+        ]);
+    }
+
+    public function test_admin_cannot_toggle_own_status(): void
+    {
+        $response = $this->patch('/admin/users/' . $this->admin->id . '/toggle-status');
+        $response->assertRedirect();
+        $response->assertSessionHas('error');
+        
+        $this->assertDatabaseHas('users', [
+            'id' => $this->admin->id,
+            'is_active' => true,
+        ]);
+    }
+
+    public function test_admin_can_delete_other_user(): void
+    {
+        $user = User::factory()->create([
+            'role' => 'peserta',
+        ]);
+
+        $response = $this->delete('/admin/users/' . $user->id);
+        $response->assertRedirect(route('admin.users.index'));
+        $this->assertDatabaseMissing('users', ['id' => $user->id]);
+    }
+
+    public function test_admin_cannot_delete_self(): void
+    {
+        $response = $this->delete('/admin/users/' . $this->admin->id);
+        $response->assertRedirect();
+        $response->assertSessionHas('error');
+        $this->assertDatabaseHas('users', ['id' => $this->admin->id]);
+    }
 }

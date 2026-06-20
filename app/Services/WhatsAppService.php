@@ -83,7 +83,7 @@ class WhatsAppService
                  . "⚠️ *Akun Anda masih menunggu persetujuan admin.*\n"
                  . "Silakan login setelah mendapatkan notifikasi aktivasi dari admin.\n\n"
                  . "Terima kasih.\n"
-                 . "- " . (\App\Models\Setting::where('key', 'institution_name')->value('value') ?? 'MAN SABA');
+                  . "- " . (\App\Models\Setting::where('key', 'institution_name')->value('value') ?? 'Lembaga Pelatihan');
 
         return self::sendMessage($number, $message);
     }

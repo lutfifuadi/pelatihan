@@ -319,7 +319,7 @@ $configData = Helper::appClasses();
                   <label for="institution_name" class="form-label">Nama Institusi <span class="text-danger">*</span></label>
                   <input type="text" class="form-control @error('institution_name') is-invalid @enderror"
                       id="institution_name" name="institution_name"
-                      value="{{ old('institution_name', $settings['institution_name']->value ?? 'MAN SABA') }}" required>
+                      value="{{ old('institution_name', $settings['institution_name']->value ?? 'Lembaga Pelatihan') }}" required>
                   @error('institution_name')
                       <div class="invalid-feedback">{{ $message }}</div>
                   @enderror
@@ -348,7 +348,7 @@ $configData = Helper::appClasses();
           <div class="mb-3">
               <label for="institution_address" class="form-label">Alamat Institusi</label>
               <textarea class="form-control @error('institution_address') is-invalid @enderror"
-                  id="institution_address" name="institution_address" rows="2">{{ old('institution_address', $settings['institution_address']->value ?? 'MAN SABA, Gedung Pusat Pembelajaran Kreatif') }}</textarea>
+                  id="institution_address" name="institution_address" rows="2">{{ old('institution_address', $settings['institution_address']->value ?? 'Gedung Pusat Pembelajaran Kreatif') }}</textarea>
               @error('institution_address')
                   <div class="invalid-feedback">{{ $message }}</div>
               @enderror
@@ -382,8 +382,8 @@ $configData = Helper::appClasses();
             <label for="footer_copyright" class="form-label">Footer Copyright</label>
             <input type="text" class="form-control @error('footer_copyright') is-invalid @enderror"
               id="footer_copyright" name="footer_copyright"
-              value="{{ old('footer_copyright', $settings['footer_copyright']->value ?? 'Pelatihan Ekonomi Kreatif — MAN SABA') }}"
-              placeholder="Pelatihan Ekonomi Kreatif — MAN SABA">
+              value="{{ old('footer_copyright', $settings['footer_copyright']->value ?? 'Pelatihan — Pengembangan Kompetensi') }}"
+              placeholder="Pelatihan — Pengembangan Kompetensi">
             @error('footer_copyright')
               <div class="invalid-feedback mt-1">{{ $message }}</div>
             @enderror

@@ -43,6 +43,7 @@ use App\Http\Controllers\Admin\ScheduleController;
 use App\Http\Controllers\Admin\ActivityLogController;
 use App\Http\Controllers\Admin\FormOptionController;
 use App\Http\Controllers\Admin\FormFieldConfigController;
+use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\KoordinatorRegisterController;
 use App\Http\Controllers\Peserta\PesertaFormController;
 use App\Http\Controllers\Admin\Auth\AdminLoginController;
@@ -108,6 +109,10 @@ Route::get('/api/kelurahan', function (Illuminate\Http\Request $request) {
 
 // ===== DASHBOARD (Protected - via Jetstream Fortify) =====
 Route::middleware(['auth:sanctum', 'verified'])->group(function () {
+    // Impersonate Leave
+    Route::post('/impersonate/leave', [\App\Http\Controllers\Admin\ImpersonateController::class, 'leave'])
+        ->name('impersonate.leave');
+
     // Admin only
     Route::middleware(['role:admin'])->group(function () {
         Route::get('/dashboard/admin', [DashboardController::class, 'admin'])->name('dashboard.admin');
@@ -197,6 +202,16 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
 
     // ===== ADMIN MANAGEMENT (Admin only) =====
     Route::middleware(['role:admin'])->prefix('admin')->name('admin.')->group(function () {
+        // Impersonate Take
+        Route::post('users/{user}/impersonate', [\App\Http\Controllers\Admin\ImpersonateController::class, 'take'])
+            ->middleware('can.impersonate')
+            ->name('users.impersonate');
+
+        // Users Management
+        Route::get('users', [UserController::class, 'index'])->name('users.index');
+        Route::patch('users/{user}/toggle-status', [UserController::class, 'toggleStatus'])->name('users.toggle-status');
+        Route::delete('users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
+
         // Kecamatan
         Route::resource('kecamatan', KecamatanController::class);
 
@@ -227,6 +242,10 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
         // Settings - SEO
         Route::get('settings/seo', [SettingController::class, 'seo'])->name('settings.seo');
         Route::post('settings/seo', [SettingController::class, 'updateSeo'])->name('settings.seo.update');
+
+        // Settings - Landing Page Content
+        Route::get('settings/landing', [SettingController::class, 'landing'])->name('settings.landing');
+        Route::post('settings/landing', [SettingController::class, 'updateLanding'])->name('settings.landing.update');
 
         // FAQ Management
         Route::resource('faqs', FaqController::class)->parameters(['faqs' => 'faq']);

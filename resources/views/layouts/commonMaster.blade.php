@@ -89,6 +89,7 @@
 </head>
 
 <body>
+  @include('partials.impersonate-banner')
   <!-- Layout Content -->
   @yield('layoutContent')
   <!--/ Layout Content -->
