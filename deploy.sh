@@ -171,54 +171,54 @@ composer install --no-dev --optimize-autoloader --no-interaction 2>&1 | tee -a "
 log_ok "Composer dependencies terinstall."
 
 # ----------------------------------------------------------
-# 3. Download frontend assets dari GitHub Release (build sudah di-CI)
+# 3. Download frontend assets dari GitHub Release (build di-CI -> latest-full-package)
 # ----------------------------------------------------------
 log_info "[3/12] Download frontend assets dari GitHub Release..."
 
-BUILD_DOWNLOADED=false
+BUILD_RELEASE_TAG="latest-full-package"
+BUILD_DOWNLOAD_URL="https://github.com/$GITHUB_OWNER/$GITHUB_REPO/releases/download/$BUILD_RELEASE_TAG/$BUILD_ASSET_NAME"
 
-AUTH_HEADER=""
-WGET_HEADER=""
-if [ -n "${GITHUB_TOKEN:-}" ]; then
-    AUTH_HEADER="-H Authorization: token $GITHUB_TOKEN"
-    WGET_HEADER="--header=Authorization: token $GITHUB_TOKEN"
-    log_info "Menggunakan GITHUB_TOKEN untuk autentikasi API."
-fi
+log_info "Mengunduh: $BUILD_DOWNLOAD_URL"
+TEMP_FILE="/tmp/$BUILD_ASSET_NAME"
 
-LATEST_URL=$(curl -sL $AUTH_HEADER "https://api.github.com/repos/$GITHUB_OWNER/$GITHUB_REPO/releases/latest" \
-    | grep "browser_download_url" \
-    | grep "$BUILD_ASSET_NAME" \
-    | cut -d '"' -f 4) || true
-
-if [ -n "$LATEST_URL" ]; then
-    log_info "Mengunduh: $LATEST_URL"
-
-    if [ -n "${GITHUB_TOKEN:-}" ]; then
-        ASSET_ID=$(curl -sL $AUTH_HEADER "https://api.github.com/repos/$GITHUB_OWNER/$GITHUB_REPO/releases/latest" \
-            | grep -B 1 "$BUILD_ASSET_NAME" \
-            | grep '"id":' \
-            | head -n 1 \
-            | cut -d ':' -f 2 \
-            | tr -d ' ,') || true
-
-        wget -q $WGET_HEADER --header="Accept: application/octet-stream" \
-            -O "/tmp/$BUILD_ASSET_NAME" \
-            "https://api.github.com/repos/$GITHUB_OWNER/$GITHUB_REPO/releases/assets/$ASSET_ID" 2>&1 | tee -a "$DEPLOY_LOG" \
-            || die "Gagal mengunduh asset release (private repo / asset ID tidak ditemukan)."
-    else
-        wget -q -O "/tmp/$BUILD_ASSET_NAME" "$LATEST_URL" 2>&1 | tee -a "$DEPLOY_LOG" \
-            || die "Gagal mengunduh asset release."
-    fi
-
+if wget -q --timeout=120 -O "$TEMP_FILE" "$BUILD_DOWNLOAD_URL" 2>&1 | tee -a "$DEPLOY_LOG"; then
     rm -rf public/build
-    unzip -o "/tmp/$BUILD_ASSET_NAME" 'public/build/*' -d "$APP_PATH" > /dev/null \
+    unzip -o "$TEMP_FILE" 'public/build/*' -d "$APP_PATH" > /dev/null \
         || die "Gagal mengekstrak asset release."
-    rm -f "/tmp/$BUILD_ASSET_NAME"
-    log_ok "public/build berhasil diperbarui dari release."
+    rm -f "$TEMP_FILE"
+    log_ok "public/build berhasil diperbarui dari release ($BUILD_RELEASE_TAG)."
 else
-    log_warn "Tidak ada release ditemukan. Mempertahankan public/build yang sudah ada."
-    if [ ! -d "public/build" ] || [ ! -f "public/build/manifest.json" ]; then
-        die "Tidak ada public/build dari release maupun local. Halaman akan blank putih."
+    log_warn "Download dari $BUILD_RELEASE_TAG gagal. Coba fallback API..."
+    # Fallback: cari browser_download_url dari API (endpoint yang sama mungkin sudah outdated)
+    AUTH_HEADER=""
+    if [ -n "${GITHUB_TOKEN:-}" ]; then
+        AUTH_HEADER="-H Authorization: token $GITHUB_TOKEN"
+    fi
+    FALLBACK_URL=$(curl -sL $AUTH_HEADER \
+        "https://api.github.com/repos/$GITHUB_OWNER/$GITHUB_REPO/releases/tags/$BUILD_RELEASE_TAG" 2>/dev/null \
+        | grep "browser_download_url" \
+        | grep "$BUILD_ASSET_NAME" \
+        | cut -d '"' -f 4) || true
+
+    if [ -n "$FALLBACK_URL" ]; then
+        log_info "Mengunduh (fallback): $FALLBACK_URL"
+        if wget -q --timeout=120 -O "$TEMP_FILE" "$FALLBACK_URL" 2>&1 | tee -a "$DEPLOY_LOG"; then
+            rm -rf public/build
+            unzip -o "$TEMP_FILE" 'public/build/*' -d "$APP_PATH" > /dev/null \
+                || die "Gagal mengekstrak asset release."
+            rm -f "$TEMP_FILE"
+            log_ok "public/build berhasil diperbarui dari release (fallback)."
+        else
+            log_warn "Fallback gagal. Mempertahankan public/build yang sudah ada."
+            if [ ! -d "public/build" ] || [ ! -f "public/build/manifest.json" ]; then
+                die "Tidak ada public/build yang valid. Deploy blank putih tidak bisa dilanjutkan."
+            fi
+        fi
+    else
+        log_warn "Tidak ada release $BUILD_RELEASE_TAG. Mempertahankan public/build yang sudah ada."
+        if [ ! -d "public/build" ] || [ ! -f "public/build/manifest.json" ]; then
+            die "Tidak ada public/build yang valid. Deploy blank putih tidak bisa dilanjutkan."
+        fi
     fi
 fi
 
