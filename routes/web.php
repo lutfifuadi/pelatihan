@@ -214,6 +214,7 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
         // Users Management
         Route::get('users', [UserController::class, 'index'])->name('users.index');
         Route::patch('users/{user}/toggle-status', [UserController::class, 'toggleStatus'])->name('users.toggle-status');
+        Route::post('users/{user}/reset-password', [UserController::class, 'resetPassword'])->name('users.reset-password');
         Route::delete('users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
 
         // Kecamatan

@@ -61,6 +61,15 @@
           <td class="text-end px-0 py-3">
             @if($u->id !== auth()->id())
               <div class="d-inline-flex gap-1 align-items-center">
+                {{-- Reset Password --}}
+                <form action="{{ route('admin.users.reset-password', $u) }}" method="POST" class="d-inline reset-password-form"
+                  data-name="{{ $u->name }}">
+                  @csrf
+                  <button type="submit" class="btn btn-warning btn-sm d-flex align-items-center justify-content-center" style="border-radius: 5px; width: 32px; height: 32px; padding: 0; background: linear-gradient(135deg, #f59e0b, #d97706); border: none; color: #fff;" title="Reset Password">
+                    <i class="icon-base ti tabler-key fs-5"></i>
+                  </button>
+                </form>
+
                 @if($u->role !== 'admin')
                   <form action="{{ route('admin.users.impersonate', $u) }}" method="POST" class="d-inline impersonate-form"
                     data-name="{{ $u->name }}">

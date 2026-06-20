@@ -605,6 +605,30 @@ $configData = Helper::appClasses();
           });
         });
       });
+
+      // 5. Reset Password Forms interception
+      const resetPasswordForms = document.querySelectorAll('.reset-password-form');
+      resetPasswordForms.forEach(form => {
+        form.addEventListener('submit', function(e) {
+          e.preventDefault();
+          const userName = this.getAttribute('data-name');
+          
+          swalDark.fire({
+            title: 'Yakin ingin mereset password?',
+            text: `Password user "${userName}" akan direset ke nomor HP user.`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Ya, Reset!',
+            cancelButtonText: 'Batal',
+            confirmButtonColor: '#f59e0b',
+            reverseButtons: true
+          }).then((result) => {
+            if (result.isConfirmed) {
+              form.submit();
+            }
+          });
+        });
+      });
     }
 
     // Search input event

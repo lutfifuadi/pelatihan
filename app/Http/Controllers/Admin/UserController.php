@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Services\ActivityLogger;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
@@ -100,6 +101,49 @@ class UserController extends Controller
         }
 
         return back()->with('success', "Status user {$user->name} berhasil {$statusText}.");
+    }
+
+    /**
+     * Reset password user ke nomor HP/WhatsApp.
+     */
+    public function resetPassword(Request $request, User $user)
+    {
+        // Cegah admin mereset password dirinya sendiri
+        if ($user->id === auth()->id()) {
+            return back()->with('error', 'Anda tidak bisa mereset password akun Anda sendiri.');
+        }
+
+        // Cari nomor HP: prioritas whatsapp, fallback ke phone
+        $phoneNumber = $user->whatsapp ?? $user->phone;
+
+        if (!$phoneNumber) {
+            return back()->with('error', "User {$user->name} tidak memiliki nomor HP untuk dijadikan password.");
+        }
+
+        // Bersihkan nomor dari karakter non-digit
+        $cleanedPhoneNumber = preg_replace('/[^0-9]/', '', $phoneNumber);
+
+        // Validasi minimal 8 digit
+        if (strlen($cleanedPhoneNumber) < 8) {
+            return back()->with('error', "Nomor HP user {$user->name} tidak valid (minimal 8 digit).");
+        }
+
+        // Set password baru
+        $user->password = Hash::make($cleanedPhoneNumber);
+        $user->save();
+
+        // Catat log aktivitas
+        ActivityLogger::log(
+            action: 'updated',
+            subjectType: 'User',
+            subjectId: $user->id,
+            subjectName: $user->name,
+            description: "Password user {$user->name} telah direset ke nomor HP",
+            oldValues: ['password' => '***'],
+            newValues: ['password' => '***']
+        );
+
+        return back()->with('success', "Password {$user->name} telah direset ke nomor HP.");
     }
 
     /**
