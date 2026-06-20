@@ -83,8 +83,12 @@ class SettingSeeder extends Seeder
             ['key' => 'hero_tag_2_text', 'value' => 'Bisnis & Wirausaha', 'group' => 'landing', 'label' => 'Hero: Tag 2 - Teks'],
             ['key' => 'hero_tag_3_icon', 'value' => 'device-laptop', 'group' => 'landing', 'label' => 'Hero: Tag 3 - Icon Tabler'],
             ['key' => 'hero_tag_3_text', 'value' => 'Teknologi & Digital', 'group' => 'landing', 'label' => 'Hero: Tag 3 - Teks'],
+            ['key' => 'lock_kota', 'value' => 'BANDUNG', 'group' => 'general', 'label' => 'Kota yang Terkunci untuk Pendaftaran'],
+            ['key' => 'lock_provinsi', 'value' => 'Jawa Barat', 'group' => 'general', 'label' => 'Provinsi yang Terkunci untuk Pendaftaran'],
         ];
 
-        DB::table('settings')->insert($settings);
+        foreach ($settings as $setting) {
+            \App\Models\Setting::updateOrCreate(['key' => $setting['key']], $setting);
+        }
     }
 }
