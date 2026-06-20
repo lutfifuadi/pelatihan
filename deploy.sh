@@ -140,7 +140,7 @@ fi
 # 0. Maintenance mode ON
 # ----------------------------------------------------------
 log_info "[0/12] Maintenance mode ON..."
-php artisan down --retry=60 --refresh=15 --message="Sedang maintenance, mohon tunggu sebentar." \
+php artisan down --retry=60 --refresh=15 \
     || die "Gagal mengaktifkan maintenance mode."
 MAINTENANCE_ACTIVE=true
 log_ok "Maintenance mode aktif."
