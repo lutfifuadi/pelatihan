@@ -352,172 +352,6 @@ $fActive = $fields->where('is_active', true)->pluck('field_key')->toArray();
             @endif
         @endforeach
 
-        <!-- Review Ringkasan Data -->
-        <div class="mt-4">
-          <h6 class="text-white-70-custom fw-semibold mb-2" style="font-size: 0.85rem;">
-            <i class="icon-base ti tabler-eye me-1"></i>Review Data Anda
-          </h6>
-
-          @if($profile)
-          <div class="review-section">
-            <div class="review-section-title">
-              <i class="icon-base ti tabler-user" style="font-size: 0.9rem; color: #6366f1;"></i> Data Pribadi
-            </div>
-            <div class="review-item">
-              <span class="review-item-label">Nama Lengkap</span>
-              <span class="review-item-value">{{ $profile->nama_lengkap ?? '-' }}</span>
-            </div>
-            <div class="review-item">
-              <span class="review-item-label">Jenis Kelamin</span>
-              <span class="review-item-value">{{ $profile->jenis_kelamin ?? '-' }}</span>
-            </div>
-            <div class="review-item">
-              <span class="review-item-label">Tempat Lahir</span>
-              <span class="review-item-value">{{ $profile->tempat_lahir ?? '-' }}</span>
-            </div>
-            <div class="review-item">
-              <span class="review-item-label">Tgl Lahir</span>
-              <span class="review-item-value">{{ ($profile->tanggal_lahir ?? '-') . ' ' . ($profile->bulan_lahir ?? '') . ' ' . ($profile->tahun_lahir ?? '') }}</span>
-            </div>
-            <div class="review-item">
-              <span class="review-item-label">NIK</span>
-              <span class="review-item-value">{{ $profile->nik ?? '-' }}</span>
-            </div>
-          </div>
-
-          <div class="review-section">
-            <div class="review-section-title">
-              <i class="icon-base ti tabler-map-pin" style="font-size: 0.9rem; color: #6366f1;"></i> Alamat &amp; Kontak
-            </div>
-            <div class="review-item">
-              <span class="review-item-label">Alamat</span>
-              <span class="review-item-value">{{ $profile->alamat_ktp ?? '-' }}</span>
-            </div>
-            <div class="review-item">
-              <span class="review-item-label">RT/RW</span>
-              <span class="review-item-value">{{ ($profile->rt ?? '-') . '/' . ($profile->rw ?? '-') }}</span>
-            </div>
-            <div class="review-item">
-              <span class="review-item-label">Kelurahan</span>
-              <span class="review-item-value">{{ $profile->kelurahan ?? '-' }}</span>
-            </div>
-            <div class="review-item">
-              <span class="review-item-label">Kecamatan</span>
-              <span class="review-item-value">{{ $profile->kecamatan ?? '-' }}</span>
-            </div>
-            <div class="review-item">
-              <span class="review-item-label">Kota</span>
-              <span class="review-item-value">{{ $profile->kota ?? '-' }}</span>
-            </div>
-            <div class="review-item">
-              <span class="review-item-label">Provinsi</span>
-              <span class="review-item-value">{{ $profile->provinsi ?? '-' }}</span>
-            </div>
-            <div class="review-item">
-              <span class="review-item-label">Kode Pos</span>
-              <span class="review-item-value">{{ $profile->kodepos ?? '-' }}</span>
-            </div>
-            <div class="review-item">
-              <span class="review-item-label">WhatsApp</span>
-              <span class="review-item-value">{{ $profile->whatsapp ?? '-' }}</span>
-            </div>
-            <div class="review-item">
-              <span class="review-item-label">Email</span>
-              <span class="review-item-value">{{ $profile->email ?? '-' }}</span>
-            </div>
-            <div class="review-item">
-              <span class="review-item-label">Link Medsos</span>
-              <span class="review-item-value">
-                @php
-                  $linkMedsos = $profile->link_medsos ?? [];
-                  if (is_string($linkMedsos)) $linkMedsos = json_decode($linkMedsos, true) ?? [];
-                @endphp
-                @if(!empty($linkMedsos) && is_array($linkMedsos))
-                  @foreach($linkMedsos as $medsos)
-                    <div style="font-size: 11px;">{{ ($medsos['platform'] ?? '') . ': ' . ($medsos['url'] ?? '') }}</div>
-                  @endforeach
-                @else
-                  -
-                @endif
-              </span>
-            </div>
-          </div>
-
-          <div class="review-section">
-            <div class="review-section-title">
-              <i class="icon-base ti tabler-school" style="font-size: 0.9rem; color: #6366f1;"></i> Pendidikan &amp; Pekerjaan
-            </div>
-            <div class="review-item">
-              <span class="review-item-label">Pendidikan</span>
-              <span class="review-item-value">{{ $profile->pendidikan_terakhir ?? '-' }}</span>
-            </div>
-            <div class="review-item">
-              <span class="review-item-label">Institusi</span>
-              <span class="review-item-value">{{ $profile->nama_institusi ?? '-' }}</span>
-            </div>
-            <div class="review-item">
-              <span class="review-item-label">Jurusan</span>
-              <span class="review-item-value">{{ $profile->jurusan ?? '-' }}</span>
-            </div>
-            <div class="review-item">
-              <span class="review-item-label">Tahun Lulus</span>
-              <span class="review-item-value">{{ $profile->tahun_lulus ?? '-' }}</span>
-            </div>
-            <div class="review-item">
-              <span class="review-item-label">Status Pekerjaan</span>
-              <span class="review-item-value">{{ $profile->status_pekerjaan ?? '-' }}</span>
-            </div>
-            @if($profile->status_pekerjaan === 'Bekerja')
-            <div class="review-item">
-              <span class="review-item-label">Perusahaan</span>
-              <span class="review-item-value">{{ $profile->nama_perusahaan ?? '-' }}</span>
-            </div>
-            @endif
-          </div>
-
-          <div class="review-section">
-            <div class="review-section-title">
-              <i class="icon-base ti tabler-heart" style="font-size: 0.9rem; color: #6366f1;"></i> Minat Pelatihan
-            </div>
-            <div class="review-item">
-              <span class="review-item-label">Bidang Minat</span>
-              <span class="review-item-value">
-                @php
-                  $bidangMinat = $profile->bidang_minat ?? [];
-                  if (is_string($bidangMinat)) $bidangMinat = [$bidangMinat];
-                @endphp
-                {{ !empty($bidangMinat) ? implode(', ', $bidangMinat) : '-' }}
-              </span>
-            </div>
-            <div class="review-item">
-              <span class="review-item-label">Tujuan</span>
-              <span class="review-item-value">{{ $profile->tujuan_pelatihan ?? '-' }}</span>
-            </div>
-            <div class="review-item">
-              <span class="review-item-label">Jadwal</span>
-              <span class="review-item-value">{{ $profile->preferensi_jadwal ?? '-' }}</span>
-            </div>
-            <div class="review-item">
-              <span class="review-item-label">Mode</span>
-              <span class="review-item-value">{{ $profile->preferensi_mode ?? '-' }}</span>
-            </div>
-          </div>
-          @else
-          <div class="text-white-50-custom text-center py-3">
-            <i class="icon-base ti tabler-alert-circle me-1"></i>Data belum tersedia. Silakan isi form sebelumnya terlebih dahulu.
-          </div>
-          @endif
-        </div>
-
-        <div class="mt-3 mb-3">
-          <div class="form-check">
-            <input class="form-check-input form-check-input-custom" type="checkbox" id="konfirmasi_data" name="konfirmasi" value="1" x-model="form.konfirmasi" />
-            <label class="form-check-label text-white-50-custom small" for="konfirmasi_data">
-              Saya menyatakan bahwa data yang diisi adalah benar
-            </label>
-          </div>
-          <div class="invalid-feedback-custom" :class="{ 'd-block': errors.konfirmasi }" x-text="errors.konfirmasi"></div>
-        </div>
       </div>
 
       <div class="d-flex justify-content-between mt-4">
@@ -526,10 +360,10 @@ $fActive = $fields->where('is_active', true)->pluck('field_key')->toArray();
         </a>
         <button type="button" class="btn btn-glow fw-semibold py-2 px-4" style="border-radius: 5px; font-size: 13px;" @click="submitForm()" :disabled="submitting">
           <template x-if="!submitting">
-            <span><i class="icon-base ti tabler-send me-1"></i> Submit</span>
+            <span><i class="icon-base ti tabler-arrow-right me-1"></i> Lanjutkan ke Review</span>
           </template>
           <template x-if="submitting">
-            <span><span class="spinner-border spinner-border-sm me-1" style="width:14px;height:14px;border-width:2px;"></span> Mengirim...</span>
+            <span><span class="spinner-border spinner-border-sm me-1" style="width:14px;height:14px;border-width:2px;"></span> Menyimpan...</span>
           </template>
         </button>
       </div>
@@ -564,7 +398,6 @@ $fActive = $fields->where('is_active', true)->pluck('field_key')->toArray();
           nama_usaha: '',
           nama_usaha_other: '',
           kendala_usaha: '',
-          konfirmasi: false,
         },
         errors: {},
         submitting: false,
@@ -577,13 +410,11 @@ $fActive = $fields->where('is_active', true)->pluck('field_key')->toArray();
           var valid = true;
 
           @foreach($fields as $field)
-            @if($field->is_active && $field->is_required)
+            @if($field->is_active && $field->is_required && $field->type !== 'checkbox')
               @if($field->type === 'textarea')
           if (!this.form.{{ $field->field_key }}.trim()) { errs['{{ $field->field_key }}'] = '{{ $field->label }} wajib diisi'; valid = false; }
               @elseif($field->type === 'radio' || $field->type === 'radio_other')
           if (!this.form.{{ $field->field_key }}) { errs['{{ $field->field_key }}'] = 'Pilih salah satu opsi'; valid = false; }
-              @elseif($field->type === 'checkbox')
-          if (!this.form.{{ $field->field_key }}) { errs['{{ $field->field_key }}'] = 'Centang pernyataan ini'; valid = false; }
               @endif
             @endif
           @endforeach

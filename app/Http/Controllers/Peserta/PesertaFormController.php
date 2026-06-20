@@ -252,7 +252,10 @@ class PesertaFormController extends Controller
 
     public function saveDokumen(Request $request)
     {
+        // Build validation rules untuk dokumen, kecuali checkbox konfirmasi
         $rules = $this->formConfig->buildValidationRules('dokumen');
+        // Hapus validasi checkbox konfirmasi dari rules (pindah ke halaman review)
+        unset($rules['konfirmasi']);
         $request->validate($rules);
 
         $user = auth()->user();
@@ -280,6 +283,36 @@ class PesertaFormController extends Controller
         }
 
         $profile->jawaban_pertanyaan = $jawaban;
+        // JANGAN set is_completed = true — biarkan false sampai submitFinal()
+        $profile->save();
+
+        return redirect()->route('dashboard.peserta.form-review')->with('success', 'Jawaban pertanyaan tersimpan. Silakan review data Anda sebelum menyelesaikan pendaftaran.');
+    }
+
+    public function review()
+    {
+        $user = auth()->user();
+        $profile = PesertaProfile::where('user_id', $user->id)->first();
+
+        return view('content.dashboard.peserta.form-review', compact('user', 'profile'));
+    }
+
+    public function submitFinal(Request $request)
+    {
+        $request->validate([
+            'konfirmasi' => 'required|accepted',
+        ], [
+            'konfirmasi.required' => 'Anda harus menyetujui pernyataan data benar.',
+            'konfirmasi.accepted' => 'Anda harus menyetujui pernyataan data benar.',
+        ]);
+
+        $user = auth()->user();
+        $profile = PesertaProfile::where('user_id', $user->id)->first();
+
+        if (!$profile) {
+            return redirect()->back()->with('error', 'Data profil tidak ditemukan.');
+        }
+
         $profile->is_completed = true;
         $profile->save();
 

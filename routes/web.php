@@ -186,9 +186,13 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
             Route::get('/form-minat', [PesertaFormController::class, 'minat'])->name('form-minat');
             Route::post('/form-minat', [PesertaFormController::class, 'saveMinat'])->name('form-minat.store');
 
-            // Form Tahap 5 - Dokumen & Konfirmasi
+            // Form Tahap 5 - Dokumen & Pertanyaan
             Route::get('/form-dokumen', [PesertaFormController::class, 'dokumen'])->name('form-dokumen');
             Route::post('/form-dokumen', [PesertaFormController::class, 'saveDokumen'])->name('form-dokumen.store');
+
+            // Form Tahap 6 - Review Data & Submit Final
+            Route::get('/form-review', [PesertaFormController::class, 'review'])->name('form-review');
+            Route::post('/form-review', [PesertaFormController::class, 'submitFinal'])->name('form-review.submit');
         });
     });
 

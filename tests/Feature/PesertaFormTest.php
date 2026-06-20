@@ -157,7 +157,7 @@ class PesertaFormTest extends TestCase
         $response->assertStatus(200);
     }
 
-    public function test_save_dokumen_redirects_and_marks_completed(): void
+    public function test_save_dokumen_redirects_and_not_completed(): void
     {
         $response = $this->post('/dashboard/peserta/form-dokumen', [
             'pengetahuan_asep' => 'Beliau adalah seorang tokoh',
@@ -168,6 +168,49 @@ class PesertaFormTest extends TestCase
             'jenis_usaha' => 'Kuliner',
             'usaha_dimiliki' => 'Belum Pernah',
             'nama_usaha' => 'Belum Pernah',
+        ]);
+
+        $response->assertRedirect(route('dashboard.peserta.form-review'));
+        // is_completed should still be 0 (false) after saveDokumen
+        $this->assertDatabaseHas('peserta_profiles', [
+            'user_id' => $this->peserta->id,
+            'is_completed' => 0,
+        ]);
+    }
+
+    public function test_form_review_page_accessible(): void
+    {
+        // Ensure profile exists
+        $this->post('/dashboard/peserta/form-dokumen', [
+            'pengetahuan_asep' => 'Test',
+            'alasan_pelatihan' => 'Test',
+            'pengalaman_bisnis' => 'Test',
+            'rencana_setelah_pelatihan' => 'Test',
+            'punya_usaha' => 'Sudah',
+            'jenis_usaha' => 'Kuliner',
+            'usaha_dimiliki' => 'Belum Pernah',
+            'nama_usaha' => 'Belum Pernah',
+        ]);
+
+        $response = $this->get('/dashboard/peserta/form-review');
+        $response->assertStatus(200);
+    }
+
+    public function test_submit_final_redirects_and_marks_completed(): void
+    {
+        // Setup: save dokumen first
+        $this->post('/dashboard/peserta/form-dokumen', [
+            'pengetahuan_asep' => 'Test',
+            'alasan_pelatihan' => 'Test',
+            'pengalaman_bisnis' => 'Test',
+            'rencana_setelah_pelatihan' => 'Test',
+            'punya_usaha' => 'Sudah',
+            'jenis_usaha' => 'Kuliner',
+            'usaha_dimiliki' => 'Belum Pernah',
+            'nama_usaha' => 'Belum Pernah',
+        ]);
+
+        $response = $this->post('/dashboard/peserta/form-review', [
             'konfirmasi' => '1',
         ]);
 
@@ -175,6 +218,29 @@ class PesertaFormTest extends TestCase
         $this->assertDatabaseHas('peserta_profiles', [
             'user_id' => $this->peserta->id,
             'is_completed' => 1,
+        ]);
+    }
+
+    public function test_submit_final_fails_without_confirmation(): void
+    {
+        // Setup: save dokumen first
+        $this->post('/dashboard/peserta/form-dokumen', [
+            'pengetahuan_asep' => 'Test',
+            'alasan_pelatihan' => 'Test',
+            'pengalaman_bisnis' => 'Test',
+            'rencana_setelah_pelatihan' => 'Test',
+            'punya_usaha' => 'Sudah',
+            'jenis_usaha' => 'Kuliner',
+            'usaha_dimiliki' => 'Belum Pernah',
+            'nama_usaha' => 'Belum Pernah',
+        ]);
+
+        $response = $this->post('/dashboard/peserta/form-review', []);
+
+        $response->assertSessionHasErrors('konfirmasi');
+        $this->assertDatabaseHas('peserta_profiles', [
+            'user_id' => $this->peserta->id,
+            'is_completed' => 0,
         ]);
     }
 }
