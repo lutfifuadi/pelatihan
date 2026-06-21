@@ -83,48 +83,6 @@ export default defineConfig({
   build: {
     commonjsOptions: {
       include: [/node_modules/] // Helps with importing CommonJS modules
-    },
-    rollupOptions: {
-      output: {
-        // Code splitting: vendor chunks terpisah agar lebih cacheable
-        manualChunks(id) {
-          // Pisahkan vendor/library besar ke chunk terpisah
-          if (id.includes('node_modules')) {
-            // Vendor utama yang sering berubah
-            // Hanya Bootstrap core + Popper; wrapper CJS seperti datatables.net-bs5,
-            // bootstrap-select, bootstrap-daterangeparker, dan plugin Bootstrap lainnya
-            // harus masuk ke chunk lain untuk menghindari circular chunk.
-            if (id.includes('/bootstrap/') || id.includes('@popperjs/core')) {
-              return 'vendor-bootstrap';
-            }
-            if (id.includes('chart.js') || id.includes('apexcharts')) {
-              return 'vendor-charts';
-            }
-            if (id.includes('flatpickr') || id.includes('daterangepicker')) {
-              return 'vendor-datepicker';
-            }
-            if (id.includes('sweetalert2') || id.includes('notyf') || id.includes('toastr')) {
-              return 'vendor-notifications';
-            }
-            if (id.includes('select2') || id.includes('tagify')) {
-              return 'vendor-forms';
-            }
-            // Vendor sisanya digabung
-            return 'vendor-other';
-          }
-
-          // Normalisasi path agar konsisten antara Windows dan Linux
-          const normalizedId = id.replace(/\\/g, '/');
-
-          // Pisahkan template assets (libs, fonts) tapi jangan core/pages SCSS agar tidak tercampur
-          if (normalizedId.includes('resources/assets/vendor/libs')) {
-            return 'theme-libs';
-          }
-          if (normalizedId.includes('resources/assets/vendor/fonts')) {
-            return 'theme-fonts';
-          }
-        }
-      }
     }
   }
 });
