@@ -154,11 +154,17 @@ class DashboardController extends Controller
             ];
             $filled = 0;
             foreach ($fields as $f) {
-                if (!empty($profile->$f)) {
-                    $filled++;
+                if ($f === 'kecamatan_id') {
+                    if (!empty($user->kecamatan_id)) {
+                        $filled++;
+                    }
+                } else {
+                    if (!empty($profile->$f)) {
+                        $filled++;
+                    }
                 }
             }
-            $profileCompletion = round(($filled / count($fields)) * 100);
+            $profileCompletion = (int) round(($filled / count($fields)) * 100);
         }
 
         // Kumpulkan data statistik dashboard

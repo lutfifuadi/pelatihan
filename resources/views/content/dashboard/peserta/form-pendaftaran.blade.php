@@ -18,7 +18,7 @@ $dpActive = $fieldsDataPribadi->where('is_active', true)->pluck('field_key')->to
 
 @section('page-style')
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Sora:wght@400;500;600;700;800&display=swap');
+
 
   /* Select2 Custom Styling for Glassmorphic Dark Theme */
   .select2-container--default .select2-selection--single {
@@ -246,121 +246,8 @@ $dpActive = $fieldsDataPribadi->where('is_active', true)->pluck('field_key')->to
     .field-group-quad { grid-template-columns: 1fr; gap: 12px; }
   }
 
-  /* Modal Sukses */
-  .modal-overlay {
-    position: fixed; inset: 0; z-index: 99999;
-    background: rgba(0,0,0,0.6); backdrop-filter: blur(4px);
-    display: none; align-items: center; justify-content: center;
-    padding: 20px;
-  }
-  .modal-overlay.show { display: flex; }
-  .modal-box {
-    background: #1a1f2e; border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 5px; padding: 32px 28px 24px;
-    max-width: 400px; width: 100%; text-align: center;
-    box-shadow: 0 25px 70px rgba(0,0,0,0.5);
-    animation: modalIn 0.3s ease;
-    margin: auto; /* Centering helper */
-  }
-  @keyframes modalIn {
-    0% { transform: scale(0.9); opacity: 0; }
-    100% { transform: scale(1); opacity: 1; }
-  }
-  .modal-icon {
-    width: 64px; height: 64px; border-radius: 50%;
-    background: rgba(16,185,129,0.15); border: 2px solid #10b981;
-    display: flex; align-items: center; justify-content: center;
-    margin: 0 auto 16px; font-size: 28px; color: #10b981;
-  }
-  .modal-title {
-    font-family: 'Sora', sans-serif; font-size: 18px; font-weight: 700;
-    color: #f8fafc; margin-bottom: 8px;
-  }
-  .modal-body-text {
-    color: rgba(255,255,255,0.6); font-size: 14px; margin-bottom: 24px; line-height: 1.5;
-  }
-  .modal-btn {
-    background: linear-gradient(135deg, #10b981, #059669);
-    border: none; padding: 10px 28px; border-radius: 5px;
-    color: #fff; font-weight: 600; font-size: 14px; cursor: pointer;
-    transition: all 0.3s ease;
-  }
-  .modal-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(16,185,129,0.4); }
 
-  /* Step Indicator */
-  .step-indicator {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 28px;
-    position: relative;
-  }
-  .step-indicator::before {
-    content: '';
-    position: absolute;
-    top: 18px;
-    left: 40px;
-    right: 40px;
-    height: 2px;
-    background: rgba(255, 255, 255, 0.08);
-    z-index: 1;
-  }
-  .step-indicator .step-progress-line {
-    position: absolute;
-    top: 18px;
-    left: 40px;
-    height: 2px;
-    width: calc(100% - 80px);
-    background: linear-gradient(90deg, #6366f1, #d946ef);
-    z-index: 2;
-    transform-origin: left center;
-    transition: transform 0.5s ease;
-  }
-  .step-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    z-index: 3;
-    cursor: pointer;
-    position: relative;
-  }
-  .step-circle {
-    width: 36px; height: 36px; border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 13px; font-weight: 700; font-family: 'Sora', sans-serif;
-    background: rgba(255, 255, 255, 0.06);
-    border: 2px solid rgba(255, 255, 255, 0.15);
-    color: rgba(255, 255, 255, 0.4);
-    transition: all 0.4s ease;
-    margin-bottom: 6px;
-  }
-  .step-item.active .step-circle {
-    background: linear-gradient(135deg, #6366f1, #7c3aed);
-    border-color: #6366f1; color: #fff;
-    box-shadow: 0 0 20px rgba(99, 102, 241, 0.4);
-  }
-  .step-item.completed .step-circle {
-    background: #10b981; border-color: #10b981; color: #fff;
-    box-shadow: 0 0 12px rgba(16, 185, 129, 0.3);
-  }
-  .step-label {
-    font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em;
-    color: rgba(255, 255, 255, 0.35); font-weight: 600;
-    transition: color 0.3s ease; text-align: center; white-space: nowrap;
-  }
-  .step-item.active .step-label { color: rgba(255, 255, 255, 0.85); }
-  .step-item.completed .step-label { color: rgba(16, 185, 129, 0.8); }
-  .step-item.has-error .step-circle {
-    background: #f87171; border-color: #f87171; color: #fff;
-    box-shadow: 0 0 12px rgba(248, 113, 113, 0.3);
-  }
-  .step-item.has-error .step-label {
-    color: #f87171;
-  }
-  @media (max-width: 660px) {
-    .step-label { display: none; }
-    .step-indicator::before { left: 20px; right: 20px; }
-    .step-indicator .step-progress-line { left: 20px; width: calc(100% - 40px); }
-  }
+
 
   .tab-pane-step { animation: fadeSlideIn 0.35s ease forwards; }
   @keyframes fadeSlideIn {
@@ -438,22 +325,84 @@ $dpActive = $fieldsDataPribadi->where('is_active', true)->pluck('field_key')->to
     </div>
   </div>
 
+  @php
+    $profile = \App\Models\PesertaProfile::where('user_id', auth()->id())->first();
+    $step1Done = $profile && !empty($profile->nama_lengkap) && !empty($profile->nik);
+    $step2Done = $profile && !empty($profile->alamat_ktp) && !empty($profile->whatsapp);
+    $step3Done = $profile && !empty($profile->pendidikan_terakhir) && !empty($profile->nama_institusi);
+    $step4Done = $profile && !empty($profile->pelatihan_id);
+    $step5Done = $profile && !empty($profile->jawaban_pertanyaan);
+  @endphp
+
+  <!-- Step Indicator: 6 Steps -->
+  <div class="step-indicator mb-4">
+    <div class="step-progress-line" style="transform: scaleX(0); transform-origin: left;"></div>
+    
+    <!-- Step 1: Data Diri (active) -->
+    <div class="step-item active">
+      <div class="step-circle">1</div>
+      <div class="step-label">Data Diri</div>
+    </div>
+    
+    <!-- Step 2: Alamat -->
+    <div class="step-item {{ $step2Done ? 'completed' : '' }}" @if($step2Done) onclick="window.location.href='{{ route('dashboard.peserta.form-alamat') }}'" style="cursor: pointer;" @endif>
+      <div class="step-circle">
+        @if($step2Done)
+          <i class="icon-base ti tabler-check" style="font-size: 16px;"></i>
+        @else
+          2
+        @endif
+      </div>
+      <div class="step-label">Alamat</div>
+    </div>
+    
+    <!-- Step 3: Pendidikan -->
+    <div class="step-item {{ $step3Done ? 'completed' : '' }}" @if($step3Done) onclick="window.location.href='{{ route('dashboard.peserta.form-pendidikan') }}'" style="cursor: pointer;" @endif>
+      <div class="step-circle">
+        @if($step3Done)
+          <i class="icon-base ti tabler-check" style="font-size: 16px;"></i>
+        @else
+          3
+        @endif
+      </div>
+      <div class="step-label">Pendidikan</div>
+    </div>
+    
+    <!-- Step 4: Pelatihan -->
+    <div class="step-item {{ $step4Done ? 'completed' : '' }}" @if($step4Done) onclick="window.location.href='{{ route('dashboard.peserta.form-minat') }}'" style="cursor: pointer;" @endif>
+      <div class="step-circle">
+        @if($step4Done)
+          <i class="icon-base ti tabler-check" style="font-size: 16px;"></i>
+        @else
+          4
+        @endif
+      </div>
+      <div class="step-label">Pilihan Pelatihan</div>
+    </div>
+    
+    <!-- Step 5: Dokumen -->
+    <div class="step-item {{ $step5Done ? 'completed' : '' }}" @if($step5Done) onclick="window.location.href='{{ route('dashboard.peserta.form-dokumen') }}'" style="cursor: pointer;" @endif>
+      <div class="step-circle">
+        @if($step5Done)
+          <i class="icon-base ti tabler-check" style="font-size: 16px;"></i>
+        @else
+          5
+        @endif
+      </div>
+      <div class="step-label">Dokumen</div>
+    </div>
+    
+    <!-- Step 6: Review -->
+    <div class="step-item">
+      <div class="step-circle">6</div>
+      <div class="step-label">Review</div>
+    </div>
+  </div>
+
   <!-- Form Card -->
   <div class="glass-card-dashboard" x-data="dataPribadiForm()" x-cloak>
 
-    <!-- Modal Sukses -->
-    <div class="modal-overlay" :class="{ 'show': modal.show }">
-      <div class="modal-box">
-        <div class="modal-icon">
-          <i class="icon-base ti tabler-check"></i>
-        </div>
-        <div class="modal-title">Data Tersimpan!</div>
-        <div class="modal-body-text" x-text="modal.message"></div>
-        <button type="button" class="modal-btn" @click="modalLanjut()">
-          Lanjutkan <i class="icon-base ti tabler-arrow-right ms-1"></i>
-        </button>
-      </div>
-    </div>
+
 
     <!-- FORM -->
     <form id="formPeserta" @submit.prevent="submitForm()">
@@ -671,8 +620,6 @@ window.reinitSelect2 = function() {
       var fd = window._formData || {};
       return {
         saving: false,
-        modal: { show: false, message: '' },
-        _redirectUrl: '',
         init() {
           this.$nextTick(() => {
             if (typeof window.reinitSelect2 === 'function') {
@@ -698,16 +645,7 @@ window.reinitSelect2 = function() {
 
         clearErrors() { this.errors = {}; },
 
-        showModal(message, redirectUrl) {
-          this.modal = { show: true, message: message };
-          this._redirectUrl = redirectUrl;
-        },
-        modalLanjut() {
-          this.modal.show = false;
-          if (this._redirectUrl) {
-            window.location.href = this._redirectUrl;
-          }
-        },
+
 
         validate() {
           this.clearErrors();
@@ -777,7 +715,7 @@ window.reinitSelect2 = function() {
             .then(function(data) {
               if (data.success) {
                 self.saving = false;
-                self.showModal('Data pribadi Anda berhasil disimpan. Silakan lanjutkan ke pengisian alamat & kontak.', '/dashboard/peserta/form-alamat');
+                window.location.href = "{{ route('dashboard.peserta.form-alamat') }}";
               } else {
                 throw new Error(data.message || 'Gagal menyimpan');
               }

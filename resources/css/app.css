@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Sora:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+
 /* ============================================================
    Custom Fonts — Design System
    Heading: Sora | Body: DM Sans
@@ -44,4 +46,110 @@ label, .form-label, .form-control, .form-select, input, select, textarea, button
 }
 .notification-list::-webkit-scrollbar-thumb:hover {
   background: rgba(255,255,255,0.2);
+}
+
+/* ============================================================
+   Step Indicator Wizard (Unified 6-Step Theme)
+   ============================================================ */
+.step-indicator {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 28px;
+  position: relative;
+}
+.step-indicator::before {
+  content: '';
+  position: absolute;
+  top: 18px;
+  left: 40px;
+  right: 40px;
+  height: 2px;
+  background: rgba(255, 255, 255, 0.08);
+  z-index: 1;
+}
+.step-indicator .step-progress-line {
+  position: absolute;
+  top: 18px;
+  left: 40px;
+  height: 2px;
+  width: calc(100% - 80px);
+  background: linear-gradient(90deg, #6366f1, #d946ef);
+  z-index: 2;
+  transform-origin: left center;
+  transition: transform 0.5s ease;
+}
+.step-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 3;
+  cursor: default;
+  position: relative;
+}
+.step-circle {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 700;
+  font-family: 'Sora', sans-serif;
+  background: rgba(255, 255, 255, 0.06);
+  border: 2px solid rgba(255, 255, 255, 0.15);
+  color: rgba(255, 255, 255, 0.4);
+  transition: all 0.4s ease;
+  margin-bottom: 6px;
+  user-select: none;
+}
+.step-item.active .step-circle {
+  background: linear-gradient(135deg, #6366f1, #7c3aed);
+  border-color: #6366f1;
+  color: #fff;
+  box-shadow: 0 0 20px rgba(99, 102, 241, 0.4);
+}
+.step-item.completed .step-circle {
+  background: #10b981;
+  border-color: #10b981;
+  color: #fff;
+  box-shadow: 0 0 12px rgba(16, 185, 129, 0.3);
+}
+.step-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: rgba(255, 255, 255, 0.35);
+  font-weight: 600;
+  transition: color 0.3s ease;
+  text-align: center;
+  white-space: nowrap;
+}
+.step-item.active .step-label {
+  color: rgba(255, 255, 255, 0.85);
+}
+.step-item.completed .step-label {
+  color: rgba(16, 185, 129, 0.8);
+}
+.step-item.has-error .step-circle {
+  background: #f87171;
+  border-color: #f87171;
+  color: #fff;
+  box-shadow: 0 0 12px rgba(248, 113, 113, 0.3);
+}
+.step-item.has-error .step-label {
+  color: #f87171;
+}
+@media (max-width: 660px) {
+  .step-label {
+    display: none;
+  }
+  .step-indicator::before {
+    left: 20px;
+    right: 20px;
+  }
+  .step-indicator .step-progress-line {
+    left: 20px;
+    width: calc(100% - 40px);
+  }
 }

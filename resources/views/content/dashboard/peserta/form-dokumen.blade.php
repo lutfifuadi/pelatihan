@@ -18,7 +18,7 @@ $fActive = $fields->where('is_active', true)->pluck('field_key')->toArray();
 
 @section('page-style')
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Sora:wght@400;500;600;700;800&display=swap');
+
 
   .content-wrapper {
     font-family: 'Outfit', sans-serif;
@@ -210,6 +210,80 @@ $fActive = $fields->where('is_active', true)->pluck('field_key')->toArray();
         <h4 class="fw-bold text-white mb-0" style="font-family: 'Sora', sans-serif;">Form Dokumen &amp; Konfirmasi</h4>
         <p class="text-white-50-custom mb-0 small">Unggah dokumen dan konfirmasi data Anda</p>
       </div>
+    </div>
+  </div>
+
+  @php
+    $profile = \App\Models\PesertaProfile::where('user_id', auth()->id())->first();
+    $step1Done = $profile && !empty($profile->nama_lengkap) && !empty($profile->nik);
+    $step2Done = $profile && !empty($profile->alamat_ktp) && !empty($profile->whatsapp);
+    $step3Done = $profile && !empty($profile->pendidikan_terakhir) && !empty($profile->nama_institusi);
+    $step4Done = $profile && !empty($profile->pelatihan_id);
+    $step5Done = $profile && !empty($profile->jawaban_pertanyaan);
+  @endphp
+
+  <!-- Step Indicator: 6 Steps -->
+  <div class="step-indicator mb-4">
+    <div class="step-progress-line" style="transform: scaleX(0.8); transform-origin: left;"></div>
+    
+    <!-- Step 1: Data Diri -->
+    <div class="step-item {{ $step1Done ? 'completed' : '' }}" @if($step1Done) onclick="window.location.href='{{ route('dashboard.peserta.form-pendaftaran') }}'" style="cursor: pointer;" @endif>
+      <div class="step-circle">
+        @if($step1Done)
+          <i class="icon-base ti tabler-check" style="font-size: 16px;"></i>
+        @else
+          1
+        @endif
+      </div>
+      <div class="step-label">Data Diri</div>
+    </div>
+    
+    <!-- Step 2: Alamat -->
+    <div class="step-item {{ $step2Done ? 'completed' : '' }}" @if($step2Done) onclick="window.location.href='{{ route('dashboard.peserta.form-alamat') }}'" style="cursor: pointer;" @endif>
+      <div class="step-circle">
+        @if($step2Done)
+          <i class="icon-base ti tabler-check" style="font-size: 16px;"></i>
+        @else
+          2
+        @endif
+      </div>
+      <div class="step-label">Alamat</div>
+    </div>
+    
+    <!-- Step 3: Pendidikan -->
+    <div class="step-item {{ $step3Done ? 'completed' : '' }}" @if($step3Done) onclick="window.location.href='{{ route('dashboard.peserta.form-pendidikan') }}'" style="cursor: pointer;" @endif>
+      <div class="step-circle">
+        @if($step3Done)
+          <i class="icon-base ti tabler-check" style="font-size: 16px;"></i>
+        @else
+          3
+        @endif
+      </div>
+      <div class="step-label">Pendidikan</div>
+    </div>
+    
+    <!-- Step 4: Pelatihan -->
+    <div class="step-item {{ $step4Done ? 'completed' : '' }}" @if($step4Done) onclick="window.location.href='{{ route('dashboard.peserta.form-minat') }}'" style="cursor: pointer;" @endif>
+      <div class="step-circle">
+        @if($step4Done)
+          <i class="icon-base ti tabler-check" style="font-size: 16px;"></i>
+        @else
+          4
+        @endif
+      </div>
+      <div class="step-label">Pilihan Pelatihan</div>
+    </div>
+    
+    <!-- Step 5: Dokumen (active) -->
+    <div class="step-item active">
+      <div class="step-circle">5</div>
+      <div class="step-label">Dokumen</div>
+    </div>
+    
+    <!-- Step 6: Review -->
+    <div class="step-item">
+      <div class="step-circle">6</div>
+      <div class="step-label">Review</div>
     </div>
   </div>
 

@@ -41,6 +41,65 @@ class DashboardTest extends TestCase
         $response->assertViewIs('content.dashboard.peserta');
     }
 
+    public function test_peserta_dashboard_completeness_percentage(): void
+    {
+        $kecamatan = \App\Models\Kecamatan::create(['name' => 'Cicendo']);
+        $kelurahan = \App\Models\Kelurahan::create([
+            'kecamatan_id' => $kecamatan->id,
+            'name' => 'Arjuna',
+            'kodepos' => '40172',
+            'is_active' => true,
+        ]);
+        
+        $peserta = User::factory()->create([
+            'role' => 'peserta',
+            'kecamatan_id' => $kecamatan->id,
+            'kelurahan_id' => $kelurahan->id,
+        ]);
+        
+        $pelatihan = \App\Models\Pelatihan::create([
+            'nama' => 'Test Training',
+            'batch' => 'BATCH-TEST-100',
+            'is_active' => true,
+        ]);
+
+        \App\Models\PesertaProfile::create([
+            'user_id' => $peserta->id,
+            'nama_lengkap' => 'Peserta Lengkap',
+            'jenis_kelamin' => 'L',
+            'tempat_lahir' => 'Bandung',
+            'tanggal_lahir' => '15',
+            'bulan_lahir' => 'Januari',
+            'tahun_lahir' => '2000',
+            'nik' => '3273010101000001',
+            'alamat_ktp' => 'Jl. Test No. 123',
+            'rt' => '001',
+            'rw' => '002',
+            'kelurahan_id' => $kelurahan->id,
+            'kelurahan' => $kelurahan->name,
+            'kecamatan' => $kecamatan->name,
+            'kota' => 'BANDUNG',
+            'provinsi' => 'Jawa Barat',
+            'kodepos' => '40172',
+            'whatsapp' => '6281234567890',
+            'email' => 'peserta@test.com',
+            'pendidikan_terakhir' => 'S1',
+            'nama_institusi' => 'ITB',
+            'tahun_lulus' => '2023',
+            'status_pekerjaan' => 'Bekerja',
+            'pelatihan_id' => $pelatihan->id,
+            'is_completed' => true,
+        ]);
+
+        Sanctum::actingAs($peserta);
+
+        $response = $this->get('/dashboard/peserta');
+        $response->assertStatus(200);
+        $response->assertViewHas('data', function($data) {
+            return (int) $data['profileCompletion'] === 100;
+        });
+    }
+
     public function test_instruktur_dashboard_accessible_by_instruktur(): void
     {
         $instruktur = User::factory()->create(['role' => 'instruktur']);
