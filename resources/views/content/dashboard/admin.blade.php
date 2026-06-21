@@ -761,8 +761,9 @@ $configData = Helper::appClasses();
 @section('page-script')
 <script type="module">
   document.addEventListener('DOMContentLoaded', () => {
-      if (window.Echo) {
-          window.Echo.channel('dashboard')
+      const initEcho = () => {
+          if (window.Echo) {
+              window.Echo.channel('dashboard')
               .listen('.dashboard.updated', (e) => {
                   console.log('Dashboard updated event received:', e);
                   const stats = e.stats;
@@ -1008,8 +1009,13 @@ $configData = Helper::appClasses();
                       }
                   }
               });
+          }
+      };
+
+      if (window.Echo) {
+          initEcho();
       } else {
-          console.warn('Laravel Echo is not loaded yet');
+          document.addEventListener('echo:ready', initEcho);
       }
   });
 </script>
