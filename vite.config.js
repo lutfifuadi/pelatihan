@@ -112,6 +112,17 @@ export default defineConfig({
             // Vendor sisanya digabung
             return 'vendor-other';
           }
+
+          // Normalisasi path agar konsisten antara Windows dan Linux
+          const normalizedId = id.replace(/\\/g, '/');
+
+          // Pisahkan template assets (libs, fonts) tapi jangan core/pages SCSS agar tidak tercampur
+          if (normalizedId.includes('resources/assets/vendor/libs')) {
+            return 'theme-libs';
+          }
+          if (normalizedId.includes('resources/assets/vendor/fonts')) {
+            return 'theme-fonts';
+          }
         }
       }
     }
