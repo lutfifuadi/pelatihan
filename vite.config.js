@@ -112,16 +112,6 @@ export default defineConfig({
             // Vendor sisanya digabung
             return 'vendor-other';
           }
-          // Pisahkan template assets (core, theme)
-          if (id.includes('resources/assets/vendor/scss') || id.includes('resources/assets/vendor/css')) {
-            return 'theme-core';
-          }
-          if (id.includes('resources/assets/vendor/fonts')) {
-            return 'theme-fonts';
-          }
-          if (id.includes('resources/assets/vendor/libs')) {
-            return 'theme-libs';
-          }
         }
       }
     }

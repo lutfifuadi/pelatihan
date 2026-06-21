@@ -8,8 +8,10 @@ body {
   background: var(--#{$prefix}white);
 }
 
-body > :not(.invoice-print) {
-  display: none !important;
+@media print {
+  body > :not(.invoice-print) {
+    display: none !important;
+  }
 }
 
 .invoice-print {
