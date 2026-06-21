@@ -502,7 +502,7 @@ $configData = Helper::appClasses();
                 $step1Done = !empty($profile->nama_lengkap) && !empty($profile->nik);
               @endphp
               <div class="col-12 col-md-6">
-                <div class="d-flex align-items-center gap-3 p-3 rounded bg-white bg-opacity-5" style="border: 1px solid rgba(255,255,255,0.04);">
+                <div class="d-flex align-items-center gap-3 p-3 rounded" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255,255,255,0.04);">
                   <div class="stat-icon-box stat-icon-{{ $step1Done ? 'success' : 'secondary' }}" style="width: 38px; height: 38px; font-size: 1.1rem;">
                     <i class="icon-base ti tabler-{{ $step1Done ? 'check' : 'user' }}"></i>
                   </div>
@@ -520,7 +520,7 @@ $configData = Helper::appClasses();
                 $step2Done = !empty($profile->alamat_ktp) && !empty($profile->whatsapp);
               @endphp
               <div class="col-12 col-md-6">
-                <div class="d-flex align-items-center gap-3 p-3 rounded bg-white bg-opacity-5" style="border: 1px solid rgba(255,255,255,0.04);">
+                <div class="d-flex align-items-center gap-3 p-3 rounded" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255,255,255,0.04);">
                   <div class="stat-icon-box stat-icon-{{ $step2Done ? 'success' : 'secondary' }}" style="width: 38px; height: 38px; font-size: 1.1rem;">
                     <i class="icon-base ti tabler-{{ $step2Done ? 'check' : 'map-pin' }}"></i>
                   </div>
@@ -540,7 +540,7 @@ $configData = Helper::appClasses();
                 $step3Done = !empty($profile->pendidikan_terakhir) && !empty($profile->nama_institusi);
               @endphp
               <div class="col-12 col-md-6">
-                <div class="d-flex align-items-center gap-3 p-3 rounded bg-white bg-opacity-5" style="border: 1px solid rgba(255,255,255,0.04);">
+                <div class="d-flex align-items-center gap-3 p-3 rounded" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255,255,255,0.04);">
                   <div class="stat-icon-box stat-icon-{{ $step3Done ? 'success' : 'secondary' }}" style="width: 38px; height: 38px; font-size: 1.1rem;">
                     <i class="icon-base ti tabler-{{ $step3Done ? 'check' : 'school' }}"></i>
                   </div>
@@ -560,7 +560,7 @@ $configData = Helper::appClasses();
                 $step4Done = !empty($profile->pelatihan_id);
               @endphp
               <div class="col-12 col-md-6">
-                <div class="d-flex align-items-center gap-3 p-3 rounded bg-white bg-opacity-5" style="border: 1px solid rgba(255,255,255,0.04);">
+                <div class="d-flex align-items-center gap-3 p-3 rounded" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255,255,255,0.04);">
                   <div class="stat-icon-box stat-icon-{{ $step4Done ? 'success' : 'secondary' }}" style="width: 38px; height: 38px; font-size: 1.1rem;">
                     <i class="icon-base ti tabler-{{ $step4Done ? 'check' : 'heart' }}"></i>
                   </div>
@@ -580,7 +580,7 @@ $configData = Helper::appClasses();
                 $step5Done = !empty($profile->jawaban_pertanyaan);
               @endphp
               <div class="col-12 col-md-6">
-                <div class="d-flex align-items-center gap-3 p-3 rounded bg-white bg-opacity-5" style="border: 1px solid rgba(255,255,255,0.04);">
+                <div class="d-flex align-items-center gap-3 p-3 rounded" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255,255,255,0.04);">
                   <div class="stat-icon-box stat-icon-{{ $step5Done ? 'success' : 'secondary' }}" style="width: 38px; height: 38px; font-size: 1.1rem;">
                     <i class="icon-base ti tabler-{{ $step5Done ? 'check' : 'file-check' }}"></i>
                   </div>
@@ -597,7 +597,7 @@ $configData = Helper::appClasses();
 
               {{-- Tahap 6: Review & Kirim --}}
               <div class="col-12 col-md-6">
-                <div class="d-flex align-items-center gap-3 p-3 rounded bg-white bg-opacity-5" style="border: 1px solid rgba(255,255,255,0.04);">
+                <div class="d-flex align-items-center gap-3 p-3 rounded" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255,255,255,0.04);">
                   <div class="stat-icon-box stat-icon-{{ $step5Done ? 'success' : 'secondary' }}" style="width: 38px; height: 38px; font-size: 1.1rem;">
                     <i class="icon-base ti tabler-{{ $step5Done ? 'check' : 'send' }}"></i>
                   </div>
@@ -842,7 +842,7 @@ $configData = Helper::appClasses();
               <div class="row g-3">
                 @foreach($data['enrollment']->attendances->sortBy('pertemuan_ke') as $att)
                   <div class="col-12 col-sm-6">
-                    <div class="d-flex align-items-center justify-content-between p-3 rounded bg-white bg-opacity-5" style="border: 1px solid rgba(255,255,255,0.04);">
+                    <div class="d-flex align-items-center justify-content-between p-3 rounded" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255,255,255,0.04);">
                       <div class="d-flex align-items-center gap-3">
                         <div class="stat-icon-box stat-icon-primary" style="width: 36px; height: 36px; font-size: 1rem;">
                           {{ $att->pertemuan_ke }}
@@ -875,7 +875,7 @@ $configData = Helper::appClasses();
                 @endforeach
               </div>
             @else
-              <div class="text-center py-4 bg-white bg-opacity-5 rounded border border-white border-opacity-5">
+              <div class="text-center py-4 rounded border border-white border-opacity-5" style="background: rgba(255, 255, 255, 0.05);">
                 <i class="icon-base ti tabler-calendar-off fs-2 text-muted mb-2 d-block"></i>
                 <span class="text-body-premium small">Belum ada riwayat absensi yang tercatat untuk pelatihan ini.</span>
               </div>
@@ -901,7 +901,7 @@ $configData = Helper::appClasses();
                   Anda dinyatakan lulus dari pelatihan <strong>{{ $data['pelatihan']->nama }}</strong>. Sertifikat resmi Anda telah diterbitkan.
                 </p>
 
-                <div class="p-3 mb-4 rounded bg-white bg-opacity-5 border border-white border-opacity-5 text-start">
+                <div class="p-3 mb-4 rounded border border-white border-opacity-5 text-start" style="background: rgba(255, 255, 255, 0.05);">
                   <span class="info-label d-block">Nomor Sertifikat</span>
                   <span class="info-value fw-mono text-warning" style="font-size: 0.85rem; font-family: monospace;">{{ $data['certificate']->certificate_number }}</span>
                 </div>
@@ -916,7 +916,7 @@ $configData = Helper::appClasses();
                 </div>
               </div>
             @else
-              <div class="text-center py-4 bg-white bg-opacity-5 rounded border border-white border-opacity-5">
+              <div class="text-center py-4 rounded border border-white border-opacity-5" style="background: rgba(255, 255, 255, 0.05);">
                 <i class="icon-base ti tabler-award fs-2 text-muted mb-2 d-block"></i>
                 <span class="text-white fw-semibold d-block mb-1">Pelatihan Sedang Berlangsung</span>
                 <p class="text-body-premium mb-0 small" style="font-size: 0.75rem; line-height: 1.4;">

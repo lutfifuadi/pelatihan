@@ -543,7 +543,7 @@ $configData = Helper::appClasses();
             </div>
           </div>
         @else
-          <div class="text-center py-4 bg-white bg-opacity-5 rounded border border-white border-opacity-5">
+          <div class="text-center py-4 rounded border border-white border-opacity-5" style="background: rgba(255, 255, 255, 0.05);">
             <i class="icon-base ti tabler-book-off fs-2 text-muted mb-2 d-block"></i>
             <span class="text-body-premium small">Belum ada pelatihan yang dipilih.</span>
           </div>
