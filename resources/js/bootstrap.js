@@ -9,26 +9,32 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
  * allow your team to quickly build robust real-time web applications.
  */
 
-// Only initialize Echo if broadcast is enabled (set from backend via scripts.blade.php)
+// Only initialize Echo if broadcast is enabled and app key is configured
 if (window.broadcastEnabled === '1') {
-  (async () => {
-    const Echo = (await import('laravel-echo')).default;
-    const Pusher = (await import('pusher-js')).default;
+  const appKey = import.meta.env.VITE_REVERB_APP_KEY;
 
-    window.Pusher = Pusher;
+  if (!appKey) {
+    console.warn('Echo/Reverb not initialized: VITE_REVERB_APP_KEY is not set in .env');
+  } else {
+    (async () => {
+      const Echo = (await import('laravel-echo')).default;
+      const Pusher = (await import('pusher-js')).default;
 
-    window.Echo = new Echo({
-      broadcaster: 'reverb',
-      key: import.meta.env.VITE_REVERB_APP_KEY,
-      wsHost: import.meta.env.VITE_REVERB_HOST ?? window.location.hostname,
-      wsPort: import.meta.env.VITE_REVERB_PORT ?? 80,
-      wssPort: import.meta.env.VITE_REVERB_PORT ?? 443,
-      forceTLS: (import.meta.env.VITE_REVERB_SCHEME ?? 'https') === 'https',
-      enabledTransports: ['ws', 'wss'],
-    });
+      window.Pusher = Pusher;
 
-    // Dispatch event that Echo is loaded and ready
-    document.dispatchEvent(new CustomEvent('echo:ready'));
-  })();
+      window.Echo = new Echo({
+        broadcaster: 'reverb',
+        key: appKey,
+        wsHost: import.meta.env.VITE_REVERB_HOST ?? window.location.hostname,
+        wsPort: import.meta.env.VITE_REVERB_PORT ?? 80,
+        wssPort: import.meta.env.VITE_REVERB_PORT ?? 443,
+        forceTLS: (import.meta.env.VITE_REVERB_SCHEME ?? 'https') === 'https',
+        enabledTransports: ['ws', 'wss'],
+      });
+
+      // Dispatch event that Echo is loaded and ready
+      document.dispatchEvent(new CustomEvent('echo:ready'));
+    })();
+  }
 }
 
