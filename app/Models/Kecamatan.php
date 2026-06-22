@@ -12,6 +12,8 @@ class Kecamatan extends Model
 {
     protected $fillable = [
         'name',
+        'latitude',
+        'longitude',
     ];
 
     /**

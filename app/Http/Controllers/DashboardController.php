@@ -76,6 +76,18 @@ class DashboardController extends Controller
             // --- Kecamatan ---
             $totalKecamatan = Kecamatan::count();
 
+            // --- Sebaran Pendaftar per Kecamatan (Leaflet) ---
+            $sebaranKecamatan = Kecamatan::select('kecamatans.id', 'kecamatans.name', 'kecamatans.latitude', 'kecamatans.longitude')
+                ->selectRaw('COUNT(users.id) as total_pendaftar')
+                ->leftJoin('users', function ($join) {
+                    $join->on('kecamatans.id', '=', 'users.kecamatan_id')
+                        ->where('users.role', '=', 'peserta');
+                })
+                ->whereNotNull('kecamatans.latitude')
+                ->whereNotNull('kecamatans.longitude')
+                ->groupBy('kecamatans.id', 'kecamatans.name', 'kecamatans.latitude', 'kecamatans.longitude')
+                ->get();
+
             // --- Peserta terbaru ---
             $pesertaCount = $userCounts->total_peserta;
 
@@ -99,6 +111,7 @@ class DashboardController extends Controller
                 'activePelatihanCount',
                 'latestPelatihan',
                 'totalKecamatan',
+                'sebaranKecamatan',
                 'pesertaCount',
                 'latestPeserta',
             );

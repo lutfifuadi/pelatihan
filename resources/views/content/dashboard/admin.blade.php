@@ -9,8 +9,61 @@ $configData = Helper::appClasses();
 {{-- DATA SUDAH DI-PASS DARI DashboardController DENGAN CACHE --}}
 
 @section('page-style')
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Sora:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+
+  /* Custom Leaflet Dark Mode styling */
+  #map-sebaran-peserta {
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.6);
+    background: #0b0f19 !important;
+  }
+  .leaflet-bar {
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3) !important;
+  }
+  .leaflet-bar a {
+    background-color: rgba(15, 23, 42, 0.6) !important;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    color: #f8fafc !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+    transition: all 0.3s ease;
+  }
+  .leaflet-bar a:hover {
+    background-color: rgba(99, 102, 241, 0.3) !important;
+  }
+  .custom-leaflet-popup .leaflet-popup-content-wrapper {
+    background: rgba(15, 23, 42, 0.85) !important;
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.12) !important;
+    color: #f8fafc !important;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5) !important;
+    border-radius: 8px !important;
+    padding: 4px;
+  }
+  .custom-leaflet-popup .leaflet-popup-tip {
+    background: rgba(15, 23, 42, 0.85) !important;
+    border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  }
+  .custom-leaflet-popup .leaflet-container a.leaflet-popup-close-button {
+    color: rgba(255, 255, 255, 0.6) !important;
+    padding: 8px !important;
+  }
+  .custom-leaflet-popup .leaflet-container a.leaflet-popup-close-button:hover {
+    color: #f87171 !important;
+  }
+  .custom-leaflet-tooltip {
+    background: rgba(15, 23, 42, 0.9) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    color: #fff !important;
+    border-radius: 4px !important;
+    font-family: 'Outfit', sans-serif;
+    padding: 4px 8px !important;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3) !important;
+  }
 
   .content-wrapper {
     font-family: 'Outfit', sans-serif;
@@ -540,77 +593,21 @@ $configData = Helper::appClasses();
          ============================================================ -->
     <div class="row g-4 mb-4">
       
-      <!-- LEFT: Approval Koordinator Pending -->
+      <!-- LEFT: Peta Sebaran Pendaftar per Kecamatan -->
       <div class="col-12 col-xl-8">
-        <div class="glass-card-premium px-4 px-xl-5 py-4 h-100">
+        <div class="glass-card-premium px-4 px-xl-5 py-4 h-100 d-flex flex-column">
           <div class="d-flex align-items-center justify-content-between mb-4">
             <h5 class="fw-bold text-white mb-0 d-flex align-items-center gap-2">
-              <i class="icon-base ti tabler-user-check text-warning"></i>
-              Approval Koordinator Pending
+              <i class="icon-base ti tabler-map text-warning"></i>
+              Peta Sebaran Pendaftar per Kecamatan
             </h5>
-            <span class="badge-premium badge-premium-warning" id="badge-pending-koordinator">{{ $pendingKoordinatorCount }} Menunggu</span>
+            <a href="{{ route('admin.kecamatan.index') }}" class="btn btn-glow-premium btn-sm py-1 px-3">
+              Lihat Seluruh Kecamatan
+            </a>
           </div>
 
-          <div id="container-pending-koordinator">
-            @if($pendingKoordinators->isEmpty())
-              <div class="text-center py-5">
-                <i class="icon-base ti tabler-discount-check fs-1 text-success mb-3"></i>
-                <h6 class="text-white">Semua pendaftaran bersih!</h6>
-                <p class="text-body-premium small mb-0">Tidak ada pengajuan koordinator yang tertunda.</p>
-              </div>
-            @else
-              <div class="table-responsive">
-                <table class="table table-borderless text-white align-middle">
-                  <thead>
-                    <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.08);">
-                      <th class="text-body-premium small fw-semibold px-0">Nama / NIK</th>
-                      <th class="text-body-premium small fw-semibold">Kecamatan</th>
-                      <th class="text-body-premium small fw-semibold">WhatsApp</th>
-                      <th class="text-body-premium small fw-semibold text-end px-0">Aksi</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    @foreach($pendingKoordinators as $koor)
-                      <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.04);">
-                        <td class="px-0 py-3">
-                          <div class="fw-semibold text-white">{{ $koor->name }}</div>
-                          <small class="text-body-premium">{{ $koor->nik }}</small>
-                        </td>
-                        <td class="py-3">
-                          <span class="badge-premium badge-premium-info">{{ $koor->kecamatan->name ?? '-' }}</span>
-                        </td>
-                        <td class="py-3">
-                          <a href="https://wa.me/{{ $koor->whatsapp }}" target="_blank" class="text-warning text-decoration-none small">
-                            <i class="icon-base ti tabler-brand-whatsapp me-1"></i>{{ $koor->whatsapp }}
-                          </a>
-                        </td>
-                        <td class="text-end px-0 py-3">
-                          <div class="d-inline-flex gap-2">
-                            <form action="{{ route('admin.koordinator.approve', $koor->id) }}" method="POST">
-                              @csrf
-                              <button type="submit" class="btn btn-success btn-sm px-3" style="border-radius: 5px;">
-                                Approve
-                              </button>
-                            </form>
-                            <form action="{{ route('admin.koordinator.reject', $koor->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menolak koordinator ini?')">
-                              @csrf
-                              <button type="submit" class="btn btn-danger btn-sm px-3" style="border-radius: 5px;">
-                                Tolak
-                              </button>
-                            </form>
-                          </div>
-                        </td>
-                      </tr>
-                    @endforeach
-                  </tbody>
-                </table>
-              </div>
-              <div class="text-center mt-3">
-                <a href="{{ route('admin.koordinator.pending') }}" class="btn btn-glow-premium py-2 px-4 w-100">
-                  <i class="icon-base ti tabler-list-check me-1"></i>Lihat Semua Pengajuan
-                </a>
-              </div>
-            @endif
+          <div class="flex-grow-1" style="min-height: 400px; position: relative; border-radius: 5px; overflow: hidden; z-index: 1;">
+            <div id="map-sebaran-peserta" style="height: 400px; width: 100%; border-radius: 5px;"></div>
           </div>
         </div>
       </div>
@@ -669,7 +666,7 @@ $configData = Helper::appClasses();
     <!-- ============================================================
          SECOND ROW: Peserta Terdaftar Baru & Koordinator Wilayah Aktif
          ============================================================ -->
-    <div class="row g-4">
+    <div class="row g-4 mb-4">
       
       <!-- LEFT: Peserta Terdaftar Baru -->
       <div class="col-12 col-xl-6">
@@ -755,10 +752,196 @@ $configData = Helper::appClasses();
 
     </div>
 
+    <!-- ============================================================
+         THIRD ROW: Approval Koordinator Pending & Koordinator Wilayah Aktif (Pindahan/Sekunder)
+         ============================================================ -->
+    <div class="row g-4">
+      
+      <!-- LEFT: Approval Koordinator Pending (Pindahan) -->
+      <div class="col-12 col-xl-6">
+        <div class="glass-card-premium px-4 px-xl-5 py-4 h-100">
+          <div class="d-flex align-items-center justify-content-between mb-4">
+            <h5 class="fw-bold text-white mb-0 d-flex align-items-center gap-2">
+              <i class="icon-base ti tabler-user-check text-warning"></i>
+              Approval Koordinator Pending
+            </h5>
+            <span class="badge-premium badge-premium-warning" id="badge-pending-koordinator">{{ $pendingKoordinatorCount }} Menunggu</span>
+          </div>
+
+          <div id="container-pending-koordinator">
+            @if($pendingKoordinators->isEmpty())
+              <div class="text-center py-5">
+                <i class="icon-base ti tabler-discount-check fs-1 text-success mb-3"></i>
+                <h6 class="text-white">Semua pendaftaran bersih!</h6>
+                <p class="text-body-premium small mb-0">Tidak ada pengajuan koordinator yang tertunda.</p>
+              </div>
+            @else
+              <div class="table-responsive">
+                <table class="table table-borderless text-white align-middle">
+                  <thead>
+                    <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.08);">
+                      <th class="text-body-premium small fw-semibold px-0">Nama / NIK</th>
+                      <th class="text-body-premium small fw-semibold">Kecamatan</th>
+                      <th class="text-body-premium small fw-semibold">WhatsApp</th>
+                      <th class="text-body-premium small fw-semibold text-end px-0">Aksi</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @foreach($pendingKoordinators as $koor)
+                      <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.04);">
+                        <td class="px-0 py-3">
+                          <div class="fw-semibold text-white">{{ $koor->name }}</div>
+                          <small class="text-body-premium">{{ $koor->nik }}</small>
+                        </td>
+                        <td class="py-3">
+                          <span class="badge-premium badge-premium-info">{{ $koor->kecamatan->name ?? '-' }}</span>
+                        </td>
+                        <td class="py-3">
+                          <a href="https://wa.me/{{ $koor->whatsapp }}" target="_blank" class="text-warning text-decoration-none small">
+                            <i class="icon-base ti tabler-brand-whatsapp me-1"></i>{{ $koor->whatsapp }}
+                          </a>
+                        </td>
+                        <td class="text-end px-0 py-3">
+                          <div class="d-inline-flex gap-2">
+                            <form action="{{ route('admin.koordinator.approve', $koor->id) }}" method="POST">
+                              @csrf
+                              <button type="submit" class="btn btn-success btn-sm px-3" style="border-radius: 5px;">
+                                Approve
+                              </button>
+                            </form>
+                            <form action="{{ route('admin.koordinator.reject', $koor->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menolak koordinator ini?')">
+                              @csrf
+                              <button type="submit" class="btn btn-danger btn-sm px-3" style="border-radius: 5px;">
+                                Tolak
+                              </button>
+                            </form>
+                          </div>
+                        </td>
+                      </tr>
+                    @endforeach
+                  </tbody>
+                </table>
+              </div>
+              <div class="text-center mt-3">
+                <a href="{{ route('admin.koordinator.pending') }}" class="btn btn-glow-premium py-2 px-4 w-100">
+                  <i class="icon-base ti tabler-list-check me-1"></i>Lihat Semua Pengajuan
+                </a>
+              </div>
+            @endif
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT: Koordinator Wilayah Aktif (Pindahan) -->
+      <div class="col-12 col-xl-6">
+        <div class="glass-card-premium px-4 px-xl-5 py-4 h-100">
+          <div class="d-flex align-items-center justify-content-between mb-4">
+            <h5 class="fw-bold text-white mb-0 d-flex align-items-center gap-2">
+              <i class="icon-base ti tabler-map-pins text-info"></i>
+              Koordinator Wilayah Aktif
+            </h5>
+            <span class="badge-premium badge-premium-info" id="badge-active-koors-sec">{{ $koorActiveCount }} Aktif</span>
+          </div>
+
+          <div id="container-active-koors-sec">
+            @if($activeKoors->isEmpty())
+              <div class="text-center py-4">
+                <i class="icon-base ti tabler-user-x fs-2 text-muted mb-2"></i>
+                <p class="text-body-premium small mb-0">Belum ada koordinator aktif.</p>
+              </div>
+            @else
+              <div class="d-flex flex-column gap-3">
+                @foreach($activeKoors as $k)
+                  <div class="d-flex align-items-center justify-content-between">
+                    <div class="d-flex align-items-center gap-3">
+                      <div class="instructor-avatar text-white" style="background: rgba(6, 182, 212, 0.15); color: #22d3ee;">
+                        {{ strtoupper(substr($k->name, 0, 2)) }}
+                      </div>
+                      <div>
+                        <h6 class="text-white fw-semibold mb-0" style="font-size: 0.85rem;">{{ $k->name }}</h6>
+                        <small class="text-body-premium">Kecamatan: {{ $k->kecamatan->name ?? '-' }}</small>
+                      </div>
+                    </div>
+                    @if($k->whatsapp)
+                      <a href="https://wa.me/{{ $k->whatsapp }}" target="_blank" class="btn btn-sm btn-outline-success px-2 py-1" style="border-radius: 4px; font-size: 11px;">
+                        <i class="icon-base ti tabler-brand-whatsapp"></i> Chat
+                      </a>
+                    @endif
+                  </div>
+                @endforeach
+              </div>
+            @endif
+          </div>
+        </div>
+      </div>
+
+    </div>
+
   </div>
 @endsection
 
 @section('page-script')
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Inisialisasi peta Bandung (-6.914744, 107.609810, zoom 12)
+      var map = L.map('map-sebaran-peserta', {
+        center: [-6.914744, 107.609810],
+        zoom: 12,
+        zoomControl: true,
+        attributionControl: false
+      });
+
+      // CartoDB Dark Matter
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+        maxZoom: 20
+      }).addTo(map);
+
+      // Data sebaran kecamatan dari backend
+      var sebaranKecamatan = @json($sebaranKecamatan);
+
+      sebaranKecamatan.forEach(function(kec) {
+        if (kec.latitude && kec.longitude) {
+          var count = parseInt(kec.total_pendaftar) || 0;
+          if (count > 0) {
+            // Hitung radius proporsional: Math.sqrt(total_pendaftar) * 150 (dengan minimal radius 150 meter)
+            var radius = Math.max(Math.sqrt(count) * 150, 150);
+            
+            // Render lingkaran L.circle
+            var circle = L.circle([kec.latitude, kec.longitude], {
+              color: '#6366f1',
+              fillColor: '#818cf8',
+              fillOpacity: 0.45,
+              weight: 2,
+              radius: radius
+            }).addTo(map);
+
+            // Bind popup & tooltip cantik
+            var popupContent = `
+              <div style="font-family: 'Outfit', sans-serif; color: #fff; padding: 4px;">
+                <h6 style="font-family: 'Sora', sans-serif; font-weight: 700; margin-bottom: 8px; color: #818cf8;">Kecamatan ${kec.name}</h6>
+                <div style="display: flex; justify-content: space-between; gap: 24px; font-size: 13px;">
+                  <span style="color: rgba(255,255,255,0.7);">Total Pendaftar:</span>
+                  <span style="font-weight: 700; color: #fbbf24;">${count} Peserta</span>
+                </div>
+              </div>
+            `;
+
+            circle.bindPopup(popupContent, {
+              className: 'custom-leaflet-popup',
+              closeButton: true
+            });
+
+            circle.bindTooltip(`Kec. ${kec.name} (${count} Pendaftar)`, {
+              className: 'custom-leaflet-tooltip',
+              direction: 'top',
+              sticky: true
+            });
+          }
+        }
+      });
+    });
+  </script>
   @vite(['resources/assets/js/dashboard-admin.js'])
 @endsection
 
