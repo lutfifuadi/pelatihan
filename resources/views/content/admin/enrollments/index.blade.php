@@ -314,7 +314,6 @@ $configData = Helper::appClasses();
               <th class="text-body-premium small fw-semibold px-0" style="width: 50px;">No</th>
               <th class="text-body-premium small fw-semibold">Nama Peserta</th>
               <th class="text-body-premium small fw-semibold">Pelatihan</th>
-              <th class="text-body-premium small fw-semibold">WhatsApp</th>
               <th class="text-body-premium small fw-semibold">Tgl Daftar</th>
               <th class="text-body-premium small fw-semibold">Status</th>
               <th class="text-body-premium small fw-semibold text-end px-0" style="width: 260px;">Aksi</th>

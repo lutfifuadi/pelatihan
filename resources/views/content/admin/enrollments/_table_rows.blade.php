@@ -9,9 +9,6 @@
       <div class="fw-semibold text-white" style="font-size: 0.85rem;">{{ $enrollment->pelatihan->nama }}</div>
       <div class="text-body-premium" style="font-size: 0.7rem;">Batch: {{ $enrollment->pelatihan->batch }}</div>
     </td>
-    <td class="py-3 text-body-premium">
-      {{ $enrollment->user->whatsapp ?? '-' }}
-    </td>
     <td class="py-3 text-body-premium" style="font-size: 0.85rem;">
       {{ $enrollment->created_at->format('d/m/Y H:i') }}
     </td>
@@ -125,7 +122,7 @@
   </tr>
 @empty
   <tr>
-    <td colspan="7" class="text-center text-body-premium py-5">
+    <td colspan="6" class="text-center text-body-premium py-5">
       <i class="icon-base ti tabler-inbox fs-1 mb-2 d-block text-warning"></i>
       Belum ada pendaftaran.
     </td>
