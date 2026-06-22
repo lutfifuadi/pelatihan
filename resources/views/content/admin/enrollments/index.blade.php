@@ -148,6 +148,37 @@ $configData = Helper::appClasses();
     background-color: #0b0f19 !important;
     color: #f8fafc !important;
   }
+
+  /* SweetAlert2 Custom Styling */
+  .swal2-popup.swal2-custom-popup {
+    background: #0f172a !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    border-radius: 8px !important;
+    padding: 1.75rem !important;
+  }
+  .swal2-title.swal2-custom-title {
+    font-size: 1.15rem !important;
+    font-family: 'Sora', sans-serif !important;
+    font-weight: 600 !important;
+    color: #ffffff !important;
+    margin-top: 1rem !important;
+    margin-bottom: 0.75rem !important;
+  }
+  .swal2-html-container.swal2-custom-text {
+    font-size: 0.85rem !important;
+    line-height: 1.6 !important;
+    color: rgba(255, 255, 255, 0.75) !important;
+    margin-bottom: 1.5rem !important;
+    padding: 0 !important;
+  }
+  .swal2-custom-popup .swal2-icon {
+    transform: scale(0.85) !important;
+    margin-top: 0.5rem !important;
+    margin-bottom: 0.25rem !important;
+  }
+  .swal2-actions.swal2-custom-actions {
+    margin-top: 0.5rem !important;
+  }
 </style>
 @endsection
 
@@ -514,20 +545,20 @@ $configData = Helper::appClasses();
 
     Swal.fire({
       title: 'Reset Pendaftaran?',
-      html: `Pendaftaran <strong>${userName}</strong> untuk pelatihan <strong>${pelatihanNama}</strong> akan dihapus.<br><br>Peserta dapat mendaftar ulang untuk pelatihan yang benar.`,
+      html: `<div style="margin-bottom: 0.25rem;">Pendaftaran <strong style="color: #fbbf24;">${userName}</strong> untuk pelatihan</div><div><strong style="color: #93c5fd;">${pelatihanNama}</strong> akan dihapus.</div><div class="mt-3 pt-2" style="border-top: 1px solid rgba(255,255,255,0.06); color: rgba(255,255,255,0.5); font-size: 0.8rem;">Peserta dapat mendaftar ulang untuk pelatihan yang benar.</div>`,
       icon: 'warning',
       showCancelButton: true,
       confirmButtonText: 'Ya, Reset!',
       cancelButtonText: 'Batal',
-      confirmButtonColor: '#f59e0b',
       reverseButtons: true,
       background: '#0f172a',
       color: '#f8fafc',
       customClass: {
-        popup: 'rounded-3 shadow-lg',
-        title: 'fw-bold text-white',
-        htmlContainer: 'text-body-premium',
-        confirmButton: 'btn btn-warning px-4 py-2 border-0 me-2 fw-semibold',
+        popup: 'swal2-custom-popup shadow-lg',
+        title: 'swal2-custom-title',
+        htmlContainer: 'swal2-custom-text',
+        actions: 'swal2-custom-actions gap-3',
+        confirmButton: 'btn btn-warning px-4 py-2 border-0 fw-semibold',
         cancelButton: 'btn btn-secondary-custom px-4 py-2 border-0',
       },
       buttonsStyling: false,
