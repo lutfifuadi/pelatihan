@@ -118,6 +118,13 @@
       <a href="{{ route('admin.enrollments.show', $enrollment) }}" class="btn btn-outline-info btn-sm d-inline-flex align-items-center justify-content-center ms-1" style="border-radius: 5px; width: 32px; height: 32px; padding: 0; border-color: rgba(96,165,250,0.3); color: #93c5fd;" title="Detail">
         <i class="icon-base ti tabler-eye fs-5"></i>
       </a>
+      <form action="{{ route('admin.enrollments.reset', $enrollment) }}" method="POST" class="d-inline reset-enrollment-form" data-name="{{ $enrollment->user->name }}" data-pelatihan="{{ $enrollment->pelatihan->nama }}">
+        @csrf
+        @method('DELETE')
+        <button type="submit" class="btn btn-warning btn-sm d-inline-flex align-items-center justify-content-center ms-1" style="border-radius: 5px; width: 32px; height: 32px; padding: 0; border: none; background: linear-gradient(135deg, #f59e0b, #d97706);" title="Reset pendaftaran">
+          <i class="icon-base ti tabler-refresh fs-5"></i>
+        </button>
+      </form>
     </td>
   </tr>
 @empty

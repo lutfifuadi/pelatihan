@@ -502,5 +502,40 @@ $configData = Helper::appClasses();
       fetchData();
     });
   })();
+
+  // Reset Enrollment Forms — menggunakan event delegation agar tetap jalan setelah AJAX load
+  document.addEventListener('submit', function(e) {
+    const form = e.target.closest('.reset-enrollment-form');
+    if (!form) return;
+
+    e.preventDefault();
+    const userName = form.getAttribute('data-name');
+    const pelatihanNama = form.getAttribute('data-pelatihan');
+
+    Swal.fire({
+      title: 'Reset Pendaftaran?',
+      html: `Pendaftaran <strong>${userName}</strong> untuk pelatihan <strong>${pelatihanNama}</strong> akan dihapus.<br><br>Peserta dapat mendaftar ulang untuk pelatihan yang benar.`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Ya, Reset!',
+      cancelButtonText: 'Batal',
+      confirmButtonColor: '#f59e0b',
+      reverseButtons: true,
+      background: '#0f172a',
+      color: '#f8fafc',
+      customClass: {
+        popup: 'rounded-3 shadow-lg',
+        title: 'fw-bold text-white',
+        htmlContainer: 'text-body-premium',
+        confirmButton: 'btn btn-warning px-4 py-2 border-0 me-2 fw-semibold',
+        cancelButton: 'btn btn-secondary-custom px-4 py-2 border-0',
+      },
+      buttonsStyling: false,
+    }).then((result) => {
+      if (result.isConfirmed) {
+        form.submit();
+      }
+    });
+  });
 </script>
 @endsection

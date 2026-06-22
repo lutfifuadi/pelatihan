@@ -204,6 +204,24 @@ class EnrollmentController extends Controller
     }
 
     /**
+     * Reset enrollment — hapus pendaftaran agar peserta bisa daftar ulang.
+     */
+    public function reset(Request $request, Enrollment $enrollment)
+    {
+        $userName = $enrollment->user?->name ?? 'Unknown';
+        $pelatihanNama = $enrollment->pelatihan?->nama ?? 'Unknown';
+        $enrollmentId = $enrollment->id;
+
+        $enrollment->delete();
+
+        ActivityLogger::action('deleted', 'Enrollment', "Pendaftaran {$userName} untuk pelatihan {$pelatihanNama} di-reset oleh admin", $enrollmentId, $userName);
+
+        event(new \App\Events\DashboardUpdated());
+
+        return redirect()->back()->with('success', "Pendaftaran {$userName} untuk pelatihan {$pelatihanNama} berhasil di-reset. Peserta dapat mendaftar ulang.");
+    }
+
+    /**
      * Otomatis promosikan waitlist jika ada slot kosong.
      */
     private function promoteFromWaitlist($pelatihanId)
