@@ -13,7 +13,7 @@ class SettingController extends Controller
         $settings = Setting::whereIn('key', [
             'brand_name', 'brand_logo_size',
             'institution_name', 'institution_address', 'institution_phone', 'institution_email', 'institution_description',
-            'footer_copyright', 'lock_kota', 'lock_provinsi', 'validate_whatsapp'
+            'footer_copyright', 'lock_kota', 'lock_provinsi', 'validate_whatsapp', 'broadcast_enabled'
         ])
             ->get()
             ->keyBy('key');
@@ -35,12 +35,13 @@ class SettingController extends Controller
             'lock_kota' => 'nullable|string|max:100',
             'lock_provinsi' => 'nullable|string|max:100',
             'validate_whatsapp' => 'required|in:0,1',
+            'broadcast_enabled' => 'required|in:0,1',
         ]);
 
         $keys = [
             'brand_name', 'brand_logo_size',
             'institution_name', 'institution_address', 'institution_phone', 'institution_email', 'institution_description',
-            'footer_copyright', 'lock_kota', 'lock_provinsi', 'validate_whatsapp'
+            'footer_copyright', 'lock_kota', 'lock_provinsi', 'validate_whatsapp', 'broadcast_enabled'
         ];
         $labels = [
             'brand_name' => 'Nama Brand Aplikasi',
@@ -54,6 +55,7 @@ class SettingController extends Controller
             'lock_kota' => 'Kota/Kabupaten (terkunci)',
             'lock_provinsi' => 'Provinsi (terkunci)',
             'validate_whatsapp' => 'Validasi Otomatis Nomor WhatsApp',
+            'broadcast_enabled' => 'Aktifkan Broadcast Real-time',
         ];
 
         foreach ($keys as $key) {

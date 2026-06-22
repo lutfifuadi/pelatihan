@@ -149,6 +149,15 @@ class DashboardUpdated implements ShouldBroadcastNow
     }
 
     /**
+     * Determine if this event should broadcast.
+     */
+    public function broadcastWhen(): bool
+    {
+        $enabled = \App\Models\Setting::where('key', 'broadcast_enabled')->value('value') ?? '1';
+        return $enabled === '1';
+    }
+
+    /**
      * Broadcast's event name.
      */
     public function broadcastAs(): string

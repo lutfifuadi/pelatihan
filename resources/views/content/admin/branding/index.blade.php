@@ -420,6 +420,34 @@ $configData = Helper::appClasses();
           <hr class="my-5" style="border-color: rgba(255,255,255,0.08);">
 
           <h5 class="fw-bold text-white mb-4" style="font-family: 'Sora', sans-serif;">
+            <i class="icon-base ti tabler-broadcast me-2"></i>Broadcast Real-time
+          </h5>
+          <p class="text-body-premium mb-4" style="font-size: 0.85rem;">
+            Mengaktifkan pembaruan dashboard secara real-time menggunakan WebSocket (Pusher / Reverb).
+          </p>
+
+          {{-- Broadcast Enabled --}}
+          <div class="mb-4">
+            <label for="broadcast_enabled" class="form-label">Status Broadcast <span class="text-danger">*</span></label>
+            <select class="form-select @error('broadcast_enabled') is-invalid @enderror"
+              id="broadcast_enabled" name="broadcast_enabled" required>
+              @php
+                $currentBroadcast = old('broadcast_enabled', ($settings['broadcast_enabled'] ?? null)?->value ?? '1');
+              @endphp
+              <option value="1" {{ $currentBroadcast == '1' ? 'selected' : '' }}>Aktif (Broadcast real-time menyala)</option>
+              <option value="0" {{ $currentBroadcast == '0' ? 'selected' : '' }}>Nonaktif (Broadcast dimatikan)</option>
+            </select>
+            @error('broadcast_enabled')
+              <div class="invalid-feedback mt-1">{{ $message }}</div>
+            @enderror
+            <small class="text-body-premium mt-1 d-block" style="font-size: 0.75rem;">
+              <i class="icon-base ti tabler-info-circle me-1"></i>Nonaktifkan jika server WebSocket (Pusher/Reverb) tidak berjalan, untuk menghindari error koneksi.
+            </small>
+          </div>
+
+          <hr class="my-5" style="border-color: rgba(255,255,255,0.08);">
+
+          <h5 class="fw-bold text-white mb-4" style="font-family: 'Sora', sans-serif;">
             <i class="icon-base ti tabler-lock me-2"></i>Penguncian Wilayah
           </h5>
           <p class="text-body-premium mb-4" style="font-size: 0.85rem;">
