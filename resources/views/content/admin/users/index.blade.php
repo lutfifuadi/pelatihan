@@ -294,6 +294,35 @@ $configData = Helper::appClasses();
     border-color: rgba(255, 255, 255, 0.05) !important;
     color: rgba(255, 255, 255, 0.3) !important;
   }
+
+  /* SweetAlert2 Custom Styling */
+  .swal2-popup.swal2-custom-popup {
+    background: #0f172a !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    border-radius: 8px !important;
+    padding: 1.75rem !important;
+  }
+  .swal2-title.swal2-custom-title {
+    font-size: 1.15rem !important;
+    font-family: 'Sora', sans-serif !important;
+    font-weight: 600 !important;
+    color: #ffffff !important;
+    margin-top: 1rem !important;
+    margin-bottom: 0.75rem !important;
+  }
+  .swal2-html-container.swal2-custom-text {
+    font-size: 0.85rem !important;
+    line-height: 1.5 !important;
+    color: rgba(255, 255, 255, 0.7) !important;
+    margin-bottom: 1.5rem !important;
+  }
+  .swal2-custom-popup .swal2-icon {
+    transform: scale(0.85) !important;
+    margin-top: 0.5rem !important;
+  }
+  .swal2-actions.swal2-custom-actions {
+    margin-top: 1rem !important;
+  }
 </style>
 @endsection
 
@@ -454,16 +483,18 @@ $configData = Helper::appClasses();
 
     // ===== SWEETALERT2 DARK THEME =====
     const swalDark = Swal.mixin({
-      background: '#1e293b',
+      background: '#0f172a',
       color: '#f8fafc',
       confirmButtonColor: '#6366f1',
       cancelButtonColor: '#6b7280',
       iconColor: '#a5b4fc',
       customClass: {
-        popup: 'rounded-3 shadow-lg',
-        title: 'fw-bold text-white',
-        confirmButton: 'btn btn-primary px-3 py-2 border-0 me-2',
-        cancelButton: 'btn btn-secondary px-3 py-2 border-0',
+        popup: 'swal2-custom-popup shadow-lg',
+        title: 'swal2-custom-title',
+        htmlContainer: 'swal2-custom-text',
+        actions: 'swal2-custom-actions',
+        confirmButton: 'btn btn-glow-premium px-4 py-2 border-0 me-2',
+        cancelButton: 'btn btn-secondary-custom px-4 py-2 border-0',
       },
       buttonsStyling: false,
     });
@@ -621,6 +652,14 @@ $configData = Helper::appClasses();
             showCancelButton: true,
             confirmButtonText: 'Ya, Hapus!',
             cancelButtonText: 'Batal',
+            customClass: {
+              popup: 'swal2-custom-popup shadow-lg',
+              title: 'swal2-custom-title',
+              htmlContainer: 'swal2-custom-text',
+              actions: 'swal2-custom-actions',
+              confirmButton: 'btn btn-danger px-4 py-2 border-0 me-2',
+              cancelButton: 'btn btn-secondary-custom px-4 py-2 border-0',
+            },
             reverseButtons: true
           }).then((result) => {
             if (result.isConfirmed) {
@@ -667,7 +706,6 @@ $configData = Helper::appClasses();
             showCancelButton: true,
             confirmButtonText: 'Ya, Reset!',
             cancelButtonText: 'Batal',
-            confirmButtonColor: '#f59e0b',
             reverseButtons: true
           }).then((result) => {
             if (result.isConfirmed) {
