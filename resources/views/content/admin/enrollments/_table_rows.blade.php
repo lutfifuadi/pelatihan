@@ -31,22 +31,22 @@
           @break
       @endswitch
     </td>
-    <td class="text-end px-0 py-3">
+    <td class="text-end px-0 py-3" style="white-space: nowrap;">
       @if($enrollment->status === 'pending')
         <form action="{{ route('admin.enrollments.approve', $enrollment) }}" method="POST" class="d-inline">
           @csrf
-          <button type="submit" class="btn btn-success btn-action">
-            <i class="icon-base ti tabler-check me-1"></i> Approve
+          <button type="submit" class="btn btn-success btn-sm d-inline-flex align-items-center justify-content-center" style="border-radius: 5px; width: 32px; height: 32px; padding: 0; border: none;" title="Approve">
+            <i class="icon-base ti tabler-check fs-5"></i>
           </button>
         </form>
         <form action="{{ route('admin.enrollments.waitlist', $enrollment) }}" method="POST" class="d-inline">
           @csrf
-          <button type="submit" class="btn btn-info btn-action">
-            <i class="icon-base ti tabler-clock me-1"></i> Cadangan
+          <button type="submit" class="btn btn-info btn-sm d-inline-flex align-items-center justify-content-center" style="border-radius: 5px; width: 32px; height: 32px; padding: 0; border: none;" title="Cadangan">
+            <i class="icon-base ti tabler-clock fs-5"></i>
           </button>
         </form>
-        <button type="button" class="btn btn-danger btn-action" data-bs-toggle="modal" data-bs-target="#rejectModal{{ $enrollment->id }}">
-          <i class="icon-base ti tabler-x me-1"></i> Tolak
+        <button type="button" class="btn btn-danger btn-sm d-inline-flex align-items-center justify-content-center" style="border-radius: 5px; width: 32px; height: 32px; padding: 0; border: none;" data-bs-toggle="modal" data-bs-target="#rejectModal{{ $enrollment->id }}" title="Tolak">
+          <i class="icon-base ti tabler-x fs-5"></i>
         </button>
 
         {{-- Modal Reject --}}
@@ -75,12 +75,12 @@
       @elseif($enrollment->status === 'waitlist')
         <form action="{{ route('admin.enrollments.promote', $enrollment) }}" method="POST" class="d-inline">
           @csrf
-          <button type="submit" class="btn btn-success btn-action">
-            <i class="icon-base ti tabler-arrow-up me-1"></i> Promosikan
+          <button type="submit" class="btn btn-success btn-sm d-inline-flex align-items-center justify-content-center" style="border-radius: 5px; width: 32px; height: 32px; padding: 0; border: none;" title="Promosikan">
+            <i class="icon-base ti tabler-arrow-up fs-5"></i>
           </button>
         </form>
-        <button type="button" class="btn btn-danger btn-action" data-bs-toggle="modal" data-bs-target="#rejectModal{{ $enrollment->id }}">
-          <i class="icon-base ti tabler-x me-1"></i> Tolak
+        <button type="button" class="btn btn-danger btn-sm d-inline-flex align-items-center justify-content-center" style="border-radius: 5px; width: 32px; height: 32px; padding: 0; border: none;" data-bs-toggle="modal" data-bs-target="#rejectModal{{ $enrollment->id }}" title="Tolak">
+          <i class="icon-base ti tabler-x fs-5"></i>
         </button>
         {{-- Modal Reject --}}
         <div class="modal fade" id="rejectModal{{ $enrollment->id }}" tabindex="-1">
@@ -115,8 +115,8 @@
         </span>
       @endif
 
-      <a href="{{ route('admin.enrollments.show', $enrollment) }}" class="btn btn-outline-info btn-action ms-1" style="border-color: rgba(96,165,250,0.2); color: #93c5fd;" title="Detail">
-        <i class="icon-base ti tabler-eye"></i>
+      <a href="{{ route('admin.enrollments.show', $enrollment) }}" class="btn btn-outline-info btn-sm d-inline-flex align-items-center justify-content-center ms-1" style="border-radius: 5px; width: 32px; height: 32px; padding: 0; border-color: rgba(96,165,250,0.3); color: #93c5fd;" title="Detail">
+        <i class="icon-base ti tabler-eye fs-5"></i>
       </a>
     </td>
   </tr>

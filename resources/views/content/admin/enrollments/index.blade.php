@@ -316,7 +316,7 @@ $configData = Helper::appClasses();
               <th class="text-body-premium small fw-semibold">Pelatihan</th>
               <th class="text-body-premium small fw-semibold">Tgl Daftar</th>
               <th class="text-body-premium small fw-semibold">Status</th>
-              <th class="text-body-premium small fw-semibold text-end px-0" style="width: 260px;">Aksi</th>
+              <th class="text-body-premium small fw-semibold text-end px-0" style="width: 140px;">Aksi</th>
             </tr>
           </thead>
           <tbody id="table-content">
