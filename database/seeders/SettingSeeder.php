@@ -85,6 +85,7 @@ class SettingSeeder extends Seeder
             ['key' => 'hero_tag_3_text', 'value' => 'Teknologi & Digital', 'group' => 'landing', 'label' => 'Hero: Tag 3 - Teks'],
             ['key' => 'lock_kota', 'value' => 'BANDUNG', 'group' => 'general', 'label' => 'Kota yang Terkunci untuk Pendaftaran'],
             ['key' => 'lock_provinsi', 'value' => 'Jawa Barat', 'group' => 'general', 'label' => 'Provinsi yang Terkunci untuk Pendaftaran'],
+            ['key' => 'validate_whatsapp', 'value' => '1', 'group' => 'general', 'label' => 'Validasi Otomatis Nomor WhatsApp'],
         ];
 
         foreach ($settings as $setting) {

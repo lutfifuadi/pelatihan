@@ -133,6 +133,16 @@ class RegistrationController extends Controller
             $number = '62' . $number;
         }
 
+        // Cek setting validate_whatsapp dari database
+        $validateWhatsapp = \App\Models\Setting::where('key', 'validate_whatsapp')->value('value') ?? '1';
+        if ($validateWhatsapp === '0') {
+            return response()->json([
+                'status' => true,
+                'exists' => true,
+                'message' => 'Validasi nomor dinonaktifkan.',
+            ]);
+        }
+
         try {
             $waUrl = \App\Models\Setting::where('key', 'whatsapp_api_url')->value('value')
                 ?? env('WA_API_URL', 'https://wa.test/check-number');

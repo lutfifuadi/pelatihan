@@ -98,6 +98,26 @@ class LandingTest extends TestCase
         ]);
     }
 
+    public function test_check_wa_bypass_when_disabled(): void
+    {
+        // Set validate_whatsapp ke '0' (OFF)
+        \App\Models\Setting::updateOrCreate(
+            ['key' => 'validate_whatsapp'],
+            ['value' => '0', 'group' => 'general', 'label' => 'Validasi Otomatis Nomor WhatsApp']
+        );
+
+        $response = $this->post('/daftar/cek-wa', [
+            'number' => '081234567899',
+        ]);
+
+        $response->assertStatus(200);
+        $response->assertJson([
+            'status' => true,
+            'exists' => true,
+            'message' => 'Validasi nomor dinonaktifkan.',
+        ]);
+    }
+
     public function test_pelatihan_detail_page(): void
     {
         $pelatihan = Pelatihan::create([

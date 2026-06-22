@@ -389,6 +389,25 @@ $configData = Helper::appClasses();
             @enderror
           </div>
 
+          {{-- Validasi Otomatis Nomor WhatsApp --}}
+          <div class="mb-4">
+            <label for="validate_whatsapp" class="form-label">Validasi Otomatis Nomor WhatsApp <span class="text-danger">*</span></label>
+            <select class="form-select @error('validate_whatsapp') is-invalid @enderror"
+              id="validate_whatsapp" name="validate_whatsapp" required>
+              @php
+                $currentValidateWa = old('validate_whatsapp', ($settings['validate_whatsapp'] ?? null)?->value ?? '1');
+              @endphp
+              <option value="1" {{ $currentValidateWa == '1' ? 'selected' : '' }}>Aktif (Periksa Nomor Terdaftar via API)</option>
+              <option value="0" {{ $currentValidateWa == '0' ? 'selected' : '' }}>Nonaktif (Lewati Pemeriksaan, Selalu Izinkan)</option>
+            </select>
+            @error('validate_whatsapp')
+              <div class="invalid-feedback mt-1">{{ $message }}</div>
+            @enderror
+            <small class="text-body-premium mt-1 d-block" style="font-size: 0.8rem;">
+              Tentukan apakah sistem harus memverifikasi keaktifan nomor WhatsApp pendaftar melalui API eksternal.
+            </small>
+          </div>
+
           <hr class="my-5" style="border-color: rgba(255,255,255,0.08);">
 
           <h5 class="fw-bold text-white mb-4" style="font-family: 'Sora', sans-serif;">
