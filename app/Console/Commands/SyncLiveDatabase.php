@@ -31,11 +31,11 @@ class SyncLiveDatabase extends Command
         
         // Define live DB connection configuration
         $liveConfig = [
-            'host' => '103.197.191.226',
-            'port' => '3306',
-            'database' => 'pelatihanku',
-            'username' => 'pelatihanku',
-            'password' => 'Di6YNZsZnHCmXfMD',
+            'host' => env('LIVE_DB_HOST', '103.197.191.226'),
+            'port' => env('LIVE_DB_PORT', '3306'),
+            'database' => env('LIVE_DB_DATABASE', 'pelatihanku'),
+            'username' => env('LIVE_DB_USERNAME', 'pelatihanku'),
+            'password' => env('LIVE_DB_PASSWORD', 'Di6YNZsZnHCmXfMD'),
         ];
 
         // Define target DB connection details based on option
@@ -49,11 +49,11 @@ class SyncLiveDatabase extends Command
             ];
         } elseif ($target === 'dev') {
             $targetConfig = [
-                'host' => '103.197.191.226',
-                'port' => '3306',
-                'database' => 'dev_pelatihanku',
-                'username' => 'dev_pelatihanku',
-                'password' => 'HyGBmRJKrbJXh8Hn',
+                'host' => env('DEV_DB_HOST', '103.197.191.226'),
+                'port' => env('DEV_DB_PORT', '3306'),
+                'database' => env('DEV_DB_DATABASE', 'dev_pelatihanku'),
+                'username' => env('DEV_DB_USERNAME', 'dev_pelatihanku'),
+                'password' => env('DEV_DB_PASSWORD', 'HyGBmRJKrbJXh8Hn'),
             ];
         } else {
             $this->error("Target invalid! Hanya 'local' atau 'dev' yang didukung.");

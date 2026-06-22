@@ -348,9 +348,14 @@ $configData = Helper::appClasses();
         <div class="row align-items-center g-3">
           <!-- Search input -->
           <div class="col-12 col-md-5">
-            <div class="position-relative">
-              <i class="icon-base ti tabler-search position-absolute top-50 start-0 translate-middle-y ms-3 text-body-premium" style="font-size: 1rem; z-index: 2;"></i>
-              <input type="text" id="search-input" class="form-control" placeholder="Cari nama, email, NIK, atau WhatsApp..." value="{{ $search ?? '' }}" style="padding-left: 2.5rem !important;">
+            <div class="d-flex gap-2">
+              <div class="position-relative flex-grow-1">
+                <i class="icon-base ti tabler-search position-absolute top-50 start-0 translate-middle-y ms-3 text-body-premium" style="font-size: 1rem; z-index: 2;"></i>
+                <input type="text" id="search-input" class="form-control" placeholder="Cari nama, email, NIK, atau WhatsApp..." value="{{ $search ?? '' }}" style="padding-left: 2.5rem !important;">
+              </div>
+              <button type="button" id="search-btn" class="btn btn-glow-premium px-3 py-2" style="white-space: nowrap; border-radius: 5px;" title="Cari">
+                <i class="icon-base ti tabler-search"></i>
+              </button>
             </div>
           </div>
 
@@ -392,13 +397,40 @@ $configData = Helper::appClasses();
     <!-- Data Table Container -->
     <div class="col-12">
       <div class="glass-card-premium px-4 py-4 mb-5">
-        <div id="table-container">
-          @include('content.admin.users._table')
+        <div class="table-responsive">
+          <table class="table table-borderless text-white align-middle">
+            <thead>
+              <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.08);">
+                <th class="text-body-premium small fw-semibold px-0" style="width: 60px;">No</th>
+                <th class="text-body-premium small fw-semibold">Detail User</th>
+                <th class="text-body-premium small fw-semibold">NIK</th>
+                <th class="text-body-premium small fw-semibold">No. WhatsApp</th>
+                <th class="text-body-premium small fw-semibold">Role</th>
+                <th class="text-body-premium small fw-semibold text-center" style="width: 100px;">Status</th>
+                <th class="text-body-premium small fw-semibold">Tanggal Terdaftar</th>
+                <th class="text-body-premium small fw-semibold text-end px-0" style="width: 100px;">Aksi</th>
+              </tr>
+            </thead>
+            <tbody id="table-content">
+              @include('content.admin.users._table_rows')
+            </tbody>
+          </table>
+        </div>
+        <div id="table-pagination">
+          @if($users->hasPages())
+            <div class="mt-4 pt-3" style="border-top: 1px solid rgba(255, 255, 255, 0.05);">
+              {{ $users->links() }}
+            </div>
+          @endif
         </div>
       </div>
     </div>
 
   </div>
+@endsection
+
+@section('vendor-script')
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 @endsection
 
 @section('page-script')
@@ -407,16 +439,18 @@ $configData = Helper::appClasses();
     let search = {!! json_encode($search ?? '') !!};
     let role = {!! json_encode($role ?? '') !!};
     let status = {!! json_encode($status ?? '') !!};
-    let page = 1;
     let loading = false;
     let debounceTimer = null;
+    let abortController = null;
 
     const searchInput = document.getElementById('search-input');
+    const searchBtn = document.getElementById('search-btn');
     const roleFilter = document.getElementById('role-filter');
     const statusFilter = document.getElementById('status-filter');
     const resetBtn = document.getElementById('reset-btn');
     const loadingSpinner = document.getElementById('loading-spinner');
-    const tableContainer = document.getElementById('table-container');
+    const tableContent = document.getElementById('table-content');
+    const paginationContainer = document.getElementById('table-pagination');
 
     // ===== SWEETALERT2 DARK THEME =====
     const swalDark = Swal.mixin({
@@ -443,34 +477,45 @@ $configData = Helper::appClasses();
       }
     }
 
-    // Main Fetch Function
+    // Main Fetch Function — with AbortController to cancel stale requests
     async function fetchData(targetPage = null) {
-      if (loading) return;
+      // Abort previous request if still in-flight
+      if (abortController) {
+        abortController.abort();
+      }
+      abortController = new AbortController();
+
       loading = true;
       loadingSpinner.classList.remove('d-none');
-
-      if (targetPage !== null) {
-        page = targetPage;
-      }
 
       const params = new URLSearchParams({
         search: search || '',
         role: role || '',
         status: status || '',
-        page: page
       });
+
+      if (targetPage) {
+        params.set('page', targetPage);
+      }
 
       try {
         const res = await fetch(`/admin/users?${params.toString()}`, {
+          method: 'GET',
           headers: {
             'X-Requested-With': 'XMLHttpRequest'
-          }
+          },
+          signal: abortController.signal
         });
         
         if (!res.ok) throw new Error('Response error');
         
         const data = await res.json();
-        tableContainer.innerHTML = data.html;
+        tableContent.innerHTML = data.rows;
+        if (data.pagination) {
+          paginationContainer.innerHTML = data.pagination;
+        } else {
+          paginationContainer.innerHTML = '';
+        }
 
         // Sync browser history state
         const url = new URL(window.location);
@@ -483,13 +528,15 @@ $configData = Helper::appClasses();
         if (status) url.searchParams.set('status', status);
         else url.searchParams.delete('status');
 
-        if (page > 1) url.searchParams.set('page', page);
+        if (targetPage) url.searchParams.set('page', targetPage);
         else url.searchParams.delete('page');
 
         window.history.replaceState({}, '', url);
         updateResetBtnVisibility();
         bindInteractiveEvents();
       } catch (e) {
+        // Ignore abort errors (intentional cancellation from new search)
+        if (e.name === 'AbortError') return;
         console.error('Gagal memuat data user:', e);
       } finally {
         loading = false;
@@ -499,14 +546,14 @@ $configData = Helper::appClasses();
 
     // Bind event handlers for dynamically loaded content
     function bindInteractiveEvents() {
-      // 1. Pagination clicks
-      const links = document.querySelectorAll('#pagination-links a');
+      // 1. Pagination clicks — bind to pagination links
+      const links = document.querySelectorAll('#table-pagination .pagination a');
       links.forEach(link => {
         link.addEventListener('click', function(e) {
           e.preventDefault();
           const href = this.getAttribute('href');
           if (href) {
-            const urlObj = new URL(href);
+            const urlObj = new URL(href, window.location.origin);
             const targetPage = urlObj.searchParams.get('page') || 1;
             fetchData(targetPage);
           }
@@ -631,25 +678,39 @@ $configData = Helper::appClasses();
       });
     }
 
-    // Search input event
+    // Search input event — auto search on input
     searchInput.addEventListener('input', function() {
       search = this.value;
-      page = 1; // reset page to 1
       clearTimeout(debounceTimer);
       debounceTimer = setTimeout(() => fetchData(), 300);
+    });
+
+    // Prevent enter key from submitting form — trigger instant search instead
+    searchInput.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        search = this.value;
+        clearTimeout(debounceTimer);
+        fetchData();
+      }
+    });
+
+    // Search button click — trigger search manually
+    searchBtn.addEventListener('click', function() {
+      search = searchInput.value;
+      clearTimeout(debounceTimer);
+      fetchData();
     });
 
     // Role select filter event
     roleFilter.addEventListener('change', function() {
       role = this.value;
-      page = 1;
       fetchData();
     });
 
     // Status select filter event
     statusFilter.addEventListener('change', function() {
       status = this.value;
-      page = 1;
       fetchData();
     });
 
@@ -659,7 +720,6 @@ $configData = Helper::appClasses();
       search = '';
       role = '';
       status = '';
-      page = 1;
 
       searchInput.value = '';
       roleFilter.value = '';

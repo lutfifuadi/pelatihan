@@ -389,6 +389,15 @@ $configData = Helper::appClasses();
             @enderror
           </div>
 
+          <hr class="my-5" style="border-color: rgba(255,255,255,0.08);">
+
+          <h5 class="fw-bold text-white mb-4" style="font-family: 'Sora', sans-serif;">
+            <i class="icon-base ti tabler-brand-whatsapp me-2"></i>Validasi Pendaftaran
+          </h5>
+          <p class="text-body-premium mb-4" style="font-size: 0.85rem;">
+            Pengaturan ini digunakan untuk memverifikasi keaktifan nomor WhatsApp pendaftar pada form pendaftaran peserta.
+          </p>
+
           {{-- Validasi Otomatis Nomor WhatsApp --}}
           <div class="mb-4">
             <label for="validate_whatsapp" class="form-label">Validasi Otomatis Nomor WhatsApp <span class="text-danger">*</span></label>
@@ -403,8 +412,8 @@ $configData = Helper::appClasses();
             @error('validate_whatsapp')
               <div class="invalid-feedback mt-1">{{ $message }}</div>
             @enderror
-            <small class="text-body-premium mt-1 d-block" style="font-size: 0.8rem;">
-              Tentukan apakah sistem harus memverifikasi keaktifan nomor WhatsApp pendaftar melalui API eksternal.
+            <small class="text-body-premium mt-1 d-block" style="font-size: 0.75rem;">
+              <i class="icon-base ti tabler-info-circle me-1"></i>Tentukan apakah sistem harus memverifikasi keaktifan nomor WhatsApp pendaftar melalui API eksternal.
             </small>
           </div>
 

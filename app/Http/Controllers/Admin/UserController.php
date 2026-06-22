@@ -50,9 +50,11 @@ class UserController extends Controller
             ->withQueryString();
 
         if ($request->ajax()) {
-            $html = view('content.admin.users._table', compact('users'))->render();
+            $rows = view('content.admin.users._table_rows', compact('users'))->render();
+            $pagination = $users->hasPages() ? $users->links()->render() : '';
             return response()->json([
-                'html' => $html
+                'rows' => $rows,
+                'pagination' => $pagination,
             ]);
         }
 
