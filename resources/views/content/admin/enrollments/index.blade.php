@@ -276,6 +276,23 @@ $configData = Helper::appClasses();
       </form>
     </div>
 
+    {{-- Approve All Button --}}
+    @if(request('pelatihan_id'))
+      <div class="glass-card-premium px-4 py-3 mb-4">
+        <div class="row align-items-center">
+          <div class="col-12">
+            <button type="button" id="btn-approve-all" class="btn btn-success btn-action px-4"
+              data-url="{{ route('admin.enrollments.approve-all', ['pelatihan' => request('pelatihan_id')]) }}"
+              data-pending="{{ $counts['pending'] }}">
+              <i class="icon-base ti tabler-check me-1"></i>
+              Approve All Pending <span class="badge bg-white text-dark ms-1">{{ $counts['pending'] }}</span>
+            </button>
+            <small class="text-body-premium ms-2">Approve semua pendaftaran pending untuk pelatihan ini</small>
+          </div>
+        </div>
+      </div>
+    @endif
+
     {{-- Export Buttons --}}
     <div class="glass-card-premium px-4 py-3 mb-4">
       <div class="d-flex justify-content-end align-items-center gap-2">
@@ -326,6 +343,61 @@ $configData = Helper::appClasses();
 
 @section('page-script')
 <script>
+  // Approve All button handler
+  document.addEventListener('DOMContentLoaded', function() {
+    const approveAllBtn = document.getElementById('btn-approve-all');
+    if (approveAllBtn) {
+      approveAllBtn.addEventListener('click', function() {
+        const url = this.getAttribute('data-url');
+        const pending = this.getAttribute('data-pending');
+
+        Swal.fire({
+          title: 'Approve Semua?',
+          text: `Anda akan meng-approve ${pending} pendaftaran pending untuk pelatihan ini.`,
+          icon: 'question',
+          showCancelButton: true,
+          confirmButtonText: 'Ya, Approve Semua!',
+          cancelButtonText: 'Batal',
+          confirmButtonColor: '#10b981',
+          cancelButtonColor: '#6b7280',
+          reverseButtons: true,
+          background: '#0f172a',
+          color: '#f8fafc',
+          customClass: {
+            popup: 'rounded-3 shadow-lg',
+            title: 'fw-bold text-white',
+            htmlContainer: 'text-body-premium',
+            confirmButton: 'btn btn-success px-4 py-2 border-0 me-2',
+            cancelButton: 'btn btn-secondary-custom px-4 py-2 border-0',
+          },
+          buttonsStyling: false,
+        }).then((result) => {
+          if (result.isConfirmed) {
+            // Show loading
+            approveAllBtn.disabled = true;
+            approveAllBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Processing...';
+
+            fetch(url, {
+              method: 'POST',
+              headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '{{ csrf_token() }}',
+                'X-Requested-With': 'XMLHttpRequest',
+              }
+            }).then(res => {
+              if (res.ok) {
+                window.location.reload();
+              } else {
+                throw new Error('Gagal');
+              }
+            }).catch(() => {
+              window.location.reload();
+            });
+          }
+        });
+      });
+    }
+  });
+
 (function() {
     let search = {!! json_encode($search ?? '') !!};
     let loading = false;

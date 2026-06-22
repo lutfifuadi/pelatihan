@@ -46,7 +46,15 @@ class EnrollmentController extends Controller
         });
 
         // Optimasi: 1 query GROUP BY menggantikan 4 query COUNT terpisah
-        $statusCounts = Enrollment::selectRaw('status, COUNT(*) as total')
+        // Hitung counts berdasarkan filter pelatihan yang dipilih
+        $countQuery = Enrollment::query();
+        if ($pelatihan && $pelatihan->exists) {
+            $countQuery->where('pelatihan_id', $pelatihan->id);
+        } elseif ($request->filled('pelatihan_id')) {
+            $countQuery->where('pelatihan_id', $request->pelatihan_id);
+        }
+        $statusCounts = (clone $countQuery)
+            ->selectRaw('status, COUNT(*) as total')
             ->whereIn('status', ['pending', 'approved', 'rejected', 'waitlist'])
             ->groupBy('status')
             ->pluck('total', 'status');
@@ -161,6 +169,38 @@ class EnrollmentController extends Controller
         event(new \App\Events\DashboardUpdated());
 
         return redirect()->back()->with('success', 'Peserta dipromosikan dari cadangan ke approved.');
+    }
+
+    /**
+     * Approve all pending enrollments for a specific pelatihan.
+     */
+    public function approveAll(Request $request, Pelatihan $pelatihan)
+    {
+        $pendingEnrollments = Enrollment::where('pelatihan_id', $pelatihan->id)
+            ->where('status', 'pending')
+            ->get();
+
+        if ($pendingEnrollments->isEmpty()) {
+            return redirect()->back()->with('error', 'Tidak ada pendaftaran pending untuk pelatihan ini.');
+        }
+
+        $count = 0;
+        DB::transaction(function () use ($pendingEnrollments, &$count) {
+            foreach ($pendingEnrollments as $enrollment) {
+                $enrollment->update([
+                    'status' => 'approved',
+                    'approved_at' => now(),
+                ]);
+                \App\Events\PendaftaranApproved::dispatch($enrollment->user, $enrollment->pelatihan);
+                $count++;
+            }
+        });
+
+        ActivityLogger::action('approved', 'Enrollment', "{$count} pendaftaran untuk pelatihan {$pelatihan->nama} ({$pelatihan->batch}) berhasil di-approve massal", $pelatihan->id, $pelatihan->nama);
+
+        event(new \App\Events\DashboardUpdated());
+
+        return redirect()->back()->with('success', "{$count} pendaftaran berhasil di-approve untuk pelatihan {$pelatihan->nama}.");
     }
 
     /**
