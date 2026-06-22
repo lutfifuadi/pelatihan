@@ -221,7 +221,7 @@ $configData = Helper::appClasses();
     <div class="col-12 mb-4">
       <div class="glass-card-premium px-4 py-3">
         <div class="row align-items-center g-3">
-          <div class="col-12 col-md-6">
+          <div class="col-12">
             <div class="d-flex gap-2">
               <div class="position-relative flex-grow-1">
                 <i class="icon-base ti tabler-search position-absolute top-50 start-0 translate-middle-y ms-3 text-body-premium" style="font-size: 1rem; z-index: 2;"></i>
@@ -247,7 +247,7 @@ $configData = Helper::appClasses();
     {{-- Filter --}}
     <div class="glass-card-premium px-4 py-3 mb-4">
       <form method="GET" class="row g-3 align-items-end">
-        <div class="col-md-5">
+        <div class="col-md-6">
           <label class="text-body-premium small fw-semibold mb-1">Filter Pelatihan</label>
           <select name="pelatihan_id" class="form-select" onchange="this.form.submit()">
             <option value="">Semua Pelatihan</option>
@@ -268,7 +268,7 @@ $configData = Helper::appClasses();
             <option value="waitlist" {{ request('status') == 'waitlist' ? 'selected' : '' }}>Cadangan</option>
           </select>
         </div>
-        <div class="col-md-2">
+        <div class="col-md-3">
           <a href="{{ route('admin.enrollments.index') }}" class="btn btn-outline-secondary btn-action w-100" style="color: rgba(255,255,255,0.6); border-color: rgba(255,255,255,0.1);">
             <i class="icon-base ti tabler-refresh me-1"></i> Reset
           </a>
