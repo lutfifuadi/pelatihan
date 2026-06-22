@@ -273,14 +273,14 @@ class EnrollmentController extends Controller
     }
 
     /**
-     * Broadcast DashboardUpdated event safely — catch Pusher errors.
+     * Broadcast DashboardUpdated event safely — catch broadcast errors.
      */
     private function broadcastDashboardUpdate(): void
     {
         try {
             event(new \App\Events\DashboardUpdated());
         } catch (\Throwable $e) {
-            // Pusher/server broadcast might not be available (local dev, etc.)
+            // Broadcast server might not be available (local dev, etc.)
             \Illuminate\Support\Facades\Log::warning('Dashboard broadcast skipped: ' . $e->getMessage());
         }
     }

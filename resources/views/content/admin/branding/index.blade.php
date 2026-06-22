@@ -423,7 +423,7 @@ $configData = Helper::appClasses();
             <i class="icon-base ti tabler-broadcast me-2"></i>Broadcast Real-time
           </h5>
           <p class="text-body-premium mb-4" style="font-size: 0.85rem;">
-            Mengaktifkan pembaruan dashboard secara real-time menggunakan WebSocket (Pusher / Reverb).
+            Mengaktifkan pembaruan dashboard secara real-time menggunakan WebSocket (Laravel Reverb).
           </p>
 
           {{-- Broadcast Enabled --}}
@@ -441,7 +441,7 @@ $configData = Helper::appClasses();
               <div class="invalid-feedback mt-1">{{ $message }}</div>
             @enderror
             <small class="text-body-premium mt-1 d-block" style="font-size: 0.75rem;">
-              <i class="icon-base ti tabler-info-circle me-1"></i>Nonaktifkan jika server WebSocket (Pusher/Reverb) tidak berjalan, untuk menghindari error koneksi.
+              <i class="icon-base ti tabler-info-circle me-1"></i>Nonaktifkan jika server WebSocket (Reverb) tidak berjalan, untuk menghindari error koneksi.
             </small>
           </div>
 
