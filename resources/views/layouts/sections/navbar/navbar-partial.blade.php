@@ -99,7 +99,7 @@ use Illuminate\Support\Facades\Route;
           <div class="dropdown-divider my-1 mx-n2"></div>
         </li>
         <li>
-          <a class="dropdown-item" href="javascript:void(0);">
+          <a class="dropdown-item" href="{{ route('profile.show') }}">
             <i class="icon-base ti tabler-user me-3 icon-md"></i><span class="align-middle">Profil Saya</span>
           </a>
         </li>
