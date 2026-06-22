@@ -238,7 +238,7 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
         Route::post('enrollments/{enrollment}/waitlist', [EnrollmentController::class, 'waitlist'])->name('enrollments.waitlist');
         Route::post('enrollments/{enrollment}/promote', [EnrollmentController::class, 'promote'])->name('enrollments.promote');
         Route::post('enrollments/pelatihan/{pelatihan}/approve-all', [EnrollmentController::class, 'approveAll'])->name('enrollments.approve-all');
-        Route::delete('enrollments/{enrollment}/reset', [EnrollmentController::class, 'reset'])->name('enrollments.reset');
+        Route::post('enrollments/{enrollment}/reset', [EnrollmentController::class, 'reset'])->name('enrollments.reset');
 
         // Absensi
         Route::get('attendances/{pelatihan}', [AttendanceController::class, 'index'])->name('attendances.index');
