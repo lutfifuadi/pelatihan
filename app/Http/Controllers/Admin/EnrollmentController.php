@@ -97,7 +97,7 @@ class EnrollmentController extends Controller
 
         ActivityLogger::action('approved', 'Enrollment', "Pendaftaran {$enrollment->user?->name} untuk pelatihan {$enrollment->pelatihan?->nama} disetujui", $enrollment->id, $enrollment->user?->name);
 
-        event(new \App\Events\DashboardUpdated());
+        $this->broadcastDashboardUpdate();
 
         return redirect()->back()->with('success', 'Pendaftaran berhasil di-approve.');
     }
@@ -127,7 +127,7 @@ class EnrollmentController extends Controller
 
         ActivityLogger::action('rejected', 'Enrollment', "Pendaftaran {$enrollment->user?->name} untuk pelatihan {$enrollment->pelatihan?->nama} ditolak. Alasan: {$request->notes}", $enrollment->id, $enrollment->user?->name);
 
-        event(new \App\Events\DashboardUpdated());
+        $this->broadcastDashboardUpdate();
 
         return redirect()->back()->with('success', 'Pendaftaran ditolak.');
     }
@@ -144,7 +144,7 @@ class EnrollmentController extends Controller
 
         ActivityLogger::action('updated', 'Enrollment', "Pendaftaran {$enrollment->user?->name} untuk pelatihan {$enrollment->pelatihan?->nama} dipindahkan ke daftar cadangan", $enrollment->id, $enrollment->user?->name);
 
-        event(new \App\Events\DashboardUpdated());
+        $this->broadcastDashboardUpdate();
 
         return redirect()->back()->with('success', 'Peserta dipindahkan ke daftar cadangan.');
     }
@@ -166,7 +166,7 @@ class EnrollmentController extends Controller
 
         ActivityLogger::action('approved', 'Enrollment', "Pendaftaran {$enrollment->user?->name} untuk pelatihan {$enrollment->pelatihan?->nama} dipromosikan dari daftar cadangan", $enrollment->id, $enrollment->user?->name);
 
-        event(new \App\Events\DashboardUpdated());
+        $this->broadcastDashboardUpdate();
 
         return redirect()->back()->with('success', 'Peserta dipromosikan dari cadangan ke approved.');
     }
@@ -198,7 +198,7 @@ class EnrollmentController extends Controller
 
         ActivityLogger::action('approved', 'Enrollment', "{$count} pendaftaran untuk pelatihan {$pelatihan->nama} ({$pelatihan->batch}) berhasil di-approve massal", $pelatihan->id, $pelatihan->nama);
 
-        event(new \App\Events\DashboardUpdated());
+        $this->broadcastDashboardUpdate();
 
         return redirect()->back()->with('success', "{$count} pendaftaran berhasil di-approve untuk pelatihan {$pelatihan->nama}.");
     }
@@ -216,7 +216,7 @@ class EnrollmentController extends Controller
 
         ActivityLogger::action('deleted', 'Enrollment', "Pendaftaran {$userName} untuk pelatihan {$pelatihanNama} di-reset oleh admin", $enrollmentId, $userName);
 
-        event(new \App\Events\DashboardUpdated());
+        $this->broadcastDashboardUpdate();
 
         return redirect()->back()->with('success', "Pendaftaran {$userName} untuk pelatihan {$pelatihanNama} berhasil di-reset. Peserta dapat mendaftar ulang.");
     }
@@ -270,5 +270,18 @@ class EnrollmentController extends Controller
     {
         $enrollment->load(['user.pesertaProfile', 'pelatihan']);
         return view('content.admin.enrollments.show', compact('enrollment'));
+    }
+
+    /**
+     * Broadcast DashboardUpdated event safely — catch Pusher errors.
+     */
+    private function broadcastDashboardUpdate(): void
+    {
+        try {
+            event(new \App\Events\DashboardUpdated());
+        } catch (\Throwable $e) {
+            // Pusher/server broadcast might not be available (local dev, etc.)
+            \Illuminate\Support\Facades\Log::warning('Dashboard broadcast skipped: ' . $e->getMessage());
+        }
     }
 }
