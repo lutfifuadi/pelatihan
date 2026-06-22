@@ -448,6 +448,50 @@ $configData = Helper::appClasses();
           <hr class="my-5" style="border-color: rgba(255,255,255,0.08);">
 
           <h5 class="fw-bold text-white mb-4" style="font-family: 'Sora', sans-serif;">
+            <i class="icon-base ti tabler-clock me-2"></i>Zona Waktu (Timezone)
+          </h5>
+          <p class="text-body-premium mb-4" style="font-size: 0.85rem;">
+            Pengaturan ini digunakan untuk menyesuaikan zona waktu (timezone) aplikasi secara global.
+          </p>
+
+          {{-- Timezone --}}
+          <div class="mb-4">
+            <label for="timezone" class="form-label">Zona Waktu <span class="text-danger">*</span></label>
+            <select class="form-select @error('timezone') is-invalid @enderror"
+              id="timezone" name="timezone" required>
+              @php
+                $currentTimezone = old('timezone', ($settings['timezone'] ?? null)?->value ?? 'Asia/Jakarta');
+                $indonesianTimezones = [
+                  'Asia/Jakarta' => 'Asia/Jakarta (WIB)',
+                  'Asia/Makassar' => 'Asia/Makassar (WITA)',
+                  'Asia/Jayapura' => 'Asia/Jayapura (WIT)',
+                ];
+                $allTimezones = timezone_identifiers_list();
+              @endphp
+              <optgroup label="Zona Waktu Indonesia">
+                @foreach($indonesianTimezones as $val => $label)
+                  <option value="{{ $val }}" {{ $currentTimezone == $val ? 'selected' : '' }}>{{ $label }}</option>
+                @endforeach
+              </optgroup>
+              <optgroup label="Zona Waktu Lainnya">
+                @foreach($allTimezones as $tz)
+                  @if(!in_array($tz, array_keys($indonesianTimezones)))
+                    <option value="{{ $tz }}" {{ $currentTimezone == $tz ? 'selected' : '' }}>{{ $tz }}</option>
+                  @endif
+                @endforeach
+              </optgroup>
+            </select>
+            @error('timezone')
+              <div class="invalid-feedback mt-1">{{ $message }}</div>
+            @enderror
+            <small class="text-body-premium mt-1 d-block" style="font-size: 0.75rem;">
+              <i class="icon-base ti tabler-info-circle me-1"></i>Pilih zona waktu yang akan digunakan untuk pencatatan dan tampilan tanggal/waktu di seluruh sistem.
+            </small>
+          </div>
+
+          <hr class="my-5" style="border-color: rgba(255,255,255,0.08);">
+
+          <h5 class="fw-bold text-white mb-4" style="font-family: 'Sora', sans-serif;">
             <i class="icon-base ti tabler-lock me-2"></i>Penguncian Wilayah
           </h5>
           <p class="text-body-premium mb-4" style="font-size: 0.85rem;">

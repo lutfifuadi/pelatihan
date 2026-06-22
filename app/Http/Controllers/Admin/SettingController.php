@@ -13,7 +13,7 @@ class SettingController extends Controller
         $settings = Setting::whereIn('key', [
             'brand_name', 'brand_logo_size',
             'institution_name', 'institution_address', 'institution_phone', 'institution_email', 'institution_description',
-            'footer_copyright', 'lock_kota', 'lock_provinsi', 'validate_whatsapp', 'broadcast_enabled'
+            'footer_copyright', 'lock_kota', 'lock_provinsi', 'validate_whatsapp', 'broadcast_enabled', 'timezone'
         ])
             ->get()
             ->keyBy('key');
@@ -36,12 +36,13 @@ class SettingController extends Controller
             'lock_provinsi' => 'nullable|string|max:100',
             'validate_whatsapp' => 'required|in:0,1',
             'broadcast_enabled' => 'required|in:0,1',
+            'timezone' => 'required|string|max:100',
         ]);
 
         $keys = [
             'brand_name', 'brand_logo_size',
             'institution_name', 'institution_address', 'institution_phone', 'institution_email', 'institution_description',
-            'footer_copyright', 'lock_kota', 'lock_provinsi', 'validate_whatsapp', 'broadcast_enabled'
+            'footer_copyright', 'lock_kota', 'lock_provinsi', 'validate_whatsapp', 'broadcast_enabled', 'timezone'
         ];
         $labels = [
             'brand_name' => 'Nama Brand Aplikasi',
@@ -56,6 +57,7 @@ class SettingController extends Controller
             'lock_provinsi' => 'Provinsi (terkunci)',
             'validate_whatsapp' => 'Validasi Otomatis Nomor WhatsApp',
             'broadcast_enabled' => 'Aktifkan Broadcast Real-time',
+            'timezone' => 'Zona Waktu Aplikasi',
         ];
 
         foreach ($keys as $key) {

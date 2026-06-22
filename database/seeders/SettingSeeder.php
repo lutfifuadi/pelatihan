@@ -87,6 +87,7 @@ class SettingSeeder extends Seeder
             ['key' => 'lock_provinsi', 'value' => 'Jawa Barat', 'group' => 'general', 'label' => 'Provinsi yang Terkunci untuk Pendaftaran'],
             ['key' => 'broadcast_enabled', 'value' => '1', 'group' => 'general', 'label' => 'Aktifkan Broadcast Real-time'],
             ['key' => 'validate_whatsapp', 'value' => '1', 'group' => 'general', 'label' => 'Validasi Otomatis Nomor WhatsApp'],
+            ['key' => 'timezone', 'value' => 'Asia/Jakarta', 'group' => 'general', 'label' => 'Zona Waktu Aplikasi'],
         ];
 
         foreach ($settings as $setting) {
