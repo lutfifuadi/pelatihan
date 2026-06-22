@@ -217,6 +217,33 @@ $configData = Helper::appClasses();
       </div>
     </div>
 
+    {{-- Search --}}
+    <div class="col-12 mb-4">
+      <div class="glass-card-premium px-4 py-3">
+        <div class="row align-items-center g-3">
+          <div class="col-12 col-md-6">
+            <div class="d-flex gap-2">
+              <div class="position-relative flex-grow-1">
+                <i class="icon-base ti tabler-search position-absolute top-50 start-0 translate-middle-y ms-3 text-body-premium" style="font-size: 1rem; z-index: 2;"></i>
+                <input type="text" id="search-input" class="form-control" placeholder="Cari nama peserta..." value="{{ $search ?? '' }}" style="padding-left: 2.5rem !important;">
+              </div>
+              <button type="button" id="search-btn" class="btn btn-glow-premium px-3 py-2" style="white-space: nowrap; border-radius: 5px;" title="Cari">
+                <i class="icon-base ti tabler-search"></i>
+              </button>
+              <a href="{{ route('admin.enrollments.index') }}" id="reset-btn" class="btn btn-secondary-custom px-3 py-2 {{ ($search ?? '') ? '' : 'd-none' }}" title="Reset pencarian">
+                <i class="icon-base ti tabler-x"></i>
+              </a>
+              <div id="loading-spinner" class="d-none">
+                <div class="spinner-border spinner-border-sm text-warning" role="status">
+                  <span class="visually-hidden">Loading...</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     {{-- Filter --}}
     <div class="glass-card-premium px-4 py-3 mb-4">
       <form method="GET" class="row g-3 align-items-end">
@@ -276,149 +303,133 @@ $configData = Helper::appClasses();
               <th class="text-body-premium small fw-semibold text-end px-0" style="width: 260px;">Aksi</th>
             </tr>
           </thead>
-          <tbody>
-            @forelse($enrollments as $index => $enrollment)
-              <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.04);">
-                <td class="px-0 py-3 text-body-premium">{{ $enrollments->firstItem() + $index }}</td>
-                <td class="py-3">
-                  <div class="fw-semibold text-white">{{ $enrollment->user->name }}</div>
-                  <div class="text-body-premium" style="font-size: 0.75rem;">{{ $enrollment->user->email }}</div>
-                </td>
-                <td class="py-3">
-                  <div class="fw-semibold text-white" style="font-size: 0.85rem;">{{ $enrollment->pelatihan->nama }}</div>
-                  <div class="text-body-premium" style="font-size: 0.7rem;">Batch: {{ $enrollment->pelatihan->batch }}</div>
-                </td>
-                <td class="py-3 text-body-premium">
-                  {{ $enrollment->user->whatsapp ?? '-' }}
-                </td>
-                <td class="py-3 text-body-premium" style="font-size: 0.85rem;">
-                  {{ $enrollment->created_at->format('d/m/Y H:i') }}
-                </td>
-                <td class="py-3">
-                  @switch($enrollment->status)
-                    @case('pending')
-                      <span class="badge-premium badge-premium-warning">Pending</span>
-                      @break
-                    @case('approved')
-                      <span class="badge-premium badge-premium-success">Approved</span>
-                      @if($enrollment->waitlist_promoted_at)
-                        <div style="font-size: 0.65rem; color: #93c5fd; margin-top: 2px;">Dari cadangan</div>
-                      @endif
-                      @break
-                    @case('rejected')
-                      <span class="badge-premium badge-premium-danger">Ditolak</span>
-                      @break
-                    @case('waitlist')
-                      <span class="badge-premium badge-premium-info">Cadangan</span>
-                      @break
-                  @endswitch
-                </td>
-                <td class="text-end px-0 py-3">
-                  @if($enrollment->status === 'pending')
-                    <form action="{{ route('admin.enrollments.approve', $enrollment) }}" method="POST" class="d-inline">
-                      @csrf
-                      <button type="submit" class="btn btn-success btn-action">
-                        <i class="icon-base ti tabler-check me-1"></i> Approve
-                      </button>
-                    </form>
-                    <form action="{{ route('admin.enrollments.waitlist', $enrollment) }}" method="POST" class="d-inline">
-                      @csrf
-                      <button type="submit" class="btn btn-info btn-action">
-                        <i class="icon-base ti tabler-clock me-1"></i> Cadangan
-                      </button>
-                    </form>
-                    <button type="button" class="btn btn-danger btn-action" data-bs-toggle="modal" data-bs-target="#rejectModal{{ $enrollment->id }}">
-                      <i class="icon-base ti tabler-x me-1"></i> Tolak
-                    </button>
-
-                    {{-- Modal Reject --}}
-                    <div class="modal fade" id="rejectModal{{ $enrollment->id }}" tabindex="-1">
-                      <div class="modal-dialog modal-sm modal-dialog-centered">
-                        <div class="modal-content" style="background: #0b0f19; border: 1px solid rgba(255,255,255,0.08); border-radius: 5px;">
-                          <div class="modal-header border-0">
-                            <h6 class="text-white fw-bold mb-0">Tolak Pendaftaran</h6>
-                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                          </div>
-                          <form action="{{ route('admin.enrollments.reject', $enrollment) }}" method="POST">
-                            @csrf
-                            <div class="modal-body">
-                              <p class="text-body-premium small mb-2">Alasan penolakan (opsional):</p>
-                              <textarea name="notes" class="form-control" rows="3" placeholder="Contoh: Kuota penuh, tidak memenuhi syarat..." style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); color: #f8fafc; border-radius: 5px; font-size: 0.85rem;"></textarea>
-                            </div>
-                            <div class="modal-footer border-0">
-                              <button type="button" class="btn btn-secondary btn-action" data-bs-dismiss="modal" style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); color: rgba(255,255,255,0.7);">Batal</button>
-                              <button type="submit" class="btn btn-danger btn-action">Ya, Tolak</button>
-                            </div>
-                          </form>
-                        </div>
-                      </div>
-                    </div>
-
-                  @elseif($enrollment->status === 'waitlist')
-                    <form action="{{ route('admin.enrollments.promote', $enrollment) }}" method="POST" class="d-inline">
-                      @csrf
-                      <button type="submit" class="btn btn-success btn-action">
-                        <i class="icon-base ti tabler-arrow-up me-1"></i> Promosikan
-                      </button>
-                    </form>
-                    <button type="button" class="btn btn-danger btn-action" data-bs-toggle="modal" data-bs-target="#rejectModal{{ $enrollment->id }}">
-                      <i class="icon-base ti tabler-x me-1"></i> Tolak
-                    </button>
-                    {{-- Modal Reject --}}
-                    <div class="modal fade" id="rejectModal{{ $enrollment->id }}" tabindex="-1">
-                      <div class="modal-dialog modal-sm modal-dialog-centered">
-                        <div class="modal-content" style="background: #0b0f19; border: 1px solid rgba(255,255,255,0.08); border-radius: 5px;">
-                          <div class="modal-header border-0">
-                            <h6 class="text-white fw-bold mb-0">Tolak Pendaftaran</h6>
-                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                          </div>
-                          <form action="{{ route('admin.enrollments.reject', $enrollment) }}" method="POST">
-                            @csrf
-                            <div class="modal-body">
-                              <p class="text-body-premium small mb-2">Alasan penolakan (opsional):</p>
-                              <textarea name="notes" class="form-control" rows="3" style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); color: #f8fafc; border-radius: 5px; font-size: 0.85rem;"></textarea>
-                            </div>
-                            <div class="modal-footer border-0">
-                              <button type="button" class="btn btn-secondary btn-action" data-bs-dismiss="modal">Batal</button>
-                              <button type="submit" class="btn btn-danger btn-action">Ya, Tolak</button>
-                            </div>
-                          </form>
-                        </div>
-                      </div>
-                    </div>
-
-                  @else
-                    <span class="text-body-premium" style="font-size: 0.8rem;">
-                      @if($enrollment->approved_at)
-                        {{ $enrollment->approved_at->format('d/m/Y') }}
-                      @elseif($enrollment->rejected_at)
-                                        {{ $enrollment->rejected_at->format('d/m/Y') }}
-                      @endif
-                    </span>
-                  @endif
-
-                  <a href="{{ route('admin.enrollments.show', $enrollment) }}" class="btn btn-outline-info btn-action ms-1" style="border-color: rgba(96,165,250,0.2); color: #93c5fd;" title="Detail">
-                    <i class="icon-base ti tabler-eye"></i>
-                  </a>
-                </td>
-              </tr>
-            @empty
-              <tr>
-                <td colspan="7" class="text-center text-body-premium py-5">
-                  <i class="icon-base ti tabler-inbox fs-1 mb-2 d-block text-warning"></i>
-                  Belum ada pendaftaran.
-                </td>
-              </tr>
-            @endforelse
+          <tbody id="table-content">
+            @include('content.admin.enrollments._table_rows')
           </tbody>
         </table>
       </div>
-      @if($enrollments->hasPages())
-        <div class="mt-4 pt-3" style="border-top: 1px solid rgba(255, 255, 255, 0.05);">
-          {{ $enrollments->links() }}
-        </div>
-      @endif
+      <div id="table-pagination">
+        @if($enrollments->hasPages())
+          <div class="mt-4 pt-3" style="border-top: 1px solid rgba(255, 255, 255, 0.05);">
+            {{ $enrollments->links() }}
+          </div>
+        @endif
+      </div>
     </div>
 
   </div>
+@endsection
+
+@section('vendor-script')
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+@endsection
+
+@section('page-script')
+<script>
+(function() {
+    let search = {!! json_encode($search ?? '') !!};
+    let loading = false;
+    let debounceTimer = null;
+    let abortController = null;
+
+    const searchInput = document.getElementById('search-input');
+    const searchBtn = document.getElementById('search-btn');
+    const resetBtn = document.getElementById('reset-btn');
+    const loadingSpinner = document.getElementById('loading-spinner');
+    const tableContent = document.getElementById('table-content');
+    const paginationContainer = document.getElementById('table-pagination');
+
+    async function fetchData(targetPage = null) {
+      // Abort previous request if still in-flight
+      if (abortController) abortController.abort();
+      abortController = new AbortController();
+
+      loading = true;
+      loadingSpinner.classList.remove('d-none');
+
+      const params = new URLSearchParams({ search: search || '' });
+      if (targetPage) params.set('page', targetPage);
+
+      try {
+        const res = await fetch(`/admin/enrollments?${params.toString()}`, {
+          method: 'GET',
+          headers: { 'X-Requested-With': 'XMLHttpRequest' },
+          signal: abortController.signal
+        });
+        if (!res.ok) throw new Error('Response error');
+        const data = await res.json();
+        tableContent.innerHTML = data.rows;
+        if (data.pagination) {
+          paginationContainer.innerHTML = data.pagination;
+        } else {
+          paginationContainer.innerHTML = '';
+        }
+
+        // Sync URL
+        const url = new URL(window.location);
+        if (search) url.searchParams.set('search', search);
+        else url.searchParams.delete('search');
+        if (targetPage) url.searchParams.set('page', targetPage);
+        else url.searchParams.delete('page');
+        window.history.replaceState({}, '', url);
+
+        // Reset button visibility
+        if (search) resetBtn.classList.remove('d-none');
+        else resetBtn.classList.add('d-none');
+
+        // Bind pagination clicks
+        const links = document.querySelectorAll('#table-pagination .pagination a');
+        links.forEach(link => {
+          link.addEventListener('click', function(e) {
+            e.preventDefault();
+            const href = this.getAttribute('href');
+            if (href) {
+              const urlObj = new URL(href, window.location.origin);
+              const targetPage = urlObj.searchParams.get('page') || 1;
+              fetchData(targetPage);
+            }
+          });
+        });
+      } catch (e) {
+        if (e.name === 'AbortError') return;
+        console.error('Gagal memuat data:', e);
+      } finally {
+        loading = false;
+        loadingSpinner.classList.add('d-none');
+      }
+    }
+
+    // Auto-search on input
+    searchInput.addEventListener('input', function() {
+      search = this.value;
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(() => fetchData(), 300);
+    });
+
+    // Enter key
+    searchInput.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        search = this.value;
+        clearTimeout(debounceTimer);
+        fetchData();
+      }
+    });
+
+    // Search button click
+    searchBtn.addEventListener('click', function() {
+      search = searchInput.value;
+      clearTimeout(debounceTimer);
+      fetchData();
+    });
+
+    // Reset button
+    resetBtn.addEventListener('click', function(e) {
+      e.preventDefault();
+      search = '';
+      searchInput.value = '';
+      fetchData();
+    });
+  })();
+</script>
 @endsection

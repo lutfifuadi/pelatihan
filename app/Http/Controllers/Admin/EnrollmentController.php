@@ -18,6 +18,8 @@ class EnrollmentController extends Controller
      */
     public function index(Request $request, ?Pelatihan $pelatihan = null)
     {
+        $search = $request->get('search');
+
         $query = Enrollment::with(['user.pesertaProfile', 'pelatihan']);
 
         if ($pelatihan && $pelatihan->exists) {
@@ -25,6 +27,13 @@ class EnrollmentController extends Controller
         } elseif ($request->filled('pelatihan_id')) {
             $query->where('pelatihan_id', $request->pelatihan_id);
         }
+
+        // Filter search by user name
+        $query->when($search, function ($q, $search) {
+            $q->whereHas('user', function ($q) use ($search) {
+                $q->where('name', 'like', '%' . $search . '%');
+            });
+        });
 
         // Filter status
         if ($request->filled('status')) {
@@ -49,7 +58,17 @@ class EnrollmentController extends Controller
             'waitlist' => $statusCounts['waitlist'] ?? 0,
         ];
 
-        return view('content.admin.enrollments.index', compact('enrollments', 'pelatihans', 'pelatihan', 'counts'));
+        // Response AJAX untuk auto-search
+        if ($request->ajax()) {
+            $rows = view('content.admin.enrollments._table_rows', compact('enrollments'))->render();
+            $pagination = $enrollments->hasPages() ? $enrollments->links()->render() : '';
+            return response()->json([
+                'rows' => $rows,
+                'pagination' => $pagination,
+            ]);
+        }
+
+        return view('content.admin.enrollments.index', compact('enrollments', 'pelatihans', 'pelatihan', 'counts', 'search'));
     }
 
     /**
