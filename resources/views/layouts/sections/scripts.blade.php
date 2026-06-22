@@ -24,6 +24,9 @@
 <!-- END: Page JS-->
 
 <!-- app JS -->
+<script>
+  window.broadcastEnabled = @json(\App\Models\Setting::where('key', 'broadcast_enabled')->value('value') ?? '1');
+</script>
 @vite(['resources/js/app.js'])
 <!-- END: app JS-->
 
