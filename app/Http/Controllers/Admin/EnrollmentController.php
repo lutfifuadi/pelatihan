@@ -212,7 +212,18 @@ class EnrollmentController extends Controller
         $pelatihanNama = $enrollment->pelatihan?->nama ?? 'Unknown';
         $enrollmentId = $enrollment->id;
 
-        $enrollment->delete();
+        DB::transaction(function () use ($enrollment) {
+            $user = $enrollment->user;
+            if ($user && $user->pesertaProfile) {
+                $user->pesertaProfile->update([
+                    'is_completed' => false,
+                    'pelatihan_id' => null,
+                    'batch_pelatihan' => null,
+                ]);
+            }
+
+            $enrollment->delete();
+        });
 
         ActivityLogger::action('deleted', 'Enrollment', "Pendaftaran {$userName} untuk pelatihan {$pelatihanNama} di-reset oleh admin", $enrollmentId, $userName);
 

@@ -467,4 +467,48 @@ class AdminTest extends TestCase
         $response->assertRedirect();
         $response->assertSessionHas('error', 'Tidak ada data peserta untuk direset.');
     }
+
+    public function test_admin_can_reset_enrollment(): void
+    {
+        $peserta = User::factory()->create(['role' => 'peserta']);
+
+        $pelatihan = Pelatihan::create([
+            'nama' => 'Pelatihan Test A',
+            'batch' => 'BATCH-TEST-A',
+            'deskripsi' => 'Deskripsi test A',
+            'is_active' => true,
+        ]);
+
+        $profile = \App\Models\PesertaProfile::create([
+            'user_id' => $peserta->id,
+            'nama_lengkap' => $peserta->name,
+            'jenis_kelamin' => 'L',
+            'tempat_lahir' => 'Bandung',
+            'tanggal_lahir' => '20',
+            'bulan_lahir' => '06',
+            'tahun_lahir' => '2000',
+            'is_completed' => true,
+            'pelatihan_id' => $pelatihan->id,
+            'batch_pelatihan' => $pelatihan->batch,
+        ]);
+
+        $enrollment = \App\Models\Enrollment::create([
+            'user_id' => $peserta->id,
+            'pelatihan_id' => $pelatihan->id,
+            'status' => 'approved',
+        ]);
+
+        $response = $this->post(route('admin.enrollments.reset', $enrollment));
+
+        $response->assertRedirect();
+        $response->assertSessionHas('success');
+
+        $this->assertDatabaseMissing('enrollments', ['id' => $enrollment->id]);
+        $this->assertDatabaseHas('peserta_profiles', [
+            'id' => $profile->id,
+            'is_completed' => false,
+            'pelatihan_id' => null,
+            'batch_pelatihan' => null,
+        ]);
+    }
 }
