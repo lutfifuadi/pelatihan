@@ -40,7 +40,7 @@ class RegistrationController extends Controller
         }
 
         // Generate random password 12 karakter yang unik untuk setiap user
-        $plainPassword = Str::random(12);
+        $plainPassword = 'pelatihanku2026';
         $hashedPassword = Hash::make($plainPassword);
 
         $user = User::create([
