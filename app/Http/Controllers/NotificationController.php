@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Notification;
+use App\Models\Setting;
 use App\Models\UserNotificationPreference;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -13,18 +14,31 @@ class NotificationController extends Controller
     {
         $user = $request->user();
 
+        // Siapkan data WA auto-fill untuk user ini
+        $profile = $user->pesertaProfile;
+        $waDataGlobal = [
+            'nama_lengkap' => $profile->nama_lengkap ?? $user->name,
+            'pelatihan' => $profile->pelatihan?->nama ?? $profile->pelatihan?->nama ?? '-',
+            'kelurahan' => $profile->kelurahan ?? '-',
+            'kecamatan' => $profile->kecamatan ?? '-',
+            'no_hp' => $profile->whatsapp ?? $user->whatsapp ?? '-',
+            'admin_wa' => Setting::where('key', 'whatsapp_sender')->value('value') ?? '6285212345678',
+        ];
+
         $items = Notification::where('user_id', $user->id)
             ->where('channel', 'in_app')
             ->orderBy('created_at', 'desc')
             ->limit(5)
             ->get()
-            ->map(function ($n) {
+            ->map(function ($n) use ($waDataGlobal) {
                 return [
                     'id' => $n->id,
                     'title' => $n->title,
                     'body' => $n->body,
                     'channel' => $n->channel,
                     'read_at' => $n->read_at,
+                    'data' => $n->data,
+                    'wa_data' => $waDataGlobal,
                     'time_ago' => $n->created_at->diffForHumans(),
                     'created_at' => $n->created_at->toISOString(),
                 ];
@@ -63,6 +77,10 @@ class NotificationController extends Controller
             ->whereNull('read_at')
             ->update(['read_at' => now()]);
 
+        if ($request->wantsJson()) {
+            return response()->json(['success' => true, 'message' => 'Semua notifikasi telah ditandai sudah dibaca.']);
+        }
+
         return back()->with('success', 'Semua notifikasi telah ditandai sudah dibaca.');
     }
 
@@ -89,6 +107,10 @@ class NotificationController extends Controller
             ->paginate(20)
             ->withQueryString();
 
+        // Cek apakah user adalah peserta, gunakan view peserta
+        if ($user->role === 'peserta' && view()->exists('content.dashboard.peserta.notifikasi')) {
+            return view('content.dashboard.peserta.notifikasi', compact('notifications'));
+        }
         return view('content.notifications.index', compact('notifications'));
     }
 

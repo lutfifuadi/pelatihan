@@ -1121,3 +1121,91 @@ $configData = Helper::appClasses();
     @endif
   </div>
 @endsection
+
+@section('page-script')
+<script>
+  // ===== REALTIME NOTIFICATION via Echo/Reverb =====
+  document.addEventListener('DOMContentLoaded', function() {
+    if (typeof window.Echo !== 'undefined') {
+      const userId = {{ auth()->id() }};
+
+      window.Echo.private('App.Models.User.' + userId)
+        .listen('.NotificationReceived', (e) => {
+          // Refresh bell badge
+          if (window.Alpine && window.Alpine.$data) {
+            const bellEl = document.querySelector('[x-data="notificationBell()"]');
+            if (bellEl) {
+              const bellData = window.Alpine.$data(bellEl);
+              if (bellData && bellData.refresh) {
+                bellData.refresh();
+              }
+            }
+          }
+
+          // Show toast
+          const notification = e.notification || e;
+          showNotificationToast(notification.title, notification.body, notification.wa_data || notification.data?.wa_data);
+        });
+    }
+  });
+
+  function showNotificationToast(title, body, waData) {
+    const toast = document.createElement('div');
+    toast.style.cssText = `
+      position: fixed; top: 20px; right: 20px; z-index: 99999;
+      background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(20px);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 5px; padding: 16px; max-width: 380px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+      animation: slideInRight 0.3s ease-out;
+      font-family: 'Outfit', sans-serif;
+    `;
+
+    // Build WA URL helper
+    let waHtml = '';
+    if (waData) {
+      const adminWa = waData.admin_wa || waData.admin_phone || '62888888888';
+      let waMessage = waData.message || `Halo Admin, saya telah melakukan pendaftaran pelatihan.\n\nNama Lengkap Sesuai KTP : ${waData.nama_lengkap || '-'}\nJenis Pelatihan : ${waData.pelatihan || '-'}\nKelurahan : ${waData.kelurahan || '-'}\nKecamatan : ${waData.kecamatan || '-'}\nNo. HP Peserta Terdaftar : ${waData.no_hp || '-'}\n\n#pelatihanku2026`;
+      const waUrl = `https://wa.me/${adminWa}?text=${encodeURIComponent(waMessage)}`;
+      waHtml = `<a href="${waUrl}" target="_blank" style="display: inline-block; background: rgba(16,185,129,0.12); border: 1px solid rgba(16,185,129,0.2); color: #34d399; border-radius: 5px; padding: 4px 10px; font-size: 0.75rem; text-decoration: none; margin-top: 8px;"><i class="icon-base ti tabler-brand-whatsapp me-1"></i> Hubungi Admin</a>`;
+    }
+
+    toast.innerHTML = `
+      <div class="d-flex gap-3">
+        <div style="font-size: 1.5rem; flex-shrink: 0;">🎉</div>
+        <div style="flex: 1; min-width: 0;">
+          <h6 style="color: #f8fafc; font-weight: 700; margin: 0 0 4px; font-size: 0.9rem; font-family: 'Sora', sans-serif;">${escapeHtml(title)}</h6>
+          <p style="color: rgba(255,255,255,0.65); margin: 0; font-size: 0.8rem; line-height: 1.4;">${escapeHtml(body)}</p>
+          ${waHtml}
+        </div>
+        <button onclick="this.parentElement.parentElement.remove()" style="background: none; border: none; color: rgba(255,255,255,0.3); cursor: pointer; font-size: 1.2rem; padding: 0; line-height: 1; flex-shrink: 0;">&times;</button>
+      </div>
+    `;
+
+    document.body.appendChild(toast);
+
+    // Auto dismiss 5 detik
+    setTimeout(() => {
+      toast.style.animation = 'slideOutRight 0.3s ease-in forwards';
+      setTimeout(() => toast.remove(), 300);
+    }, 5000);
+  }
+
+  function escapeHtml(text) {
+    if (!text) return '';
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+
+  // CSS untuk animasi toast
+  (function() {
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes slideInRight { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+      @keyframes slideOutRight { from { transform: translateX(0); opacity: 1; } to { transform: translateX(100%); opacity: 0; } }
+    `;
+    document.head.appendChild(style);
+  })();
+</script>
+@endsection

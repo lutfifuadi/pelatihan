@@ -612,9 +612,25 @@ $configData = Helper::appClasses();
         </div>
       </div>
       <div class="col-12 col-md-6 text-md-end">
-        <a href="{{ route('dashboard.peserta') }}" class="btn btn-glow-premium py-2 px-5">
-          <i class="icon-base ti tabler-layout-dashboard me-1"></i> Kembali ke Dashboard
-        </a>
+        <div class="d-flex gap-2 flex-wrap justify-content-md-end">
+          {{-- WA Auto-fill Konfirmasi Pendaftaran --}}
+          @php
+            $whatsappSender = \App\Models\Setting::where('key', 'whatsapp_sender')->value('value') ?? '62888888888';
+            $waNama = $profile->nama_lengkap ?? auth()->user()->name ?? '-';
+            $waPelatihan = $profile->pelatihan->nama ?? '-';
+            $waKelurahan = $profile->kelurahan ?? '-';
+            $waKecamatan = $profile->kecamatan ?? '-';
+            $waNoHp = $profile->whatsapp ?? auth()->user()->whatsapp ?? '-';
+            $waAutoFillMessage = "Halo Admin, saya telah melakukan pendaftaran pelatihan.\n\nNama Lengkap Sesuai KTP : {$waNama}\nJenis Pelatihan : {$waPelatihan}\nKelurahan : {$waKelurahan}\nKecamatan : {$waKecamatan}\nNo. HP Peserta Terdaftar : {$waNoHp}\n\n#pelatihanku2026";
+          @endphp
+          <a href="https://wa.me/{{ $whatsappSender }}?text={{ urlencode($waAutoFillMessage) }}" 
+             target="_blank" class="btn btn-glow-premium py-2 px-4">
+            <i class="icon-base ti tabler-clipboard-check me-1"></i> Konfirmasi Pendaftaran
+          </a>
+          <a href="{{ route('dashboard.peserta') }}" class="btn btn-outline-glass py-2 px-4">
+            <i class="icon-base ti tabler-layout-dashboard me-1"></i> Kembali ke Dashboard
+          </a>
+        </div>
       </div>
     </div>
 

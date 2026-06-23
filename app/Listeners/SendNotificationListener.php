@@ -75,7 +75,7 @@ class SendNotificationListener
     {
         $this->notificationService->sendByTemplate(
             $event->user,
-            'kelulusan',
+            'sertifikat_terbit',
             [
                 'nama' => $event->user->name,
                 'pelatihan' => $event->pelatihan->nama,

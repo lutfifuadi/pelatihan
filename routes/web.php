@@ -167,6 +167,9 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
 
             // Halaman Status Pendaftaran
             Route::get('/status', [PesertaFormController::class, 'statusPendaftaran'])->name('status');
+
+            // Halaman Notifikasi Peserta
+            Route::get('/notifikasi', [\App\Http\Controllers\NotificationController::class, 'index'])->name('notifikasi');
         });
     });
 

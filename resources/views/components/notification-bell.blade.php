@@ -11,8 +11,8 @@
         <span x-show="unreadCount > 0"
             x-cloak
             x-text="unreadCount"
-            class="position-absolute badge badge-dot badge-notifications bg-danger rounded-pill"
-            style="top: 2px; right: 2px; font-size: 10px; min-width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; padding: 0 4px; line-height: 1;">
+            class="position-absolute badge rounded-pill bg-danger"
+            style="top: 0; right: 0; font-size: 0.6rem; min-width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; padding: 0 4px; line-height: 1; transform: translate(25%, -25%);">
         </span>
     </button>
 
@@ -25,62 +25,79 @@
         x-transition:leave="transition ease-in duration-150"
         x-transition:leave-start="opacity-100 scale-100"
         x-transition:leave-end="opacity-0 scale-90"
-        class="position-absolute end-0 mt-2 py-2"
-        style="z-index: 9999; width: 360px; max-width: 90vw; background: #1a1f2e; border: 1px solid rgba(255,255,255,0.08); border-radius: 5px; box-shadow: 0 20px 60px rgba(0,0,0,0.5);">
+        class="position-absolute end-0 mt-2 py-0"
+        style="z-index: 9999; width: 380px; max-width: 90vw; background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.08); border-radius: 5px; box-shadow: 0 20px 60px rgba(0,0,0,0.5);">
 
-        <div class="px-3 pb-2 d-flex align-items-center justify-content-between" style="border-bottom: 1px solid rgba(255,255,255,0.06);">
-            <h6 class="mb-0 fw-semibold" style="color: #e8e9ed; font-size: 14px;">Notifikasi</h6>
-            <span x-text="unreadCount + ' baru'" class="badge bg-primary rounded-pill" style="font-size: 11px;"></span>
+        {{-- Header --}}
+        <div class="px-3 py-3 d-flex justify-content-between align-items-center" style="border-bottom: 1px solid rgba(255,255,255,0.06);">
+            <h6 class="fw-bold mb-0" style="color: #f8fafc; font-family: 'Sora', sans-serif; font-size: 0.9rem;">
+                🔔 Notifikasi
+            </h6>
+            <button x-show="unreadCount > 0"
+                @click="markAllAsRead()"
+                class="btn btn-sm p-0 border-0 bg-transparent"
+                style="color: rgba(255,255,255,0.5); font-size: 0.75rem;">
+                ✅ Tandai semua dibaca
+            </button>
         </div>
 
-        <div class="notification-list" style="max-height: 360px; overflow-y: auto;">
+        {{-- Notification List --}}
+        <div class="notification-list" style="max-height: 350px; overflow-y: auto;">
             <template x-if="notifications.length === 0">
-                <div class="text-center py-4 px-3">
-                    <i class="icon-base ti tabler-bell-off" style="font-size: 32px; color: #4a4f62;"></i>
-                    <p class="mt-2 mb-0" style="color: #6b7084; font-size: 13px;">Tidak ada notifikasi</p>
+                <div class="text-center py-4">
+                    <i class="icon-base ti tabler-bell-off fs-2 d-block mb-2" style="color: rgba(255,255,255,0.2);"></i>
+                    <span style="color: rgba(255,255,255,0.4); font-size: 0.85rem;">Belum ada notifikasi</span>
                 </div>
             </template>
 
-            <template x-for="(notif, index) in notifications" :key="notif.id">
-                <div :class="notif.read_at ? '' : 'bg-primary bg-opacity-10'"
-                    style="padding: 12px 16px; border-bottom: 1px solid rgba(255,255,255,0.04); transition: background 0.2s; cursor: pointer;">
-                    <div class="d-flex align-items-start gap-2">
-                        <div class="flex-shrink-0 mt-1">
-                            <template x-if="notif.channel === 'whatsapp'">
-                                <i class="icon-base ti tabler-brand-whatsapp" style="color: #25D366; font-size: 16px;"></i>
-                            </template>
-                            <template x-if="notif.channel === 'email'">
-                                <i class="icon-base ti tabler-mail" style="color: #6366f1; font-size: 16px;"></i>
-                            </template>
-                            <template x-if="notif.channel === 'in_app' || !notif.channel">
-                                <i class="icon-base ti tabler-bell" style="color: #f59e0b; font-size: 16px;"></i>
-                            </template>
+            <template x-for="notif in notifications" :key="notif.id">
+                <div class="px-3 py-3" 
+                    style="border-bottom: 1px solid rgba(255,255,255,0.04); cursor: pointer; transition: all 0.2s;"
+                    :style="notif.read_at ? '' : 'background: rgba(99,102,241,0.05);'"
+                    @click="markAsRead(notif.id)">
+                    <div class="d-flex gap-3">
+                        {{-- Indicator --}}
+                        <div class="mt-1 flex-shrink-0">
+                            <div :style="'width: 10px; height: 10px; border-radius: 50%; ' + (notif.read_at ? 'background: rgba(255,255,255,0.2);' : 'background: #818cf8; box-shadow: 0 0 8px rgba(99,102,241,0.5);')"></div>
                         </div>
+                        {{-- Content --}}
                         <div class="flex-grow-1" style="min-width: 0;">
                             <div class="d-flex justify-content-between align-items-start">
-                                <strong x-text="notif.title" style="color: #e8e9ed; font-size: 13px; line-height: 1.3;"></strong>
-                                <small x-text="notif.time_ago" style="color: #6b7084; font-size: 11px; white-space: nowrap; margin-left: 8px;"></small>
+                                <h6 class="fw-semibold mb-0" style="font-size: 0.85rem; color: #f8fafc;" x-text="notif.title"></h6>
+                                <small class="flex-shrink-0 ms-2" style="color: rgba(255,255,255,0.4); font-size: 0.65rem;" x-text="timeAgo(notif.created_at)"></small>
                             </div>
-                            <p x-text="notif.body" style="color: #9ca0b0; font-size: 12px; margin: 2px 0 0 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"></p>
+                            <p class="mb-1" style="color: rgba(255,255,255,0.6); font-size: 0.78rem; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;" x-text="notif.body"></p>
+                            {{-- WA Hubungi Admin Button --}}
+                            <template x-if="notif.data?.wa_data || notif.wa_data">
+                                <a :href="waUrl(notif.data?.wa_data || notif.wa_data)" target="_blank" class="btn btn-sm mt-1" 
+                                    style="background: rgba(16,185,129,0.12); border: 1px solid rgba(16,185,129,0.2); color: #34d399; border-radius: 5px; font-size: 0.7rem; text-decoration: none; display: inline-flex; align-items: center;"
+                                    @click.stop>
+                                    <i class="icon-base ti tabler-brand-whatsapp me-1" style="font-size: 0.75rem;"></i> Hubungi Admin
+                                </a>
+                            </template>
                         </div>
-                        <button x-show="!notif.read_at"
-                            @click.stop="markAsRead(notif.id)"
-                            class="btn btn-sm p-0 ms-1 flex-shrink-0"
-                            style="background: none; border: none; color: #6366f1; font-size: 11px;"
-                            title="Tandai sudah dibaca">
-                            <i class="icon-base ti tabler-check"></i>
-                        </button>
                     </div>
                 </div>
             </template>
         </div>
 
-        <div style="border-top: 1px solid rgba(255,255,255,0.06); padding: 10px 16px; text-align: center;">
-            <a href="{{ route('notifications.index') }}"
-                style="color: #6366f1; font-size: 13px; text-decoration: none; font-weight: 500;">
-                Lihat Semua Notifikasi
-                <i class="icon-base ti tabler-arrow-right ms-1" style="font-size: 12px;"></i>
+        {{-- Footer --}}
+        <div style="border-top: 1px solid rgba(255,255,255,0.06);">
+            @auth
+            @if(auth()->user()->role === 'peserta')
+            <a href="{{ route('dashboard.peserta.notifikasi') }}" 
+                class="d-block text-center py-2 text-decoration-none"
+                style="color: #818cf8; font-size: 0.8rem; font-weight: 600;">
+                📨 Lihat Semua Notifikasi
             </a>
+            @else
+            <a href="{{ route('notifications.index') }}" 
+                class="d-block text-center py-2 text-decoration-none"
+                style="color: #818cf8; font-size: 0.8rem; font-weight: 600;">
+                📨 Lihat Semua Notifikasi
+            </a>
+            @endif
+            @endauth
         </div>
     </div>
 </div>

@@ -7,12 +7,17 @@ use App\Models\Enrollment;
 use App\Models\Pelatihan;
 use App\Models\User;
 use App\Services\ActivityLogger;
+use App\Services\NotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 class EnrollmentController extends Controller
 {
+    public function __construct(
+        private NotificationService $notificationService
+    ) {}
+
     /**
      * Tampilkan daftar enrollment per pelatihan.
      */
@@ -142,6 +147,18 @@ class EnrollmentController extends Controller
             'notes' => request('notes', 'Dimasukkan ke daftar cadangan'),
         ]);
 
+        // Dispatch notif masuk_cadangan
+        if ($enrollment->user && $enrollment->pelatihan) {
+            $this->notificationService->sendByTemplate(
+                $enrollment->user,
+                'masuk_cadangan',
+                [
+                    'nama' => $enrollment->user->name,
+                    'pelatihan' => $enrollment->pelatihan->nama,
+                ]
+            );
+        }
+
         ActivityLogger::action('updated', 'Enrollment', "Pendaftaran {$enrollment->user?->name} untuk pelatihan {$enrollment->pelatihan?->nama} dipindahkan ke daftar cadangan", $enrollment->id, $enrollment->user?->name);
 
         $this->broadcastDashboardUpdate();
@@ -161,8 +178,17 @@ class EnrollmentController extends Controller
             'notes' => request('notes', 'Dipromosikan dari daftar cadangan'),
         ]);
 
-        // Dispatch notifikasi bahwa pendaftaran disetujui
-        \App\Events\PendaftaranApproved::dispatch($enrollment->user, $enrollment->pelatihan);
+        // Dispatch notif dipromosikan
+        if ($enrollment->user && $enrollment->pelatihan) {
+            $this->notificationService->sendByTemplate(
+                $enrollment->user,
+                'dipromosikan',
+                [
+                    'nama' => $enrollment->user->name,
+                    'pelatihan' => $enrollment->pelatihan->nama,
+                ]
+            );
+        }
 
         ActivityLogger::action('approved', 'Enrollment', "Pendaftaran {$enrollment->user?->name} untuk pelatihan {$enrollment->pelatihan?->nama} dipromosikan dari daftar cadangan", $enrollment->id, $enrollment->user?->name);
 
@@ -256,10 +282,17 @@ class EnrollmentController extends Controller
                 ->get();
 
             if ($enrollmentsToPromote->isNotEmpty()) {
-                // Dispatch notifikasi untuk setiap peserta sebelum batch update
+                // Dispatch notif dipromosikan untuk setiap peserta sebelum batch update
                 foreach ($enrollmentsToPromote as $enrollment) {
                     if ($enrollment->user && $enrollment->pelatihan) {
-                        \App\Events\PendaftaranApproved::dispatch($enrollment->user, $enrollment->pelatihan);
+                        $this->notificationService->sendByTemplate(
+                            $enrollment->user,
+                            'dipromosikan',
+                            [
+                                'nama' => $enrollment->user->name,
+                                'pelatihan' => $enrollment->pelatihan->nama,
+                            ]
+                        );
                     }
                 }
 
