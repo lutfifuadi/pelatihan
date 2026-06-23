@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Landing;
 use App\Events\PesertaRegistered;
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Services\ActivityLogger;
 use App\Services\WhatsAppService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -53,6 +54,15 @@ class RegistrationController extends Controller
             'is_active' => true,
             'email_verified_at' => now(), // Auto-verified (manual registration)
         ]);
+
+        // Log aktivitas pendaftaran
+        ActivityLogger::log(
+            action: 'created',
+            subjectType: 'Peserta',
+            subjectId: $user->id,
+            subjectName: $user->name,
+            description: "Peserta {$user->name} berhasil mendaftar akun",
+        );
 
         // Kirim password ke WhatsApp user (jika nomor tersedia)
         if ($whatsapp) {

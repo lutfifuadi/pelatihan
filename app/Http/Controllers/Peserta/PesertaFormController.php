@@ -8,6 +8,7 @@ use App\Models\Kelurahan;
 use App\Models\Pelatihan;
 use App\Models\PesertaProfile;
 use App\Models\Setting;
+use App\Services\ActivityLogger;
 use App\Services\FormConfigService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
@@ -104,6 +105,15 @@ class PesertaFormController extends Controller
                 'bulan_lahir'   => $input['bulan_lahir'] ?? '',
                 'tahun_lahir'   => $input['tahun_lahir'] ?? '',
             ], fn($v) => $v !== null && $v !== '')
+        );
+
+        // Log aktivitas Step 1 - Data Pribadi
+        ActivityLogger::log(
+            action: 'updated',
+            subjectType: 'PesertaProfile',
+            subjectId: $user->id,
+            subjectName: $user->name,
+            description: "Peserta {$user->name} mengisi Data Pribadi (Step 1/5)",
         );
 
         // 4. Redirect ke step berikutnya
@@ -263,6 +273,15 @@ class PesertaFormController extends Controller
             $user->save();
         }
 
+        // Log aktivitas Step 2 - Alamat & Kontak
+        ActivityLogger::log(
+            action: 'updated',
+            subjectType: 'PesertaProfile',
+            subjectId: $user->id,
+            subjectName: $user->name,
+            description: "Peserta {$user->name} mengisi Alamat & Kontak (Step 2/5)",
+        );
+
         // 4. Redirect ke step berikutnya
         return redirect()->route('dashboard.peserta.form-pendidikan')
             ->with('success', 'Data alamat & kontak tersimpan!');
@@ -342,6 +361,15 @@ class PesertaFormController extends Controller
                 'status_pekerjaan'    => $input['status_pekerjaan'] ?? '',
                 'nama_perusahaan'     => strip_tags($input['nama_perusahaan'] ?? ''),
             ], fn($v) => $v !== null && $v !== '')
+        );
+
+        // Log aktivitas Step 3 - Pendidikan & Pekerjaan
+        ActivityLogger::log(
+            action: 'updated',
+            subjectType: 'PesertaProfile',
+            subjectId: $user->id,
+            subjectName: $user->name,
+            description: "Peserta {$user->name} mengisi Pendidikan & Pekerjaan (Step 3/5)",
         );
 
         // 4. Redirect ke step berikutnya
@@ -498,6 +526,15 @@ class PesertaFormController extends Controller
             ], fn($v) => $v !== null && $v !== '')
         );
 
+        // Log aktivitas Step 4 - Minat Pelatihan
+        ActivityLogger::log(
+            action: 'updated',
+            subjectType: 'PesertaProfile',
+            subjectId: $user->id,
+            subjectName: $user->name,
+            description: "Peserta {$user->name} mengisi Minat Pelatihan (Step 4/5)",
+        );
+
         // 4. Redirect ke step berikutnya
         return redirect()->route('dashboard.peserta.form-dokumen')
             ->with('success', 'Data minat tersimpan');
@@ -582,6 +619,15 @@ class PesertaFormController extends Controller
             $profile->jawaban_pertanyaan = $jawaban;
             $profile->save();
         }
+
+        // Log aktivitas Step 5 - Dokumen & Pertanyaan
+        ActivityLogger::log(
+            action: 'updated',
+            subjectType: 'PesertaProfile',
+            subjectId: $user->id,
+            subjectName: $user->name,
+            description: "Peserta {$user->name} mengisi Pertanyaan & Dokumen (Step 5/5)",
+        );
 
         // 4. Redirect ke step berikutnya
         return redirect()->route('dashboard.peserta.form-review')
@@ -695,6 +741,17 @@ class PesertaFormController extends Controller
             // Jangan sampai notifikasi gagal menggagalkan pendaftaran
             \Illuminate\Support\Facades\Log::warning('Gagal dispatch PesertaRegistered: ' . $e->getMessage());
         }
+
+        // Log aktivitas Submit Final (Step 6)
+        $namaPelatihan = $enrollment?->pelatihan?->nama ?? '-';
+        $batchPelatihan = $enrollment?->pelatihan?->batch ?? '-';
+        ActivityLogger::log(
+            action: 'completed',
+            subjectType: 'Pendaftaran',
+            subjectId: $user->id,
+            subjectName: $user->name,
+            description: "Peserta {$user->name} menyelesaikan pendaftaran untuk pelatihan {$namaPelatihan} batch {$batchPelatihan}",
+        );
 
         // 3. Clear session form
         session()->forget('peserta.form');
