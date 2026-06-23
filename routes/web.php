@@ -206,8 +206,8 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
 
         // Peserta
         Route::get('peserta', [PesertaController::class, 'index'])->name('peserta.index');
-        Route::get('peserta/{user}', [PesertaController::class, 'show'])->name('peserta.show');
-        Route::delete('peserta/{user}', [PesertaController::class, 'destroy'])->name('peserta.destroy');
+        Route::get('peserta/{peserta}', [PesertaController::class, 'show'])->name('peserta.show');
+        Route::delete('peserta/{peserta}', [PesertaController::class, 'destroy'])->name('peserta.destroy');
 
         // WhatsApp Gateway
         Route::get('whatsapp-gateway', [WhatsAppGatewayController::class, 'index'])->name('whatsapp-gateway.index');

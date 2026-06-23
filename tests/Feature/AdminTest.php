@@ -186,6 +186,34 @@ class AdminTest extends TestCase
         $response->assertStatus(200);
     }
 
+    public function test_admin_can_view_peserta_detail_with_profile(): void
+    {
+        $peserta = User::factory()->create(['role' => 'peserta']);
+        \App\Models\PesertaProfile::create([
+            'user_id' => $peserta->id,
+            'nama_lengkap' => $peserta->name,
+            'jenis_kelamin' => 'L',
+            'tempat_lahir' => 'Bandung',
+            'tanggal_lahir' => '20',
+            'bulan_lahir' => '06',
+            'tahun_lahir' => '2000',
+        ]);
+
+        $response = $this->get('/admin/peserta/' . $peserta->id);
+        $response->assertStatus(200);
+        $response->assertSee($peserta->name);
+    }
+
+    public function test_admin_can_view_peserta_detail_without_profile(): void
+    {
+        $peserta = User::factory()->create(['role' => 'peserta']);
+        // Tanpa profile
+
+        $response = $this->get('/admin/peserta/' . $peserta->id);
+        $response->assertStatus(200);
+        $response->assertSee($peserta->name);
+    }
+
     public function test_admin_can_approve_koordinator(): void
     {
         $koordinator = User::factory()->create([
