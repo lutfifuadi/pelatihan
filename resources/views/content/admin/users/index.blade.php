@@ -410,6 +410,9 @@ $configData = Helper::appClasses();
 
           <!-- Reset button and loader -->
           <div class="col-12 col-md-2 d-flex align-items-center justify-content-md-end gap-2">
+            <button type="button" id="reset-all-peserta-btn" class="btn btn-warning px-3 py-2 w-100" style="white-space: nowrap; border-radius: 5px; background: linear-gradient(135deg, #f59e0b, #d97706); border: none;" title="Reset Semua Password Peserta">
+              <i class="icon-base ti tabler-key-off me-1"></i> Reset Password Peserta
+            </button>
             <a href="#" id="reset-btn" class="btn btn-secondary-custom px-3 py-2 w-100 {{ ($search || $role || $status) ? '' : 'd-none' }}">
               <i class="icon-base ti tabler-x me-1"></i> Reset
             </a>
@@ -456,6 +459,10 @@ $configData = Helper::appClasses();
     </div>
 
   </div>
+
+  <form id="reset-all-peserta-form" action="{{ route('admin.users.reset-all-peserta') }}" method="POST" style="display: none;">
+    @csrf
+  </form>
 @endsection
 
 @section('vendor-script')
@@ -785,6 +792,35 @@ $configData = Helper::appClasses();
 
       fetchData();
     });
+
+    // Reset Semua Password Peserta Event
+    const resetAllPesertaBtn = document.getElementById('reset-all-peserta-btn');
+    if (resetAllPesertaBtn) {
+      resetAllPesertaBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        swalDark.fire({
+          title: 'Apakah Anda yakin?',
+          text: "Tindakan ini akan mereset password SELURUH peserta (peserta saja) yang terdaftar di sistem menjadi 'pelatihanku2026'. Tindakan ini tidak dapat dibatalkan!",
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonText: 'Ya, Reset Semua!',
+          cancelButtonText: 'Batal',
+          customClass: {
+            popup: 'swal2-custom-popup shadow-lg',
+            title: 'swal2-custom-title',
+            htmlContainer: 'swal2-custom-text',
+            actions: 'swal2-custom-actions',
+            confirmButton: 'btn btn-danger px-4 py-2 border-0 me-2',
+            cancelButton: 'btn btn-secondary-custom px-4 py-2 border-0',
+          },
+          reverseButtons: true
+        }).then((result) => {
+          if (result.isConfirmed) {
+            document.getElementById('reset-all-peserta-form').submit();
+          }
+        });
+      });
+    }
 
     // Initial binding
     bindInteractiveEvents();

@@ -166,6 +166,32 @@ class UserController extends Controller
     }
 
     /**
+     * Reset semua password peserta secara massal.
+     */
+    public function resetAllPeserta(Request $request)
+    {
+        $count = User::where('role', 'peserta')->count();
+
+        if ($count === 0) {
+            return back()->with('error', 'Tidak ada data peserta untuk direset.');
+        }
+
+        \App\Models\User::where('role', 'peserta')->update([
+            'password' => \Illuminate\Support\Facades\Hash::make('pelatihanku2026')
+        ]);
+
+        ActivityLogger::log(
+            action: 'updated',
+            subjectType: 'User',
+            subjectId: null,
+            subjectName: 'Semua Peserta',
+            description: "Mereset password semua peserta ({$count} peserta) ke default pelatihanku2026 secara massal"
+        );
+
+        return back()->with('success', "Berhasil mereset password {$count} peserta ke default pelatihanku2026 secara massal.");
+    }
+
+    /**
      * Hapus user secara permanen.
      */
     public function destroy(User $user)

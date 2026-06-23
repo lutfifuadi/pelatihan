@@ -421,4 +421,50 @@ class AdminTest extends TestCase
             'description' => 'Password user Instruktur Uji telah direset ke nomor HP',
         ]);
     }
+
+    public function test_admin_can_reset_all_peserta_passwords(): void
+    {
+        $peserta1 = User::factory()->create([
+            'name' => 'Peserta Satu',
+            'role' => 'peserta',
+            'password' => Hash::make('passone'),
+        ]);
+
+        $peserta2 = User::factory()->create([
+            'name' => 'Peserta Dua',
+            'role' => 'peserta',
+            'password' => Hash::make('passtwo'),
+        ]);
+
+        $adminUser = User::factory()->create([
+            'name' => 'Admin User',
+            'role' => 'admin',
+            'password' => Hash::make('adminpass'),
+        ]);
+
+        $response = $this->post(route('admin.users.reset-all-peserta'));
+        $response->assertRedirect();
+        $response->assertSessionHas('success', 'Berhasil mereset password 2 peserta ke default pelatihanku2026 secara massal.');
+
+        $this->assertTrue(Hash::check('pelatihanku2026', $peserta1->fresh()->password));
+        $this->assertTrue(Hash::check('pelatihanku2026', $peserta2->fresh()->password));
+        $this->assertFalse(Hash::check('pelatihanku2026', $adminUser->fresh()->password));
+
+        $this->assertDatabaseHas('activity_logs', [
+            'action' => 'updated',
+            'subject_type' => 'User',
+            'subject_name' => 'Semua Peserta',
+            'description' => 'Mereset password semua peserta (2 peserta) ke default pelatihanku2026 secara massal',
+        ]);
+    }
+
+    public function test_admin_cannot_reset_all_peserta_passwords_if_none_exist(): void
+    {
+        // Delete any participants that might have been created by setUp or factory, but RefreshDatabase is used, so it's fresh.
+        User::where('role', 'peserta')->delete();
+
+        $response = $this->post(route('admin.users.reset-all-peserta'));
+        $response->assertRedirect();
+        $response->assertSessionHas('error', 'Tidak ada data peserta untuk direset.');
+    }
 }

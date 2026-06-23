@@ -187,6 +187,7 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
 
         // Users Management
         Route::get('users', [UserController::class, 'index'])->name('users.index');
+        Route::post('users/reset-all-peserta', [UserController::class, 'resetAllPeserta'])->name('users.reset-all-peserta');
         Route::patch('users/{user}/toggle-status', [UserController::class, 'toggleStatus'])->name('users.toggle-status');
         Route::post('users/{user}/reset-password', [UserController::class, 'resetPassword'])->name('users.reset-password');
         Route::delete('users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
