@@ -14,6 +14,7 @@ class PesertaController extends Controller
         $search = $request->get('search');
         $sortBy = $request->get('sort_by', 'name');
         $sortDir = $request->get('sort_dir', 'asc');
+        $filterPelatihan = $request->get('filter_pelatihan', 'all');
 
         $allowedSort = ['name', 'nik', 'whatsapp', 'created_at'];
         if (!in_array($sortBy, $allowedSort)) {
@@ -22,7 +23,7 @@ class PesertaController extends Controller
         $sortDir = in_array($sortDir, ['asc', 'desc']) ? $sortDir : 'asc';
 
         $pesertas = User::where('role', 'peserta')
-            ->with('kecamatan', 'kelurahan')
+            ->with('kecamatan', 'kelurahan', 'pesertaProfile.pelatihan')
             ->when($search, function ($q, $search) {
                 $q->where(function ($q) use ($search) {
                     $q->where('name', 'like', '%' . $search . '%')
@@ -30,17 +31,24 @@ class PesertaController extends Controller
                       ->orWhere('whatsapp', 'like', '%' . $search . '%');
                 });
             })
+            ->when($filterPelatihan && $filterPelatihan !== 'all', function ($q) use ($filterPelatihan) {
+                if ($filterPelatihan === 'sudah') {
+                    $q->whereHas('pesertaProfile', fn($q) => $q->whereNotNull('pelatihan_id'));
+                } elseif ($filterPelatihan === 'belum') {
+                    $q->whereDoesntHave('pesertaProfile', fn($q) => $q->whereNotNull('pelatihan_id'));
+                }
+            })
             ->orderBy($sortBy, $sortDir)
             ->paginate(10)
             ->withQueryString();
 
         if ($request->ajax()) {
-            $rows = view('content.admin.peserta._table_rows', compact('pesertas', 'sortBy', 'sortDir', 'search'))->render();
+            $rows = view('content.admin.peserta._table_rows', compact('pesertas', 'sortBy', 'sortDir', 'search', 'filterPelatihan'))->render();
             $pagination = $pesertas->hasPages() ? $pesertas->links()->render() : '';
             return response()->json(['rows' => $rows, 'pagination' => $pagination]);
         }
 
-        return view('content.admin.peserta.index', compact('pesertas', 'sortBy', 'sortDir', 'search'));
+        return view('content.admin.peserta.index', compact('pesertas', 'sortBy', 'sortDir', 'search', 'filterPelatihan'));
     }
 
     public function show(User $peserta)

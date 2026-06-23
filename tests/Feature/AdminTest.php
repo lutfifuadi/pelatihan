@@ -180,10 +180,46 @@ class AdminTest extends TestCase
 
     public function test_admin_can_view_peserta_list(): void
     {
-        User::factory()->create(['role' => 'peserta']);
+        $peserta1 = User::factory()->create(['role' => 'peserta']);
+        $peserta2 = User::factory()->create(['role' => 'peserta']);
+        
+        $dinas = Dinas::factory()->create();
+        $pelatihan = Pelatihan::create([
+            'nama' => 'Pelatihan Test A',
+            'batch' => 'BATCH-TEST-A',
+            'deskripsi' => 'Deskripsi test A',
+            'dinas_id' => $dinas->id,
+            'is_active' => true,
+        ]);
+
+        \App\Models\PesertaProfile::create([
+            'user_id' => $peserta1->id,
+            'nama_lengkap' => $peserta1->name,
+            'jenis_kelamin' => 'L',
+            'tempat_lahir' => 'Bandung',
+            'tanggal_lahir' => '20',
+            'bulan_lahir' => '06',
+            'tahun_lahir' => '2000',
+            'pelatihan_id' => $pelatihan->id,
+        ]);
 
         $response = $this->get('/admin/peserta');
         $response->assertStatus(200);
+
+        // Test AJAX request and filters
+        $responseAll = $this->getJson('/admin/peserta?filter_pelatihan=all', ['X-Requested-With' => 'XMLHttpRequest']);
+        $responseAll->assertStatus(200);
+        $responseAll->assertJsonStructure(['rows', 'pagination']);
+
+        $responseSudah = $this->getJson('/admin/peserta?filter_pelatihan=sudah', ['X-Requested-With' => 'XMLHttpRequest']);
+        $responseSudah->assertStatus(200);
+        $responseSudah->assertSee($peserta1->name);
+        $responseSudah->assertDontSee($peserta2->name);
+
+        $responseBelum = $this->getJson('/admin/peserta?filter_pelatihan=belum', ['X-Requested-With' => 'XMLHttpRequest']);
+        $responseBelum->assertStatus(200);
+        $responseBelum->assertSee($peserta2->name);
+        $responseBelum->assertDontSee($peserta1->name);
     }
 
     public function test_admin_can_view_peserta_detail_with_profile(): void

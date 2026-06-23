@@ -19,6 +19,13 @@
       </span>
     </td>
     <td class="py-3">
+      @if($p->pesertaProfile && $p->pesertaProfile->pelatihan)
+        <span class="badge-premium bg-label-primary">{{ $p->pesertaProfile->pelatihan->nama }}</span>
+      @else
+        <span class="badge-premium bg-label-danger">Belum Memilih</span>
+      @endif
+    </td>
+    <td class="py-3">
       <span class="badge-premium">{{ $p->created_at->format('d/m/Y') }}</span>
     </td>
     <td class="text-end px-0 py-3">
@@ -39,7 +46,7 @@
   </tr>
   @empty
   <tr>
-    <td colspan="6" class="text-center text-body-premium py-5">
+    <td colspan="7" class="text-center text-body-premium py-5">
       <i class="icon-base ti tabler-users-off fs-1 mb-2 d-block text-warning"></i>
       Belum ada data peserta.
     </td>

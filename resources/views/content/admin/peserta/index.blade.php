@@ -312,7 +312,14 @@ $configData = Helper::appClasses();
             <input type="text" id="search-input"
               class="form-control" placeholder="Cari nama, NIK, atau WA..." value="{{ $search ?? '' }}" style="padding-left: 2.5rem !important; border-radius: 5px;">
           </div>
-          <a href="{{ route('admin.peserta.index') }}" id="reset-btn" class="btn btn-secondary-custom px-3 py-2 {{ request()->has('search') && request('search') != '' ? '' : 'd-none' }}" style="white-space: nowrap;">
+          <div style="min-width: 200px;">
+            <select id="filter-pelatihan-select" class="form-select text-white" style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 5px; height: 42px; padding: 0 14px;">
+              <option value="all" {{ ($filterPelatihan ?? 'all') == 'all' ? 'selected' : '' }} style="background-color: #0b0f19;">Semua Status Pelatihan</option>
+              <option value="sudah" {{ ($filterPelatihan ?? 'all') == 'sudah' ? 'selected' : '' }} style="background-color: #0b0f19;">Sudah Memilih Pelatihan</option>
+              <option value="belum" {{ ($filterPelatihan ?? 'all') == 'belum' ? 'selected' : '' }} style="background-color: #0b0f19;">Belum Memilih Pelatihan</option>
+            </select>
+          </div>
+          <a href="{{ route('admin.peserta.index') }}" id="reset-btn" class="btn btn-secondary-custom px-3 py-2 {{ (request()->has('search') && request('search') != '') || (request()->has('filter_pelatihan') && request('filter_pelatihan') != 'all') ? '' : 'd-none' }}" style="white-space: nowrap;">
             <i class="icon-base ti tabler-x me-1"></i> Reset
           </a>
           <div id="loading-spinner" class="d-none">
@@ -339,6 +346,7 @@ $configData = Helper::appClasses();
                 </th>
                 <th class="text-body-premium small fw-semibold">WhatsApp</th>
                 <th class="text-body-premium small fw-semibold">Kecamatan</th>
+                <th class="text-body-premium small fw-semibold">Pilihan Pelatihan</th>
                 <th class="text-body-premium small fw-semibold">Tanggal Daftar</th>
                 <th class="text-body-premium small fw-semibold text-end px-0" style="width: 120px;">Aksi</th>
               </tr>
@@ -367,10 +375,12 @@ $configData = Helper::appClasses();
     let search = {!! json_encode($search ?? '') !!};
     let sortBy = {!! json_encode($sortBy) !!};
     let sortDir = {!! json_encode($sortDir) !!};
+    let filterPelatihan = {!! json_encode($filterPelatihan ?? 'all') !!};
     let loading = false;
     let debounceTimer = null;
 
     const searchInput = document.getElementById('search-input');
+    const filterPelatihanSelect = document.getElementById('filter-pelatihan-select');
     const resetBtn = document.getElementById('reset-btn');
     const loadingSpinner = document.getElementById('loading-spinner');
     const sortHeader = document.getElementById('sort-name');
@@ -382,7 +392,7 @@ $configData = Helper::appClasses();
       loading = true;
       loadingSpinner.classList.remove('d-none');
 
-      const params = new URLSearchParams({ search, sort_by: sortBy, sort_dir: sortDir });
+      const params = new URLSearchParams({ search, sort_by: sortBy, sort_dir: sortDir, filter_pelatihan: filterPelatihan });
       try {
         const res = await fetch(`/admin/peserta?${params.toString()}`, {
           headers: { 'X-Requested-With': 'XMLHttpRequest' }
@@ -394,11 +404,15 @@ $configData = Helper::appClasses();
         const url = new URL(window.location);
         if (search) url.searchParams.set('search', search);
         else url.searchParams.delete('search');
+
+        if (filterPelatihan && filterPelatihan !== 'all') url.searchParams.set('filter_pelatihan', filterPelatihan);
+        else url.searchParams.delete('filter_pelatihan');
+
         url.searchParams.set('sort_by', sortBy);
         url.searchParams.set('sort_dir', sortDir);
         window.history.replaceState({}, '', url);
 
-        if (search) resetBtn.classList.remove('d-none');
+        if (search || (filterPelatihan && filterPelatihan !== 'all')) resetBtn.classList.remove('d-none');
         else resetBtn.classList.add('d-none');
 
         if (sortBy == 'name') {
@@ -422,12 +436,19 @@ $configData = Helper::appClasses();
       debounceTimer = setTimeout(fetchData, 300);
     });
 
+    filterPelatihanSelect.addEventListener('change', function() {
+      filterPelatihan = this.value;
+      fetchData();
+    });
+
     resetBtn.addEventListener('click', function(e) {
       e.preventDefault();
       search = '';
       sortBy = 'name';
       sortDir = 'asc';
+      filterPelatihan = 'all';
       searchInput.value = '';
+      filterPelatihanSelect.value = 'all';
       fetchData();
     });
 
