@@ -528,6 +528,52 @@ $configData = Helper::appClasses();
           <div class="col-12">
             <div class="glass-card-premium px-4 py-4">
               <h5 class="detail-section-title">
+                <i class="icon-base ti tabler-help-circle"></i> Jawaban Pertanyaan (Tahap 5)
+              </h5>
+              <hr class="detail-divider">
+              @php
+                $jawaban = $peserta->pesertaProfile->jawaban_pertanyaan ?? [];
+                if (is_string($jawaban)) {
+                    $jawaban = json_decode($jawaban, true) ?? [];
+                }
+                $fieldLabels = [
+                  'pengetahuan_asep' => 'Apa yang Anda ketahui tentang Bapak H. Asep Mulyadi, S.H.?',
+                  'alasan_pelatihan' => 'Alasan mengikuti pelatihan',
+                  'pengalaman_bisnis' => 'Pengalaman bisnis dalam bidang pelatihan terkait',
+                  'rencana_setelah_pelatihan' => 'Minat/rencana kedepan setelah mengikuti pelatihan',
+                  'punya_usaha' => 'Apakah sudah memiliki usaha?',
+                  'jenis_usaha' => 'Jenis usaha yang sedang dijalankan',
+                  'usaha_dimiliki' => 'Usaha yang dimiliki',
+                  'usaha_dimiliki_other' => 'Usaha yang dimiliki (lainnya)',
+                  'nama_usaha' => 'Nama usaha yang sedang dijalankan',
+                  'nama_usaha_other' => 'Nama usaha (lainnya)',
+                  'kendala_usaha' => 'Kendala yang dialami dalam menjalankan usaha',
+                ];
+              @endphp
+
+              @if(!empty($jawaban))
+                <div class="row g-3">
+                  @foreach($jawaban as $key => $value)
+                    @php
+                      $label = $fieldLabels[$key] ?? ucwords(str_replace('_', ' ', $key));
+                    @endphp
+                    <div class="col-12">
+                      <div class="detail-label" style="text-transform: none; letter-spacing: normal; font-size: 0.85rem; color: rgba(255, 255, 255, 0.45);">{{ $label }}</div>
+                      <div class="detail-value fw-bold text-white mt-1" style="white-space: pre-wrap; font-size: 0.95rem;">{{ !empty($value) ? $value : '-' }}</div>
+                    </div>
+                  @endforeach
+                </div>
+              @else
+                <div class="text-white-50 text-center py-3" style="font-size: 0.95rem;">
+                  Belum ada jawaban pertanyaan untuk tahap ini
+                </div>
+              @endif
+            </div>
+          </div>
+
+          <div class="col-12">
+            <div class="glass-card-premium px-4 py-4">
+              <h5 class="detail-section-title">
                 <i class="icon-base ti tabler-info-circle"></i> Informasi Lainnya
               </h5>
               <hr class="detail-divider">
