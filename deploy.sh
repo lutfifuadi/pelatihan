@@ -20,8 +20,8 @@ set -euo pipefail
 # Konfigurasi
 # ----------------------------------------------------------
 APP_PATH="$(cd "$(dirname "$0")" && pwd)"
-WEB_USER="${WEB_USER:-www-data}"
-WEB_GROUP="${WEB_GROUP:-www-data}"
+WEB_USER="${WEB_USER:-www}"
+WEB_GROUP="${WEB_GROUP:-www}"
 DEPLOY_LOG_DIR="$APP_PATH/storage/logs"
 DEPLOY_LOG="$DEPLOY_LOG_DIR/deploy-$(date +%Y%m%d_%H%M%S).log"
 HEALTH_URL="${HEALTH_URL:-https://pelatihanku.my.id}"
@@ -338,17 +338,17 @@ chmod -R 775 storage bootstrap/cache 2>&1 | tee -a "$DEPLOY_LOG" || die "Gagal s
 
 # Set ownership hanya untuk direktori yang memang perlu diakses web server
 if id "$WEB_USER" &>/dev/null; then
-    chown -R "$WEB_USER":"$WEB_GROUP" storage bootstrap/cache public/build 2>&1 | tee -a "$DEPLOY_LOG" \
+    sudo chown -R "$WEB_USER":"$WEB_GROUP" storage bootstrap/cache public/build 2>&1 | tee -a "$DEPLOY_LOG" \
         || log_warn "Gagal chown beberapa direktori (mungkin butuh sudo)."
 else
     log_warn "User '$WEB_USER' tidak ditemukan di sistem. Lewati chown."
 fi
 
 # Pastikan artisan executable dan direktori root tetap readable
-chmod 755 artisan
-find "$APP_PATH" -type f -exec chmod 644 {} \;
-find "$APP_PATH" -type d -exec chmod 755 {} \;
-chmod -R 775 storage bootstrap/cache
+sudo chmod 755 artisan
+sudo find "$APP_PATH" -type f -exec chmod 644 {} \;
+sudo find "$APP_PATH" -type d -exec chmod 755 {} \;
+sudo chmod -R 775 storage bootstrap/cache
 
 # Restart PHP-FPM jika tersedia (membersihkan opcache/realpath cache)
 if command -v systemctl &> /dev/null && systemctl list-units --type=service | grep -q php.*-fpm; then
