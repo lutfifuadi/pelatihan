@@ -56,7 +56,7 @@ class PesertaController extends Controller
         if ($peserta->role !== 'peserta') {
             abort(404);
         }
-        $peserta->load('kecamatan', 'kelurahan', 'pesertaProfile');
+        $peserta->load('kecamatan', 'kelurahan', 'pesertaProfile', 'enrollments.pelatihan');
         return view('content.admin.peserta.show', compact('peserta'));
     }
 

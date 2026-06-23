@@ -708,8 +708,180 @@ $configData = Helper::appClasses();
             </div>
           </div>
         </div>
+
+        {{-- Riwayat Pendaftaran Pelatihan --}}
+        <div class="glass-card-premium px-4 py-4 mt-4">
+          <h5 class="detail-section-title">
+            <i class="icon-base ti tabler-file-check"></i> Riwayat Pendaftaran Pelatihan
+          </h5>
+          <hr class="detail-divider">
+
+          @php
+            $enrollments = $peserta->enrollments;
+          @endphp
+
+          @if($enrollments->isNotEmpty())
+            @foreach($enrollments as $enrollment)
+              <div class="mb-3 pb-3" style="border-bottom: 1px solid rgba(255,255,255,0.06);">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                  <div>
+                    <div class="fw-semibold text-white" style="font-size: 0.9rem;">{{ $enrollment->pelatihan->nama }}</div>
+                    <div class="text-body-premium" style="font-size: 0.7rem;">Batch: {{ $enrollment->pelatihan->batch }}</div>
+                  </div>
+                  <div>
+                    @switch($enrollment->status)
+                      @case('pending')
+                        <span class="badge-premium badge-premium-warning">Pending</span>
+                        @break
+                      @case('approved')
+                        <span class="badge-premium badge-premium-success">Approved</span>
+                        @break
+                      @case('rejected')
+                        <span class="badge-premium badge-premium-danger">Ditolak</span>
+                        @break
+                      @case('waitlist')
+                        <span class="badge-premium badge-premium-info">Cadangan</span>
+                        @break
+                    @endswitch
+                  </div>
+                </div>
+
+                @if($enrollment->notes)
+                  <div class="text-body-premium mb-2" style="font-size: 0.75rem; font-style: italic;">
+                    <i class="icon-base ti tabler-message"></i> {{ $enrollment->notes }}
+                  </div>
+                @endif
+
+                {{-- Actions --}}
+                <div class="d-flex gap-2 flex-wrap mt-2">
+                  @if($enrollment->status === 'pending')
+                    <form action="{{ route('admin.enrollments.approve', $enrollment) }}" method="POST" class="d-inline">
+                      @csrf
+                      <button type="submit" class="btn btn-success btn-action d-inline-flex align-items-center gap-1" style="border-radius: 5px;">
+                        <i class="icon-base ti tabler-check fs-6"></i> Approve
+                      </button>
+                    </form>
+                    <form action="{{ route('admin.enrollments.waitlist', $enrollment) }}" method="POST" class="d-inline">
+                      @csrf
+                      <button type="submit" class="btn btn-info btn-action d-inline-flex align-items-center gap-1" style="border-radius: 5px;">
+                        <i class="icon-base ti tabler-clock fs-6"></i> Cadangan
+                      </button>
+                    </form>
+                    <button type="button" class="btn btn-danger btn-action d-inline-flex align-items-center gap-1" style="border-radius: 5px;" data-bs-toggle="modal" data-bs-target="#rejectEnrollmentModal" data-enrollment-id="{{ $enrollment->id }}" data-enrollment-route="{{ route('admin.enrollments.reject', $enrollment) }}">
+                      <i class="icon-base ti tabler-x fs-6"></i> Tolak
+                    </button>
+
+                  @elseif($enrollment->status === 'waitlist')
+                    <form action="{{ route('admin.enrollments.promote', $enrollment) }}" method="POST" class="d-inline">
+                      @csrf
+                      <button type="submit" class="btn btn-success btn-action d-inline-flex align-items-center gap-1" style="border-radius: 5px;">
+                        <i class="icon-base ti tabler-arrow-up fs-6"></i> Promosikan
+                      </button>
+                    </form>
+                    <button type="button" class="btn btn-danger btn-action d-inline-flex align-items-center gap-1" style="border-radius: 5px;" data-bs-toggle="modal" data-bs-target="#rejectEnrollmentModal" data-enrollment-id="{{ $enrollment->id }}" data-enrollment-route="{{ route('admin.enrollments.reject', $enrollment) }}">
+                      <i class="icon-base ti tabler-x fs-6"></i> Tolak
+                    </button>
+
+                  @elseif($enrollment->status === 'approved')
+                    <form action="{{ route('admin.enrollments.reset', $enrollment) }}" method="POST" class="d-inline reset-enrollment-form" data-name="{{ $peserta->name }}" data-pelatihan="{{ $enrollment->pelatihan->nama }}">
+                      @csrf
+                      <button type="submit" class="btn btn-warning btn-action d-inline-flex align-items-center gap-1" style="border-radius: 5px; background: linear-gradient(135deg, #f59e0b, #d97706); border: none;">
+                        <i class="icon-base ti tabler-refresh fs-6"></i> Reset
+                      </button>
+                    </form>
+
+                  @elseif($enrollment->status === 'rejected')
+                    <span class="text-body-premium" style="font-size: 0.8rem;">Tidak ada aksi</span>
+                  @endif
+                </div>
+              </div>
+            @endforeach
+          @else
+            <div class="text-center py-3">
+              <i class="icon-base ti tabler-inbox fs-1 d-block mb-2 text-body-premium"></i>
+              <span class="text-body-premium" style="font-size: 0.9rem;">Peserta belum melakukan submit pendaftaran final.</span>
+            </div>
+          @endif
+        </div>
       </div>
 
     </div>
   </div>
+
+  {{-- Modal Reject Enrollment --}}
+  <div class="modal fade" id="rejectEnrollmentModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content" style="background: #0b0f19; border: 1px solid rgba(255,255,255,0.08); border-radius: 5px;">
+        <div class="modal-header border-0">
+          <h6 class="text-white fw-bold mb-0">Tolak Pendaftaran</h6>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <form id="rejectEnrollmentForm" method="POST">
+          @csrf
+          <div class="modal-body">
+            <p class="text-body-premium small mb-2">Alasan penolakan (opsional):</p>
+            <textarea name="notes" class="form-control" rows="3" placeholder="Contoh: Kuota penuh, tidak memenuhi syarat..." style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); color: #f8fafc; border-radius: 5px;"></textarea>
+          </div>
+          <div class="modal-footer border-0">
+            <button type="button" class="btn btn-secondary btn-action" data-bs-dismiss="modal" style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); color: rgba(255,255,255,0.7);">Batal</button>
+            <button type="submit" class="btn btn-danger btn-action">Ya, Tolak</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+@endsection
+
+@section('page-script')
+<script>
+  // Dynamic reject modal: set form action based on clicked button
+  document.addEventListener('DOMContentLoaded', function() {
+    const rejectModal = document.getElementById('rejectEnrollmentModal');
+    if (rejectModal) {
+      rejectModal.addEventListener('show.bs.modal', function(event) {
+        const button = event.relatedTarget;
+        const route = button.getAttribute('data-enrollment-route');
+        const form = document.getElementById('rejectEnrollmentForm');
+        if (route && form) {
+          form.action = route;
+        }
+      });
+    }
+  });
+
+  // Reset Enrollment confirmation with SweetAlert2
+  document.addEventListener('submit', function(e) {
+    const form = e.target.closest('.reset-enrollment-form');
+    if (!form) return;
+
+    e.preventDefault();
+    const userName = form.getAttribute('data-name');
+    const pelatihanNama = form.getAttribute('data-pelatihan');
+
+    Swal.fire({
+      title: 'Reset Pendaftaran?',
+      html: `<div style="margin-bottom: 0.25rem;">Pendaftaran <strong style="color: #fbbf24;">${userName}</strong> untuk pelatihan</div><div><strong style="color: #93c5fd;">${pelatihanNama}</strong> akan dihapus.</div><div class="mt-3 pt-2" style="border-top: 1px solid rgba(255,255,255,0.06); color: rgba(255,255,255,0.5); font-size: 0.8rem;">Peserta dapat mendaftar ulang untuk pelatihan yang benar.</div>`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Ya, Reset!',
+      cancelButtonText: 'Batal',
+      reverseButtons: true,
+      background: '#0f172a',
+      color: '#f8fafc',
+      customClass: {
+        popup: 'swal2-custom-popup shadow-lg',
+        title: 'swal2-custom-title',
+        htmlContainer: 'swal2-custom-text',
+        actions: 'swal2-custom-actions gap-3',
+        confirmButton: 'btn btn-warning px-4 py-2 border-0 fw-semibold',
+        cancelButton: 'btn btn-secondary-custom px-4 py-2 border-0',
+      },
+      buttonsStyling: false,
+    }).then((result) => {
+      if (result.isConfirmed) {
+        form.submit();
+      }
+    });
+  });
+</script>
 @endsection
