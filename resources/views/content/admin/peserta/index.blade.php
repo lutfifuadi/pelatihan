@@ -339,7 +339,6 @@ $configData = Helper::appClasses();
                 </th>
                 <th class="text-body-premium small fw-semibold">WhatsApp</th>
                 <th class="text-body-premium small fw-semibold">Kecamatan</th>
-                <th class="text-body-premium small fw-semibold">Kelurahan</th>
                 <th class="text-body-premium small fw-semibold">Tanggal Daftar</th>
                 <th class="text-body-premium small fw-semibold text-end px-0" style="width: 120px;">Aksi</th>
               </tr>
