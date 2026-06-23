@@ -277,6 +277,9 @@ class EnrollmentController extends Controller
      */
     private function broadcastDashboardUpdate(): void
     {
+        // Pastikan cache dihapus secara aman di sini
+        Cache::forget('dashboard.admin.stats');
+
         try {
             event(new \App\Events\DashboardUpdated());
         } catch (\Throwable $e) {

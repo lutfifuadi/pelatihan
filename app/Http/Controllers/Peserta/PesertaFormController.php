@@ -10,6 +10,7 @@ use App\Models\PesertaProfile;
 use App\Models\Setting;
 use App\Services\FormConfigService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 
 class PesertaFormController extends Controller
 {
@@ -687,6 +688,7 @@ class PesertaFormController extends Controller
         // ===== DISPATCH EVENT NOTIFIKASI =====
         try {
             if ($enrollment && $enrollment->pelatihan) {
+                Cache::forget('dashboard.admin.stats');
                 event(new \App\Events\PesertaRegistered($user, $enrollment->pelatihan));
             }
         } catch (\Exception $e) {
