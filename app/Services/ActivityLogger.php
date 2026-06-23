@@ -32,7 +32,7 @@ class ActivityLogger
         $user = Auth::user();
         $request = Request::instance();
 
-        return ActivityLog::create([
+        $log = ActivityLog::create([
             'user_id'      => $user?->id,
             'action'       => $action,
             'subject_type' => $subjectType,
@@ -44,6 +44,14 @@ class ActivityLogger
             'ip_address'   => $request->ip(),
             'user_agent'   => $request->userAgent(),
         ]);
+
+        try {
+            event(new \App\Events\DashboardUpdated());
+        } catch (\Throwable $e) {
+            // Bypass if broadcast is offline
+        }
+
+        return $log;
     }
 
     /**

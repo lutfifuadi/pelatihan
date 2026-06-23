@@ -832,41 +832,43 @@ $configData = Helper::appClasses();
         </div>
       </div>
 
-      <!-- RIGHT: Koordinator Wilayah Aktif (Pindahan) -->
+      <!-- RIGHT: Log Aktivitas Sistem -->
       <div class="col-12 col-xl-6">
-        <div class="glass-card-premium px-4 px-xl-5 py-4 h-100">
+        <div class="glass-card-premium px-4 px-xl-5 py-4 h-100 d-flex flex-column">
           <div class="d-flex align-items-center justify-content-between mb-4">
             <h5 class="fw-bold text-white mb-0 d-flex align-items-center gap-2">
-              <i class="icon-base ti tabler-map-pins text-info"></i>
-              Koordinator Wilayah Aktif
+              <i class="icon-base ti tabler-activity text-danger"></i>
+              Log Aktivitas Sistem
             </h5>
-            <span class="badge-premium badge-premium-info" id="badge-active-koors-sec">{{ $koorActiveCount }} Aktif</span>
+            <span class="badge bg-danger bg-opacity-20 text-danger px-2 py-1" style="font-size: 10px; border-radius: 4px;">Real-time</span>
           </div>
-
-          <div id="container-active-koors-sec">
-            @if($activeKoors->isEmpty())
-              <div class="text-center py-4">
-                <i class="icon-base ti tabler-user-x fs-2 text-muted mb-2"></i>
-                <p class="text-body-premium small mb-0">Belum ada koordinator aktif.</p>
+          
+          <div id="container-latest-activities" class="flex-grow-1">
+            @if($latestActivities->isEmpty())
+              <div class="text-center py-5">
+                <i class="icon-base ti tabler-activity-heartbeat fs-1 text-muted mb-2"></i>
+                <p class="text-body-premium small mb-0">Belum ada aktivitas tercatat.</p>
               </div>
             @else
               <div class="d-flex flex-column gap-3">
-                @foreach($activeKoors as $k)
-                  <div class="d-flex align-items-center justify-content-between">
-                    <div class="d-flex align-items-center gap-3">
-                      <div class="instructor-avatar text-white" style="background: rgba(6, 182, 212, 0.15); color: #22d3ee;">
-                        {{ strtoupper(substr($k->name, 0, 2)) }}
-                      </div>
-                      <div>
-                        <h6 class="text-white fw-semibold mb-0" style="font-size: 0.85rem;">{{ $k->name }}</h6>
-                        <small class="text-body-premium">Kecamatan: {{ $k->kecamatan->name ?? '-' }}</small>
-                      </div>
+                @foreach($latestActivities as $log)
+                  @php
+                    $badgeColor = 'secondary';
+                    if ($log->action === 'created' || $log->action === 'approved') $badgeColor = 'success';
+                    elseif ($log->action === 'updated') $badgeColor = 'warning';
+                    elseif ($log->action === 'deleted' || $log->action === 'rejected') $badgeColor = 'danger';
+                    elseif ($log->action === 'login') $badgeColor = 'info';
+                  @endphp
+                  <div class="d-flex align-items-start gap-3">
+                    <span class="badge bg-{{ $badgeColor }} bg-opacity-20 text-{{ $badgeColor }} text-uppercase px-2 py-1 mt-1" style="font-size: 8px; border-radius: 4px; min-width: 65px; text-align: center;">
+                      {{ $log->action }}
+                    </span>
+                    <div class="flex-grow-1">
+                      <p class="text-white mb-0" style="font-size: 0.85rem; line-height: 1.4;">{{ $log->description }}</p>
+                      <small class="text-body-premium" style="font-size: 0.75rem;">
+                        Oleh: {{ $log->user->name ?? 'Sistem' }} • {{ $log->created_at->diffForHumans() }}
+                      </small>
                     </div>
-                    @if($k->whatsapp)
-                      <a href="https://wa.me/{{ $k->whatsapp }}" target="_blank" class="btn btn-sm btn-outline-success px-2 py-1" style="border-radius: 4px; font-size: 11px;">
-                        <i class="icon-base ti tabler-brand-whatsapp"></i> Chat
-                      </a>
-                    @endif
                   </div>
                 @endforeach
               </div>
@@ -940,6 +942,17 @@ $configData = Helper::appClasses();
           }
         }
       });
+
+      if (window.Echo) {
+        window.Echo.channel('dashboard')
+          .listen('DashboardUpdated', function() {
+            // Memicu reload log aktivitas dan statistik secara halus!
+            // Kita bisa reload halaman secara halus menggunakan AJAX atau panggil window.location.reload() sebagai fallback instan.
+            // Mengingat ada cache berdurasi 1 jam, pastikan request AJAX tidak mengambil data dari cache jika dicache (namun karena di controller Cache::forget() dipanggil sebelum event, reload() langsung akan selalu mendapatkan data ter-fresh!).
+            // Lakukan reload page/AJAX secara rapi. Paling aman & instan adalah refresh halaman: window.location.reload();
+            window.location.reload();
+          });
+      }
     });
   </script>
   @vite(['resources/assets/js/dashboard-admin.js'])

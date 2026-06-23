@@ -97,6 +97,12 @@ class DashboardController extends Controller
                 ->take(4)
                 ->get();
 
+            // --- Log Aktivitas Terbaru ---
+            $latestActivities = \App\Models\ActivityLog::with('user:id,name,role')
+                ->orderBy('created_at', 'desc')
+                ->take(5)
+                ->get();
+
             return compact(
                 'userCounts',
                 'waSentToday',
@@ -114,6 +120,7 @@ class DashboardController extends Controller
                 'sebaranKecamatan',
                 'pesertaCount',
                 'latestPeserta',
+                'latestActivities',
             );
         });
 
