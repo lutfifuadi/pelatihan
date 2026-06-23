@@ -319,7 +319,43 @@ $configData = Helper::appClasses();
             </div>
             <div class="col-md-4">
               <div class="detail-label">Link Medsos</div>
-              <div class="detail-value">{{ $peserta->pesertaProfile->link_medsos ?? '-' }}</div>
+              <div class="detail-value">
+                @php
+                  $medsos = $peserta->pesertaProfile->link_medsos ?? null;
+                @endphp
+                
+                @if($medsos && is_array($medsos))
+                  <div class="d-flex flex-wrap gap-2">
+                    @php $hasMedsos = false; @endphp
+                    @foreach($medsos as $item)
+                      @if(!empty($item['url']))
+                        @php $hasMedsos = true; @endphp
+                        <a href="{{ $item['url'] }}" target="_blank" class="badge bg-label-primary d-inline-flex align-items-center gap-1" style="text-decoration: none; font-size: 0.75rem; padding: 6px 12px;">
+                          @php
+                            $platform = strtolower($item['platform'] ?? 'link');
+                            $iconClass = 'tabler-link';
+                            if (str_contains($platform, 'instagram')) $iconClass = 'tabler-brand-instagram';
+                            elseif (str_contains($platform, 'facebook')) $iconClass = 'tabler-brand-facebook';
+                            elseif (str_contains($platform, 'twitter') || str_contains($platform, 'x.com')) $iconClass = 'tabler-brand-x';
+                            elseif (str_contains($platform, 'linkedin')) $iconClass = 'tabler-brand-linkedin';
+                            elseif (str_contains($platform, 'youtube')) $iconClass = 'tabler-brand-youtube';
+                            elseif (str_contains($platform, 'tiktok')) $iconClass = 'tabler-brand-tiktok';
+                          @endphp
+                          <i class="icon-base ti {{ $iconClass }} fs-6"></i>
+                          {{ $item['platform'] ?? 'Medsos' }}
+                        </a>
+                      @endif
+                    @endforeach
+                    @if(!$hasMedsos)
+                      -
+                    @endif
+                  </div>
+                @elseif($medsos && is_string($medsos))
+                  {{ $medsos }}
+                @else
+                  -
+                @endif
+              </div>
             </div>
           </div>
         </div>
