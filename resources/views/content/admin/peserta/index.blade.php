@@ -369,6 +369,10 @@ $configData = Helper::appClasses();
   </div>
 @endsection
 
+@section('vendor-script')
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+@endsection
+
 @section('page-script')
 <script>
   (function() {
@@ -462,5 +466,45 @@ $configData = Helper::appClasses();
       fetchData();
     });
   })();
+
+  // Delete Peserta Forms — menggunakan event delegation agar tetap jalan setelah AJAX load
+  document.addEventListener('submit', function(e) {
+    const form = e.target.closest('.delete-peserta-form');
+    if (!form) return;
+
+    e.preventDefault();
+    const userName = form.getAttribute('data-name');
+
+    Swal.fire({
+      title: 'Hapus Peserta?',
+      html: `<div style="margin-bottom: 0.5rem;">Yakin ingin menghapus <strong style="color: #fbbf24;">${userName}</strong>?</div>
+<div class="mb-2" style="color: rgba(255,255,255,0.5); font-size: 0.85rem;">Data berikut akan dihapus <strong style="color: #f87171;">permanen</strong> dan tidak bisa dikembalikan:</div>
+<ul style="text-align: left; color: rgba(255,255,255,0.65); font-size: 0.85rem; margin-bottom: 0; padding-left: 1.25rem;">
+  <li>Profil peserta</li>
+  <li>Riwayat pendaftaran pelatihan</li>
+  <li>Log aktivitas terkait</li>
+</ul>`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Ya, hapus permanen',
+      cancelButtonText: 'Batal',
+      reverseButtons: true,
+      background: '#0f172a',
+      color: '#f8fafc',
+      customClass: {
+        popup: 'swal2-custom-popup shadow-lg',
+        title: 'swal2-custom-title',
+        htmlContainer: 'swal2-custom-text',
+        actions: 'swal2-custom-actions gap-3',
+        confirmButton: 'btn btn-danger px-4 py-2 border-0 fw-semibold',
+        cancelButton: 'btn btn-secondary-custom px-4 py-2 border-0',
+      },
+      buttonsStyling: false,
+    }).then((result) => {
+      if (result.isConfirmed) {
+        form.submit();
+      }
+    });
+  });
 </script>
 @endsection

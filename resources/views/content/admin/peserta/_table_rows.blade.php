@@ -66,8 +66,7 @@
         <a href="{{ route('admin.peserta.show', $p) }}" class="btn btn-info btn-sm d-flex align-items-center justify-content-center" style="border-radius: 5px; width: 32px; height: 32px; padding: 0;">
           <i class="icon-base ti tabler-eye fs-5"></i>
         </a>
-        <form action="{{ route('admin.peserta.destroy', $p) }}" method="POST" class="d-inline"
-          onsubmit="return confirm('Yakin ingin menghapus peserta {{ $p->name }}?')">
+        <form action="{{ route('admin.peserta.destroy', $p) }}" method="POST" class="d-inline delete-peserta-form" data-name="{{ $p->name }}">
           @csrf
           @method('DELETE')
           <button type="submit" class="btn btn-danger btn-sm d-flex align-items-center justify-content-center" style="border-radius: 5px; width: 32px; height: 32px; padding: 0;">
