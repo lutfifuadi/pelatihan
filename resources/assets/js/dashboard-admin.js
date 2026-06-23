@@ -246,6 +246,82 @@ document.addEventListener('DOMContentLoaded', () => {
                         `;
                     }
                 }
+
+                // Update Latest Activities (Log Aktivitas Sistem)
+                const containerLatestActivities = document.getElementById('container-latest-activities');
+                if (containerLatestActivities) {
+                    if (!stats.latestActivities || stats.latestActivities.length === 0) {
+                        containerLatestActivities.innerHTML = `
+                            <div class="text-center py-4">
+                                <i class="icon-base ti tabler-activity fs-2 text-muted mb-2"></i>
+                                <p class="text-body-premium small mb-0">Belum ada aktivitas.</p>
+                            </div>
+                        `;
+                    } else {
+                        let items = '';
+                        stats.latestActivities.forEach(log => {
+                            // Tentukan badge warna berdasarkan action
+                            let badgeClass = 'bg-secondary';
+                            let icon = 'tabler-circle';
+                            switch (log.action) {
+                                case 'created':
+                                case 'registered':
+                                    badgeClass = 'bg-success';
+                                    icon = 'tabler-plus';
+                                    break;
+                                case 'updated':
+                                    badgeClass = 'bg-warning';
+                                    icon = 'tabler-edit';
+                                    break;
+                                case 'deleted':
+                                    badgeClass = 'bg-danger';
+                                    icon = 'tabler-trash';
+                                    break;
+                                case 'approved':
+                                    badgeClass = 'bg-info';
+                                    icon = 'tabler-check';
+                                    break;
+                                case 'rejected':
+                                    badgeClass = 'bg-danger';
+                                    icon = 'tabler-x';
+                                    break;
+                                case 'completed':
+                                    badgeClass = 'bg-primary';
+                                    icon = 'tabler-checkup-list';
+                                    break;
+                                case 'export':
+                                    badgeClass = 'bg-secondary';
+                                    icon = 'tabler-download';
+                                    break;
+                            }
+
+                            const userName = log.user ? log.user.name : 'Sistem';
+                            const userRole = log.user ? log.user.role : '';
+                            const roleBadge = userRole === 'peserta'
+                                ? '<span class="badge bg-info bg-opacity-20 text-info ms-1" style="font-size: 9px; padding: 1px 5px;">Peserta</span>'
+                                : userRole === 'admin'
+                                    ? '<span class="badge bg-danger bg-opacity-20 text-danger ms-1" style="font-size: 9px; padding: 1px 5px;">Admin</span>'
+                                    : '';
+
+                            items += `
+                                <div class="d-flex align-items-start gap-3 py-2" style="border-bottom: 1px solid rgba(255,255,255,0.04);">
+                                    <span class="badge ${badgeClass} bg-opacity-20" style="padding: 4px 6px; border-radius: 4px; font-size: 12px; min-width: 28px; text-align: center;">
+                                        <i class="icon-base ti ${icon}"></i>
+                                    </span>
+                                    <div class="flex-grow-1 min-width-0">
+                                        <div class="d-flex align-items-center flex-wrap gap-1">
+                                            <strong class="text-white small">${userName}</strong>
+                                            ${roleBadge}
+                                        </div>
+                                        <p class="text-body-premium small mb-0" style="font-size: 0.78rem; line-height: 1.3;">${log.description}</p>
+                                    </div>
+                                    <small class="text-body-premium flex-shrink-0" style="font-size: 0.65rem; white-space: nowrap;">${log.created_at}</small>
+                                </div>
+                            `;
+                        });
+                        containerLatestActivities.innerHTML = items;
+                    }
+                }
             });
         }
     };

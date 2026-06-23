@@ -943,16 +943,7 @@ $configData = Helper::appClasses();
         }
       });
 
-      if (window.Echo) {
-        window.Echo.channel('dashboard')
-          .listen('DashboardUpdated', function() {
-            // Memicu reload log aktivitas dan statistik secara halus!
-            // Kita bisa reload halaman secara halus menggunakan AJAX atau panggil window.location.reload() sebagai fallback instan.
-            // Mengingat ada cache berdurasi 1 jam, pastikan request AJAX tidak mengambil data dari cache jika dicache (namun karena di controller Cache::forget() dipanggil sebelum event, reload() langsung akan selalu mendapatkan data ter-fresh!).
-            // Lakukan reload page/AJAX secara rapi. Paling aman & instan adalah refresh halaman: window.location.reload();
-            window.location.reload();
-          });
-      }
+
     });
   </script>
   @vite(['resources/assets/js/dashboard-admin.js'])

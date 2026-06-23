@@ -116,6 +116,24 @@ class DashboardUpdated implements ShouldBroadcastNow
                 ];
             });
 
+        // Latest Activities (5 log terbaru)
+        $latestActivities = \App\Models\ActivityLog::with('user:id,name,role')
+            ->orderBy('created_at', 'desc')
+            ->take(5)
+            ->get()
+            ->map(fn($log) => [
+                'id' => $log->id,
+                'action' => $log->action,
+                'subject_type' => $log->subject_type,
+                'subject_name' => $log->subject_name,
+                'description' => $log->description,
+                'created_at' => $log->created_at->diffForHumans(),
+                'user' => $log->user ? [
+                    'name' => $log->user->name,
+                    'role' => $log->user->role,
+                ] : null,
+            ]);
+
         $this->stats = [
             'totalPelatihan' => $totalPelatihan,
             'totalPeserta' => $pesertaCount,
@@ -133,6 +151,7 @@ class DashboardUpdated implements ShouldBroadcastNow
             'latestPelatihan' => $latestPelatihan->toArray(),
             'latestPeserta' => $latestPeserta->toArray(),
             'activeKoors' => $activeKoors->toArray(),
+            'latestActivities' => $latestActivities->toArray(),
         ];
     }
 
