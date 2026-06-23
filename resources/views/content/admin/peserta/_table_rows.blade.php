@@ -3,9 +3,6 @@
     <td class="px-0 py-3 text-body-premium">{{ $pesertas->firstItem() + $index }}</td>
     <td class="py-3 text-white fw-semibold">{{ $p->name }}</td>
     <td class="py-3">
-      <span class="text-body-premium" style="font-size: 0.85rem;">{{ $p->nik ?? '-' }}</span>
-    </td>
-    <td class="py-3">
       @if($p->whatsapp)
         <span class="text-body-premium" style="font-size: 0.85rem;">
           <i class="icon-base ti tabler-brand-whatsapp text-success me-1" style="font-size: 0.85rem;"></i>
@@ -43,9 +40,9 @@
       </div>
     </td>
   </tr>
-@empty
+  @empty
   <tr>
-    <td colspan="8" class="text-center text-body-premium py-5">
+    <td colspan="7" class="text-center text-body-premium py-5">
       <i class="icon-base ti tabler-users-off fs-1 mb-2 d-block text-warning"></i>
       Belum ada data peserta.
     </td>

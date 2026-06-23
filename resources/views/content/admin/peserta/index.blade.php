@@ -337,7 +337,6 @@ $configData = Helper::appClasses();
                     <i id="sort-icon" class="icon-base ti {{ $sortBy == 'name' ? ($sortDir == 'asc' ? 'tabler-sort-ascending' : 'tabler-sort-descending') : 'tabler-arrows-sort' }}" style="font-size: {{ $sortBy == 'name' ? '1rem' : '0.85rem' }};"></i>
                   </span>
                 </th>
-                <th class="text-body-premium small fw-semibold">NIK</th>
                 <th class="text-body-premium small fw-semibold">WhatsApp</th>
                 <th class="text-body-premium small fw-semibold">Kecamatan</th>
                 <th class="text-body-premium small fw-semibold">Kelurahan</th>
