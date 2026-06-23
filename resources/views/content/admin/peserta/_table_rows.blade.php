@@ -26,7 +26,40 @@
       @endif
     </td>
     <td class="py-3">
-      <span class="badge-premium">{{ $p->created_at->format('d/m/Y') }}</span>
+      @php
+        $profile = $p->pesertaProfile;
+        $progress = 0;
+        if ($profile) {
+            $fields = ['nama_lengkap', 'nik', 'alamat_ktp', 'whatsapp', 'pendidikan_terakhir', 'nama_institusi', 'pelatihan_id', 'jawaban_pertanyaan'];
+            $filled = 0;
+            foreach ($fields as $f) {
+                if (!empty($profile->$f)) {
+                    $filled++;
+                }
+            }
+            if ($profile->is_completed) {
+                $progress = 100;
+            } else {
+                $progress = (int) round(($filled / count($fields)) * 100);
+                if ($progress > 90) $progress = 90; // Batasi maks 90% sebelum submit final
+            }
+        }
+      @endphp
+      <div class="d-flex align-items-center gap-2">
+        <div class="progress w-100" style="height: 6px; background-color: rgba(255,255,255,0.08); border-radius: 3px;">
+          <div class="progress-bar {{ $progress == 100 ? 'bg-success' : ($progress > 50 ? 'bg-warning' : 'bg-danger') }}" 
+               role="progressbar" 
+               style="width: {{ $progress }}%; border-radius: 3px;" 
+               aria-valuenow="{{ $progress }}" 
+               aria-valuemin="0" 
+               aria-valuemax="100">
+          </div>
+        </div>
+        <span class="text-white-50 small fw-bold" style="font-size: 0.75rem; min-width: 35px;">{{ $progress }}%</span>
+        @if($profile && $profile->is_completed)
+          <span class="badge bg-success" style="font-size: 0.65rem; padding: 2px 6px;">Final</span>
+        @endif
+      </div>
     </td>
     <td class="text-end px-0 py-3">
       <div class="d-inline-flex gap-2">

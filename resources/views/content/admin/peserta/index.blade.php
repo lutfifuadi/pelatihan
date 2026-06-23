@@ -347,7 +347,7 @@ $configData = Helper::appClasses();
                 <th class="text-body-premium small fw-semibold">WhatsApp</th>
                 <th class="text-body-premium small fw-semibold">Kecamatan</th>
                 <th class="text-body-premium small fw-semibold">Pilihan Pelatihan</th>
-                <th class="text-body-premium small fw-semibold">Tanggal Daftar</th>
+                <th class="text-body-premium small fw-semibold">Progress Pendaftaran</th>
                 <th class="text-body-premium small fw-semibold text-end px-0" style="width: 120px;">Aksi</th>
               </tr>
             </thead>
