@@ -176,6 +176,21 @@ $configData = Helper::appClasses();
     color: #6366f1;
   }
 
+  .stat-icon-success {
+    background: rgba(16, 185, 129, 0.12);
+    color: #10b981;
+  }
+
+  .stat-icon-secondary {
+    background: rgba(148, 163, 184, 0.12);
+    color: #94a3b8;
+  }
+
+  .stat-icon-warning {
+    background: rgba(245, 158, 11, 0.12);
+    color: #f59e0b;
+  }
+
   .btn-glow-premium {
     background: linear-gradient(135deg, #ffc107, #ff9800) !important;
     border: none;
@@ -239,6 +254,46 @@ $configData = Helper::appClasses();
     margin: 1.5rem 0;
   }
 
+  /* Timeline Styles */
+  .timeline-premium {
+    position: relative;
+    padding-left: 1.5rem;
+    border-left: 1px solid rgba(255, 255, 255, 0.08);
+  }
+  .timeline-item-premium {
+    position: relative;
+    padding-bottom: 1.5rem;
+  }
+  .timeline-item-premium:last-child {
+    padding-bottom: 0;
+  }
+  .timeline-badge-premium {
+    position: absolute;
+    left: -2.1rem;
+    top: 2px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #0b0f19;
+    border: 2px solid rgba(255, 255, 255, 0.15);
+    z-index: 2;
+  }
+  .timeline-badge-premium.completed {
+    border-color: #10b981;
+    background: #10b981;
+    color: #0b0f19;
+  }
+  .timeline-badge-premium.pending {
+    border-color: rgba(255, 255, 255, 0.2);
+    color: rgba(255, 255, 255, 0.4);
+  }
+  .timeline-badge-premium i {
+    font-size: 0.75rem;
+  }
+
 </style>
 @endsection
 
@@ -270,231 +325,347 @@ $configData = Helper::appClasses();
 
     <div class="row g-4">
 
-      <div class="col-12">
-        <div class="glass-card-premium px-4 py-4">
-          <h5 class="detail-section-title">
-            <i class="icon-base ti tabler-id"></i> Data Pribadi
-          </h5>
-          <hr class="detail-divider">
-          <div class="row g-3">
-            <div class="col-md-4">
-              <div class="detail-label">Nama Lengkap</div>
-              <div class="detail-value">{{ $peserta->name }}</div>
-            </div>
-            <div class="col-md-4">
-              <div class="detail-label">NIK</div>
-              <div class="detail-value">{{ $peserta->nik ?? '-' }}</div>
-            </div>
-            <div class="col-md-4">
-              <div class="detail-label">WhatsApp</div>
-              <div class="detail-value">{{ $peserta->whatsapp ?? '-' }}</div>
-            </div>
-            <div class="col-md-4">
-              <div class="detail-label">Email</div>
-              <div class="detail-value">{{ $peserta->email ?? '-' }}</div>
-            </div>
-            <div class="col-md-4">
-              <div class="detail-label">Jenis Kelamin</div>
-              <div class="detail-value">{{ $peserta->pesertaProfile->jenis_kelamin ?? '-' }}</div>
-            </div>
-            <div class="col-md-4">
-              <div class="detail-label">Tempat, Tanggal Lahir</div>
-              <div class="detail-value">
-                @if($peserta->pesertaProfile && $peserta->pesertaProfile->tempat_lahir)
-                  {{ $peserta->pesertaProfile->tempat_lahir }},
-                @endif
-                @if($peserta->pesertaProfile && $peserta->pesertaProfile->tanggal_lahir)
-                  {{ $peserta->pesertaProfile->tanggal_lahir }}
-                @endif
-                @if($peserta->pesertaProfile && $peserta->pesertaProfile->bulan_lahir)
-                  /{{ $peserta->pesertaProfile->bulan_lahir }}
-                @endif
-                @if($peserta->pesertaProfile && $peserta->pesertaProfile->tahun_lahir)
-                  /{{ $peserta->pesertaProfile->tahun_lahir }}
-                @endif
-                @if(!$peserta->pesertaProfile || (!$peserta->pesertaProfile->tempat_lahir && !$peserta->pesertaProfile->tanggal_lahir))
-                  -
-                @endif
-              </div>
-            </div>
-            <div class="col-md-4">
-              <div class="detail-label">Link Medsos</div>
-              <div class="detail-value">
-                @php
-                  $medsos = $peserta->pesertaProfile->link_medsos ?? null;
-                @endphp
-                
-                @if($medsos && is_array($medsos))
-                  <div class="d-flex flex-wrap gap-2">
-                    @php $hasMedsos = false; @endphp
-                    @foreach($medsos as $item)
-                      @if(!empty($item['url']))
-                        @php $hasMedsos = true; @endphp
-                        <a href="{{ $item['url'] }}" target="_blank" class="badge bg-label-primary d-inline-flex align-items-center gap-1" style="text-decoration: none; font-size: 0.75rem; padding: 6px 12px;">
-                          @php
-                            $platform = strtolower($item['platform'] ?? 'link');
-                            $iconClass = 'tabler-link';
-                            if (str_contains($platform, 'instagram')) $iconClass = 'tabler-brand-instagram';
-                            elseif (str_contains($platform, 'facebook')) $iconClass = 'tabler-brand-facebook';
-                            elseif (str_contains($platform, 'twitter') || str_contains($platform, 'x.com')) $iconClass = 'tabler-brand-x';
-                            elseif (str_contains($platform, 'linkedin')) $iconClass = 'tabler-brand-linkedin';
-                            elseif (str_contains($platform, 'youtube')) $iconClass = 'tabler-brand-youtube';
-                            elseif (str_contains($platform, 'tiktok')) $iconClass = 'tabler-brand-tiktok';
-                          @endphp
-                          <i class="icon-base ti {{ $iconClass }} fs-6"></i>
-                          {{ $item['platform'] ?? 'Medsos' }}
-                        </a>
-                      @endif
-                    @endforeach
-                    @if(!$hasMedsos)
+      <div class="col-lg-8 col-md-7">
+        <div class="row g-4">
+          <div class="col-12">
+            <div class="glass-card-premium px-4 py-4">
+              <h5 class="detail-section-title">
+                <i class="icon-base ti tabler-id"></i> Data Pribadi
+              </h5>
+              <hr class="detail-divider">
+              <div class="row g-3">
+                <div class="col-md-4">
+                  <div class="detail-label">Nama Lengkap</div>
+                  <div class="detail-value">{{ $peserta->name }}</div>
+                </div>
+                <div class="col-md-4">
+                  <div class="detail-label">NIK</div>
+                  <div class="detail-value">{{ $peserta->nik ?? '-' }}</div>
+                </div>
+                <div class="col-md-4">
+                  <div class="detail-label">WhatsApp</div>
+                  <div class="detail-value">{{ $peserta->whatsapp ?? '-' }}</div>
+                </div>
+                <div class="col-md-4">
+                  <div class="detail-label">Email</div>
+                  <div class="detail-value">{{ $peserta->email ?? '-' }}</div>
+                </div>
+                <div class="col-md-4">
+                  <div class="detail-label">Jenis Kelamin</div>
+                  <div class="detail-value">{{ $peserta->pesertaProfile->jenis_kelamin ?? '-' }}</div>
+                </div>
+                <div class="col-md-4">
+                  <div class="detail-label">Tempat, Tanggal Lahir</div>
+                  <div class="detail-value">
+                    @if($peserta->pesertaProfile && $peserta->pesertaProfile->tempat_lahir)
+                      {{ $peserta->pesertaProfile->tempat_lahir }},
+                    @endif
+                    @if($peserta->pesertaProfile && $peserta->pesertaProfile->tanggal_lahir)
+                      {{ $peserta->pesertaProfile->tanggal_lahir }}
+                    @endif
+                    @if($peserta->pesertaProfile && $peserta->pesertaProfile->bulan_lahir)
+                      /{{ $peserta->pesertaProfile->bulan_lahir }}
+                    @endif
+                    @if($peserta->pesertaProfile && $peserta->pesertaProfile->tahun_lahir)
+                      /{{ $peserta->pesertaProfile->tahun_lahir }}
+                    @endif
+                    @if(!$peserta->pesertaProfile || (!$peserta->pesertaProfile->tempat_lahir && !$peserta->pesertaProfile->tanggal_lahir))
                       -
                     @endif
                   </div>
-                @elseif($medsos && is_string($medsos))
-                  {{ $medsos }}
-                @else
-                  -
-                @endif
+                </div>
+                <div class="col-md-4">
+                  <div class="detail-label">Link Medsos</div>
+                  <div class="detail-value">
+                    @php
+                      $medsos = $peserta->pesertaProfile->link_medsos ?? null;
+                    @endphp
+                    
+                    @if($medsos && is_array($medsos))
+                      <div class="d-flex flex-wrap gap-2">
+                        @php $hasMedsos = false; @endphp
+                        @foreach($medsos as $item)
+                          @if(!empty($item['url']))
+                            @php $hasMedsos = true; @endphp
+                            <a href="{{ $item['url'] }}" target="_blank" class="badge bg-label-primary d-inline-flex align-items-center gap-1" style="text-decoration: none; font-size: 0.75rem; padding: 6px 12px;">
+                              @php
+                                $platform = strtolower($item['platform'] ?? 'link');
+                                $iconClass = 'tabler-link';
+                                if (str_contains($platform, 'instagram')) $iconClass = 'tabler-brand-instagram';
+                                elseif (str_contains($platform, 'facebook')) $iconClass = 'tabler-brand-facebook';
+                                elseif (str_contains($platform, 'twitter') || str_contains($platform, 'x.com')) $iconClass = 'tabler-brand-x';
+                                elseif (str_contains($platform, 'linkedin')) $iconClass = 'tabler-brand-linkedin';
+                                elseif (str_contains($platform, 'youtube')) $iconClass = 'tabler-brand-youtube';
+                                elseif (str_contains($platform, 'tiktok')) $iconClass = 'tabler-brand-tiktok';
+                              @endphp
+                              <i class="icon-base ti {{ $iconClass }} fs-6"></i>
+                              {{ $item['platform'] ?? 'Medsos' }}
+                            </a>
+                          @endif
+                        @endforeach
+                        @if(!$hasMedsos)
+                          -
+                        @endif
+                      </div>
+                    @elseif($medsos && is_string($medsos))
+                      {{ $medsos }}
+                    @else
+                      -
+                    @endif
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-12">
+            <div class="glass-card-premium px-4 py-4">
+              <h5 class="detail-section-title">
+                <i class="icon-base ti tabler-map-pin"></i> Alamat
+              </h5>
+              <hr class="detail-divider">
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <div class="detail-label">Alamat KTP</div>
+                  <div class="detail-value">{{ $peserta->pesertaProfile->alamat_ktp ?? '-' }}</div>
+                </div>
+                <div class="col-md-2">
+                  <div class="detail-label">RT</div>
+                  <div class="detail-value">{{ $peserta->pesertaProfile->rt ?? '-' }}</div>
+                </div>
+                <div class="col-md-2">
+                  <div class="detail-label">RW</div>
+                  <div class="detail-value">{{ $peserta->pesertaProfile->rw ?? '-' }}</div>
+                </div>
+                <div class="col-md-2">
+                  <div class="detail-label">Kodepos</div>
+                  <div class="detail-value">{{ $peserta->pesertaProfile->kodepos ?? '-' }}</div>
+                </div>
+                <div class="col-md-3">
+                  <div class="detail-label">Kelurahan</div>
+                  <div class="detail-value">{{ $peserta->kelurahan->name ?? $peserta->pesertaProfile->kelurahan ?? '-' }}</div>
+                </div>
+                <div class="col-md-3">
+                  <div class="detail-label">Kecamatan</div>
+                  <div class="detail-value">{{ $peserta->kecamatan->name ?? $peserta->pesertaProfile->kecamatan ?? '-' }}</div>
+                </div>
+                <div class="col-md-3">
+                  <div class="detail-label">Kota</div>
+                  <div class="detail-value">{{ $peserta->pesertaProfile->kota ?? '-' }}</div>
+                </div>
+                <div class="col-md-3">
+                  <div class="detail-label">Provinsi</div>
+                  <div class="detail-value">{{ $peserta->pesertaProfile->provinsi ?? '-' }}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-12">
+            <div class="glass-card-premium px-4 py-4">
+              <h5 class="detail-section-title">
+                <i class="icon-base ti tabler-book"></i> Pendidikan & Pekerjaan
+              </h5>
+              <hr class="detail-divider">
+              <div class="row g-3">
+                <div class="col-md-3">
+                  <div class="detail-label">Pendidikan Terakhir</div>
+                  <div class="detail-value">{{ $peserta->pesertaProfile->pendidikan_terakhir ?? '-' }}</div>
+                </div>
+                <div class="col-md-3">
+                  <div class="detail-label">Nama Institusi</div>
+                  <div class="detail-value">{{ $peserta->pesertaProfile->nama_institusi ?? '-' }}</div>
+                </div>
+                <div class="col-md-3">
+                  <div class="detail-label">Jurusan</div>
+                  <div class="detail-value">{{ $peserta->pesertaProfile->jurusan ?? '-' }}</div>
+                </div>
+                <div class="col-md-3">
+                  <div class="detail-label">Tahun Lulus</div>
+                  <div class="detail-value">{{ $peserta->pesertaProfile->tahun_lulus ?? '-' }}</div>
+                </div>
+                <div class="col-md-4">
+                  <div class="detail-label">Status Pekerjaan</div>
+                  <div class="detail-value">{{ $peserta->pesertaProfile->status_pekerjaan ?? '-' }}</div>
+                </div>
+                <div class="col-md-4">
+                  <div class="detail-label">Nama Perusahaan</div>
+                  <div class="detail-value">{{ $peserta->pesertaProfile->nama_perusahaan ?? '-' }}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-12">
+            <div class="glass-card-premium px-4 py-4">
+              <h5 class="detail-section-title">
+                <i class="icon-base ti tabler-star"></i> Minat Pelatihan
+              </h5>
+              <hr class="detail-divider">
+              <div class="row g-3">
+                <div class="col-md-4">
+                  <div class="detail-label">Bidang Minat</div>
+                  <div class="detail-value">
+                    @if($peserta->pesertaProfile && $peserta->pesertaProfile->bidang_minat)
+                      @if(is_array($peserta->pesertaProfile->bidang_minat))
+                        {{ implode(', ', $peserta->pesertaProfile->bidang_minat) }}
+                      @else
+                        {{ $peserta->pesertaProfile->bidang_minat }}
+                      @endif
+                    @else
+                      -
+                    @endif
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="detail-label">Tujuan Pelatihan</div>
+                  <div class="detail-value">{{ $peserta->pesertaProfile->tujuan_pelatihan ?? '-' }}</div>
+                </div>
+                <div class="col-md-2">
+                  <div class="detail-label">Preferensi Jadwal</div>
+                  <div class="detail-value">{{ $peserta->pesertaProfile->preferensi_jadwal ?? '-' }}</div>
+                </div>
+                <div class="col-md-2">
+                  <div class="detail-label">Preferensi Mode</div>
+                  <div class="detail-value">{{ $peserta->pesertaProfile->preferensi_mode ?? '-' }}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-12">
+            <div class="glass-card-premium px-4 py-4">
+              <h5 class="detail-section-title">
+                <i class="icon-base ti tabler-info-circle"></i> Informasi Lainnya
+              </h5>
+              <hr class="detail-divider">
+              <div class="row g-3">
+                <div class="col-md-3">
+                  <div class="detail-label">Tanggal Daftar</div>
+                  <div class="detail-value">{{ $peserta->created_at->format('d/m/Y H:i') }}</div>
+                </div>
+                <div class="col-md-3">
+                  <div class="detail-label">Status</div>
+                  <div class="detail-value">
+                    @if($peserta->is_active)
+                      <span class="badge-premium badge-premium-success">Aktif</span>
+                    @else
+                      <span class="badge-premium badge-premium-warning">Nonaktif</span>
+                    @endif
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      <div class="col-12">
+      <div class="col-lg-4 col-md-5">
         <div class="glass-card-premium px-4 py-4">
           <h5 class="detail-section-title">
-            <i class="icon-base ti tabler-map-pin"></i> Alamat
+            <i class="icon-base ti tabler-chart-donut"></i> Status &amp; Progress Pendaftaran
           </h5>
           <hr class="detail-divider">
-          <div class="row g-3">
-            <div class="col-md-6">
-              <div class="detail-label">Alamat KTP</div>
-              <div class="detail-value">{{ $peserta->pesertaProfile->alamat_ktp ?? '-' }}</div>
-            </div>
-            <div class="col-md-2">
-              <div class="detail-label">RT</div>
-              <div class="detail-value">{{ $peserta->pesertaProfile->rt ?? '-' }}</div>
-            </div>
-            <div class="col-md-2">
-              <div class="detail-label">RW</div>
-              <div class="detail-value">{{ $peserta->pesertaProfile->rw ?? '-' }}</div>
-            </div>
-            <div class="col-md-2">
-              <div class="detail-label">Kodepos</div>
-              <div class="detail-value">{{ $peserta->pesertaProfile->kodepos ?? '-' }}</div>
-            </div>
-            <div class="col-md-3">
-              <div class="detail-label">Kelurahan</div>
-              <div class="detail-value">{{ $peserta->kelurahan->name ?? $peserta->pesertaProfile->kelurahan ?? '-' }}</div>
-            </div>
-            <div class="col-md-3">
-              <div class="detail-label">Kecamatan</div>
-              <div class="detail-value">{{ $peserta->kecamatan->name ?? $peserta->pesertaProfile->kecamatan ?? '-' }}</div>
-            </div>
-            <div class="col-md-3">
-              <div class="detail-label">Kota</div>
-              <div class="detail-value">{{ $peserta->pesertaProfile->kota ?? '-' }}</div>
-            </div>
-            <div class="col-md-3">
-              <div class="detail-label">Provinsi</div>
-              <div class="detail-value">{{ $peserta->pesertaProfile->provinsi ?? '-' }}</div>
-            </div>
-          </div>
-        </div>
-      </div>
+          
+          @php
+            $profile = $peserta->pesertaProfile;
+            $step1Done = $profile && !empty($profile->nama_lengkap) && !empty($profile->nik);
+            $step2Done = $profile && !empty($profile->alamat_ktp) && !empty($profile->whatsapp);
+            $step3Done = $profile && !empty($profile->pendidikan_terakhir) && !empty($profile->nama_institusi);
+            $step4Done = $profile && !empty($profile->pelatihan_id);
+            $step5Done = $profile && !empty($profile->jawaban_pertanyaan);
+            $step6Done = $profile && ($profile->is_completed ?? false);
+          @endphp
 
-      <div class="col-12">
-        <div class="glass-card-premium px-4 py-4">
-          <h5 class="detail-section-title">
-            <i class="icon-base ti tabler-book"></i> Pendidikan & Pekerjaan
-          </h5>
-          <hr class="detail-divider">
-          <div class="row g-3">
-            <div class="col-md-3">
-              <div class="detail-label">Pendidikan Terakhir</div>
-              <div class="detail-value">{{ $peserta->pesertaProfile->pendidikan_terakhir ?? '-' }}</div>
-            </div>
-            <div class="col-md-3">
-              <div class="detail-label">Nama Institusi</div>
-              <div class="detail-value">{{ $peserta->pesertaProfile->nama_institusi ?? '-' }}</div>
-            </div>
-            <div class="col-md-3">
-              <div class="detail-label">Jurusan</div>
-              <div class="detail-value">{{ $peserta->pesertaProfile->jurusan ?? '-' }}</div>
-            </div>
-            <div class="col-md-3">
-              <div class="detail-label">Tahun Lulus</div>
-              <div class="detail-value">{{ $peserta->pesertaProfile->tahun_lulus ?? '-' }}</div>
-            </div>
-            <div class="col-md-4">
-              <div class="detail-label">Status Pekerjaan</div>
-              <div class="detail-value">{{ $peserta->pesertaProfile->status_pekerjaan ?? '-' }}</div>
-            </div>
-            <div class="col-md-4">
-              <div class="detail-label">Nama Perusahaan</div>
-              <div class="detail-value">{{ $peserta->pesertaProfile->nama_perusahaan ?? '-' }}</div>
-            </div>
+          <div class="mb-4">
+            <div class="detail-label mb-2">Status Final</div>
+            @if($step6Done)
+              <span class="badge-premium badge-premium-success d-inline-flex align-items-center gap-1">
+                <i class="icon-base ti tabler-circle-check fs-6"></i> Sudah Submit Final
+              </span>
+            @else
+              <span class="badge-premium badge-premium-warning d-inline-flex align-items-center gap-1">
+                <i class="icon-base ti tabler-alert-circle fs-6"></i> Draf / Belum Submit
+              </span>
+            @endif
           </div>
-        </div>
-      </div>
 
-      <div class="col-12">
-        <div class="glass-card-premium px-4 py-4">
-          <h5 class="detail-section-title">
-            <i class="icon-base ti tabler-star"></i> Minat Pelatihan
-          </h5>
-          <hr class="detail-divider">
-          <div class="row g-3">
-            <div class="col-md-4">
-              <div class="detail-label">Bidang Minat</div>
-              <div class="detail-value">
-                @if($peserta->pesertaProfile && $peserta->pesertaProfile->bidang_minat)
-                  @if(is_array($peserta->pesertaProfile->bidang_minat))
-                    {{ implode(', ', $peserta->pesertaProfile->bidang_minat) }}
-                  @else
-                    {{ $peserta->pesertaProfile->bidang_minat }}
-                  @endif
-                @else
-                  -
-                @endif
+          <div class="timeline-premium">
+            {{-- Tahap 1 --}}
+            <div class="timeline-item-premium">
+              <div class="timeline-badge-premium {{ $step1Done ? 'completed' : 'pending' }}">
+                <i class="icon-base ti tabler-{{ $step1Done ? 'check' : 'circle' }}"></i>
+              </div>
+              <div class="ps-2">
+                <h6 class="mb-1 text-white" style="font-size: 0.95rem;">Tahap 1: Data Pribadi</h6>
+                <p class="text-body-premium mb-0 small" style="font-size: 0.75rem;">
+                  {{ $step1Done ? 'Selesai diisi' : 'Belum selesai' }}
+                </p>
               </div>
             </div>
-            <div class="col-md-4">
-              <div class="detail-label">Tujuan Pelatihan</div>
-              <div class="detail-value">{{ $peserta->pesertaProfile->tujuan_pelatihan ?? '-' }}</div>
-            </div>
-            <div class="col-md-2">
-              <div class="detail-label">Preferensi Jadwal</div>
-              <div class="detail-value">{{ $peserta->pesertaProfile->preferensi_jadwal ?? '-' }}</div>
-            </div>
-            <div class="col-md-2">
-              <div class="detail-label">Preferensi Mode</div>
-              <div class="detail-value">{{ $peserta->pesertaProfile->preferensi_mode ?? '-' }}</div>
-            </div>
-          </div>
-        </div>
-      </div>
 
-      <div class="col-12">
-        <div class="glass-card-premium px-4 py-4">
-          <h5 class="detail-section-title">
-            <i class="icon-base ti tabler-info-circle"></i> Informasi Lainnya
-          </h5>
-          <hr class="detail-divider">
-          <div class="row g-3">
-            <div class="col-md-3">
-              <div class="detail-label">Tanggal Daftar</div>
-              <div class="detail-value">{{ $peserta->created_at->format('d/m/Y H:i') }}</div>
+            {{-- Tahap 2 --}}
+            <div class="timeline-item-premium">
+              <div class="timeline-badge-premium {{ $step2Done ? 'completed' : 'pending' }}">
+                <i class="icon-base ti tabler-{{ $step2Done ? 'check' : 'circle' }}"></i>
+              </div>
+              <div class="ps-2">
+                <h6 class="mb-1 text-white" style="font-size: 0.95rem;">Tahap 2: Alamat &amp; Kontak</h6>
+                <p class="text-body-premium mb-0 small" style="font-size: 0.75rem;">
+                  {{ $step2Done ? 'Selesai diisi' : 'Belum selesai' }}
+                </p>
+              </div>
             </div>
-            <div class="col-md-3">
-              <div class="detail-label">Status</div>
-              <div class="detail-value">
-                @if($peserta->is_active)
-                  <span class="badge-premium badge-premium-success">Aktif</span>
-                @else
-                  <span class="badge-premium badge-premium-warning">Nonaktif</span>
-                @endif
+
+            {{-- Tahap 3 --}}
+            <div class="timeline-item-premium">
+              <div class="timeline-badge-premium {{ $step3Done ? 'completed' : 'pending' }}">
+                <i class="icon-base ti tabler-{{ $step3Done ? 'check' : 'circle' }}"></i>
+              </div>
+              <div class="ps-2">
+                <h6 class="mb-1 text-white" style="font-size: 0.95rem;">Tahap 3: Riwayat Pendidikan</h6>
+                <p class="text-body-premium mb-0 small" style="font-size: 0.75rem;">
+                  {{ $step3Done ? 'Selesai diisi' : 'Belum selesai' }}
+                </p>
+              </div>
+            </div>
+
+            {{-- Tahap 4 --}}
+            <div class="timeline-item-premium">
+              <div class="timeline-badge-premium {{ $step4Done ? 'completed' : 'pending' }}">
+                <i class="icon-base ti tabler-{{ $step4Done ? 'check' : 'circle' }}"></i>
+              </div>
+              <div class="ps-2">
+                <h6 class="mb-1 text-white" style="font-size: 0.95rem;">Tahap 4: Pilihan Pelatihan</h6>
+                <p class="text-body-premium mb-0 small" style="font-size: 0.75rem;">
+                  {{ $step4Done ? 'Selesai diisi' : 'Belum selesai' }}
+                </p>
+              </div>
+            </div>
+
+            {{-- Tahap 5 --}}
+            <div class="timeline-item-premium">
+              <div class="timeline-badge-premium {{ $step5Done ? 'completed' : 'pending' }}">
+                <i class="icon-base ti tabler-{{ $step5Done ? 'check' : 'circle' }}"></i>
+              </div>
+              <div class="ps-2">
+                <h6 class="mb-1 text-white" style="font-size: 0.95rem;">Tahap 5: Dokumen &amp; Pertanyaan</h6>
+                <p class="text-body-premium mb-0 small" style="font-size: 0.75rem;">
+                  {{ $step5Done ? 'Selesai diisi' : 'Belum selesai' }}
+                </p>
+              </div>
+            </div>
+
+            {{-- Tahap 6 --}}
+            <div class="timeline-item-premium">
+              <div class="timeline-badge-premium {{ $step6Done ? 'completed' : 'pending' }}">
+                <i class="icon-base ti tabler-{{ $step6Done ? 'check' : 'circle' }}"></i>
+              </div>
+              <div class="ps-2">
+                <h6 class="mb-1 text-white" style="font-size: 0.95rem;">Tahap 6: Review &amp; Kirim</h6>
+                <p class="text-body-premium mb-0 small" style="font-size: 0.75rem;">
+                  {{ $step6Done ? 'Sudah Submit Final' : 'Belum disubmit' }}
+                </p>
               </div>
             </div>
           </div>
