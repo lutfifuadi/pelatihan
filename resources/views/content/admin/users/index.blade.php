@@ -637,84 +637,104 @@ $configData = Helper::appClasses();
           }
         });
       });
-
-      // 3. Delete Forms interception
-      const deleteForms = document.querySelectorAll('.delete-form');
-      deleteForms.forEach(form => {
-        form.addEventListener('submit', function(e) {
-          e.preventDefault();
-          const userName = this.getAttribute('data-name');
-          
-          swalDark.fire({
-            title: 'Apakah Anda yakin?',
-            text: `Akun user "${userName}" akan dihapus secara permanen dari sistem!`,
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonText: 'Ya, Hapus!',
-            cancelButtonText: 'Batal',
-            customClass: {
-              popup: 'swal2-custom-popup shadow-lg',
-              title: 'swal2-custom-title',
-              htmlContainer: 'swal2-custom-text',
-              actions: 'swal2-custom-actions',
-              confirmButton: 'btn btn-danger px-4 py-2 border-0 me-2',
-              cancelButton: 'btn btn-secondary-custom px-4 py-2 border-0',
-            },
-            reverseButtons: true
-          }).then((result) => {
-            if (result.isConfirmed) {
-              form.submit();
-            }
-          });
-        });
-      });
-
-      // 4. Impersonate Forms interception
-      const impersonateForms = document.querySelectorAll('.impersonate-form');
-      impersonateForms.forEach(form => {
-        form.addEventListener('submit', function(e) {
-          e.preventDefault();
-          const userName = this.getAttribute('data-name');
-          
-          swalDark.fire({
-            title: 'Login As (Impersonasi)?',
-            text: `Anda akan masuk ke dalam sistem sebagai "${userName}". Sesi Anda sebagai administrator akan disimpan sementara.`,
-            icon: 'question',
-            showCancelButton: true,
-            confirmButtonText: 'Ya, Masuk!',
-            cancelButtonText: 'Batal',
-            reverseButtons: true
-          }).then((result) => {
-            if (result.isConfirmed) {
-              form.submit();
-            }
-          });
-        });
-      });
-
-      // 5. Reset Password Forms interception
-      const resetPasswordForms = document.querySelectorAll('.reset-password-form');
-      resetPasswordForms.forEach(form => {
-        form.addEventListener('submit', function(e) {
-          e.preventDefault();
-          const userName = this.getAttribute('data-name');
-          
-          swalDark.fire({
-            title: 'Yakin ingin mereset password?',
-            text: `Password user "${userName}" akan direset ke nomor HP user.`,
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonText: 'Ya, Reset!',
-            cancelButtonText: 'Batal',
-            reverseButtons: true
-          }).then((result) => {
-            if (result.isConfirmed) {
-              form.submit();
-            }
-          });
-        });
-      });
     }
+
+    // Intercept forms submission globally (Event Delegation)
+    document.addEventListener('submit', function(e) {
+      // Reset Password Form
+      const resetForm = e.target.closest('.reset-password-form');
+      if (resetForm) {
+        e.preventDefault();
+        const userName = resetForm.getAttribute('data-name');
+        const userRole = resetForm.getAttribute('data-role');
+        const resetText = userRole === 'peserta'
+          ? `Password peserta "${userName}" akan direset ke default: "pelatihanku2026".`
+          : `Password user "${userName}" akan direset ke nomor HP/WhatsApp user.`;
+
+        swalDark.fire({
+          title: 'Yakin ingin mereset password?',
+          text: resetText,
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonText: 'Ya, Reset!',
+          cancelButtonText: 'Batal',
+          customClass: {
+            popup: 'swal2-custom-popup shadow-lg',
+            title: 'swal2-custom-title',
+            htmlContainer: 'swal2-custom-text',
+            actions: 'swal2-custom-actions',
+            confirmButton: 'btn btn-warning px-4 py-2 border-0 me-2',
+            cancelButton: 'btn btn-secondary-custom px-4 py-2 border-0',
+          },
+          reverseButtons: true
+        }).then((result) => {
+          if (result.isConfirmed) {
+            resetForm.submit();
+          }
+        });
+        return;
+      }
+
+      // Impersonate Form
+      const impersonateForm = e.target.closest('.impersonate-form');
+      if (impersonateForm) {
+        e.preventDefault();
+        const userName = impersonateForm.getAttribute('data-name');
+
+        swalDark.fire({
+          title: 'Login As (Impersonasi)?',
+          text: `Anda akan masuk ke dalam sistem sebagai "${userName}". Sesi Anda sebagai administrator akan disimpan sementara.`,
+          icon: 'question',
+          showCancelButton: true,
+          confirmButtonText: 'Ya, Masuk!',
+          cancelButtonText: 'Batal',
+          customClass: {
+            popup: 'swal2-custom-popup shadow-lg',
+            title: 'swal2-custom-title',
+            htmlContainer: 'swal2-custom-text',
+            actions: 'swal2-custom-actions',
+            confirmButton: 'btn btn-warning px-4 py-2 border-0 me-2',
+            cancelButton: 'btn btn-secondary-custom px-4 py-2 border-0',
+          },
+          reverseButtons: true
+        }).then((result) => {
+          if (result.isConfirmed) {
+            impersonateForm.submit();
+          }
+        });
+        return;
+      }
+
+      // Delete Form
+      const deleteForm = e.target.closest('.delete-form');
+      if (deleteForm) {
+        e.preventDefault();
+        const userName = deleteForm.getAttribute('data-name');
+
+        swalDark.fire({
+          title: 'Apakah Anda yakin?',
+          text: `Akun user "${userName}" akan dihapus secara permanen dari sistem!`,
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonText: 'Ya, Hapus!',
+          cancelButtonText: 'Batal',
+          customClass: {
+            popup: 'swal2-custom-popup shadow-lg',
+            title: 'swal2-custom-title',
+            htmlContainer: 'swal2-custom-text',
+            actions: 'swal2-custom-actions',
+            confirmButton: 'btn btn-danger px-4 py-2 border-0 me-2',
+            cancelButton: 'btn btn-secondary-custom px-4 py-2 border-0',
+          },
+          reverseButtons: true
+        }).then((result) => {
+          if (result.isConfirmed) {
+            deleteForm.submit();
+          }
+        });
+        return;
+      }
+    });
 
     // Search input event — auto search on input
     searchInput.addEventListener('input', function() {
