@@ -115,6 +115,23 @@ class UserController extends Controller
             return back()->with('error', 'Anda tidak bisa mereset password akun Anda sendiri.');
         }
 
+        if ($user->role === 'peserta') {
+            $user->password = Hash::make('pelatihanku2026');
+            $user->save();
+
+            ActivityLogger::log(
+                action: 'updated',
+                subjectType: 'User',
+                subjectId: $user->id,
+                subjectName: $user->name,
+                description: "Password peserta {$user->name} telah direset ke default: pelatihanku2026",
+                oldValues: ['password' => '***'],
+                newValues: ['password' => '***']
+            );
+
+            return back()->with('success', "Password peserta {$user->name} telah direset ke default: pelatihanku2026");
+        }
+
         // Cari nomor HP: prioritas whatsapp, fallback ke phone
         $phoneNumber = $user->whatsapp ?? $user->phone;
 

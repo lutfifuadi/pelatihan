@@ -9,6 +9,7 @@ use App\Models\Kelurahan;
 use App\Models\Pelatihan;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Hash;
 use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
 
@@ -378,5 +379,46 @@ class AdminTest extends TestCase
         $response->assertRedirect();
         $response->assertSessionHas('error');
         $this->assertDatabaseHas('users', ['id' => $this->admin->id]);
+    }
+
+    public function test_admin_can_reset_peserta_password_to_default_value(): void
+    {
+        $peserta = User::factory()->create([
+            'name' => 'Peserta Uji',
+            'role' => 'peserta',
+            'password' => Hash::make('oldpassword'),
+        ]);
+
+        $response = $this->post(route('admin.users.reset-password', $peserta));
+        $response->assertRedirect();
+        $response->assertSessionHas('success', 'Password peserta Peserta Uji telah direset ke default: pelatihanku2026');
+
+        $this->assertTrue(Hash::check('pelatihanku2026', $peserta->fresh()->password));
+
+        $this->assertDatabaseHas('activity_logs', [
+            'subject_id' => $peserta->id,
+            'description' => 'Password peserta Peserta Uji telah direset ke default: pelatihanku2026',
+        ]);
+    }
+
+    public function test_admin_can_reset_non_peserta_password_to_phone_number(): void
+    {
+        $instruktur = User::factory()->create([
+            'name' => 'Instruktur Uji',
+            'role' => 'instruktur',
+            'whatsapp' => '081234567890',
+            'password' => Hash::make('oldpassword'),
+        ]);
+
+        $response = $this->post(route('admin.users.reset-password', $instruktur));
+        $response->assertRedirect();
+        $response->assertSessionHas('success', 'Password Instruktur Uji telah direset ke nomor HP.');
+
+        $this->assertTrue(Hash::check('081234567890', $instruktur->fresh()->password));
+
+        $this->assertDatabaseHas('activity_logs', [
+            'subject_id' => $instruktur->id,
+            'description' => 'Password user Instruktur Uji telah direset ke nomor HP',
+        ]);
     }
 }
