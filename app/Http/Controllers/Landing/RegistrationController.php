@@ -144,23 +144,10 @@ class RegistrationController extends Controller
         }
 
         try {
-            $waUrl = \App\Models\Setting::where('key', 'whatsapp_api_url')->value('value')
-                ?? env('WA_API_URL', 'https://wa.test/check-number');
-            $waKey = \App\Models\Setting::where('key', 'whatsapp_api_key')->value('value')
-                ?? env('WA_API_KEY', 'test-key');
-            $waSender = \App\Models\Setting::where('key', 'whatsapp_sender')->value('value')
-                ?? env('WA_SENDER', '62888888888');
+            $checkResult = WhatsAppService::checkNumber($number);
 
-            $response = Http::timeout(10)->get($waUrl, [
-                'api_key' => $waKey,
-                'sender'  => $waSender,
-                'number'  => $number,
-            ]);
-
-            $data = $response->json();
-
-            if ($response->successful() && ($data['status'] ?? false)) {
-                $exists = $data['msg']['exists'] ?? false;
+            if ($checkResult !== null) {
+                $exists = $checkResult['exists'] ?? false;
                 return response()->json([
                     'status' => true,
                     'exists' => $exists,

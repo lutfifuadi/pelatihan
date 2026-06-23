@@ -410,11 +410,30 @@ $allFilled = !empty($settings['whatsapp_send_url']->value ?? '') &&
                 id="whatsapp_api_key" name="whatsapp_api_key"
                 value="{{ $settings['whatsapp_api_key']->value ?? '' }}"
                 placeholder="Masukkan API Key" required>
-              <button type="button" class="toggle-password" onclick="togglePassword()" tabindex="-1">
+              <button type="button" class="toggle-password" onclick="togglePassword('whatsapp_api_key', 'password-icon')" tabindex="-1">
                 <i id="password-icon" class="icon-base ti tabler-eye fs-5"></i>
               </button>
             </div>
             @error('whatsapp_api_key')
+              <div class="invalid-feedback mt-1">{{ $message }}</div>
+            @enderror
+          </div>
+
+          <div class="mb-4">
+            <label for="whatsapp_check_api_key" class="form-label">API Key Cek Nomor WA</label>
+            <div class="input-group-custom">
+              <input type="password" class="form-control @error('whatsapp_check_api_key') is-invalid @enderror"
+                id="whatsapp_check_api_key" name="whatsapp_check_api_key"
+                value="{{ $settings['whatsapp_check_api_key']->value ?? '' }}"
+                placeholder="Masukkan API Key Cek Nomor WA">
+              <button type="button" class="toggle-password" onclick="togglePassword('whatsapp_check_api_key', 'check-password-icon')" tabindex="-1">
+                <i id="check-password-icon" class="icon-base ti tabler-eye fs-5"></i>
+              </button>
+            </div>
+            <small class="text-body-premium mt-1 d-block" style="font-size: 0.8rem;">
+              (Opsional, isi jika ingin membedakan API Key untuk cek nomor WA dengan kirim pesan)
+            </small>
+            @error('whatsapp_check_api_key')
               <div class="invalid-feedback mt-1">{{ $message }}</div>
             @enderror
           </div>
@@ -429,6 +448,20 @@ $allFilled = !empty($settings['whatsapp_send_url']->value ?? '') &&
               Format internasional tanpa +, contoh: 6281234567890
             </small>
             @error('whatsapp_sender')
+              <div class="invalid-feedback mt-1">{{ $message }}</div>
+            @enderror
+          </div>
+
+          <div class="mb-4">
+            <label for="whatsapp_check_sender" class="form-label">Nomor Pengirim Cek Nomor WA</label>
+            <input type="text" class="form-control @error('whatsapp_check_sender') is-invalid @enderror"
+              id="whatsapp_check_sender" name="whatsapp_check_sender"
+              value="{{ $settings['whatsapp_check_sender']->value ?? '' }}"
+              placeholder="62812xxxxxxx">
+            <small class="text-body-premium mt-1 d-block" style="font-size: 0.8rem;">
+              (Opsional, isi jika ingin membedakan nomor pengirim cek nomor WA dengan kirim pesan)
+            </small>
+            @error('whatsapp_check_sender')
               <div class="invalid-feedback mt-1">{{ $message }}</div>
             @enderror
           </div>
@@ -459,9 +492,9 @@ $allFilled = !empty($settings['whatsapp_send_url']->value ?? '') &&
 
 @section('page-script')
 <script>
-function togglePassword() {
-  const input = document.getElementById('whatsapp_api_key');
-  const icon = document.getElementById('password-icon');
+function togglePassword(inputId, iconId) {
+  const input = document.getElementById(inputId);
+  const icon = document.getElementById(iconId);
   if (input.type === 'password') {
     input.type = 'text';
     icon.className = 'icon-base ti tabler-eye-off fs-5';

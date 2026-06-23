@@ -14,6 +14,8 @@ class SettingSeeder extends Seeder
             ['key' => 'whatsapp_send_url', 'value' => '', 'group' => 'whatsapp', 'label' => 'URL Kirim Pesan'],
             ['key' => 'whatsapp_api_url', 'value' => '', 'group' => 'whatsapp', 'label' => 'URL Cek Nomor'],
             ['key' => 'whatsapp_sender', 'value' => '', 'group' => 'whatsapp', 'label' => 'Nomor Pengirim'],
+            ['key' => 'whatsapp_check_api_key', 'value' => '', 'group' => 'whatsapp', 'label' => 'API Key Cek Nomor WA'],
+            ['key' => 'whatsapp_check_sender', 'value' => '', 'group' => 'whatsapp', 'label' => 'Nomor Pengirim Cek Nomor WA'],
             
             // Branding
             ['key' => 'brand_name', 'value' => 'SABA Kreatif', 'group' => 'general', 'label' => 'Nama Brand Aplikasi'],

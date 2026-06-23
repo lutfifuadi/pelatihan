@@ -12,9 +12,11 @@ class WhatsAppService
     {
         $settingMap = [
             'send_url' => 'whatsapp_send_url',
-            'check_url' => 'whatsapp_check_url',
+            'check_url' => 'whatsapp_api_url', // database menggunakan whatsapp_api_url
             'api_key' => 'whatsapp_api_key',
             'sender' => 'whatsapp_sender',
+            'check_api_key' => 'whatsapp_check_api_key',
+            'check_sender' => 'whatsapp_check_sender',
         ];
 
         $settingKey = $settingMap[$key] ?? null;
@@ -174,8 +176,8 @@ class WhatsAppService
     public static function checkNumber(string $number): ?array
     {
         $checkUrl = self::getConfig('check_url');
-        $apiKey   = self::getConfig('api_key');
-        $sender   = self::getConfig('sender');
+        $apiKey   = self::getConfig('check_api_key') ?: self::getConfig('api_key');
+        $sender   = self::getConfig('check_sender') ?: self::getConfig('sender');
 
         if (!$checkUrl || !$apiKey) {
             Log::warning('WhatsAppService: WA_CHECK_URL atau WA_API_KEY tidak dikonfigurasi.');

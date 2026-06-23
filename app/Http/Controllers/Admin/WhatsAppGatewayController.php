@@ -21,9 +21,18 @@ class WhatsAppGatewayController extends Controller
             'whatsapp_send_url' => 'nullable|string',
             'whatsapp_api_url' => 'nullable|string',
             'whatsapp_sender' => 'nullable|string',
+            'whatsapp_check_api_key' => 'nullable|string',
+            'whatsapp_check_sender' => 'nullable|string',
         ]);
 
-        $keys = ['whatsapp_api_key', 'whatsapp_send_url', 'whatsapp_api_url', 'whatsapp_sender'];
+        $keys = [
+            'whatsapp_api_key',
+            'whatsapp_send_url',
+            'whatsapp_api_url',
+            'whatsapp_sender',
+            'whatsapp_check_api_key',
+            'whatsapp_check_sender',
+        ];
         foreach ($keys as $key) {
             Setting::updateOrCreate(
                 ['key' => $key],
