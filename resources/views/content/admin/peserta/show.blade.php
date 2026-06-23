@@ -499,35 +499,27 @@ $configData = Helper::appClasses();
           <div class="col-12">
             <div class="glass-card-premium px-4 py-4">
               <h5 class="detail-section-title">
-                <i class="icon-base ti tabler-star"></i> Minat Pelatihan
+                <i class="icon-base ti tabler-school"></i> Pilihan Pelatihan
               </h5>
               <hr class="detail-divider">
               <div class="row g-3">
                 <div class="col-md-4">
-                  <div class="detail-label">Bidang Minat</div>
-                  <div class="detail-value">
-                    @if($peserta->pesertaProfile && $peserta->pesertaProfile->bidang_minat)
-                      @if(is_array($peserta->pesertaProfile->bidang_minat))
-                        {{ implode(', ', $peserta->pesertaProfile->bidang_minat) }}
-                      @else
-                        {{ $peserta->pesertaProfile->bidang_minat }}
-                      @endif
-                    @else
-                      -
-                    @endif
-                  </div>
+                  <div class="detail-label">Nama Pelatihan</div>
+                  <div class="detail-value">{{ $peserta->pesertaProfile->pelatihan->nama ?? '-' }}</div>
                 </div>
                 <div class="col-md-4">
-                  <div class="detail-label">Tujuan Pelatihan</div>
-                  <div class="detail-value">{{ $peserta->pesertaProfile->tujuan_pelatihan ?? '-' }}</div>
+                  <div class="detail-label">Batch Pelatihan</div>
+                  <div class="detail-value">{{ $peserta->pesertaProfile->batch_pelatihan ?? '-' }}</div>
                 </div>
-                <div class="col-md-2">
-                  <div class="detail-label">Preferensi Jadwal</div>
-                  <div class="detail-value">{{ $peserta->pesertaProfile->preferensi_jadwal ?? '-' }}</div>
+                <div class="col-md-4">
+                  <div class="detail-label">Dinas Penyelenggara</div>
+                  <div class="detail-value">{{ $peserta->pesertaProfile->pelatihan->dinas->nama_dinas ?? '-' }}</div>
                 </div>
-                <div class="col-md-2">
-                  <div class="detail-label">Preferensi Mode</div>
-                  <div class="detail-value">{{ $peserta->pesertaProfile->preferensi_mode ?? '-' }}</div>
+                <div class="col-12">
+                  <div class="detail-label">Deskripsi Pelatihan</div>
+                  <div class="detail-value">
+                    {{ strip_tags($peserta->pesertaProfile->pelatihan->deskripsi ?? '-') }}
+                  </div>
                 </div>
               </div>
             </div>
