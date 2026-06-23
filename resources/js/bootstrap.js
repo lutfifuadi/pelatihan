@@ -11,10 +11,10 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 
 // Only initialize Echo if broadcast is enabled and app key is configured
 if (window.broadcastEnabled === '1') {
-  const appKey = import.meta.env.VITE_REVERB_APP_KEY;
+  const config = window.reverbConfig;
 
-  if (!appKey) {
-    console.warn('Echo/Reverb not initialized: VITE_REVERB_APP_KEY is not set in .env');
+  if (!config || !config.key) {
+    console.warn('Echo/Reverb not initialized: reverbConfig or reverbConfig.key is missing or empty.');
   } else {
     (async () => {
       const Echo = (await import('laravel-echo')).default;
@@ -22,13 +22,18 @@ if (window.broadcastEnabled === '1') {
 
       window.Pusher = Pusher;
 
+      const host = config.host || window.location.hostname;
+      const port = config.port || 80;
+      const scheme = config.scheme || 'https';
+      const isSecure = scheme === 'https';
+
       window.Echo = new Echo({
         broadcaster: 'reverb',
-        key: appKey,
-        wsHost: import.meta.env.VITE_REVERB_HOST ?? window.location.hostname,
-        wsPort: import.meta.env.VITE_REVERB_PORT ?? 80,
-        wssPort: import.meta.env.VITE_REVERB_PORT ?? 443,
-        forceTLS: (import.meta.env.VITE_REVERB_SCHEME ?? 'https') === 'https',
+        key: config.key,
+        wsHost: host,
+        wsPort: isSecure ? 80 : port,
+        wssPort: isSecure ? port : 443,
+        forceTLS: isSecure,
         enabledTransports: ['ws', 'wss'],
       });
 

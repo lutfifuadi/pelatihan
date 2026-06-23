@@ -26,6 +26,12 @@
 <!-- app JS -->
 <script>
   window.broadcastEnabled = @json(\App\Models\Setting::where('key', 'broadcast_enabled')->value('value') ?? '1');
+  window.reverbConfig = {
+    key: @json(config('broadcasting.connections.reverb.key')),
+    host: @json(config('broadcasting.connections.reverb.options.host')),
+    port: @json(config('broadcasting.connections.reverb.options.port')),
+    scheme: @json(config('broadcasting.connections.reverb.options.scheme')),
+  };
 </script>
 @vite(['resources/js/app.js'])
 <!-- END: app JS-->
