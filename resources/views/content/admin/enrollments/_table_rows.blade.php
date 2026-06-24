@@ -32,94 +32,64 @@
       @endswitch
     </td>
     <td class="text-end px-0 py-3" style="white-space: nowrap;">
-      @if($enrollment->status === 'pending')
-        <form action="{{ route('admin.enrollments.approve', $enrollment) }}" method="POST" class="d-inline">
-          @csrf
-          <button type="submit" class="btn btn-success btn-sm d-inline-flex align-items-center justify-content-center" style="border-radius: 5px; width: 32px; height: 32px; padding: 0; border: none;" title="Approve">
-            <i class="icon-base ti tabler-check fs-5"></i>
-          </button>
-        </form>
-        <form action="{{ route('admin.enrollments.waitlist', $enrollment) }}" method="POST" class="d-inline">
-          @csrf
-          <button type="submit" class="btn btn-info btn-sm d-inline-flex align-items-center justify-content-center" style="border-radius: 5px; width: 32px; height: 32px; padding: 0; border: none;" title="Cadangan">
-            <i class="icon-base ti tabler-clock fs-5"></i>
-          </button>
-        </form>
-        <button type="button" class="btn btn-danger btn-sm d-inline-flex align-items-center justify-content-center" style="border-radius: 5px; width: 32px; height: 32px; padding: 0; border: none;" data-bs-toggle="modal" data-bs-target="#rejectModal{{ $enrollment->id }}" title="Tolak">
-          <i class="icon-base ti tabler-x fs-5"></i>
+      {{-- Dropdown Ubah Status --}}
+      <div class="dropdown d-inline">
+        <button class="btn btn-sm dropdown-toggle d-inline-flex align-items-center justify-content-center" type="button" data-bs-toggle="dropdown" style="border-radius: 5px; background: rgba(99,102,241,0.12); border: 1px solid rgba(99,102,241,0.2); color: #93c5fd; padding: 4px 10px; font-size: 0.75rem;" title="Ubah Status">
+          <i class="icon-base ti tabler-arrows-exchange me-1"></i> Status
         </button>
+        <ul class="dropdown-menu dropdown-menu-dark" style="background: #0f172a; border: 1px solid rgba(255,255,255,0.08); border-radius: 5px; min-width: 180px;">
+          <li><h6 class="dropdown-header" style="color: rgba(255,255,255,0.5); font-size: 0.7rem; text-transform: uppercase;">Ubah Status Ke:</h6></li>
+          <li>
+            <form action="{{ route('admin.enrollments.change-status', $enrollment) }}" method="POST" class="change-status-form">
+              @csrf
+              <input type="hidden" name="status" value="pending">
+              <input type="hidden" name="notes" value="Ubah status via dropdown">
+              <button type="submit" class="dropdown-item" style="color: #fbbf24; font-size: 0.8rem; padding: 6px 16px;">
+                ⏳ Pending
+              </button>
+            </form>
+          </li>
+          <li>
+            <form action="{{ route('admin.enrollments.change-status', $enrollment) }}" method="POST" class="change-status-form">
+              @csrf
+              <input type="hidden" name="status" value="approved">
+              <input type="hidden" name="notes" value="Ubah status via dropdown">
+              <button type="submit" class="dropdown-item" style="color: #34d399; font-size: 0.8rem; padding: 6px 16px;">
+                ✅ Approved
+              </button>
+            </form>
+          </li>
+          <li>
+            <form action="{{ route('admin.enrollments.change-status', $enrollment) }}" method="POST" class="change-status-form">
+              @csrf
+              <input type="hidden" name="status" value="rejected">
+              <input type="hidden" name="notes" value="Ubah status via dropdown">
+              <button type="submit" class="dropdown-item" style="color: #f87171; font-size: 0.8rem; padding: 6px 16px;">
+                ❌ Rejected
+              </button>
+            </form>
+          </li>
+          <li>
+            <form action="{{ route('admin.enrollments.change-status', $enrollment) }}" method="POST" class="change-status-form">
+              @csrf
+              <input type="hidden" name="status" value="waitlist">
+              <input type="hidden" name="notes" value="Ubah status via dropdown">
+              <button type="submit" class="dropdown-item" style="color: #93c5fd; font-size: 0.8rem; padding: 6px 16px;">
+                🟡 Waitlist
+              </button>
+            </form>
+          </li>
+        </ul>
+      </div>
 
-        {{-- Modal Reject --}}
-        <div class="modal fade" id="rejectModal{{ $enrollment->id }}" tabindex="-1">
-          <div class="modal-dialog modal-sm modal-dialog-centered">
-            <div class="modal-content" style="background: #0b0f19; border: 1px solid rgba(255,255,255,0.08); border-radius: 5px;">
-              <div class="modal-header border-0">
-                <h6 class="text-white fw-bold mb-0">Tolak Pendaftaran</h6>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-              </div>
-              <form action="{{ route('admin.enrollments.reject', $enrollment) }}" method="POST">
-                @csrf
-                <div class="modal-body">
-                  <p class="text-body-premium small mb-2">Alasan penolakan (opsional):</p>
-                  <textarea name="notes" class="form-control" rows="3" placeholder="Contoh: Kuota penuh, tidak memenuhi syarat..." style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); color: #f8fafc; border-radius: 5px; font-size: 0.85rem;"></textarea>
-                </div>
-                <div class="modal-footer border-0">
-                  <button type="button" class="btn btn-secondary btn-action" data-bs-dismiss="modal" style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); color: rgba(255,255,255,0.7);">Batal</button>
-                  <button type="submit" class="btn btn-danger btn-action">Ya, Tolak</button>
-                </div>
-              </form>
-            </div>
-          </div>
-        </div>
-
-      @elseif($enrollment->status === 'waitlist')
-        <form action="{{ route('admin.enrollments.promote', $enrollment) }}" method="POST" class="d-inline">
-          @csrf
-          <button type="submit" class="btn btn-success btn-sm d-inline-flex align-items-center justify-content-center" style="border-radius: 5px; width: 32px; height: 32px; padding: 0; border: none;" title="Promosikan">
-            <i class="icon-base ti tabler-arrow-up fs-5"></i>
-          </button>
-        </form>
-        <button type="button" class="btn btn-danger btn-sm d-inline-flex align-items-center justify-content-center" style="border-radius: 5px; width: 32px; height: 32px; padding: 0; border: none;" data-bs-toggle="modal" data-bs-target="#rejectModal{{ $enrollment->id }}" title="Tolak">
-          <i class="icon-base ti tabler-x fs-5"></i>
-        </button>
-        {{-- Modal Reject --}}
-        <div class="modal fade" id="rejectModal{{ $enrollment->id }}" tabindex="-1">
-          <div class="modal-dialog modal-sm modal-dialog-centered">
-            <div class="modal-content" style="background: #0b0f19; border: 1px solid rgba(255,255,255,0.08); border-radius: 5px;">
-              <div class="modal-header border-0">
-                <h6 class="text-white fw-bold mb-0">Tolak Pendaftaran</h6>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-              </div>
-              <form action="{{ route('admin.enrollments.reject', $enrollment) }}" method="POST">
-                @csrf
-                <div class="modal-body">
-                  <p class="text-body-premium small mb-2">Alasan penolakan (opsional):</p>
-                  <textarea name="notes" class="form-control" rows="3" style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); color: #f8fafc; border-radius: 5px; font-size: 0.85rem;"></textarea>
-                </div>
-                <div class="modal-footer border-0">
-                  <button type="button" class="btn btn-secondary btn-action" data-bs-dismiss="modal">Batal</button>
-                  <button type="submit" class="btn btn-danger btn-action">Ya, Tolak</button>
-                </div>
-              </form>
-            </div>
-          </div>
-        </div>
-
-      @else
-        <span class="text-body-premium" style="font-size: 0.8rem;">
-          @if($enrollment->approved_at)
-            {{ $enrollment->approved_at->format('d/m/Y') }}
-          @elseif($enrollment->rejected_at)
-            {{ $enrollment->rejected_at->format('d/m/Y') }}
-          @endif
-        </span>
-      @endif
-
+      {{-- Tombol Detail --}}
       <a href="{{ route('admin.enrollments.show', $enrollment) }}" class="btn btn-outline-info btn-sm d-inline-flex align-items-center justify-content-center ms-1" style="border-radius: 5px; width: 32px; height: 32px; padding: 0; border-color: rgba(96,165,250,0.3); color: #93c5fd;" title="Detail">
         <i class="icon-base ti tabler-eye fs-5"></i>
       </a>
+
+      {{-- Tombol Reset --}}
       <form action="{{ route('admin.enrollments.reset', $enrollment) }}" method="POST" class="d-inline reset-enrollment-form" data-name="{{ $enrollment->user->name }}" data-pelatihan="{{ $enrollment->pelatihan->nama }}">
-          @csrf
+        @csrf
         <button type="submit" class="btn btn-warning btn-sm d-inline-flex align-items-center justify-content-center ms-1" style="border-radius: 5px; width: 32px; height: 32px; padding: 0; border: none; background: linear-gradient(135deg, #f59e0b, #d97706);" title="Reset pendaftaran">
           <i class="icon-base ti tabler-refresh fs-5"></i>
         </button>

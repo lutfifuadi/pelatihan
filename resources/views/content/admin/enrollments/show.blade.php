@@ -1,5 +1,6 @@
 @php
 $configData = Helper::appClasses();
+$pelatihans = \App\Models\Pelatihan::where('is_active', true)->orderBy('nama')->get();
 @endphp
 
 @extends('layouts/layoutMaster')
@@ -343,6 +344,16 @@ $configData = Helper::appClasses();
             @case('waitlist') <span class="badge-premium badge-premium-info">Cadangan</span> @break
           @endswitch
         </div>
+
+        {{-- Badge Transfer jika ada --}}
+        @php $isTransferred = str_contains($enrollment->notes ?? '', '[Alihkan:'); @endphp
+        @if($isTransferred)
+          <div class="mt-2" style="font-size: 0.8rem; color: #93c5fd; background: rgba(96, 165, 250, 0.1); padding: 8px 12px; border-radius: 5px; border: 1px solid rgba(96, 165, 250, 0.2);">
+            <i class="icon-base ti tabler-arrows-shuffle me-1"></i>
+            Dialihkan dari pelatihan sebelumnya.
+          </div>
+        @endif
+
         @if($enrollment->status === 'approved')
           <div class="mt-2" style="font-size: 0.8rem; color: #fbbf24; background: rgba(251, 191, 36, 0.1); padding: 8px 12px; border-radius: 5px; border: 1px solid rgba(251, 191, 36, 0.2);">
             <i class="icon-base ti tabler-info-circle me-1"></i>
@@ -863,53 +874,41 @@ $configData = Helper::appClasses();
           </h5>
           <hr class="detail-divider">
 
-          @if($enrollment->status === 'pending')
-            <div class="d-flex flex-column gap-2">
-              <form action="{{ route('admin.enrollments.approve', $enrollment) }}" method="POST">
-                @csrf
-                <button type="submit" class="btn btn-success w-100 d-inline-flex align-items-center justify-content-center gap-2" style="border-radius: 5px; font-weight: 600; padding: 10px;">
-                  <i class="icon-base ti tabler-check fs-6"></i> Approve
+          <div class="d-flex flex-column gap-2">
+            {{-- Dropdown Ubah Status --}}
+            <div class="mb-2">
+              <label class="detail-label mb-2">Ubah Status Pendaftaran</label>
+              <div class="d-flex gap-2">
+                <select class="form-select" id="changeStatusSelect" style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); color: #f8fafc; border-radius: 5px;">
+                  <option value="">-- Pilih Status --</option>
+                  <option value="pending">⏳ Pending</option>
+                  <option value="approved">✅ Approved</option>
+                  <option value="rejected">❌ Rejected</option>
+                  <option value="waitlist">🟡 Waitlist</option>
+                </select>
+                <button type="button" class="btn btn-primary" id="changeStatusBtn" style="border-radius: 5px; font-weight: 600; padding: 8px 16px; white-space: nowrap;" disabled>
+                  <i class="icon-base ti tabler-arrows-exchange fs-6 me-1"></i> Ubah
                 </button>
-              </form>
-              <form action="{{ route('admin.enrollments.waitlist', $enrollment) }}" method="POST">
-                @csrf
-                <button type="submit" class="btn btn-info w-100 d-inline-flex align-items-center justify-content-center gap-2" style="border-radius: 5px; font-weight: 600; padding: 10px;">
-                  <i class="icon-base ti tabler-clock fs-6"></i> Masukkan Cadangan
-                </button>
-              </form>
-              <button type="button" class="btn btn-danger w-100 d-inline-flex align-items-center justify-content-center gap-2" style="border-radius: 5px; font-weight: 600; padding: 10px;" data-bs-toggle="modal" data-bs-target="#rejectModal">
-                <i class="icon-base ti tabler-x fs-6"></i> Tolak
+              </div>
+            </div>
+
+            {{-- Tombol Alihkan Pelatihan --}}
+            @if(in_array($enrollment->status, ['approved', 'waitlist']))
+            <button type="button" class="btn btn-secondary-custom w-100 d-inline-flex align-items-center justify-content-center gap-2" id="transferBtn" style="border-radius: 5px; font-weight: 600; padding: 10px;">
+              <i class="icon-base ti tabler-arrows-shuffle fs-6"></i> Alihkan Pelatihan
+            </button>
+            @endif
+
+            {{-- Reset --}}
+            @if(in_array($enrollment->status, ['approved', 'waitlist', 'pending', 'rejected']))
+            <form action="{{ route('admin.enrollments.reset', $enrollment) }}" method="POST" class="reset-enrollment-form mt-2" data-name="{{ $enrollment->user->name }}" data-pelatihan="{{ $enrollment->pelatihan->nama }}">
+              @csrf
+              <button type="submit" class="btn btn-warning w-100 d-inline-flex align-items-center justify-content-center gap-2" style="border-radius: 5px; font-weight: 600; padding: 10px; background: linear-gradient(135deg, #f59e0b, #d97706); border: none;">
+                <i class="icon-base ti tabler-refresh fs-6"></i> Reset Pendaftaran
               </button>
-            </div>
-
-          @elseif($enrollment->status === 'waitlist')
-            <div class="d-flex flex-column gap-2">
-              <form action="{{ route('admin.enrollments.promote', $enrollment) }}" method="POST">
-                @csrf
-                <button type="submit" class="btn btn-success w-100 d-inline-flex align-items-center justify-content-center gap-2" style="border-radius: 5px; font-weight: 600; padding: 10px;">
-                  <i class="icon-base ti tabler-arrow-up fs-6"></i> Promosikan
-                </button>
-              </form>
-              <button type="button" class="btn btn-danger w-100 d-inline-flex align-items-center justify-content-center gap-2" style="border-radius: 5px; font-weight: 600; padding: 10px;" data-bs-toggle="modal" data-bs-target="#rejectModal">
-                <i class="icon-base ti tabler-x fs-6"></i> Tolak
-              </button>
-            </div>
-
-          @elseif($enrollment->status === 'approved')
-            <div class="d-flex flex-column gap-2">
-              <form action="{{ route('admin.enrollments.reset', $enrollment) }}" method="POST" class="reset-enrollment-form" data-name="{{ $enrollment->user->name }}" data-pelatihan="{{ $enrollment->pelatihan->nama }}">
-                @csrf
-                <button type="submit" class="btn btn-warning w-100 d-inline-flex align-items-center justify-content-center gap-2" style="border-radius: 5px; font-weight: 600; padding: 10px; background: linear-gradient(135deg, #f59e0b, #d97706); border: none;">
-                  <i class="icon-base ti tabler-refresh fs-6"></i> Reset
-                </button>
-              </form>
-            </div>
-
-          @elseif($enrollment->status === 'rejected')
-            <div class="text-center py-2">
-              <span class="text-body-premium" style="font-size: 0.9rem;">Tidak ada aksi</span>
-            </div>
-          @endif
+            </form>
+            @endif
+          </div>
         </div>
 
       </div>
@@ -939,10 +938,166 @@ $configData = Helper::appClasses();
       </div>
     </div>
   </div>
+
+  {{-- Modal Change Status --}}
+  <div class="modal fade" id="changeStatusModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content" style="background: #0b0f19; border: 1px solid rgba(255,255,255,0.08); border-radius: 5px;">
+        <div class="modal-header border-0">
+          <h6 class="text-white fw-bold mb-0">Ubah Status Pendaftaran</h6>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <form id="changeStatusForm" action="{{ route('admin.enrollments.change-status', $enrollment) }}" method="POST">
+          @csrf
+          <div class="modal-body">
+            <div id="changeStatusInfo"></div>
+            <input type="hidden" name="status" id="changeStatusNewStatus">
+            <div class="mb-3">
+              <label class="detail-label mb-2">Alasan Perubahan Status <span style="color: #f87171;">*</span></label>
+              <textarea name="notes" id="changeStatusNotes" class="form-control" rows="3" placeholder="Jelaskan alasan perubahan status..." style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); color: #f8fafc; border-radius: 5px;"></textarea>
+            </div>
+          </div>
+          <div class="modal-footer border-0">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); color: rgba(255,255,255,0.7); border-radius: 5px;">Batal</button>
+            <button type="submit" class="btn btn-primary" style="border-radius: 5px;">Ya, Ubah Status</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  {{-- Modal Transfer Pelatihan --}}
+  <div class="modal fade" id="transferModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content" style="background: #0b0f19; border: 1px solid rgba(255,255,255,0.08); border-radius: 5px;">
+        <div class="modal-header border-0">
+          <h6 class="text-white fw-bold mb-0">Alihkan Pelatihan</h6>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <form action="{{ route('admin.enrollments.transfer', $enrollment) }}" method="POST">
+          @csrf
+          <div class="modal-body">
+            {{-- Info peserta --}}
+            <div style="background: rgba(255,255,255,0.04); padding: 12px; border-radius: 5px; margin-bottom: 16px;">
+              <div class="d-flex justify-content-between mb-2">
+                <span class="text-body-premium">Peserta:</span>
+                <span class="text-white fw-semibold">{{ $enrollment->user->name }}</span>
+              </div>
+              <div class="d-flex justify-content-between mb-2">
+                <span class="text-body-premium">Pelatihan Asal:</span>
+                <span class="text-white">{{ $enrollment->pelatihan->nama }} (Batch {{ $enrollment->pelatihan->batch }})</span>
+              </div>
+              <div class="d-flex justify-content-between">
+                <span class="text-body-premium">Status:</span>
+                <span class="badge-premium">
+                  @switch($enrollment->status)
+                    @case('approved') Approved (Tahap 1) @break
+                    @case('waitlist') Cadangan @break
+                    @default {{ ucfirst($enrollment->status) }}
+                  @endswitch
+                </span>
+              </div>
+            </div>
+
+            {{-- Pilih Pelatihan Tujuan --}}
+            <div class="mb-3">
+              <label class="detail-label mb-2">Pilih Pelatihan Tujuan <span style="color: #f87171;">*</span></label>
+              <select name="pelatihan_id" class="form-select" required style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); color: #f8fafc; border-radius: 5px;">
+                <option value="">-- Pilih Pelatihan --</option>
+                @foreach($pelatihans as $p)
+                  <option value="{{ $p->id }}" {{ $p->id == $enrollment->pelatihan_id ? 'disabled' : '' }}>
+                    {{ $p->nama }} (Batch {{ $p->batch }}) {{ $p->id == $enrollment->pelatihan_id ? '— saat ini' : '' }}
+                  </option>
+                @endforeach
+              </select>
+              <div class="mt-1 text-body-premium" style="font-size: 0.7rem;">
+                <i class="icon-base ti tabler-info-circle me-1"></i> Hanya pelatihan aktif yang ditampilkan.
+              </div>
+            </div>
+
+            {{-- Alasan --}}
+            <div class="mb-3">
+              <label class="detail-label mb-2">Alasan Pengalihan <span style="color: #f87171;">*</span></label>
+              <textarea name="notes" class="form-control" rows="3" placeholder="Jelaskan alasan pengalihan..." required style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); color: #f8fafc; border-radius: 5px;"></textarea>
+            </div>
+
+            {{-- Peringatan --}}
+            <div style="background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.2); padding: 10px; border-radius: 5px;">
+              <p class="mb-0" style="color: #f87171; font-size: 0.8rem;">
+                <i class="icon-base ti tabler-alert-triangle me-1"></i>
+                <strong>Perhatian:</strong> Data kehadiran dan sertifikat yang terkait dengan pelatihan saat ini akan dihapus.
+              </p>
+            </div>
+          </div>
+          <div class="modal-footer border-0">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); color: rgba(255,255,255,0.7); border-radius: 5px;">Batal</button>
+            <button type="submit" class="btn btn-primary" style="border-radius: 5px; background: linear-gradient(135deg, #6366f1, #8b5cf6); border: none;">
+              <i class="icon-base ti tabler-arrows-shuffle me-1"></i> Ya, Alihkan
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
 @endsection
 
 @section('page-script')
 <script>
+  // CHANGE STATUS - buka modal
+  document.getElementById('changeStatusSelect')?.addEventListener('change', function() {
+    document.getElementById('changeStatusBtn').disabled = !this.value;
+  });
+
+  document.getElementById('changeStatusBtn')?.addEventListener('click', function() {
+    const status = document.getElementById('changeStatusSelect').value;
+    if (!status) return;
+
+    // Isi modal dengan data
+    document.getElementById('changeStatusNewStatus').value = status;
+    const labels = {'pending': '⏳ Pending', 'approved': '✅ Approved', 'rejected': '❌ Rejected', 'waitlist': '🟡 Waitlist'};
+    document.getElementById('changeStatusInfo').innerHTML = `
+      <div style="background: rgba(255,255,255,0.04); padding: 12px; border-radius: 5px; margin-bottom: 12px;">
+        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+          <span class="text-body-premium">Status Saat Ini:</span>
+          <span class="badge-premium">${document.querySelector('.badge-premium')?.textContent?.trim() || '{{ ucfirst($enrollment->status) }}'}</span>
+        </div>
+        <div style="display: flex; justify-content: space-between;">
+          <span class="text-body-premium">Status Baru:</span>
+          <span class="badge-premium">${labels[status] || status}</span>
+        </div>
+      </div>
+    `;
+
+    // Tampilkan modal
+    const modal = new bootstrap.Modal(document.getElementById('changeStatusModal'));
+    modal.show();
+  });
+
+  // CHANGE STATUS - submit
+  document.getElementById('changeStatusForm')?.addEventListener('submit', function(e) {
+    const notes = document.getElementById('changeStatusNotes').value.trim();
+    if (!notes) {
+      e.preventDefault();
+      Swal.fire({
+        title: 'Alasan Diperlukan',
+        text: 'Harap isi alasan perubahan status.',
+        icon: 'warning',
+        background: '#0f172a',
+        color: '#f8fafc',
+        confirmButtonText: 'OK',
+        customClass: { confirmButton: 'btn btn-primary px-4 py-2 border-0' },
+        buttonsStyling: false,
+      });
+    }
+  });
+
+  // TRANSFER - buka modal
+  document.getElementById('transferBtn')?.addEventListener('click', function() {
+    const modal = new bootstrap.Modal(document.getElementById('transferModal'));
+    modal.show();
+  });
+
+  // Reset Enrollment Forms
   document.addEventListener('submit', function(e) {
     const form = e.target.closest('.reset-enrollment-form');
     if (!form) return;

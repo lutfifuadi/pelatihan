@@ -631,5 +631,66 @@ $configData = Helper::appClasses();
       }
     });
   });
+
+  // Konfirmasi ganti status dari dropdown tabel
+  document.querySelectorAll('.change-status-form').forEach(form => {
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+      const status = this.querySelector('input[name="status"]').value;
+      const labels = {'pending': 'Pending', 'approved': 'Approved', 'rejected': 'Rejected', 'waitlist': 'Waitlist'};
+      const colors = {'pending': '#fbbf24', 'approved': '#34d399', 'rejected': '#f87171', 'waitlist': '#93c5fd'};
+
+      Swal.fire({
+        title: 'Ubah Status?',
+        html: `<div>Ubah status peserta menjadi <strong style="color: ${colors[status]}">${labels[status]}</strong>?</div>
+               <div class="mt-2" style="font-size: 0.8rem; color: rgba(255,255,255,0.5);">Konfirmasi untuk melanjutkan.</div>`,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'Ya, Ubah!',
+        cancelButtonText: 'Batal',
+        reverseButtons: true,
+        background: '#0f172a',
+        color: '#f8fafc',
+        customClass: {
+          popup: 'swal2-custom-popup shadow-lg',
+          confirmButton: 'btn btn-primary px-4 py-2 border-0 fw-semibold',
+          cancelButton: 'btn btn-secondary-custom px-4 py-2 border-0',
+        },
+        buttonsStyling: false,
+      }).then((result) => {
+        if (result.isConfirmed) {
+          // Prompt alasan
+          Swal.fire({
+            title: 'Alasan',
+            input: 'textarea',
+            inputLabel: 'Alasan perubahan status',
+            inputPlaceholder: 'Jelaskan alasan...',
+            inputAttributes: { required: 'required' },
+            showCancelButton: true,
+            confirmButtonText: 'Konfirmasi',
+            cancelButtonText: 'Batal',
+            background: '#0f172a',
+            color: '#f8fafc',
+            customClass: {
+              confirmButton: 'btn btn-primary px-4 py-2 border-0',
+              cancelButton: 'btn btn-secondary-custom px-4 py-2 border-0',
+            },
+            buttonsStyling: false,
+            preConfirm: (notes) => {
+              if (!notes) {
+                Swal.showValidationMessage('Alasan wajib diisi');
+              }
+              return notes;
+            }
+          }).then((notesResult) => {
+            if (notesResult.isConfirmed) {
+              form.querySelector('input[name="notes"]').value = notesResult.value;
+              form.submit();
+            }
+          });
+        }
+      });
+    });
+  });
 </script>
 @endsection

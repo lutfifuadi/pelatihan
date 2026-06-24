@@ -259,9 +259,150 @@ class EnrollmentController extends Controller
     }
 
     /**
+     * Ubah status enrollment (pending/approved/rejected/waitlist) secara manual.
+     */
+    public function changeStatus(Request $request, Enrollment $enrollment)
+    {
+        $request->validate([
+            'status' => 'required|in:pending,approved,rejected,waitlist',
+            'notes' => 'nullable|string|max:500',
+        ]);
+
+        $oldStatus = $enrollment->status;
+        $newStatus = $request->status;
+
+        DB::transaction(function () use ($request, $enrollment, $oldStatus, $newStatus) {
+            if ($oldStatus !== $newStatus) {
+                $this->updateTimestamps($enrollment, $newStatus);
+            }
+
+            $enrollment->update(['status' => $newStatus]);
+
+            $enrollment->update(['notes' => '[Ubah Status: ' . now()->format('d/m/Y H:i') . '] ' . $request->notes]);
+
+            switch ($newStatus) {
+                case 'approved':
+                    \App\Events\PendaftaranApproved::dispatch($enrollment->user, $enrollment->pelatihan);
+                    break;
+                case 'rejected':
+                    \App\Events\PendaftaranRejected::dispatch(
+                        $enrollment->user,
+                        $enrollment->pelatihan,
+                        $request->notes
+                    );
+                    break;
+                case 'waitlist':
+                    if ($enrollment->user && $enrollment->pelatihan) {
+                        $this->notificationService->sendByTemplate(
+                            $enrollment->user,
+                            'masuk_cadangan',
+                            [
+                                'nama' => $enrollment->user->name,
+                                'pelatihan' => $enrollment->pelatihan->nama,
+                            ]
+                        );
+                    }
+                    break;
+            }
+
+            if ($oldStatus === 'approved' && $newStatus !== 'approved') {
+                $this->promoteFromWaitlist($enrollment->pelatihan_id, $enrollment->id);
+            }
+        });
+
+        ActivityLogger::action('status_changed', 'Enrollment',
+            "Status {$enrollment->user?->name} untuk {$enrollment->pelatihan?->nama}: {$oldStatus} \u{2192} {$newStatus}. Alasan: {$request->notes}",
+            $enrollment->id,
+            $enrollment->user?->name
+        );
+
+        $this->broadcastDashboardUpdate();
+
+        return redirect()->back()->with('success', "Status pendaftaran {$enrollment->user?->name} berhasil diubah menjadi {$newStatus}.");
+    }
+
+    /**
+     * Transfer peserta ke pelatihan lain.
+     */
+    public function transfer(Request $request, Enrollment $enrollment)
+    {
+        $request->validate([
+            'pelatihan_id' => 'required|exists:pelatihan,id',
+            'notes' => 'required|string|max:500',
+        ]);
+
+        if ((int)$request->pelatihan_id === $enrollment->pelatihan_id) {
+            return back()->with('error', 'Pelatihan tujuan harus berbeda dari pelatihan saat ini.');
+        }
+
+        $pelatihanTujuan = Pelatihan::findOrFail($request->pelatihan_id);
+
+        if (!$pelatihanTujuan->is_active) {
+            return back()->with('error', 'Pelatihan tujuan tidak aktif.');
+        }
+
+        $existingEnrollment = Enrollment::where('user_id', $enrollment->user_id)
+            ->where('pelatihan_id', $request->pelatihan_id)
+            ->exists();
+
+        if ($existingEnrollment) {
+            return back()->with('error', 'Peserta sudah terdaftar di pelatihan ' . $pelatihanTujuan->nama . '.');
+        }
+
+        $approvedCount = Enrollment::where('pelatihan_id', $request->pelatihan_id)
+            ->where('status', 'approved')->count();
+
+        $kuotaPenuh = $pelatihanTujuan->kuota && $approvedCount >= $pelatihanTujuan->kuota;
+
+        $pelatihanAsal = $enrollment->pelatihan;
+        $statusSaatIni = $enrollment->status;
+
+        DB::transaction(function () use ($request, $enrollment, $pelatihanTujuan, $pelatihanAsal, $statusSaatIni, $kuotaPenuh) {
+            $enrollment->update(['pelatihan_id' => $request->pelatihan_id]);
+
+            if ($statusSaatIni === 'approved' && $kuotaPenuh) {
+                $enrollment->update(['status' => 'waitlist', 'waitlist_promoted_at' => null]);
+            }
+
+            $enrollment->update(['notes' => '[Alihkan: ' . now()->format('d/m/Y H:i') . '] ' . $request->notes]);
+
+            $enrollment->attendances()->delete();
+            $enrollment->certificate()->delete();
+
+            if ($statusSaatIni === 'approved') {
+                $this->promoteFromWaitlist($pelatihanAsal->id, $enrollment->id);
+            }
+
+            if ($enrollment->user && $pelatihanTujuan) {
+                $this->notificationService->sendByTemplate(
+                    $enrollment->user,
+                    'dialihkan',
+                    [
+                        'nama' => $enrollment->user->name,
+                        'pelatihan_asal' => $pelatihanAsal->nama,
+                        'pelatihan_tujuan' => $pelatihanTujuan->nama,
+                        'alasan' => $request->notes,
+                    ]
+                );
+            }
+        });
+
+        ActivityLogger::action('transferred', 'Enrollment',
+            "Peserta {$enrollment->user?->name} dialihkan dari {$pelatihanAsal->nama} ke {$pelatihanTujuan->nama}. Status: {$statusSaatIni}. Alasan: {$request->notes}",
+            $enrollment->id,
+            $enrollment->user?->name
+        );
+
+        $this->broadcastDashboardUpdate();
+
+        return redirect()->route('admin.enrollments.show', $enrollment->fresh())
+            ->with('success', "Peserta {$enrollment->user?->name} berhasil dialihkan dari {$pelatihanAsal->nama} ke {$pelatihanTujuan->nama}.");
+    }
+
+    /**
      * Otomatis promosikan waitlist jika ada slot kosong.
      */
-    private function promoteFromWaitlist($pelatihanId)
+    private function promoteFromWaitlist($pelatihanId, $excludeId = null)
     {
         $pelatihan = Pelatihan::find($pelatihanId);
         if (!$pelatihan || !$pelatihan->kuota) return;
@@ -277,6 +418,9 @@ class EnrollmentController extends Controller
             $enrollmentsToPromote = Enrollment::with(['user', 'pelatihan'])
                 ->where('pelatihan_id', $pelatihanId)
                 ->where('status', 'waitlist')
+                ->when($excludeId, function ($query, $excludeId) {
+                    $query->where('id', '!=', $excludeId);
+                })
                 ->orderBy('created_at', 'asc')
                 ->limit($availableSlots)
                 ->get();
@@ -377,5 +521,52 @@ class EnrollmentController extends Controller
             // Broadcast server might not be available (local dev, etc.)
             \Illuminate\Support\Facades\Log::warning('Dashboard broadcast skipped: ' . $e->getMessage());
         }
+    }
+
+    /**
+     * Auto-manajemen timestamp berdasarkan status (FR-009).
+     */
+    private function updateTimestamps(Enrollment $enrollment, string $newStatus): void
+    {
+        $oldStatus = $enrollment->getOriginal('status');
+
+        if ($oldStatus === $newStatus) {
+            return;
+        }
+
+        $data = [
+            'approved_at' => null,
+            'rejected_at' => null,
+            'waitlist_promoted_at' => null,
+        ];
+
+        if ($newStatus === 'approved') {
+            $data['approved_at'] = now();
+            if ($oldStatus === 'waitlist') {
+                $data['waitlist_promoted_at'] = now();
+            }
+        } elseif ($newStatus === 'rejected') {
+            $data['rejected_at'] = now();
+        }
+
+        $enrollment->update($data);
+    }
+
+    /**
+     * Ambil daftar pelatihan yang tersedia untuk transfer.
+     */
+    public function getAvailablePelatihans(Enrollment $enrollment)
+    {
+        $pelatihans = Pelatihan::where('is_active', true)
+            ->where('id', '!=', $enrollment->pelatihan_id)
+            ->whereNotIn('id', function ($query) use ($enrollment) {
+                $query->select('pelatihan_id')
+                    ->from('enrollments')
+                    ->where('user_id', $enrollment->user_id);
+            })
+            ->orderBy('nama')
+            ->get(['id', 'nama', 'batch', 'kuota']);
+
+        return response()->json($pelatihans);
     }
 }
