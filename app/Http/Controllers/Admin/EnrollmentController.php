@@ -313,7 +313,25 @@ class EnrollmentController extends Controller
     public function show(Enrollment $enrollment)
     {
         $enrollment->load(['user.pesertaProfile', 'user.kecamatan', 'user.kelurahan', 'pelatihan.dinas']);
-        return view('content.admin.enrollments.show', compact('enrollment'));
+
+        $enrollmentIds = Enrollment::where('pelatihan_id', $enrollment->pelatihan_id)
+            ->orderBy('created_at')
+            ->pluck('id')
+            ->toArray();
+
+        $currentIndex = array_search($enrollment->id, $enrollmentIds);
+
+        $previousEnrollmentId = $currentIndex > 0 ? $enrollmentIds[$currentIndex - 1] : null;
+        $nextEnrollmentId = $currentIndex < count($enrollmentIds) - 1 ? $enrollmentIds[$currentIndex + 1] : null;
+
+        $previousEnrollment = $previousEnrollmentId
+            ? Enrollment::with('user:id,name')->find($previousEnrollmentId)
+            : null;
+        $nextEnrollment = $nextEnrollmentId
+            ? Enrollment::with('user:id,name')->find($nextEnrollmentId)
+            : null;
+
+        return view('content.admin.enrollments.show', compact('enrollment', 'previousEnrollment', 'nextEnrollment'));
     }
 
     /**

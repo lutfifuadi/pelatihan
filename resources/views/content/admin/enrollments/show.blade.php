@@ -190,6 +190,41 @@ $configData = Helper::appClasses();
     color: #ffffff;
   }
 
+  .nav-btn-prevnext {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.45rem 1rem;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 5px;
+    color: rgba(255, 255, 255, 0.65);
+    text-decoration: none;
+    font-size: 0.85rem;
+    transition: all 0.3s ease;
+    cursor: pointer;
+  }
+  .nav-btn-prevnext:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+    border-color: rgba(255, 255, 255, 0.2);
+    transform: translateY(-1px);
+  }
+  .nav-btn-prevnext.disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+    pointer-events: none;
+    transform: none;
+  }
+  .nav-btn-prevnext .nav-name {
+    color: #f8fafc;
+    font-weight: 600;
+  }
+  .nav-btn-prevnext .nav-label {
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.75rem;
+  }
+
   .detail-section-title {
     font-family: 'Sora', sans-serif;
     font-weight: 700;
@@ -285,29 +320,73 @@ $configData = Helper::appClasses();
   <div class="container-fluid px-4 px-lg-6 position-relative" style="z-index: 1;">
 
     {{-- Header --}}
-    <div class="glass-card-premium px-4 px-xl-5 py-4 mb-4">
+    <div class="glass-card-premium px-4 px-xl-5 py-4 mb-3">
       <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
-        <div class="d-flex align-items-center gap-3">
-          <div class="stat-icon-box stat-icon-primary">
-            <i class="icon-base ti tabler-user fs-4"></i>
-          </div>
-          <div>
-            <h4 class="fw-bold text-white mb-0">Detail Pendaftaran</h4>
-            <p class="text-body-premium mb-0 mt-1" style="font-size: 0.95rem;">
-              Informasi lengkap pendaftaran {{ $enrollment->user->name }} — {{ $enrollment->pelatihan->nama }}
-            </p>
-          </div>
+        <div>
+          <a href="{{ route('admin.enrollments.index') }}" class="text-body-premium text-decoration-none d-inline-flex align-items-center gap-1" style="font-size: 0.85rem;">
+            <i class="icon-base ti tabler-arrow-left me-1"></i> Kembali
+          </a>
         </div>
-        <div class="d-flex align-items-center gap-3">
+
+        <div class="text-center flex-grow-1">
+          <h4 class="fw-bold text-white mb-1">Detail Pendaftaran</h4>
+          <p class="text-body-premium mb-0" style="font-size: 0.95rem;">
+            {{ $enrollment->user->name }} — {{ $enrollment->pelatihan->nama }}
+          </p>
+        </div>
+
+        <div>
           @switch($enrollment->status)
             @case('pending') <span class="badge-premium badge-premium-warning">Pending</span> @break
             @case('approved') <span class="badge-premium badge-premium-success">Approved</span> @break
             @case('rejected') <span class="badge-premium badge-premium-danger">Ditolak</span> @break
             @case('waitlist') <span class="badge-premium badge-premium-info">Cadangan</span> @break
           @endswitch
-          <a href="{{ route('admin.enrollments.index') }}" class="btn btn-secondary-custom px-4 py-2 d-flex align-items-center gap-2">
-            <i class="icon-base ti tabler-arrow-left"></i> Kembali
-          </a>
+        </div>
+      </div>
+    </div>
+
+    {{-- Navigasi Prev / Next --}}
+    <div class="glass-card-premium px-4 px-xl-5 py-3 mb-4">
+      <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+        <div>
+          @if($previousEnrollment)
+            <a href="{{ route('admin.enrollments.show', $previousEnrollment->id) }}"
+               class="nav-btn-prevnext">
+              <i class="icon-base ti tabler-chevron-left"></i>
+              <span>
+                <span class="nav-name">{{ $previousEnrollment->user->name }}</span>
+                <span class="nav-label">Sebelumnya</span>
+              </span>
+            </a>
+          @else
+            <span class="nav-btn-prevnext disabled">
+              <i class="icon-base ti tabler-chevron-left"></i>
+              <span>
+                <span class="nav-label">Sebelumnya</span>
+              </span>
+            </span>
+          @endif
+        </div>
+
+        <div>
+          @if($nextEnrollment)
+            <a href="{{ route('admin.enrollments.show', $nextEnrollment->id) }}"
+               class="nav-btn-prevnext">
+              <span>
+                <span class="nav-name">{{ $nextEnrollment->user->name }}</span>
+                <span class="nav-label">Selanjutnya</span>
+              </span>
+              <i class="icon-base ti tabler-chevron-right"></i>
+            </a>
+          @else
+            <span class="nav-btn-prevnext disabled">
+              <span>
+                <span class="nav-label">Selanjutnya</span>
+              </span>
+              <i class="icon-base ti tabler-chevron-right"></i>
+            </span>
+          @endif
         </div>
       </div>
     </div>
