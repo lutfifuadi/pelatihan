@@ -15,7 +15,11 @@ class PelatihanController extends Controller
             ->where('is_active', true)
             ->orderBy('tanggal_mulai', 'asc')
             ->orderBy('batch', 'asc')
-            ->get();
+            ->get()
+            ->map(function ($p) {
+                $p->is_ditutup = $p->isPendaftaranDitutup();
+                return $p;
+            });
 
         seo()->staticPage('pelatihan.index');
 
@@ -36,6 +40,7 @@ class PelatihanController extends Controller
                  ['label' => $pelatihan->nama, 'url' => url('/pelatihan/' . ($pelatihan->slug ?? $pelatihan->id))],
              ]));
 
-        return view('content.pelatihan.show', compact('pelatihan'));
+        $is_ditutup = $pelatihan->isPendaftaranDitutup();
+        return view('content.pelatihan.show', compact('pelatihan', 'is_ditutup'));
     }
 }

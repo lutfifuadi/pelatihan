@@ -127,6 +127,7 @@
         "admin.settings.branding",
         "admin.settings.landing",
         "admin.settings.seo",
+        "admin.settings.maintenance",
         "admin.faqs"
       ],
       "submenu": [
@@ -153,6 +154,12 @@
           "name": "FAQ",
           "icon": "menu-icon icon-base ti tabler-help-circle",
           "slug": "admin.faqs.index"
+        },
+        {
+          "url": "/admin/settings/maintenance",
+          "name": "Mode Maintenance",
+          "icon": "menu-icon icon-base ti tabler-tool",
+          "slug": "admin.settings.maintenance"
         }
       ]
     },

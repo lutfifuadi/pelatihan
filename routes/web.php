@@ -80,6 +80,9 @@ Route::post('/daftar/cek-nik', [RegistrationController::class, 'checkNik'])->nam
 Route::post('/daftar/cek-wa', [RegistrationController::class, 'checkWa'])->name('landing.check-wa')->middleware('throttle:10,1');
 Route::get('/daftar/sukses', [RegistrationController::class, 'sukses'])->name('landing.sukses')->middleware('auth');
 
+// ===== MAINTENANCE PAGE (public) =====
+Route::get('/maintenance', [\App\Http\Controllers\MaintenanceController::class, 'index'])->name('maintenance');
+
 // Home route - Jetstream redirects here after login/register
 Route::get('/home', function () {
     $user = Auth::user();
@@ -230,6 +233,10 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
         // Settings - Landing Page Content
         Route::get('settings/landing', [SettingController::class, 'landing'])->name('settings.landing');
         Route::post('settings/landing', [SettingController::class, 'updateLanding'])->name('settings.landing.update');
+
+        // Settings - Maintenance
+        Route::get('settings/maintenance', [SettingController::class, 'maintenance'])->name('settings.maintenance');
+        Route::post('settings/maintenance', [SettingController::class, 'updateMaintenance'])->name('settings.maintenance.update');
 
         // FAQ Management
         Route::resource('faqs', FaqController::class)->parameters(['faqs' => 'faq']);

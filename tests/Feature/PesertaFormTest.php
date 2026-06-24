@@ -395,4 +395,249 @@ class PesertaFormTest extends TestCase
         $response->assertSee('Cadangan (Waitlist)');
         $response->assertSee($pelatihan->nama);
     }
+
+    // ===================== AC-005: Auto-approve dengan kuota penuh =====================
+
+    public function test_auto_approve_dengan_kuota_penuh_jadi_waitlist(): void
+    {
+        $pelatihan = Pelatihan::create([
+            'nama' => 'Auto Approve Penuh',
+            'batch' => 'BATCH-AUTO-1',
+            'is_active' => true,
+            'kuota' => 1,
+            'auto_approve' => true,
+        ]);
+
+        // Isi kuota dengan 1 approved
+        $userExisting = User::factory()->create(['role' => 'peserta']);
+        \App\Models\Enrollment::create([
+            'user_id' => $userExisting->id,
+            'pelatihan_id' => $pelatihan->id,
+            'status' => 'approved',
+            'approved_at' => now(),
+        ]);
+
+        // Siapkan user baru yang akan mendaftar
+        $userBaru = User::factory()->create([
+            'role' => 'peserta',
+            'email' => 'baru@auto.test',
+            'nik' => '3273010101000002',
+            'whatsapp' => '6281234567891',
+        ]);
+        Sanctum::actingAs($userBaru);
+
+        $kecamatan = Kecamatan::first();
+        $kelurahan = \App\Models\Kelurahan::create([
+            'kecamatan_id' => $kecamatan->id,
+            'name' => 'Test Kel',
+            'kodepos' => '40172',
+            'is_active' => true,
+        ]);
+
+        PesertaProfile::create([
+            'user_id' => $userBaru->id,
+            'nama_lengkap' => 'Peserta Baru',
+            'jenis_kelamin' => 'L',
+            'tempat_lahir' => 'Bandung',
+            'tanggal_lahir' => '15',
+            'bulan_lahir' => '01',
+            'tahun_lahir' => '2000',
+            'nik' => '3273010101000002',
+            'pelatihan_id' => $pelatihan->id,
+            'is_completed' => true,
+        ]);
+
+        $response = $this->post('/dashboard/peserta/form-review', [
+            'konfirmasi' => '1',
+        ]);
+
+        $response->assertRedirect(route('dashboard.peserta.pendaftaran-sukses'));
+
+        $enrollment = \App\Models\Enrollment::where('user_id', $userBaru->id)
+            ->where('pelatihan_id', $pelatihan->id)
+            ->first();
+
+        $this->assertNotNull($enrollment);
+        $this->assertEquals('waitlist', $enrollment->status);
+        $this->assertNull($enrollment->approved_at);
+    }
+
+    public function test_auto_approve_dengan_kuota_tersedia_jadi_approved(): void
+    {
+        $pelatihan = Pelatihan::create([
+            'nama' => 'Auto Approve Tersedia',
+            'batch' => 'BATCH-AUTO-2',
+            'is_active' => true,
+            'kuota' => 5,
+            'auto_approve' => true,
+        ]);
+
+        $userBaru = User::factory()->create([
+            'role' => 'peserta',
+            'email' => 'tersedia@auto.test',
+            'nik' => '3273010101000003',
+            'whatsapp' => '6281234567892',
+        ]);
+        Sanctum::actingAs($userBaru);
+
+        $kecamatan = Kecamatan::first();
+        $kelurahan = \App\Models\Kelurahan::create([
+            'kecamatan_id' => $kecamatan->id,
+            'name' => 'Test Kel 2',
+            'kodepos' => '40173',
+            'is_active' => true,
+        ]);
+
+        PesertaProfile::create([
+            'user_id' => $userBaru->id,
+            'nama_lengkap' => 'Peserta Tersedia',
+            'jenis_kelamin' => 'P',
+            'tempat_lahir' => 'Jakarta',
+            'tanggal_lahir' => '20',
+            'bulan_lahir' => '05',
+            'tahun_lahir' => '1999',
+            'nik' => '3273010101000003',
+            'pelatihan_id' => $pelatihan->id,
+            'is_completed' => true,
+        ]);
+
+        $response = $this->post('/dashboard/peserta/form-review', [
+            'konfirmasi' => '1',
+        ]);
+
+        $response->assertRedirect(route('dashboard.peserta.pendaftaran-sukses'));
+
+        $enrollment = \App\Models\Enrollment::where('user_id', $userBaru->id)
+            ->where('pelatihan_id', $pelatihan->id)
+            ->first();
+
+        $this->assertNotNull($enrollment);
+        $this->assertEquals('approved', $enrollment->status);
+        $this->assertNotNull($enrollment->approved_at);
+    }
+
+    public function test_auto_approve_dengan_kuota_null_jadi_approved(): void
+    {
+        $pelatihan = Pelatihan::create([
+            'nama' => 'Auto Approve Unlimited',
+            'batch' => 'BATCH-AUTO-3',
+            'is_active' => true,
+            'kuota' => null,
+            'auto_approve' => true,
+        ]);
+
+        // Isi dengan banyak approved (tidak terbatas)
+        for ($i = 0; $i < 10; $i++) {
+            $u = User::factory()->create(['role' => 'peserta']);
+            \App\Models\Enrollment::create([
+                'user_id' => $u->id,
+                'pelatihan_id' => $pelatihan->id,
+                'status' => 'approved',
+                'approved_at' => now(),
+            ]);
+        }
+
+        $userBaru = User::factory()->create([
+            'role' => 'peserta',
+            'email' => 'unlimited@auto.test',
+            'nik' => '3273010101000004',
+            'whatsapp' => '6281234567893',
+        ]);
+        Sanctum::actingAs($userBaru);
+
+        $kecamatan = Kecamatan::first();
+        $kelurahan = \App\Models\Kelurahan::create([
+            'kecamatan_id' => $kecamatan->id,
+            'name' => 'Test Kel 3',
+            'kodepos' => '40174',
+            'is_active' => true,
+        ]);
+
+        PesertaProfile::create([
+            'user_id' => $userBaru->id,
+            'nama_lengkap' => 'Peserta Unlimited',
+            'jenis_kelamin' => 'L',
+            'tempat_lahir' => 'Surabaya',
+            'tanggal_lahir' => '10',
+            'bulan_lahir' => '10',
+            'tahun_lahir' => '1998',
+            'nik' => '3273010101000004',
+            'pelatihan_id' => $pelatihan->id,
+            'is_completed' => true,
+        ]);
+
+        $response = $this->post('/dashboard/peserta/form-review', [
+            'konfirmasi' => '1',
+        ]);
+
+        $response->assertRedirect(route('dashboard.peserta.pendaftaran-sukses'));
+
+        $enrollment = \App\Models\Enrollment::where('user_id', $userBaru->id)
+            ->where('pelatihan_id', $pelatihan->id)
+            ->first();
+
+        $this->assertNotNull($enrollment);
+        $this->assertEquals('approved', $enrollment->status);
+    }
+
+    public function test_non_auto_approve_dengan_kuota_penuh_jadi_waitlist(): void
+    {
+        $pelatihan = Pelatihan::create([
+            'nama' => 'Non Auto Penuh',
+            'batch' => 'BATCH-AUTO-4',
+            'is_active' => true,
+            'kuota' => 1,
+            'auto_approve' => false,
+        ]);
+
+        $userExisting = User::factory()->create(['role' => 'peserta']);
+        \App\Models\Enrollment::create([
+            'user_id' => $userExisting->id,
+            'pelatihan_id' => $pelatihan->id,
+            'status' => 'approved',
+            'approved_at' => now(),
+        ]);
+
+        $userBaru = User::factory()->create([
+            'role' => 'peserta',
+            'email' => 'nonauto@test.test',
+            'nik' => '3273010101000005',
+            'whatsapp' => '6281234567894',
+        ]);
+        Sanctum::actingAs($userBaru);
+
+        $kecamatan = Kecamatan::first();
+        $kelurahan = \App\Models\Kelurahan::create([
+            'kecamatan_id' => $kecamatan->id,
+            'name' => 'Test Kel 4',
+            'kodepos' => '40175',
+            'is_active' => true,
+        ]);
+
+        PesertaProfile::create([
+            'user_id' => $userBaru->id,
+            'nama_lengkap' => 'Peserta Non Auto',
+            'jenis_kelamin' => 'P',
+            'tempat_lahir' => 'Medan',
+            'tanggal_lahir' => '05',
+            'bulan_lahir' => '12',
+            'tahun_lahir' => '2001',
+            'nik' => '3273010101000005',
+            'pelatihan_id' => $pelatihan->id,
+            'is_completed' => true,
+        ]);
+
+        $response = $this->post('/dashboard/peserta/form-review', [
+            'konfirmasi' => '1',
+        ]);
+
+        $response->assertRedirect(route('dashboard.peserta.pendaftaran-sukses'));
+
+        $enrollment = \App\Models\Enrollment::where('user_id', $userBaru->id)
+            ->where('pelatihan_id', $pelatihan->id)
+            ->first();
+
+        $this->assertNotNull($enrollment);
+        $this->assertEquals('waitlist', $enrollment->status);
+    }
 }

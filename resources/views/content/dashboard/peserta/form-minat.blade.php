@@ -312,6 +312,32 @@ $fActive = $fields->where('is_active', true)->pluck('field_key')->toArray();
     white-space: nowrap;
     border-width: 0;
   }
+
+  /* ============================================================
+     WATERMARK DITUTUP — Form Step 4
+     ============================================================ */
+  .watermark-overlay-card {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    pointer-events: none;
+    z-index: 2;
+  }
+  .watermark-text-card {
+    transform: rotate(-25deg);
+    font-size: 2rem;
+    font-weight: 800;
+    color: rgba(239, 68, 68, 0.7);
+    border: 3px solid rgba(239, 68, 68, 0.5);
+    padding: 8px 24px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    font-family: 'Sora', sans-serif;
+  }
 </style>
 @endsection
 
@@ -441,11 +467,24 @@ $fActive = $fields->where('is_active', true)->pluck('field_key')->toArray();
                   class="visual-card"
                   :class="{ 
                     'active': form.batch_pelatihan === batch.value.toString() || form.batch_pelatihan === batch.value, 
-                    'disabled': batch.restricted 
+                    'disabled': batch.restricted || batch.ditutup 
                   }"
-                  @click="if (!batch.restricted) { form.batch_pelatihan = batch.value.toString() }"
+                    @click="
+                    if (batch.ditutup) {
+                      window.dispatchEvent(new CustomEvent('open-popup-ditutup', { detail: { nama: batch.label, batch: batch.value, tanggal: batch.batas_ditutup || '-' } }));
+                    } else if (!batch.restricted) {
+                      form.batch_pelatihan = batch.value.toString()
+                    }
+                  "
                 >
-                  <div>
+                  <div style="position: relative;">
+                    <!-- Watermark for closed -->
+                    <template x-if="batch.ditutup">
+                      <div class="watermark-overlay-card">
+                        <span class="watermark-text-card">DITUTUP</span>
+                      </div>
+                    </template>
+
                     <!-- Card Header -->
                     <div class="card-header-custom">
                       <span class="badge-batch" x-text="'Batch ' + (batch.value.toUpperCase().startsWith('BATCH ') ? batch.value.substring(6) : batch.value)"></span>
@@ -460,7 +499,7 @@ $fActive = $fields->where('is_active', true)->pluck('field_key')->toArray();
                       name="batch_pelatihan" 
                       :value="batch.value" 
                       :checked="form.batch_pelatihan === batch.value.toString() || form.batch_pelatihan === batch.value" 
-                      :disabled="batch.restricted" 
+                      :disabled="batch.restricted || batch.ditutup" 
                       class="sr-only"
                     />
 
@@ -497,6 +536,14 @@ $fActive = $fields->where('is_active', true)->pluck('field_key')->toArray();
                         </span>
                       </div>
                     </template>
+
+                    <!-- Closed info -->
+                    <template x-if="batch.ditutup">
+                      <div class="restricted-warning-box" style="border-color: rgba(239, 68, 68, 0.3);">
+                        <i class="icon-base ti tabler-ban"></i>
+                        <span>Pendaftaran ditutup pada <strong x-text="batch.batas_ditutup"></strong></span>
+                      </div>
+                    </template>
                   </div>
                 </div>
               </template>
@@ -506,6 +553,14 @@ $fActive = $fields->where('is_active', true)->pluck('field_key')->toArray();
         </div>
 
 
+      </div>
+
+      <div x-data="popupDitutupForm()" @keydown.window="handleKeydown($event)">
+        <x-popup-ditutup
+            namaPelatihan=""
+            batch=""
+            tanggalDitutup=""
+        />
       </div>
 
       <div class="d-flex justify-content-between mt-4">
@@ -537,6 +592,56 @@ $fActive = $fields->where('is_active', true)->pluck('field_key')->toArray();
   window._formData = {!! json_encode($data) !!};
 
   document.addEventListener('alpine:init', function() {
+    Alpine.data('popupDitutupForm', function() {
+      return {
+        show: false,
+        popupNama: '',
+        popupBatch: '',
+        popupTanggal: '',
+        init() {
+          this.$watch('show', val => {
+            document.body.style.overflow = val ? 'hidden' : '';
+          });
+          window.addEventListener('open-popup-ditutup', (e) => {
+            this.popupNama = e.detail.nama;
+            this.popupBatch = e.detail.batch || '';
+            this.popupTanggal = e.detail.tanggal;
+            this.show = true;
+            this.$nextTick(() => {
+              const dialog = this.$refs.popupDialog;
+              if (dialog) {
+                const focusable = dialog.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+                if (focusable.length) focusable[0].focus();
+              }
+            });
+          });
+        },
+        close() {
+          this.show = false;
+        },
+        handleKeydown(e) {
+          if (e.key === 'Escape' && this.show) {
+            this.close();
+          }
+          if (e.key === 'Tab' && this.show) {
+            const dialog = this.$refs.popupDialog;
+            if (!dialog) return;
+            const focusable = dialog.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+            if (!focusable.length) return;
+            const first = focusable[0];
+            const last = focusable[focusable.length - 1];
+            if (e.shiftKey && document.activeElement === first) {
+              e.preventDefault();
+              last.focus();
+            } else if (!e.shiftKey && document.activeElement === last) {
+              e.preventDefault();
+              first.focus();
+            }
+          }
+        }
+      }
+    });
+
     Alpine.data('minatForm', function() {
       var fd = window._formData || {};
       return {

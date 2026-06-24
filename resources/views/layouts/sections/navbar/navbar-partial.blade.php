@@ -30,7 +30,19 @@ use Illuminate\Support\Facades\Route;
 </div>
 @endif
 
+@php
+    $maintenanceActive = \Illuminate\Support\Facades\Cache::remember('setting.maintenance_mode', 60, function () {
+        return \App\Models\Setting::where('key', 'maintenance_mode')->value('value');
+    });
+@endphp
+
 <div class="navbar-nav-right d-flex align-items-center" id="navbar-collapse">
+  @if($maintenanceActive === '1')
+  <div class="maintenance-indicator d-flex align-items-center gap-2 px-3 py-1 mx-2 rounded-pill" style="background: rgba(255, 193, 7, 0.12); border: 1px solid rgba(255, 193, 7, 0.2);">
+    <i class="icon-base ti tabler-tool text-warning" style="font-size: 16px;"></i>
+    <span class="text-warning fw-semibold" style="font-size: 0.75rem; font-family: 'Sora', sans-serif;">Mode Maintenance Aktif</span>
+  </div>
+  @endif
   @if ($configData['hasCustomizer'] == true)
   <!-- Style Switcher -->
   <div class="navbar-nav align-items-center">

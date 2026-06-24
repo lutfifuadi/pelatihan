@@ -90,4 +90,43 @@ class Pelatihan extends Model
     {
         return 'pelatihan, ' . $this->nama;
     }
+
+    public function isPendaftaranDitutup(): bool
+    {
+        if (is_null($this->batas_pendaftaran)) {
+            return false;
+        }
+        return now()->startOfDay()->gt($this->batas_pendaftaran);
+    }
+
+    public function isKuotaPenuh(): bool
+    {
+        if (is_null($this->kuota)) {
+            return false;
+        }
+        return $this->approvedEnrollments()->count() >= $this->kuota;
+    }
+
+    public function sisaKuota(): int
+    {
+        if (is_null($this->kuota)) {
+            return PHP_INT_MAX;
+        }
+        return max(0, $this->kuota - $this->approvedEnrollments()->count());
+    }
+
+    public function scopeWithRegistrationStatus($query)
+    {
+        return $query->selectRaw("*,
+            CASE
+                WHEN batas_pendaftaran IS NOT NULL AND batas_pendaftaran < CURDATE() THEN 1
+                ELSE 0
+            END as is_ditutup
+        ");
+    }
+
+    public function getIsDitutupAttribute(): bool
+    {
+        return $this->isPendaftaranDitutup();
+    }
 }

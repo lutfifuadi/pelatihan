@@ -90,6 +90,12 @@ class SettingSeeder extends Seeder
             ['key' => 'broadcast_enabled', 'value' => '1', 'group' => 'general', 'label' => 'Aktifkan Broadcast Real-time'],
             ['key' => 'validate_whatsapp', 'value' => '1', 'group' => 'general', 'label' => 'Validasi Otomatis Nomor WhatsApp'],
             ['key' => 'timezone', 'value' => 'Asia/Jakarta', 'group' => 'general', 'label' => 'Zona Waktu Aplikasi'],
+
+            // ===== MAINTENANCE MODE =====
+            ['key' => 'maintenance_mode', 'value' => '0', 'group' => 'general', 'label' => 'Mode Maintenance'],
+            ['key' => 'maintenance_title', 'value' => 'Sistem Sedang Dalam Pemeliharaan', 'group' => 'general', 'label' => 'Judul Halaman Maintenance'],
+            ['key' => 'maintenance_message', 'value' => 'Kami sedang melakukan pemeliharaan rutin untuk meningkatkan layanan. Silakan kembali lagi nanti.', 'group' => 'general', 'label' => 'Pesan Maintenance'],
+            ['key' => 'maintenance_estimated_time', 'value' => '', 'group' => 'general', 'label' => 'Estimasi Waktu Selesai'],
         ];
 
         foreach ($settings as $setting) {

@@ -25,6 +25,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
         // Middleware untuk cek user aktif, dijalankan setelah session & auth
         $middleware->web(\App\Http\Middleware\CheckUserActive::class);
+        $middleware->web(\App\Http\Middleware\CheckMaintenanceMode::class);
 
 
     })

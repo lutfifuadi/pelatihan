@@ -89,6 +89,11 @@ class EnrollmentController extends Controller
      */
     public function approve(Enrollment $enrollment)
     {
+        // Cek kuota sebelum approve
+        if ($enrollment->pelatihan->isKuotaPenuh()) {
+            return redirect()->back()->with('error', 'Gagal meng-approve. Kuota pelatihan "' . $enrollment->pelatihan->nama . '" sudah penuh.');
+        }
+
         DB::transaction(function () use ($enrollment) {
             $enrollment->update([
                 'status' => 'approved',
@@ -171,6 +176,10 @@ class EnrollmentController extends Controller
      */
     public function promote(Enrollment $enrollment)
     {
+        if ($enrollment->pelatihan->isKuotaPenuh()) {
+            return redirect()->back()->with('error', 'Tidak dapat mempromosikan peserta. Kuota pelatihan "' . $enrollment->pelatihan->nama . '" sudah penuh.');
+        }
+
         $enrollment->update([
             'status' => 'approved',
             'approved_at' => now(),
@@ -204,15 +213,23 @@ class EnrollmentController extends Controller
     {
         $pendingEnrollments = Enrollment::where('pelatihan_id', $pelatihan->id)
             ->where('status', 'pending')
+            ->orderBy('created_at', 'asc')
             ->get();
 
         if ($pendingEnrollments->isEmpty()) {
             return redirect()->back()->with('error', 'Tidak ada pendaftaran pending untuk pelatihan ini.');
         }
 
+        $sisaKuota = $pelatihan->sisaKuota();
+        $enrollmentsToApprove = $pendingEnrollments->take($sisaKuota);
+
+        if ($enrollmentsToApprove->isEmpty()) {
+            return redirect()->back()->with('error', 'Tidak dapat meng-approve. Kuota pelatihan "' . $pelatihan->nama . '" sudah penuh.');
+        }
+
         $count = 0;
-        DB::transaction(function () use ($pendingEnrollments, &$count) {
-            foreach ($pendingEnrollments as $enrollment) {
+        DB::transaction(function () use ($enrollmentsToApprove, &$count) {
+            foreach ($enrollmentsToApprove as $enrollment) {
                 $enrollment->update([
                     'status' => 'approved',
                     'approved_at' => now(),
@@ -222,11 +239,19 @@ class EnrollmentController extends Controller
             }
         });
 
+        $totalPending = $pendingEnrollments->count();
+        $remainingPending = $totalPending - $count;
+
+        $message = "{$count} pendaftaran berhasil di-approve untuk pelatihan {$pelatihan->nama}.";
+        if ($remainingPending > 0) {
+            $message .= " {$remainingPending} pendaftaran tidak bisa di-approve karena kuota penuh.";
+        }
+
         ActivityLogger::action('approved', 'Enrollment', "{$count} pendaftaran untuk pelatihan {$pelatihan->nama} ({$pelatihan->batch}) berhasil di-approve massal", $pelatihan->id, $pelatihan->nama);
 
         $this->broadcastDashboardUpdate();
 
-        return redirect()->back()->with('success', "{$count} pendaftaran berhasil di-approve untuk pelatihan {$pelatihan->nama}.");
+        return redirect()->back()->with('success', $message);
     }
 
     /**
@@ -270,6 +295,10 @@ class EnrollmentController extends Controller
 
         $oldStatus = $enrollment->status;
         $newStatus = $request->status;
+
+        if ($newStatus === 'approved' && $enrollment->pelatihan->isKuotaPenuh()) {
+            return redirect()->back()->with('error', 'Tidak dapat mengubah status ke approved. Kuota pelatihan "' . $enrollment->pelatihan->nama . '" sudah penuh.');
+        }
 
         DB::transaction(function () use ($request, $enrollment, $oldStatus, $newStatus) {
             if ($oldStatus !== $newStatus) {

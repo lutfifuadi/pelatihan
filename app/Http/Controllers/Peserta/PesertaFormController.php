@@ -461,6 +461,8 @@ class PesertaFormController extends Controller
                 'restricted_until' => $restrictedUntil,
                 'restricted_dinas' => $restrictedDinas,
                 'last_pelatihan' => $lastPelatihan,
+                'ditutup' => $p->isPendaftaranDitutup(),
+                'batas_ditutup' => $p->batas_pendaftaran ? $p->batas_pendaftaran->format('d/m/Y') : null,
             ];
         })->values();
 
@@ -487,6 +489,12 @@ class PesertaFormController extends Controller
         $selectedPelatihan = Pelatihan::where('batch', $request->batch_pelatihan)->with('dinas')->first();
         if (!$selectedPelatihan) {
             return redirect()->back()->with('error', 'Pelatihan yang dipilih tidak valid.');
+        }
+
+        if ($selectedPelatihan->isPendaftaranDitutup()) {
+            return redirect()->back()
+                ->with('error', 'Pendaftaran untuk "' . $selectedPelatihan->nama . '" sudah ditutup pada ' . $selectedPelatihan->batas_pendaftaran->format('d/m/Y') . '. Silakan pilih pelatihan lain.')
+                ->withInput();
         }
 
         // Cek restriksi dinas (1 tahun)
@@ -705,10 +713,20 @@ class PesertaFormController extends Controller
             }
 
             if ($pelatihan) {
+                if ($pelatihan->isPendaftaranDitutup()) {
+                    return redirect()->back()
+                        ->with('error', 'Maaf, pendaftaran untuk "' . $pelatihan->nama . '" sudah ditutup.')
+                        ->withInput();
+                }
+
                 // Tentukan status enrollment
                 $status = 'pending';
                 if ($pelatihan->auto_approve) {
-                    $status = 'approved';
+                    if ($pelatihan->isKuotaPenuh()) {
+                        $status = 'waitlist';
+                    } else {
+                        $status = 'approved';
+                    }
                 } elseif ($pelatihan->kuota) {
                     $approvedCount = \App\Models\Enrollment::where('pelatihan_id', $pelatihan->id)
                         ->where('status', 'approved')

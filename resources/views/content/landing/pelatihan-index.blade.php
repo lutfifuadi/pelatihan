@@ -374,6 +374,8 @@ $customizerHidden = 'customizer-hide';
 
   html { scroll-behavior: smooth; }
 
+  [x-cloak] { display: none !important; }
+
   /* --- Pelatihan Grid Section (same as landing) --- */
   .pelatihan-grid-section {
     background: #0b0f19;
@@ -480,6 +482,11 @@ $customizerHidden = 'customizer-hide';
     color: #fbbf24;
   }
   .card-status-full {
+    background: rgba(239, 68, 68, 0.15);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    color: #f87171;
+  }
+  .card-status-closed {
     background: rgba(239, 68, 68, 0.15);
     border: 1px solid rgba(239, 68, 68, 0.3);
     color: #f87171;
@@ -694,6 +701,193 @@ $customizerHidden = 'customizer-hide';
   ::-webkit-scrollbar-thumb { background: #6366f1; border-radius: 4px; }
   ::-webkit-scrollbar-thumb:hover { background: #d946ef; }
 
+  /* ============================================================
+     WATERMARK DITUTUP
+     ============================================================ */
+  .watermark-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 3;
+    pointer-events: none;
+  }
+  .watermark-text {
+    transform: rotate(-25deg);
+    font-size: clamp(1.5rem, 4vw, 2.5rem);
+    font-weight: 800;
+    color: rgba(239, 68, 68, 0.7);
+    border: 2px solid rgba(239, 68, 68, 0.5);
+    padding: 8px 24px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    font-family: 'Sora', sans-serif;
+    pointer-events: none;
+    user-select: none;
+  }
+
+  /* ============================================================
+     CLOSED BUTTON
+     ============================================================ */
+  .btn-ditutup-card {
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    background: rgba(239, 68, 68, 0.1);
+    color: #f87171;
+    cursor: not-allowed;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+  }
+
+  /* ============================================================
+     POPUP DITUTUP STYLES
+     ============================================================ */
+  .popup-ditutup-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  .popup-ditutup-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+  .popup-ditutup-card {
+    position: relative;
+    width: 100%;
+    max-width: 440px;
+    background: rgba(15, 23, 42, 0.95);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 40px 32px 28px;
+    text-align: center;
+    z-index: 10;
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.5);
+  }
+  .popup-ditutup-close {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.05);
+    color: rgba(255, 255, 255, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 1.1rem;
+  }
+  .popup-ditutup-close:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+  }
+  .popup-ditutup-icon {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    background: rgba(239, 68, 68, 0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+    font-size: 2rem;
+    color: #ef4444;
+  }
+  .popup-ditutup-title {
+    font-family: 'Sora', sans-serif;
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin-bottom: 12px;
+  }
+  .popup-ditutup-message {
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.75);
+    line-height: 1.6;
+    margin-bottom: 6px;
+  }
+  .popup-ditutup-message strong {
+    color: #ffffff;
+  }
+  .popup-ditutup-submessage {
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.5);
+    margin-bottom: 24px;
+  }
+  .popup-ditutup-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .popup-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-family: 'Outfit', sans-serif;
+    font-weight: 600;
+    font-size: 0.9rem;
+    text-decoration: none;
+    transition: all 0.25s ease;
+    cursor: pointer;
+    border: none;
+  }
+  .popup-btn-primary {
+    background: linear-gradient(135deg, #6366f1, #4f46e5);
+    color: #ffffff;
+    box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+  }
+  .popup-btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4);
+    color: #ffffff;
+  }
+  .popup-btn-secondary {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: rgba(255, 255, 255, 0.7);
+  }
+  .popup-btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+  }
+
+  /* --- Popup Transitions --- */
+  .popup-fade-enter { transition: opacity 0.25s ease; }
+  .popup-fade-enter-start { opacity: 0; }
+  .popup-fade-enter-end { opacity: 1; }
+  .popup-fade-leave { transition: opacity 0.2s ease; }
+  .popup-fade-leave-start { opacity: 1; }
+  .popup-fade-leave-end { opacity: 0; }
+
+  .popup-scale-enter { transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
+  .popup-scale-enter-start { opacity: 0; transform: scale(0.9) translateY(20px); }
+  .popup-scale-enter-end { opacity: 1; transform: scale(1) translateY(0); }
+  .popup-scale-leave { transition: all 0.2s ease; }
+  .popup-scale-leave-start { opacity: 1; transform: scale(1) translateY(0); }
+  .popup-scale-leave-end { opacity: 0; transform: scale(0.95) translateY(10px); }
+
   @media (max-width: 767.98px) {
     .pelatihan-card .card-cover {
       height: 160px;
@@ -705,12 +899,21 @@ $customizerHidden = 'customizer-hide';
       padding: 8px 14px;
       font-size: 0.75rem;
     }
+    .popup-ditutup-card {
+      padding: 32px 20px 24px;
+      margin: 10px;
+    }
+    .popup-ditutup-icon {
+      width: 60px;
+      height: 60px;
+      font-size: 1.6rem;
+    }
   }
 </style>
 @endsection
 
 @section('content')
-<div id="pelatihan-index-wrapper">
+<div id="pelatihan-index-wrapper" x-data="popupDitutup()" @keydown.window="handleKeydown($event)">
 
   @include('partials.floating-navbar')
 
@@ -804,8 +1007,14 @@ $customizerHidden = 'customizer-hide';
               $quota = $pelatihan->kuota;
               $isKuotaUnlimited = is_null($quota) || $quota <= 0;
               $percentage = $isKuotaUnlimited ? 0 : min(100, round(($approvedCount / $quota) * 100, 1));
+              $isDitutup = $pelatihan->is_ditutup ?? false;
 
-              if ($isKuotaUnlimited) {
+              if ($isDitutup) {
+                $statusClass = 'card-status-closed';
+                $statusText = __('Pendaftaran Ditutup');
+                $quotaText = __('Pendaftaran Ditutup');
+                $barColor = 'bg-secondary';
+              } elseif ($isKuotaUnlimited) {
                 $statusClass = 'card-status-open';
                 $statusText = __('Pendaftaran Dibuka');
                 $quotaText = __('Kuota Terbuka');
@@ -860,6 +1069,11 @@ $customizerHidden = 'customizer-hide';
                   <img src="{{ $coverUrl }}" alt="{{ $pelatihan->nama }}" loading="lazy">
                   <span class="card-badge-category">{{ $imageKey }}</span>
                   <span class="card-badge-status {{ $statusClass }}">{{ $statusText }}</span>
+                  @if($isDitutup)
+                  <div class="watermark-overlay">
+                    <span class="watermark-text">DITUTUP</span>
+                  </div>
+                  @endif
                 </div>
 
                 <!-- Card Body -->
@@ -882,7 +1096,7 @@ $customizerHidden = 'customizer-hide';
                     <span>{{ $lokasiText }}</span>
                   </div>
 
-                  @if(!$isKuotaUnlimited)
+                  @if(!$isKuotaUnlimited && !$isDitutup)
                     <div class="quota-bar">
                       <div class="quota-label">
                         <span>{{ __('Terisi') }}</span>
@@ -901,9 +1115,15 @@ $customizerHidden = 'customizer-hide';
                     <small>Rp 0</small>
                     {{ __('Gratis') }}
                   </div>
+                  @if($isDitutup)
+                  <button type="button" class="btn-ditutup-card" @click="open(@js($pelatihan->nama), @js($batchDisplay), @js($pelatihan->batas_pendaftaran?->format('d/m/Y') ?? '-'))">
+                    <i class="icon-base ti tabler-ban me-1"></i> {{ __('Ditutup') }}
+                  </button>
+                  @else
                   <a href="{{ route('pages-home') }}#beranda" class="btn-daftar-card">
                     {{ __('Daftar') }} <i class="icon-base ti tabler-arrow-right"></i>
                   </a>
+                  @endif
                 </div>
               </div>
             </div>
@@ -922,11 +1142,69 @@ $customizerHidden = 'customizer-hide';
 
   @include('partials.site-footer')
 
+  <x-popup-ditutup
+      namaPelatihan=""
+      batch=""
+      tanggalDitutup=""
+  />
+
 </div>
 @endsection
 
 @section('page-script')
 <script>
+  document.addEventListener('alpine:init', function() {
+    Alpine.data('popupDitutup', function() {
+      return {
+        show: false,
+        popupNama: '',
+        popupBatch: '',
+        popupTanggal: '',
+        init() {
+          this.$watch('show', val => {
+            document.body.style.overflow = val ? 'hidden' : '';
+          });
+        },
+        open(nama, batch, tanggal) {
+          this.popupNama = nama;
+          this.popupBatch = batch;
+          this.popupTanggal = tanggal;
+          this.show = true;
+          this.$nextTick(() => {
+            const dialog = this.$refs.popupDialog;
+            if (dialog) {
+              const focusable = dialog.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+              if (focusable.length) focusable[0].focus();
+            }
+          });
+        },
+        close() {
+          this.show = false;
+        },
+        handleKeydown(e) {
+          if (e.key === 'Escape' && this.show) {
+            this.close();
+          }
+          if (e.key === 'Tab' && this.show) {
+            const dialog = this.$refs.popupDialog;
+            if (!dialog) return;
+            const focusable = dialog.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+            if (!focusable.length) return;
+            const first = focusable[0];
+            const last = focusable[focusable.length - 1];
+            if (e.shiftKey && document.activeElement === first) {
+              e.preventDefault();
+              last.focus();
+            } else if (!e.shiftKey && document.activeElement === last) {
+              e.preventDefault();
+              first.focus();
+            }
+          }
+        }
+      }
+    });
+  });
+
 document.addEventListener('DOMContentLoaded', function() {
   'use strict';
 

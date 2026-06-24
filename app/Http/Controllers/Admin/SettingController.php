@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Setting;
 use App\Models\WhatsappNumber;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 
 class SettingController extends Controller
 {
@@ -239,5 +240,51 @@ class SettingController extends Controller
 
         return redirect()->route('admin.settings.seo')
             ->with('success', 'Pengaturan SEO berhasil diperbarui.');
+    }
+
+    public function maintenance()
+    {
+        $settings = Setting::whereIn('key', [
+            'maintenance_mode',
+            'maintenance_title',
+            'maintenance_message',
+            'maintenance_estimated_time',
+        ])->get()->keyBy('key');
+
+        return view('content.admin.branding.maintenance', compact('settings'));
+    }
+
+    public function updateMaintenance(Request $request)
+    {
+        $request->validate([
+            'maintenance_mode' => 'required|in:0,1',
+            'maintenance_title' => 'required|string|max:200',
+            'maintenance_message' => 'required|string|max:1000',
+            'maintenance_estimated_time' => 'nullable|string|max:100',
+        ]);
+
+        $keys = ['maintenance_mode', 'maintenance_title', 'maintenance_message', 'maintenance_estimated_time'];
+        $labels = [
+            'maintenance_mode' => 'Mode Maintenance',
+            'maintenance_title' => 'Judul Halaman Maintenance',
+            'maintenance_message' => 'Pesan Maintenance',
+            'maintenance_estimated_time' => 'Estimasi Waktu Selesai',
+        ];
+
+        foreach ($keys as $key) {
+            Setting::updateOrCreate(
+                ['key' => $key],
+                [
+                    'value' => $request->input($key),
+                    'group' => 'general',
+                    'label' => $labels[$key] ?? '',
+                ]
+            );
+        }
+
+        Cache::forget('setting.maintenance_mode');
+
+        return redirect()->route('admin.settings.maintenance')
+            ->with('success', 'Pengaturan maintenance berhasil diperbarui.');
     }
 }
