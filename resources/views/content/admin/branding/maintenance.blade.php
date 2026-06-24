@@ -325,11 +325,11 @@ $configData = Helper::appClasses();
 
           <div class="maintenance-toggle-wrapper mb-4">
             <div class="form-check form-switch mb-0" style="padding-left: 3.5em;">
+              <input type="hidden" name="maintenance_mode" value="0">
               <input class="form-check-input" type="checkbox" role="switch"
                 id="maintenance_mode" name="maintenance_mode" value="1"
                 {{ $maintenanceActive ? 'checked' : '' }}
                 style="width: 3em; height: 1.5em; cursor: pointer; background-color: {{ $maintenanceActive ? '#f59e0b' : 'rgba(255,255,255,0.15)' }}; border-color: {{ $maintenanceActive ? '#f59e0b' : 'rgba(255,255,255,0.2)' }};">
-              <input type="hidden" name="maintenance_mode" value="0">
             </div>
             <div>
               <div class="toggle-label">
