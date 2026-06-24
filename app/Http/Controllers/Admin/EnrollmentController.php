@@ -352,7 +352,14 @@ class EnrollmentController extends Controller
             }
         }
 
-        return view('content.admin.enrollments.show', compact('enrollment', 'previousEnrollment', 'nextEnrollment', 'usia'));
+        // Hitung kapasitas pelatihan
+        $pelatihan = $enrollment->pelatihan;
+        $kuota = $pelatihan->kuota ?? 0;
+        $approvedCount = Enrollment::where('pelatihan_id', $pelatihan->id)->where('status', 'approved')->count();
+        $waitlistCount = Enrollment::where('pelatihan_id', $pelatihan->id)->where('status', 'waitlist')->count();
+        $sisaKuota = max(0, $kuota - $approvedCount);
+
+        return view('content.admin.enrollments.show', compact('enrollment', 'previousEnrollment', 'nextEnrollment', 'usia', 'kuota', 'approvedCount', 'waitlistCount', 'sisaKuota'));
     }
 
     /**
