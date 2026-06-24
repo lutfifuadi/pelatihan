@@ -28,8 +28,11 @@ class ActivityLogger
         ?string $description = null,
         ?array $oldValues = null,
         ?array $newValues = null
-    ): ActivityLog {
+    ): ?ActivityLog {
         $user = Auth::user();
+        if (!$user) {
+            return null;
+        }
         $request = Request::instance();
 
         $log = ActivityLog::create([
