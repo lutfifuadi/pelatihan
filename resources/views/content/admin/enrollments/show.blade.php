@@ -8,7 +8,7 @@ $configData = Helper::appClasses();
 
 @section('page-style')
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Sora:wght@400;500;600;700;800&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Sora:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
 
   .content-wrapper {
     font-family: 'Outfit', sans-serif;
@@ -16,13 +16,136 @@ $configData = Helper::appClasses();
     position: relative !important;
     overflow: hidden !important;
   }
+  .content-wrapper h1,
+  .content-wrapper h2,
+  .content-wrapper h3,
+  .content-wrapper h4,
+  .content-wrapper h5,
+  .content-wrapper h6 {
+    font-family: 'Sora', sans-serif;
+  }
 
-  html, body, .layout-page, .content-wrapper, .layout-wrapper, .layout-container {
+  html,
+  body,
+  .layout-page,
+  .content-wrapper,
+  .layout-wrapper,
+  .layout-container {
     background-color: #0b0f19 !important;
     background-image:
       radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.15) 0px, transparent 55%),
-      radial-gradient(at 100% 0%, rgba(139, 92, 246, 0.15) 0px, transparent 55%) !important;
+      radial-gradient(at 100% 0%, rgba(139, 92, 246, 0.15) 0px, transparent 55%),
+      radial-gradient(at 50% 50%, rgba(236, 72, 153, 0.08) 0px, transparent 50%) !important;
     color: #f8fafc !important;
+  }
+
+  .layout-navbar-fixed .layout-page::before {
+    display: none !important;
+  }
+
+  .content-wrapper > .container-xxl {
+    max-width: 100% !important;
+    padding: 0 !important;
+  }
+
+  .layout-menu,
+  #layout-menu {
+    background-color: #0b0f19 !important;
+    border-right: 1px solid rgba(255, 255, 255, 0.08) !important;
+  }
+  .layout-menu .app-brand {
+    background-color: #0b0f19 !important;
+  }
+  .layout-menu .menu-inner {
+    background-color: #0b0f19 !important;
+  }
+  .layout-menu .menu-link {
+    color: rgba(255, 255, 255, 0.7) !important;
+  }
+  .layout-menu .menu-item.active > .menu-link {
+    color: #ffffff !important;
+    background: linear-gradient(135deg, #6366f1, #d946ef) !important;
+    box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3) !important;
+  }
+  .layout-menu .menu-item.active > .menu-link i {
+    color: #ffffff !important;
+  }
+  .layout-menu .menu-header-text {
+    color: rgba(255, 255, 255, 0.4) !important;
+  }
+  .layout-menu .menu-link:hover {
+    background-color: rgba(255, 255, 255, 0.04) !important;
+    color: #ffffff !important;
+  }
+  .layout-menu .menu-inner-shadow {
+    background: linear-gradient(#0b0f19 5%, rgba(11, 15, 25, 0) 95%) !important;
+  }
+  .layout-menu .app-brand .app-brand-text {
+    color: #ffffff !important;
+  }
+
+  .layout-navbar,
+  #layout-navbar {
+    background: rgba(15, 23, 42, 0.45) !important;
+    backdrop-filter: blur(20px) !important;
+    -webkit-backdrop-filter: blur(20px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2) !important;
+  }
+  .navbar-detached {
+    background: rgba(15, 23, 42, 0.45) !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    margin-top: 12px !important;
+  }
+  #layout-navbar .nav-link {
+    color: rgba(255, 255, 255, 0.7) !important;
+  }
+  #layout-navbar .nav-link:hover {
+    color: #ffffff !important;
+  }
+
+  .glow-orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(120px);
+    opacity: 0.4;
+    mix-blend-mode: screen;
+    pointer-events: none;
+    animation: orbFloat 25s infinite alternate ease-in-out;
+    z-index: 0;
+  }
+  .orb-1 {
+    width: 450px;
+    height: 450px;
+    background: radial-gradient(circle, #6366f1 0%, rgba(99, 102, 241, 0) 70%);
+    top: -10%;
+    left: -10%;
+    animation-duration: 20s;
+  }
+  .orb-2 {
+    width: 550px;
+    height: 550px;
+    background: radial-gradient(circle, #ec4899 0%, rgba(236, 72, 153, 0) 70%);
+    bottom: 5%;
+    right: -10%;
+    animation-duration: 28s;
+  }
+  .orb-3 {
+    width: 350px;
+    height: 350px;
+    background: radial-gradient(circle, #06b6d4 0%, rgba(6, 182, 212, 0) 70%);
+    top: 35%;
+    left: 25%;
+    animation-duration: 24s;
+  }
+  @keyframes orbFloat {
+    0% { transform: translate(0, 0) scale(1) rotate(0deg); }
+    50% { transform: translate(60px, 40px) scale(1.08) rotate(180deg); }
+    100% { transform: translate(-30px, -50px) scale(0.92) rotate(360deg); }
+  }
+
+  .text-body-premium {
+    color: rgba(255, 255, 255, 0.65) !important;
   }
 
   .glass-card-premium {
@@ -32,11 +155,71 @@ $configData = Helper::appClasses();
     border: 1px solid rgba(255, 255, 255, 0.08) !important;
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
     border-radius: 5px !important;
+    position: relative;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     z-index: 1;
   }
 
-  .text-body-premium {
-    color: rgba(255, 255, 255, 0.65) !important;
+  .stat-icon-box {
+    width: 52px;
+    height: 52px;
+    border-radius: 5px !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.6rem;
+    flex-shrink: 0;
+  }
+
+  .stat-icon-primary {
+    background: rgba(99, 102, 241, 0.12);
+    color: #6366f1;
+  }
+
+  .btn-secondary-custom {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: #ffffff;
+    font-family: 'Sora', sans-serif;
+    font-weight: 600;
+    border-radius: 5px;
+    transition: all 0.3s ease;
+  }
+  .btn-secondary-custom:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+  }
+
+  .detail-section-title {
+    font-family: 'Sora', sans-serif;
+    font-weight: 700;
+    color: #ffffff;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .detail-section-title i {
+    color: #6366f1;
+    font-size: 1.2rem;
+  }
+
+  .detail-label {
+    color: rgba(255, 255, 255, 0.45);
+    font-size: 0.8rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .detail-value {
+    color: #f8fafc;
+    font-size: 0.95rem;
+    font-weight: 500;
+  }
+
+  .detail-divider {
+    border-color: rgba(255, 255, 255, 0.06);
+    margin: 1.5rem 0;
   }
 
   .badge-premium {
@@ -53,220 +236,658 @@ $configData = Helper::appClasses();
   .badge-premium-danger { background: rgba(239, 68, 68, 0.15); border-color: rgba(239, 68, 68, 0.3); color: #f87171; }
   .badge-premium-info { background: rgba(96, 165, 250, 0.15); border-color: rgba(96, 165, 250, 0.3); color: #93c5fd; }
 
-  .info-label {
-    font-size: 0.75rem;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    color: rgba(255, 255, 255, 0.4);
-    font-weight: 600;
+  .timeline-premium {
+    position: relative;
+    padding-left: 1.5rem;
+    border-left: 1px solid rgba(255, 255, 255, 0.08);
   }
-  .info-value {
-    font-size: 0.95rem;
-    color: #f8fafc;
-    font-weight: 500;
+  .timeline-item-premium {
+    position: relative;
+    padding-bottom: 1.5rem;
   }
-
-  .glow-orb {
+  .timeline-item-premium:last-child {
+    padding-bottom: 0;
+  }
+  .timeline-badge-premium {
     position: absolute;
+    left: -2.1rem;
+    top: 2px;
+    width: 20px;
+    height: 20px;
     border-radius: 50%;
-    filter: blur(120px);
-    opacity: 0.4;
-    mix-blend-mode: screen;
-    pointer-events: none;
-    z-index: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #0b0f19;
+    border: 2px solid rgba(255, 255, 255, 0.15);
+    z-index: 2;
   }
-  .orb-1 { width: 400px; height: 400px; background: radial-gradient(circle, #6366f1 0%, transparent 70%); top: -10%; left: -10%; }
-  .orb-2 { width: 400px; height: 400px; background: radial-gradient(circle, #ec4899 0%, transparent 70%); bottom: 5%; right: -10%; }
+  .timeline-badge-premium.completed {
+    border-color: #10b981;
+    background: #10b981;
+    color: #0b0f19;
+  }
+  .timeline-badge-premium.pending {
+    border-color: rgba(255, 255, 255, 0.2);
+    color: rgba(255, 255, 255, 0.4);
+  }
+  .timeline-badge-premium i {
+    font-size: 0.75rem;
+  }
 </style>
 @endsection
 
 @section('content')
   <div class="glow-orb orb-1"></div>
   <div class="glow-orb orb-2"></div>
+  <div class="glow-orb orb-3"></div>
 
   <div class="container-fluid px-4 px-lg-6 position-relative" style="z-index: 1;">
 
     {{-- Header --}}
     <div class="glass-card-premium px-4 px-xl-5 py-4 mb-4">
       <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
-        <div>
-          <a href="{{ route('admin.enrollments.index') }}" class="text-body-premium text-decoration-none mb-2 d-inline-block" style="font-size: 0.85rem;">
-            <i class="icon-base ti tabler-arrow-left me-1"></i> Kembali
-          </a>
-          <h4 class="fw-bold text-white mb-1">Detail Pendaftaran</h4>
-          <p class="text-body-premium mb-0" style="font-size: 0.95rem;">
-            {{ $enrollment->user->name }} — {{ $enrollment->pelatihan->nama }}
-          </p>
+        <div class="d-flex align-items-center gap-3">
+          <div class="stat-icon-box stat-icon-primary">
+            <i class="icon-base ti tabler-user fs-4"></i>
+          </div>
+          <div>
+            <h4 class="fw-bold text-white mb-0">Detail Pendaftaran</h4>
+            <p class="text-body-premium mb-0 mt-1" style="font-size: 0.95rem;">
+              Informasi lengkap pendaftaran {{ $enrollment->user->name }} — {{ $enrollment->pelatihan->nama }}
+            </p>
+          </div>
         </div>
-        <div>
+        <div class="d-flex align-items-center gap-3">
           @switch($enrollment->status)
             @case('pending') <span class="badge-premium badge-premium-warning">Pending</span> @break
             @case('approved') <span class="badge-premium badge-premium-success">Approved</span> @break
             @case('rejected') <span class="badge-premium badge-premium-danger">Ditolak</span> @break
             @case('waitlist') <span class="badge-premium badge-premium-info">Cadangan</span> @break
           @endswitch
+          <a href="{{ route('admin.enrollments.index') }}" class="btn btn-secondary-custom px-4 py-2 d-flex align-items-center gap-2">
+            <i class="icon-base ti tabler-arrow-left"></i> Kembali
+          </a>
         </div>
       </div>
     </div>
 
-    {{-- Data Peserta --}}
     <div class="row g-4">
-      <div class="col-md-6">
-        <div class="glass-card-premium p-4">
-          <h5 class="fw-bold text-white mb-4" style="font-family: 'Sora', sans-serif;">
-            <i class="icon-base ti tabler-user me-2"></i> Data Peserta
-          </h5>
-          <div class="row g-3">
-            <div class="col-6">
-              <div class="info-label">Nama Lengkap</div>
-              <div class="info-value">{{ $enrollment->user->name }}</div>
-            </div>
-            <div class="col-6">
-              <div class="info-label">Email</div>
-              <div class="info-value">{{ $enrollment->user->email }}</div>
-            </div>
-            <div class="col-6">
-              <div class="info-label">WhatsApp</div>
-              <div class="info-value">{{ $enrollment->user->whatsapp ?? '-' }}</div>
-            </div>
-            <div class="col-6">
-              <div class="info-label">NIK</div>
-              <div class="info-value">{{ $enrollment->user->nik ?? '-' }}</div>
-            </div>
-            <div class="col-6">
-              <div class="info-label">Role</div>
-              <div class="info-value" style="text-transform: capitalize;">{{ $enrollment->user->role }}</div>
-            </div>
-            <div class="col-6">
-              <div class="info-label">Bergabung</div>
-              <div class="info-value">{{ $enrollment->user->created_at->format('d/m/Y') }}</div>
+
+      {{-- KOLOM KIRI (Konten Utama) --}}
+      <div class="col-lg-8 col-md-7">
+        <div class="row g-4">
+
+          {{-- Data Pribadi --}}
+          <div class="col-12">
+            <div class="glass-card-premium px-4 py-4">
+              <h5 class="detail-section-title">
+                <i class="icon-base ti tabler-id"></i> Data Pribadi
+              </h5>
+              <hr class="detail-divider">
+              <div class="row g-3">
+                <div class="col-md-4">
+                  <div class="detail-label">Nama Lengkap</div>
+                  <div class="detail-value">{{ $enrollment->user->name }}</div>
+                </div>
+                <div class="col-md-4">
+                  <div class="detail-label">NIK</div>
+                  <div class="detail-value">{{ $enrollment->user->nik ?? '-' }}</div>
+                </div>
+                <div class="col-md-4">
+                  <div class="detail-label">WhatsApp</div>
+                  <div class="detail-value">{{ $enrollment->user->whatsapp ?? '-' }}</div>
+                </div>
+                <div class="col-md-4">
+                  <div class="detail-label">Email</div>
+                  <div class="detail-value">{{ $enrollment->user->email ?? '-' }}</div>
+                </div>
+                <div class="col-md-4">
+                  <div class="detail-label">Jenis Kelamin</div>
+                  <div class="detail-value">{{ $enrollment->user->pesertaProfile->jenis_kelamin ?? '-' }}</div>
+                </div>
+                <div class="col-md-4">
+                  <div class="detail-label">Tempat, Tanggal Lahir</div>
+                  <div class="detail-value">
+                    @if($enrollment->user->pesertaProfile && $enrollment->user->pesertaProfile->tempat_lahir)
+                      {{ $enrollment->user->pesertaProfile->tempat_lahir }},
+                    @endif
+                    @if($enrollment->user->pesertaProfile && $enrollment->user->pesertaProfile->tanggal_lahir)
+                      {{ $enrollment->user->pesertaProfile->tanggal_lahir }}
+                    @endif
+                    @if($enrollment->user->pesertaProfile && $enrollment->user->pesertaProfile->bulan_lahir)
+                      /{{ $enrollment->user->pesertaProfile->bulan_lahir }}
+                    @endif
+                    @if($enrollment->user->pesertaProfile && $enrollment->user->pesertaProfile->tahun_lahir)
+                      /{{ $enrollment->user->pesertaProfile->tahun_lahir }}
+                    @endif
+                    @if(!$enrollment->user->pesertaProfile || (!$enrollment->user->pesertaProfile->tempat_lahir && !$enrollment->user->pesertaProfile->tanggal_lahir))
+                      -
+                    @endif
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="detail-label">Link Medsos</div>
+                  <div class="detail-value">
+                    @php
+                      $medsos = $enrollment->user->pesertaProfile->link_medsos ?? null;
+                    @endphp
+                    @if($medsos && is_array($medsos))
+                      <div class="d-flex flex-wrap gap-2">
+                        @php $hasMedsos = false; @endphp
+                        @foreach($medsos as $item)
+                          @if(!empty($item['url']))
+                            @php $hasMedsos = true; @endphp
+                            <a href="{{ $item['url'] }}" target="_blank" class="badge bg-label-primary d-inline-flex align-items-center gap-1" style="text-decoration: none; font-size: 0.75rem; padding: 6px 12px;">
+                              @php
+                                $platform = strtolower($item['platform'] ?? 'link');
+                                $iconClass = 'tabler-link';
+                                if (str_contains($platform, 'instagram')) $iconClass = 'tabler-brand-instagram';
+                                elseif (str_contains($platform, 'facebook')) $iconClass = 'tabler-brand-facebook';
+                                elseif (str_contains($platform, 'twitter') || str_contains($platform, 'x.com')) $iconClass = 'tabler-brand-x';
+                                elseif (str_contains($platform, 'linkedin')) $iconClass = 'tabler-brand-linkedin';
+                                elseif (str_contains($platform, 'youtube')) $iconClass = 'tabler-brand-youtube';
+                                elseif (str_contains($platform, 'tiktok')) $iconClass = 'tabler-brand-tiktok';
+                              @endphp
+                              <i class="icon-base ti {{ $iconClass }} fs-6"></i>
+                              {{ $item['platform'] ?? 'Medsos' }}
+                            </a>
+                          @endif
+                        @endforeach
+                        @if(!$hasMedsos)
+                          -
+                        @endif
+                      </div>
+                    @elseif($medsos && is_string($medsos))
+                      {{ $medsos }}
+                    @else
+                      -
+                    @endif
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
+
+          {{-- Alamat --}}
+          <div class="col-12">
+            <div class="glass-card-premium px-4 py-4">
+              <h5 class="detail-section-title">
+                <i class="icon-base ti tabler-map-pin"></i> Alamat
+              </h5>
+              <hr class="detail-divider">
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <div class="detail-label">Alamat KTP</div>
+                  <div class="detail-value">{{ $enrollment->user->pesertaProfile->alamat_ktp ?? '-' }}</div>
+                </div>
+                <div class="col-md-2">
+                  <div class="detail-label">RT</div>
+                  <div class="detail-value">{{ $enrollment->user->pesertaProfile->rt ?? '-' }}</div>
+                </div>
+                <div class="col-md-2">
+                  <div class="detail-label">RW</div>
+                  <div class="detail-value">{{ $enrollment->user->pesertaProfile->rw ?? '-' }}</div>
+                </div>
+                <div class="col-md-2">
+                  <div class="detail-label">Kodepos</div>
+                  <div class="detail-value">{{ $enrollment->user->pesertaProfile->kodepos ?? '-' }}</div>
+                </div>
+                <div class="col-md-3">
+                  <div class="detail-label">Kelurahan</div>
+                  <div class="detail-value">{{ $enrollment->user->kelurahan->name ?? $enrollment->user->pesertaProfile->kelurahan ?? '-' }}</div>
+                </div>
+                <div class="col-md-3">
+                  <div class="detail-label">Kecamatan</div>
+                  <div class="detail-value">{{ $enrollment->user->kecamatan->name ?? $enrollment->user->pesertaProfile->kecamatan ?? '-' }}</div>
+                </div>
+                <div class="col-md-3">
+                  <div class="detail-label">Kota</div>
+                  <div class="detail-value">{{ $enrollment->user->pesertaProfile->kota ?? '-' }}</div>
+                </div>
+                <div class="col-md-3">
+                  <div class="detail-label">Provinsi</div>
+                  <div class="detail-value">{{ $enrollment->user->pesertaProfile->provinsi ?? '-' }}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {{-- Pendidikan & Pekerjaan --}}
+          <div class="col-12">
+            <div class="glass-card-premium px-4 py-4">
+              <h5 class="detail-section-title">
+                <i class="icon-base ti tabler-book"></i> Pendidikan & Pekerjaan
+              </h5>
+              <hr class="detail-divider">
+              <div class="row g-3">
+                <div class="col-md-3">
+                  <div class="detail-label">Pendidikan Terakhir</div>
+                  <div class="detail-value">{{ $enrollment->user->pesertaProfile->pendidikan_terakhir ?? '-' }}</div>
+                </div>
+                <div class="col-md-3">
+                  <div class="detail-label">Nama Institusi</div>
+                  <div class="detail-value">{{ $enrollment->user->pesertaProfile->nama_institusi ?? '-' }}</div>
+                </div>
+                <div class="col-md-3">
+                  <div class="detail-label">Jurusan</div>
+                  <div class="detail-value">{{ $enrollment->user->pesertaProfile->jurusan ?? '-' }}</div>
+                </div>
+                <div class="col-md-3">
+                  <div class="detail-label">Tahun Lulus</div>
+                  <div class="detail-value">{{ $enrollment->user->pesertaProfile->tahun_lulus ?? '-' }}</div>
+                </div>
+                <div class="col-md-4">
+                  <div class="detail-label">Status Pekerjaan</div>
+                  <div class="detail-value">{{ $enrollment->user->pesertaProfile->status_pekerjaan ?? '-' }}</div>
+                </div>
+                <div class="col-md-4">
+                  <div class="detail-label">Nama Perusahaan</div>
+                  <div class="detail-value">{{ $enrollment->user->pesertaProfile->nama_perusahaan ?? '-' }}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {{-- Data Pelatihan --}}
+          <div class="col-12">
+            <div class="glass-card-premium px-4 py-4">
+              <h5 class="detail-section-title">
+                <i class="icon-base ti tabler-school"></i> Data Pelatihan
+              </h5>
+              <hr class="detail-divider">
+              <div class="row g-3">
+                <div class="col-md-4">
+                  <div class="detail-label">Nama Pelatihan</div>
+                  <div class="detail-value">{{ $enrollment->pelatihan->nama }}</div>
+                </div>
+                <div class="col-md-4">
+                  <div class="detail-label">Batch</div>
+                  <div class="detail-value">{{ $enrollment->pelatihan->batch }}</div>
+                </div>
+                <div class="col-md-4">
+                  <div class="detail-label">Dinas Penyelenggara</div>
+                  <div class="detail-value">{{ $enrollment->pelatihan->dinas->nama_dinas ?? '-' }}</div>
+                </div>
+                <div class="col-12">
+                  <div class="detail-label">Deskripsi Pelatihan</div>
+                  <div class="detail-value">{{ strip_tags($enrollment->pelatihan->deskripsi ?? '-') }}</div>
+                </div>
+                <div class="col-md-4">
+                  <div class="detail-label">Tanggal Mulai</div>
+                  <div class="detail-value">{{ $enrollment->pelatihan->tanggal_mulai ? \Carbon\Carbon::parse($enrollment->pelatihan->tanggal_mulai)->format('d/m/Y') : '-' }}</div>
+                </div>
+                <div class="col-md-4">
+                  <div class="detail-label">Tanggal Selesai</div>
+                  <div class="detail-value">{{ $enrollment->pelatihan->tanggal_selesai ? \Carbon\Carbon::parse($enrollment->pelatihan->tanggal_selesai)->format('d/m/Y') : '-' }}</div>
+                </div>
+                <div class="col-md-4">
+                  <div class="detail-label">Kuota</div>
+                  <div class="detail-value">{{ $enrollment->pelatihan->kuota ?? '-' }} peserta</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {{-- Jawaban Pertanyaan (Tahap 5) --}}
+          <div class="col-12">
+            <div class="glass-card-premium px-4 py-4">
+              <h5 class="detail-section-title">
+                <i class="icon-base ti tabler-help-circle"></i> Jawaban Pertanyaan (Tahap 5)
+              </h5>
+              <hr class="detail-divider">
+              @php
+                $jawaban = $enrollment->user->pesertaProfile->jawaban_pertanyaan ?? [];
+                if (is_string($jawaban)) {
+                    $jawaban = json_decode($jawaban, true) ?? [];
+                }
+                $fieldLabels = [
+                  'pengetahuan_asep' => 'Apa yang Anda ketahui tentang Bapak H. Asep Mulyadi, S.H.?',
+                  'alasan_pelatihan' => 'Alasan mengikuti pelatihan',
+                  'pengalaman_bisnis' => 'Pengalaman bisnis dalam bidang pelatihan terkait',
+                  'rencana_setelah_pelatihan' => 'Minat/rencana kedepan setelah mengikuti pelatihan',
+                  'punya_usaha' => 'Apakah sudah memiliki usaha?',
+                  'jenis_usaha' => 'Jenis usaha yang sedang dijalankan',
+                  'usaha_dimiliki' => 'Usaha yang dimiliki',
+                  'usaha_dimiliki_other' => 'Usaha yang dimiliki (lainnya)',
+                  'nama_usaha' => 'Nama usaha yang sedang dijalankan',
+                  'nama_usaha_other' => 'Nama usaha (lainnya)',
+                  'kendala_usaha' => 'Kendala yang dialami dalam menjalankan usaha',
+                ];
+              @endphp
+              @if(!empty($jawaban))
+                <div class="row g-3">
+                  @foreach($jawaban as $key => $value)
+                    @php
+                      $label = $fieldLabels[$key] ?? ucwords(str_replace('_', ' ', $key));
+                    @endphp
+                    <div class="col-12">
+                      <div class="detail-label" style="text-transform: none; letter-spacing: normal; font-size: 0.85rem; color: rgba(255, 255, 255, 0.45);">{{ $label }}</div>
+                      <div class="detail-value fw-bold text-white mt-1" style="white-space: pre-wrap; font-size: 0.95rem;">{{ !empty($value) ? $value : '-' }}</div>
+                    </div>
+                  @endforeach
+                </div>
+              @else
+                <div class="text-white-50 text-center py-3" style="font-size: 0.95rem;">
+                  Belum ada jawaban pertanyaan untuk tahap ini
+                </div>
+              @endif
+            </div>
+          </div>
+
+          {{-- Informasi Lainnya --}}
+          <div class="col-12">
+            <div class="glass-card-premium px-4 py-4">
+              <h5 class="detail-section-title">
+                <i class="icon-base ti tabler-info-circle"></i> Informasi Lainnya
+              </h5>
+              <hr class="detail-divider">
+              <div class="row g-3">
+                <div class="col-md-3">
+                  <div class="detail-label">Tanggal Daftar</div>
+                  <div class="detail-value">{{ $enrollment->created_at->format('d/m/Y H:i') }}</div>
+                </div>
+                <div class="col-md-3">
+                  <div class="detail-label">Status</div>
+                  <div class="detail-value">
+                    @if($enrollment->user->is_active)
+                      <span class="badge-premium badge-premium-success">Aktif</span>
+                    @else
+                      <span class="badge-premium badge-premium-warning">Nonaktif</span>
+                    @endif
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
         </div>
       </div>
 
-      <div class="col-md-6">
-        <div class="glass-card-premium p-4">
-          <h5 class="fw-bold text-white mb-4" style="font-family: 'Sora', sans-serif;">
-            <i class="icon-base ti tabler-book-2 me-2"></i> Data Pelatihan
+      {{-- KOLOM KANAN (Sidebar) --}}
+      <div class="col-lg-4 col-md-5">
+
+        {{-- Status & Progress Pendaftaran --}}
+        <div class="glass-card-premium px-4 py-4">
+          <h5 class="detail-section-title">
+            <i class="icon-base ti tabler-chart-donut"></i> Status &amp; Progress Pendaftaran
           </h5>
-          <div class="row g-3">
-            <div class="col-6">
-              <div class="info-label">Nama Pelatihan</div>
-              <div class="info-value">{{ $enrollment->pelatihan->nama }}</div>
+          <hr class="detail-divider">
+
+          @php
+            $profile = $enrollment->user->pesertaProfile;
+            $step1Done = $profile && !empty($profile->nama_lengkap) && !empty($profile->nik);
+            $step2Done = $profile && !empty($profile->alamat_ktp) && !empty($enrollment->user->whatsapp);
+            $step3Done = $profile && !empty($profile->pendidikan_terakhir) && !empty($profile->nama_institusi);
+            $step4Done = $profile && !empty($profile->pelatihan_id);
+            $step5Done = $profile && !empty($profile->jawaban_pertanyaan);
+            $step6Done = $profile && ($profile->is_completed ?? false);
+          @endphp
+
+          <div class="mb-4">
+            <div class="detail-label mb-2">Status Final</div>
+            @if($step6Done)
+              <span class="badge-premium badge-premium-success d-inline-flex align-items-center gap-1">
+                <i class="icon-base ti tabler-circle-check fs-6"></i> Sudah Submit Final
+              </span>
+            @else
+              <span class="badge-premium badge-premium-warning d-inline-flex align-items-center gap-1">
+                <i class="icon-base ti tabler-alert-circle fs-6"></i> Draf / Belum Submit
+              </span>
+            @endif
+          </div>
+
+          <div class="timeline-premium">
+            <div class="timeline-item-premium">
+              <div class="timeline-badge-premium {{ $step1Done ? 'completed' : 'pending' }}">
+                <i class="icon-base ti tabler-{{ $step1Done ? 'check' : 'circle' }}"></i>
+              </div>
+              <div class="ps-2">
+                <h6 class="mb-1 text-white" style="font-size: 0.95rem;">Tahap 1: Data Pribadi</h6>
+                <p class="text-body-premium mb-0 small" style="font-size: 0.75rem;">
+                  {{ $step1Done ? 'Selesai diisi' : 'Belum selesai' }}
+                </p>
+              </div>
             </div>
-            <div class="col-6">
-              <div class="info-label">Batch</div>
-              <div class="info-value">{{ $enrollment->pelatihan->batch }}</div>
+            <div class="timeline-item-premium">
+              <div class="timeline-badge-premium {{ $step2Done ? 'completed' : 'pending' }}">
+                <i class="icon-base ti tabler-{{ $step2Done ? 'check' : 'circle' }}"></i>
+              </div>
+              <div class="ps-2">
+                <h6 class="mb-1 text-white" style="font-size: 0.95rem;">Tahap 2: Alamat &amp; Kontak</h6>
+                <p class="text-body-premium mb-0 small" style="font-size: 0.75rem;">
+                  {{ $step2Done ? 'Selesai diisi' : 'Belum selesai' }}
+                </p>
+              </div>
             </div>
-            <div class="col-6">
-              <div class="info-label">Tanggal Mulai</div>
-              <div class="info-value">{{ $enrollment->pelatihan->tanggal_mulai ? \Carbon\Carbon::parse($enrollment->pelatihan->tanggal_mulai)->format('d/m/Y') : '-' }}</div>
+            <div class="timeline-item-premium">
+              <div class="timeline-badge-premium {{ $step3Done ? 'completed' : 'pending' }}">
+                <i class="icon-base ti tabler-{{ $step3Done ? 'check' : 'circle' }}"></i>
+              </div>
+              <div class="ps-2">
+                <h6 class="mb-1 text-white" style="font-size: 0.95rem;">Tahap 3: Riwayat Pendidikan</h6>
+                <p class="text-body-premium mb-0 small" style="font-size: 0.75rem;">
+                  {{ $step3Done ? 'Selesai diisi' : 'Belum selesai' }}
+                </p>
+              </div>
             </div>
-            <div class="col-6">
-              <div class="info-label">Tanggal Selesai</div>
-              <div class="info-value">{{ $enrollment->pelatihan->tanggal_selesai ? \Carbon\Carbon::parse($enrollment->pelatihan->tanggal_selesai)->format('d/m/Y') : '-' }}</div>
+            <div class="timeline-item-premium">
+              <div class="timeline-badge-premium {{ $step4Done ? 'completed' : 'pending' }}">
+                <i class="icon-base ti tabler-{{ $step4Done ? 'check' : 'circle' }}"></i>
+              </div>
+              <div class="ps-2">
+                <h6 class="mb-1 text-white" style="font-size: 0.95rem;">Tahap 4: Pilihan Pelatihan</h6>
+                <p class="text-body-premium mb-0 small" style="font-size: 0.75rem;">
+                  {{ $step4Done ? 'Selesai diisi' : 'Belum selesai' }}
+                </p>
+              </div>
             </div>
-            <div class="col-6">
-              <div class="info-label">Kuota</div>
-              <div class="info-value">{{ $enrollment->pelatihan->kuota ?? '-' }} peserta</div>
+            <div class="timeline-item-premium">
+              <div class="timeline-badge-premium {{ $step5Done ? 'completed' : 'pending' }}">
+                <i class="icon-base ti tabler-{{ $step5Done ? 'check' : 'circle' }}"></i>
+              </div>
+              <div class="ps-2">
+                <h6 class="mb-1 text-white" style="font-size: 0.95rem;">Tahap 5: Dokumen &amp; Pertanyaan</h6>
+                <p class="text-body-premium mb-0 small" style="font-size: 0.75rem;">
+                  {{ $step5Done ? 'Selesai diisi' : 'Belum selesai' }}
+                </p>
+              </div>
             </div>
-            <div class="col-6">
-              <div class="info-label">Dinas</div>
-              <div class="info-value">{{ $enrollment->pelatihan->dinas->nama_dinas ?? '-' }}</div>
+            <div class="timeline-item-premium">
+              <div class="timeline-badge-premium {{ $step6Done ? 'completed' : 'pending' }}">
+                <i class="icon-base ti tabler-{{ $step6Done ? 'check' : 'circle' }}"></i>
+              </div>
+              <div class="ps-2">
+                <h6 class="mb-1 text-white" style="font-size: 0.95rem;">Tahap 6: Review &amp; Kirim</h6>
+                <p class="text-body-premium mb-0 small" style="font-size: 0.75rem;">
+                  {{ $step6Done ? 'Sudah Submit Final' : 'Belum disubmit' }}
+                </p>
+              </div>
             </div>
           </div>
         </div>
-      </div>
 
-      {{-- Status Timeline --}}
-      <div class="col-12">
-        <div class="glass-card-premium p-4">
-          <h5 class="fw-bold text-white mb-4" style="font-family: 'Sora', sans-serif;">
-            <i class="icon-base ti tabler-timeline me-2"></i> Timeline Pendaftaran
+        {{-- Timeline Pendaftaran --}}
+        <div class="glass-card-premium px-4 py-4 mt-4">
+          <h5 class="detail-section-title">
+            <i class="icon-base ti tabler-timeline"></i> Timeline Pendaftaran
           </h5>
-          <div class="row g-3">
-            <div class="col-md-3">
-              <div class="info-label">Tanggal Daftar</div>
-              <div class="info-value">{{ $enrollment->created_at->format('d/m/Y H:i') }}</div>
+          <hr class="detail-divider">
+          <div class="timeline-premium">
+            <div class="timeline-item-premium">
+              <div class="timeline-badge-premium completed">
+                <i class="icon-base ti tabler-check"></i>
+              </div>
+              <div class="ps-2">
+                <div class="detail-label mb-0">Tanggal Daftar</div>
+                <div class="detail-value">{{ $enrollment->created_at->format('d/m/Y H:i') }}</div>
+              </div>
             </div>
             @if($enrollment->approved_at)
-            <div class="col-md-3">
-              <div class="info-label">Tanggal Approve</div>
-              <div class="info-value" style="color: #34d399;">{{ $enrollment->approved_at->format('d/m/Y H:i') }}</div>
+            <div class="timeline-item-premium">
+              <div class="timeline-badge-premium completed" style="border-color: #10b981; background: #10b981;">
+                <i class="icon-base ti tabler-check"></i>
+              </div>
+              <div class="ps-2">
+                <div class="detail-label mb-0" style="color: #34d399;">Tanggal Approve</div>
+                <div class="detail-value" style="color: #34d399;">{{ $enrollment->approved_at->format('d/m/Y H:i') }}</div>
+              </div>
             </div>
             @endif
             @if($enrollment->rejected_at)
-            <div class="col-md-3">
-              <div class="info-label">Tanggal Ditolak</div>
-              <div class="info-value" style="color: #f87171;">{{ $enrollment->rejected_at->format('d/m/Y H:i') }}</div>
+            <div class="timeline-item-premium">
+              <div class="timeline-badge-premium completed" style="border-color: #ef4444; background: #ef4444;">
+                <i class="icon-base ti tabler-x"></i>
+              </div>
+              <div class="ps-2">
+                <div class="detail-label mb-0" style="color: #f87171;">Tanggal Ditolak</div>
+                <div class="detail-value" style="color: #f87171;">{{ $enrollment->rejected_at->format('d/m/Y H:i') }}</div>
+              </div>
             </div>
             @endif
             @if($enrollment->waitlist_promoted_at)
-            <div class="col-md-3">
-              <div class="info-label">Dipromosikan dari Cadangan</div>
-              <div class="info-value" style="color: #93c5fd;">{{ $enrollment->waitlist_promoted_at->format('d/m/Y H:i') }}</div>
+            <div class="timeline-item-premium">
+              <div class="timeline-badge-premium completed" style="border-color: #60a5fa; background: #60a5fa;">
+                <i class="icon-base ti tabler-arrow-up"></i>
+              </div>
+              <div class="ps-2">
+                <div class="detail-label mb-0" style="color: #93c5fd;">Dipromosikan dari Cadangan</div>
+                <div class="detail-value" style="color: #93c5fd;">{{ $enrollment->waitlist_promoted_at->format('d/m/Y H:i') }}</div>
+              </div>
             </div>
             @endif
             @if($enrollment->notes)
-            <div class="col-12 mt-3">
-              <div class="info-label">Catatan</div>
-              <div class="info-value" style="background: rgba(255,255,255,0.04); padding: 12px; border-radius: 5px; border: 1px solid rgba(255,255,255,0.06);">
-                {{ $enrollment->notes }}
+            <div class="timeline-item-premium">
+              <div class="ps-2 pt-2">
+                <div class="detail-label mb-1">Catatan</div>
+                <div class="detail-value" style="background: rgba(255,255,255,0.04); padding: 10px; border-radius: 5px; border: 1px solid rgba(255,255,255,0.06); font-size: 0.85rem;">
+                  {{ $enrollment->notes }}
+                </div>
               </div>
             </div>
             @endif
           </div>
         </div>
-      </div>
-    </div>
 
-    {{-- Actions --}}
-    @if($enrollment->status === 'pending')
-    <div class="glass-card-premium p-4 mt-4">
-      <h5 class="fw-bold text-white mb-3" style="font-family: 'Sora', sans-serif;">Aksi</h5>
-      <div class="d-flex gap-2 flex-wrap">
-        <form action="{{ route('admin.enrollments.approve', $enrollment) }}" method="POST" class="d-inline">
-          @csrf
-          <button type="submit" class="btn btn-success px-4 py-2" style="border-radius: 5px; font-weight: 600;">
-            <i class="icon-base ti tabler-check me-1"></i> Approve
-          </button>
-        </form>
-        <form action="{{ route('admin.enrollments.waitlist', $enrollment) }}" method="POST" class="d-inline">
-          @csrf
-          <button type="submit" class="btn btn-info px-4 py-2" style="border-radius: 5px; font-weight: 600;">
-            <i class="icon-base ti tabler-clock me-1"></i> Masukkan Cadangan
-          </button>
-        </form>
-        <button type="button" class="btn btn-danger px-4 py-2" style="border-radius: 5px; font-weight: 600;" data-bs-toggle="modal" data-bs-target="#rejectModal">
-          <i class="icon-base ti tabler-x me-1"></i> Tolak
-        </button>
-      </div>
-    </div>
+        {{-- Aksi --}}
+        <div class="glass-card-premium px-4 py-4 mt-4">
+          <h5 class="detail-section-title">
+            <i class="icon-base ti tabler-settings"></i> Aksi
+          </h5>
+          <hr class="detail-divider">
 
-    {{-- Modal Reject --}}
-    <div class="modal fade" id="rejectModal" tabindex="-1">
-      <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content" style="background: #0b0f19; border: 1px solid rgba(255,255,255,0.08); border-radius: 5px;">
-          <div class="modal-header border-0">
-            <h6 class="text-white fw-bold mb-0">Tolak Pendaftaran</h6>
-            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-          </div>
-          <form action="{{ route('admin.enrollments.reject', $enrollment) }}" method="POST">
-            @csrf
-            <div class="modal-body">
-              <p class="text-body-premium small mb-2">Alasan penolakan (opsional):</p>
-              <textarea name="notes" class="form-control" rows="3" placeholder="Contoh: Kuota penuh, tidak memenuhi syarat..." style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); color: #f8fafc; border-radius: 5px;"></textarea>
+          @if($enrollment->status === 'pending')
+            <div class="d-flex flex-column gap-2">
+              <form action="{{ route('admin.enrollments.approve', $enrollment) }}" method="POST">
+                @csrf
+                <button type="submit" class="btn btn-success w-100 d-inline-flex align-items-center justify-content-center gap-2" style="border-radius: 5px; font-weight: 600; padding: 10px;">
+                  <i class="icon-base ti tabler-check fs-6"></i> Approve
+                </button>
+              </form>
+              <form action="{{ route('admin.enrollments.waitlist', $enrollment) }}" method="POST">
+                @csrf
+                <button type="submit" class="btn btn-info w-100 d-inline-flex align-items-center justify-content-center gap-2" style="border-radius: 5px; font-weight: 600; padding: 10px;">
+                  <i class="icon-base ti tabler-clock fs-6"></i> Masukkan Cadangan
+                </button>
+              </form>
+              <button type="button" class="btn btn-danger w-100 d-inline-flex align-items-center justify-content-center gap-2" style="border-radius: 5px; font-weight: 600; padding: 10px;" data-bs-toggle="modal" data-bs-target="#rejectModal">
+                <i class="icon-base ti tabler-x fs-6"></i> Tolak
+              </button>
             </div>
-            <div class="modal-footer border-0">
-              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); color: rgba(255,255,255,0.7); border-radius: 5px;">Batal</button>
-              <button type="submit" class="btn btn-danger" style="border-radius: 5px;">Ya, Tolak</button>
+
+          @elseif($enrollment->status === 'waitlist')
+            <div class="d-flex flex-column gap-2">
+              <form action="{{ route('admin.enrollments.promote', $enrollment) }}" method="POST">
+                @csrf
+                <button type="submit" class="btn btn-success w-100 d-inline-flex align-items-center justify-content-center gap-2" style="border-radius: 5px; font-weight: 600; padding: 10px;">
+                  <i class="icon-base ti tabler-arrow-up fs-6"></i> Promosikan
+                </button>
+              </form>
+              <button type="button" class="btn btn-danger w-100 d-inline-flex align-items-center justify-content-center gap-2" style="border-radius: 5px; font-weight: 600; padding: 10px;" data-bs-toggle="modal" data-bs-target="#rejectModal">
+                <i class="icon-base ti tabler-x fs-6"></i> Tolak
+              </button>
             </div>
-          </form>
+
+          @elseif($enrollment->status === 'approved')
+            <div class="d-flex flex-column gap-2">
+              <form action="{{ route('admin.enrollments.reset', $enrollment) }}" method="POST" class="reset-enrollment-form" data-name="{{ $enrollment->user->name }}" data-pelatihan="{{ $enrollment->pelatihan->nama }}">
+                @csrf
+                <button type="submit" class="btn btn-warning w-100 d-inline-flex align-items-center justify-content-center gap-2" style="border-radius: 5px; font-weight: 600; padding: 10px; background: linear-gradient(135deg, #f59e0b, #d97706); border: none;">
+                  <i class="icon-base ti tabler-refresh fs-6"></i> Reset
+                </button>
+              </form>
+            </div>
+
+          @elseif($enrollment->status === 'rejected')
+            <div class="text-center py-2">
+              <span class="text-body-premium" style="font-size: 0.9rem;">Tidak ada aksi</span>
+            </div>
+          @endif
         </div>
+
+      </div>
+
+    </div>
+  </div>
+
+  {{-- Modal Reject --}}
+  <div class="modal fade" id="rejectModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content" style="background: #0b0f19; border: 1px solid rgba(255,255,255,0.08); border-radius: 5px;">
+        <div class="modal-header border-0">
+          <h6 class="text-white fw-bold mb-0">Tolak Pendaftaran</h6>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <form action="{{ route('admin.enrollments.reject', $enrollment) }}" method="POST">
+          @csrf
+          <div class="modal-body">
+            <p class="text-body-premium small mb-2">Alasan penolakan (opsional):</p>
+            <textarea name="notes" class="form-control" rows="3" placeholder="Contoh: Kuota penuh, tidak memenuhi syarat..." style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); color: #f8fafc; border-radius: 5px;"></textarea>
+          </div>
+          <div class="modal-footer border-0">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); color: rgba(255,255,255,0.7); border-radius: 5px;">Batal</button>
+            <button type="submit" class="btn btn-danger" style="border-radius: 5px;">Ya, Tolak</button>
+          </div>
+        </form>
       </div>
     </div>
-    @endif
-
   </div>
+@endsection
+
+@section('page-script')
+<script>
+  document.addEventListener('submit', function(e) {
+    const form = e.target.closest('.reset-enrollment-form');
+    if (!form) return;
+
+    e.preventDefault();
+    const userName = form.getAttribute('data-name');
+    const pelatihanNama = form.getAttribute('data-pelatihan');
+
+    Swal.fire({
+      title: 'Reset Pendaftaran?',
+      html: `<div style="margin-bottom: 0.25rem;">Pendaftaran <strong style="color: #fbbf24;">${userName}</strong> untuk pelatihan</div><div><strong style="color: #93c5fd;">${pelatihanNama}</strong> akan dihapus.</div><div class="mt-3 pt-2" style="border-top: 1px solid rgba(255,255,255,0.06); color: rgba(255,255,255,0.5); font-size: 0.8rem;">Peserta dapat mendaftar ulang untuk pelatihan yang benar.</div>`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Ya, Reset!',
+      cancelButtonText: 'Batal',
+      reverseButtons: true,
+      background: '#0f172a',
+      color: '#f8fafc',
+      customClass: {
+        popup: 'swal2-custom-popup shadow-lg',
+        title: 'swal2-custom-title',
+        htmlContainer: 'swal2-custom-text',
+        actions: 'swal2-custom-actions gap-3',
+        confirmButton: 'btn btn-warning px-4 py-2 border-0 fw-semibold',
+        cancelButton: 'btn btn-secondary-custom px-4 py-2 border-0',
+      },
+      buttonsStyling: false,
+    }).then((result) => {
+      if (result.isConfirmed) {
+        form.submit();
+      }
+    });
+  });
+</script>
 @endsection

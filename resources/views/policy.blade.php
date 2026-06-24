@@ -3,7 +3,7 @@ $configData = Helper::appClasses();
 $customizerHidden = 'customizer-hide';
 @endphp
 
-@extends('layouts/blankLayout')
+@extends('layouts/publicLayout')
 
 @section('title', 'Privacy Policy')
 

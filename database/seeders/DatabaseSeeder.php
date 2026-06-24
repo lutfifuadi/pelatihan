@@ -61,6 +61,9 @@ class DatabaseSeeder extends Seeder
         // Seed Form Configuration
         $this->call(FormConfigSeeder::class);
 
+        // Seed WhatsApp Numbers
+        $this->call(WhatsappNumberSeeder::class);
+
         // Note: Peserta akan mendaftar sendiri melalui halaman landing page
     }
 }

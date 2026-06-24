@@ -6,7 +6,9 @@ use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\View;
 use Illuminate\Pagination\Paginator;
+use App\Models\WhatsappNumber;
 use App\Services\SEOManager;
 
 class AppServiceProvider extends ServiceProvider
@@ -45,6 +47,8 @@ class AppServiceProvider extends ServiceProvider
             return true;
         });
 
-
+        View::composer(['layouts/publicLayout'], function ($view) {
+            $view->with('whatsappNumbers', WhatsappNumber::active()->sorted()->get());
+        });
     }
 }

@@ -277,10 +277,10 @@ $configData = Helper::appClasses();
 
     {{-- Filter --}}
     <div class="glass-card-premium px-4 py-3 mb-4">
-      <form method="GET" class="row g-3 align-items-end">
+      <div class="row g-3 align-items-end">
         <div class="col-md-6">
           <label class="text-body-premium small fw-semibold mb-1">Filter Pelatihan</label>
-          <select name="pelatihan_id" class="form-select" onchange="this.form.submit()">
+          <select id="filter-pelatihan" class="form-select">
             <option value="">Semua Pelatihan</option>
             @foreach($pelatihans as $p)
               <option value="{{ $p->id }}" {{ request('pelatihan_id') == $p->id ? 'selected' : '' }}>
@@ -291,7 +291,7 @@ $configData = Helper::appClasses();
         </div>
         <div class="col-md-3">
           <label class="text-body-premium small fw-semibold mb-1">Filter Status</label>
-          <select name="status" class="form-select" onchange="this.form.submit()">
+          <select id="filter-status" class="form-select">
             <option value="">Semua Status</option>
             <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Pending</option>
             <option value="approved" {{ request('status') == 'approved' ? 'selected' : '' }}>Approved</option>
@@ -300,11 +300,11 @@ $configData = Helper::appClasses();
           </select>
         </div>
         <div class="col-md-3">
-          <a href="{{ route('admin.enrollments.index') }}" class="btn btn-outline-secondary btn-action w-100" style="color: rgba(255,255,255,0.6); border-color: rgba(255,255,255,0.1);">
+          <button type="button" id="filter-reset-btn" class="btn btn-outline-secondary btn-action w-100" style="color: rgba(255,255,255,0.6); border-color: rgba(255,255,255,0.1);">
             <i class="icon-base ti tabler-refresh me-1"></i> Reset
-          </a>
+          </button>
         </div>
-      </form>
+      </div>
     </div>
 
     {{-- Approve All Button --}}
@@ -440,6 +440,51 @@ $configData = Helper::appClasses();
     const loadingSpinner = document.getElementById('loading-spinner');
     const tableContent = document.getElementById('table-content');
     const paginationContainer = document.getElementById('table-pagination');
+    const filterPelatihan = document.getElementById('filter-pelatihan');
+    const filterStatus = document.getElementById('filter-status');
+    const filterResetBtn = document.getElementById('filter-reset-btn');
+
+    /**
+     * Baca filter pelatihan_id & status dari dropdown.
+     * Hanya mengembalikan yang punya nilai (tidak empty).
+     */
+    function getDropdownFilters() {
+      const filters = {};
+      if (filterPelatihan.value) filters.pelatihan_id = filterPelatihan.value;
+      if (filterStatus.value) filters.status = filterStatus.value;
+      return filters;
+    }
+
+    /**
+     * Sinkronkan nilai dropdown dengan URL saat ini (misal akses langsung via URL).
+     */
+    function syncDropdownsFromUrl() {
+      const urlObj = new URL(window.location);
+      const pelatihanId = urlObj.searchParams.get('pelatihan_id');
+      const status = urlObj.searchParams.get('status');
+      if (pelatihanId) filterPelatihan.value = pelatihanId;
+      if (status) filterStatus.value = status;
+    }
+
+    /**
+     * Terapkan filter dari dropdown + search, lalu fetch data via AJAX.
+     */
+    function applyFilters() {
+      const url = new URL(window.location);
+      const dropdownFilters = getDropdownFilters();
+
+      // Update URL params dari dropdown
+      if (dropdownFilters.pelatihan_id) url.searchParams.set('pelatihan_id', dropdownFilters.pelatihan_id);
+      else url.searchParams.delete('pelatihan_id');
+      if (dropdownFilters.status) url.searchParams.set('status', dropdownFilters.status);
+      else url.searchParams.delete('status');
+
+      // Reset ke halaman 1 saat filter berubah
+      url.searchParams.delete('page');
+      window.history.replaceState({}, '', url);
+
+      fetchData();
+    }
 
     async function fetchData(targetPage = null) {
       // Abort previous request if still in-flight
@@ -449,7 +494,8 @@ $configData = Helper::appClasses();
       loading = true;
       loadingSpinner.classList.remove('d-none');
 
-      const params = new URLSearchParams({ search: search || '' });
+      const dropdownFilters = getDropdownFilters();
+      const params = new URLSearchParams({ ...dropdownFilters, search: search || '' });
       if (targetPage) params.set('page', targetPage);
 
       try {
@@ -467,12 +513,11 @@ $configData = Helper::appClasses();
           paginationContainer.innerHTML = '';
         }
 
-        // Sync URL
+        // Sync URL — hanya update search & page, filter params sudah dihandle oleh applyFilters
         const url = new URL(window.location);
         if (search) url.searchParams.set('search', search);
         else url.searchParams.delete('search');
         if (targetPage) url.searchParams.set('page', targetPage);
-        else url.searchParams.delete('page');
         window.history.replaceState({}, '', url);
 
         // Reset button visibility
@@ -501,6 +546,21 @@ $configData = Helper::appClasses();
       }
     }
 
+    // --- Event Listeners ---
+
+    // Filter dropdown changes
+    filterPelatihan.addEventListener('change', applyFilters);
+    filterStatus.addEventListener('change', applyFilters);
+
+    // Filter reset button — reset semua filter & search
+    filterResetBtn.addEventListener('click', function() {
+      filterPelatihan.value = '';
+      filterStatus.value = '';
+      search = '';
+      searchInput.value = '';
+      window.location.href = '{{ route('admin.enrollments.index') }}';
+    });
+
     // Auto-search on input
     searchInput.addEventListener('input', function() {
       search = this.value;
@@ -525,13 +585,16 @@ $configData = Helper::appClasses();
       fetchData();
     });
 
-    // Reset button
+    // Search reset button (X) — hanya reset search, filter tetap
     resetBtn.addEventListener('click', function(e) {
       e.preventDefault();
       search = '';
       searchInput.value = '';
       fetchData();
     });
+
+    // Sinkronkan dropdown dari URL saat inisialisasi
+    syncDropdownsFromUrl();
   })();
 
   // Reset Enrollment Forms — menggunakan event delegation agar tetap jalan setelah AJAX load

@@ -45,7 +45,7 @@ class EnrollmentController extends Controller
             $query->where('status', $request->status);
         }
 
-        $enrollments = $query->orderBy('created_at', 'desc')->paginate(20);
+        $enrollments = $query->orderBy('created_at', 'desc')->paginate(20)->withQueryString();
         $pelatihans = Cache::remember('pelatihan.active.list', 3600, function () {
             return Pelatihan::where('is_active', true)->orderBy('nama')->get(['id', 'nama', 'batch']);
         });
@@ -312,7 +312,7 @@ class EnrollmentController extends Controller
      */
     public function show(Enrollment $enrollment)
     {
-        $enrollment->load(['user.pesertaProfile', 'pelatihan']);
+        $enrollment->load(['user.pesertaProfile', 'user.kecamatan', 'user.kelurahan', 'pelatihan.dinas']);
         return view('content.admin.enrollments.show', compact('enrollment'));
     }
 

@@ -25,7 +25,7 @@ $customizerHidden = 'customizer-hide';
     $pelatihan_empty_desc = landingVal($landingSettings, 'pelatihan_empty_desc', 'Silakan kembali beberapa saat lagi untuk melihat program pelatihan terbaru kami.');
 @endphp
 
-@extends('layouts/blankLayout')
+@extends('layouts/publicLayout')
 
 @section('title', __('Semua Pelatihan') . ' — ' . $institutionName)
 

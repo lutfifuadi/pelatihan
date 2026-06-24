@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Setting;
+use App\Models\WhatsappNumber;
 use Illuminate\Http\Request;
 
 class SettingController extends Controller
@@ -18,7 +19,8 @@ class SettingController extends Controller
             ->get()
             ->keyBy('key');
 
-        return view('content.admin.branding.index', compact('settings'));
+        $whatsappNumbers = WhatsappNumber::sorted()->get();
+        return view('content.admin.branding.index', compact('settings', 'whatsappNumbers'));
     }
 
     public function updateBranding(Request $request)

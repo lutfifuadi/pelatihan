@@ -73,6 +73,9 @@
   <!-- $isFront is used to append the front layout styles only on the front layout otherwise the variable will be blank -->
   @include('layouts/sections/styles' . $isFront)
 
+  <!-- Component-pushed styles (e.g. floating WhatsApp) -->
+  @stack('styles')
+
   @if (
       $primaryColorCSS &&
           (config('custom.custom.primaryColor') ||
@@ -121,6 +124,7 @@
     }
   </script>
   {{-- ===== End PWA SW Registration ===== --}}
+
 </body>
 
 </html>

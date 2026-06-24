@@ -66,7 +66,7 @@ $customizerHidden = 'customizer-hide';
     $cta_login_text = landingVal($landingSettings, 'cta_login_text', 'Sudah Punya Akun? Login');
 @endphp
 
-@extends('layouts/blankLayout')
+@extends('layouts/publicLayout')
 
 @section('title', __('Pendaftaran Pelatihan Ekonomi Kreatif') . ' 2026')
 

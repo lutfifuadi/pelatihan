@@ -34,6 +34,7 @@ use App\Http\Controllers\Admin\PesertaController;
 use App\Http\Controllers\Admin\WhatsAppGatewayController;
 use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\FaqController;
+use App\Http\Controllers\Admin\WhatsAppSupportController;
 use App\Http\Controllers\Admin\NotificationAdminController;
 use App\Http\Controllers\Admin\EnrollmentController;
 use App\Http\Controllers\Admin\AttendanceController;
@@ -324,6 +325,14 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
         Route::post('form-config/{formFieldConfig}/toggle-active', [FormFieldConfigController::class, 'toggleActive'])->name('form-config.toggle-active');
         Route::post('form-config/{formFieldConfig}/toggle-required', [FormFieldConfigController::class, 'toggleRequired'])->name('form-config.toggle-required');
         Route::post('form-config/reorder', [FormFieldConfigController::class, 'reorder'])->name('form-config.reorder');
+
+        // ===== WHATSAPP SUPPORT NUMBERS =====
+        Route::get('whatsapp-numbers', [WhatsAppSupportController::class, 'index'])->name('whatsapp-numbers.index');
+        Route::post('whatsapp-numbers', [WhatsAppSupportController::class, 'store'])->name('whatsapp-numbers.store');
+        Route::put('whatsapp-numbers/{id}', [WhatsAppSupportController::class, 'update'])->name('whatsapp-numbers.update');
+        Route::delete('whatsapp-numbers/{id}', [WhatsAppSupportController::class, 'destroy'])->name('whatsapp-numbers.destroy');
+        Route::post('whatsapp-numbers/reorder', [WhatsAppSupportController::class, 'reorder'])->name('whatsapp-numbers.reorder');
+        Route::post('whatsapp-numbers/{id}/toggle-active', [WhatsAppSupportController::class, 'toggleActive'])->name('whatsapp-numbers.toggle-active');
     });
 });
 

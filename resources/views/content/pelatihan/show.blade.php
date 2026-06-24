@@ -2,7 +2,7 @@
 $configData = Helper::appClasses();
 @endphp
 
-@extends('layouts.commonMaster')
+@extends('layouts/publicLayout')
 
 @section('content')
 <div class="container py-5">

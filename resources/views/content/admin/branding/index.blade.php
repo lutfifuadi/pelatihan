@@ -527,6 +527,117 @@ $configData = Helper::appClasses();
             </div>
           </div>
 
+          <hr class="my-5" style="border-color: rgba(255,255,255,0.08);">
+
+          {{-- ===== WHATSAPP SUPPORT SECTION ===== --}}
+          <div x-data="waManager()" x-init="init()" class="mb-4">
+            <h5 class="fw-bold text-white mb-4" style="font-family: 'Sora', sans-serif;">
+              <i class="icon-base ti tabler-brand-whatsapp me-2"></i>WhatsApp Support
+            </h5>
+            <p class="text-body-premium mb-4" style="font-size: 0.85rem;">
+              Kelola nomor WhatsApp yang muncul di floating icon halaman publik.
+            </p>
+
+            <button type="button" class="btn btn-glow-premium btn-sm mb-3" @click="openModal()">
+              + Tambah Nomor
+            </button>
+
+            <div x-show="numbers.length > 0">
+              <table class="table table-sm table-dark" style="--bs-table-bg: transparent;">
+                <thead>
+                  <tr>
+                    <th style="width:40px">#</th>
+                    <th>Label</th>
+                    <th>Nomor</th>
+                    <th>Status</th>
+                    <th style="width:140px">Aksi</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <template x-for="(item, index) in numbers" :key="item.id">
+                    <tr>
+                      <td class="text-muted" x-text="index + 1"></td>
+                      <td x-text="item.label"></td>
+                      <td>
+                        <span x-text="item.number.substring(0, 4) + '*****' + item.number.slice(-2)"></span>
+                        <small class="text-body-premium d-block" style="font-size:0.75rem;">
+                          <a :href="'https://wa.me/' + item.number" target="_blank" class="text-info small">
+                            wa.me/<span x-text="item.number"></span>
+                          </a>
+                        </small>
+                      </td>
+                      <td>
+                        <button class="btn btn-sm" :class="item.is_active ? 'btn-success' : 'btn-secondary'"
+                                @click="toggleActive(item.id, index)">
+                          <span x-text="item.is_active ? 'Aktif' : 'Nonaktif'"></span>
+                        </button>
+                      </td>
+                      <td>
+                        <div class="d-flex gap-1">
+                          <button class="btn btn-sm btn-icon btn-outline-secondary"
+                                  @click="moveUp(index)" :disabled="index === 0"
+                                  title="Naik">↑</button>
+                          <button class="btn btn-sm btn-icon btn-outline-secondary"
+                                  @click="moveDown(index)" :disabled="index === numbers.length - 1"
+                                  title="Turun">↓</button>
+                          <button class="btn btn-sm btn-icon btn-outline-primary"
+                                  @click="openModal(item)" title="Edit">✏️</button>
+                          <button class="btn btn-sm btn-icon btn-outline-danger"
+                                  @click="deleteNumber(item.id, index)" title="Hapus">🗑️</button>
+                        </div>
+                      </td>
+                    </tr>
+                  </template>
+                </tbody>
+              </table>
+            </div>
+
+            <div x-show="numbers.length === 0" class="text-center py-4 text-body-premium">
+              <p>Belum ada nomor WhatsApp. Klik "Tambah Nomor" untuk menambahkan.</p>
+            </div>
+
+            <input type="hidden" name="wa_order" x-model="orderData">
+
+            {{-- Modal --}}
+            <div class="wa-modal" :class="{ 'show': showModal }" x-show="showModal" x-cloak
+                 x-transition @keydown.escape.window="closeModal()">
+              <div class="modal-dialog" @click.outside="closeModal()">
+                <div class="modal-content" style="background: #1a1f2e; color: #f8fafc;">
+                  <div class="modal-header" style="border-bottom-color: rgba(255,255,255,0.08);">
+                    <h5 class="modal-title" x-text="editing ? 'Edit Nomor WhatsApp' : 'Tambah Nomor WhatsApp'"></h5>
+                    <button type="button" class="btn-close btn-close-white" @click="closeModal()"></button>
+                  </div>
+                  <div class="modal-body">
+                    <div class="mb-3">
+                      <label class="form-label">Label <span class="text-danger">*</span></label>
+                      <input type="text" class="form-control" x-model="form.label"
+                             maxlength="100" placeholder="Contoh: Pendaftaran">
+                    </div>
+                    <div class="mb-3">
+                      <label class="form-label">Nomor WhatsApp <span class="text-danger">*</span></label>
+                      <input type="text" class="form-control" x-model="form.number"
+                             maxlength="15" placeholder="6281234567890"
+                             @input="form.number = form.number.replace(/[^0-9]/g, '')">
+                      <small class="text-body-premium" style="font-size:0.75rem;">Format: kode negara + nomor, tanpa + atau spasi. Contoh: 6281234567890</small>
+                      <div class="mt-1" x-show="form.number.length >= 10">
+                        <span class="badge bg-info">
+                          Pratinjau: wa.me/<span x-text="form.number"></span>
+                        </span>
+                      </div>
+                    </div>
+                    <div x-show="error" class="alert alert-danger py-2 small" x-text="error" style="background: rgba(248,113,113,0.15); border-color: #f87171; color: #fca5a5;"></div>
+                  </div>
+                  <div class="modal-footer" style="border-top-color: rgba(255,255,255,0.08);">
+                    <button type="button" class="btn btn-secondary-custom" @click="closeModal()">Batal</button>
+                    <button type="button" class="btn btn-glow-premium" @click="saveNumber()"
+                            x-text="editing ? 'Update' : 'Simpan'" :disabled="saving">
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <div class="d-flex justify-content-between align-items-center gap-3 mt-5">
             <a href="{{ route('admin.dashboard') }}" class="btn btn-secondary-custom px-4 py-2 d-flex align-items-center gap-2">
               <i class="icon-base ti tabler-arrow-left"></i> Batal
@@ -540,4 +651,207 @@ $configData = Helper::appClasses();
     </div>
 
   </div>
+@endsection
+
+@section('page-script')
+<style>
+  .btn-icon {
+    padding: 0.25rem 0.5rem;
+    line-height: 1;
+  }
+  [x-cloak] { display: none !important; }
+  .wa-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1055;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.5);
+  }
+  .wa-modal.show {
+    display: flex;
+  }
+</style>
+<script>
+  function waManager() {
+    return {
+      numbers: @json($whatsappNumbers ?? []),
+      showModal: false,
+      editing: false,
+      saving: false,
+      error: '',
+      form: { label: '', number: '' },
+      editId: null,
+      orderData: '',
+
+      init() {
+        this.updateOrderData();
+      },
+
+      openModal(item = null) {
+        this.error = '';
+        if (item) {
+          this.editing = true;
+          this.editId = item.id;
+          this.form = { label: item.label, number: item.number };
+        } else {
+          this.editing = false;
+          this.editId = null;
+          this.form = { label: '', number: '' };
+        }
+        this.showModal = true;
+      },
+
+      closeModal() {
+        this.showModal = false;
+        this.error = '';
+        this.form = { label: '', number: '' };
+        this.editId = null;
+        this.editing = false;
+      },
+
+      async saveNumber() {
+        this.error = '';
+        if (!this.form.label.trim()) {
+          this.error = 'Label wajib diisi';
+          return;
+        }
+        if (!this.form.number.trim()) {
+          this.error = 'Nomor WhatsApp wajib diisi';
+          return;
+        }
+        if (!/^[0-9]+$/.test(this.form.number)) {
+          this.error = 'Nomor hanya boleh berisi angka';
+          return;
+        }
+        if (this.form.number.length < 10 || this.form.number.length > 15) {
+          this.error = 'Nomor minimal 10 digit dan maksimal 15 digit';
+          return;
+        }
+        this.saving = true;
+        try {
+          let url = '/admin/whatsapp-numbers';
+          let method = 'POST';
+          if (this.editing) {
+            url = `/admin/whatsapp-numbers/${this.editId}`;
+            method = 'PUT';
+          }
+          const response = await fetch(url, {
+            method: method,
+            headers: {
+              'Content-Type': 'application/json',
+              'X-CSRF-TOKEN': '{{ csrf_token() }}',
+              'Accept': 'application/json',
+            },
+            body: JSON.stringify(this.form),
+          });
+          const data = await response.json();
+          if (!response.ok) {
+            if (data.errors) {
+              this.error = Object.values(data.errors).flat().join('\n');
+            } else {
+              this.error = data.message || 'Terjadi kesalahan';
+            }
+            return;
+          }
+          await this.refreshNumbers();
+          this.closeModal();
+        } catch (e) {
+          this.error = 'Terjadi kesalahan jaringan';
+        } finally {
+          this.saving = false;
+        }
+      },
+
+      async deleteNumber(id, index) {
+        if (!confirm('Hapus nomor ini?')) return;
+        try {
+          const response = await fetch(`/admin/whatsapp-numbers/${id}`, {
+            method: 'DELETE',
+            headers: {
+              'X-CSRF-TOKEN': '{{ csrf_token() }}',
+              'Accept': 'application/json',
+            },
+          });
+          if (response.ok) {
+            this.numbers.splice(index, 1);
+            this.updateOrderData();
+          }
+        } catch (e) {
+          alert('Gagal menghapus');
+        }
+      },
+
+      async toggleActive(id, index) {
+        try {
+          const response = await fetch(`/admin/whatsapp-numbers/${id}/toggle-active`, {
+            method: 'POST',
+            headers: {
+              'X-CSRF-TOKEN': '{{ csrf_token() }}',
+              'Accept': 'application/json',
+            },
+          });
+          if (response.ok) {
+            const data = await response.json();
+            this.numbers[index].is_active = data.is_active;
+          }
+        } catch (e) {
+          alert('Gagal mengubah status');
+        }
+      },
+
+      moveUp(index) {
+        if (index === 0) return;
+        [this.numbers[index], this.numbers[index - 1]] = [this.numbers[index - 1], this.numbers[index]];
+        this.updateOrderData();
+        this.saveOrder();
+      },
+
+      moveDown(index) {
+        if (index === this.numbers.length - 1) return;
+        [this.numbers[index], this.numbers[index + 1]] = [this.numbers[index + 1], this.numbers[index]];
+        this.updateOrderData();
+        this.saveOrder();
+      },
+
+      updateOrderData() {
+        this.orderData = JSON.stringify(this.numbers.map(n => n.id));
+      },
+
+      async saveOrder() {
+        try {
+          await fetch('/admin/whatsapp-numbers/reorder', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-CSRF-TOKEN': '{{ csrf_token() }}',
+              'Accept': 'application/json',
+            },
+            body: JSON.stringify({ ids: this.numbers.map(n => n.id) }),
+          });
+        } catch (e) {
+          console.error('Gagal menyimpan urutan');
+        }
+      },
+
+      async refreshNumbers() {
+        try {
+          const response = await fetch('/admin/whatsapp-numbers', {
+            headers: { 'Accept': 'application/json' }
+          });
+          if (response.ok) {
+            this.numbers = await response.json();
+            this.updateOrderData();
+          }
+        } catch (e) {
+          console.error('Gagal refresh data');
+        }
+      }
+    }
+  }
+</script>
 @endsection
