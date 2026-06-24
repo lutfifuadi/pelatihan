@@ -331,7 +331,24 @@ class EnrollmentController extends Controller
             ? Enrollment::with('user:id,name')->find($nextEnrollmentId)
             : null;
 
-        return view('content.admin.enrollments.show', compact('enrollment', 'previousEnrollment', 'nextEnrollment'));
+        $usia = '-';
+        $profile = $enrollment->user->pesertaProfile;
+        if ($profile && $profile->tanggal_lahir && $profile->bulan_lahir && $profile->tahun_lahir) {
+            try {
+                $bulanMap = [
+                    'Januari' => 1, 'Februari' => 2, 'Maret' => 3, 'April' => 4,
+                    'Mei' => 5, 'Juni' => 6, 'Juli' => 7, 'Agustus' => 8,
+                    'September' => 9, 'Oktober' => 10, 'November' => 11, 'Desember' => 12,
+                ];
+                $bulan = $bulanMap[$profile->bulan_lahir] ?? (int) $profile->bulan_lahir;
+                $tanggalLahir = \Carbon\Carbon::createFromDate((int) $profile->tahun_lahir, $bulan, (int) $profile->tanggal_lahir);
+                $usia = $tanggalLahir->diffInYears(\Carbon\Carbon::now()) . ' Tahun';
+            } catch (\Exception $e) {
+                $usia = '-';
+            }
+        }
+
+        return view('content.admin.enrollments.show', compact('enrollment', 'previousEnrollment', 'nextEnrollment', 'usia'));
     }
 
     /**

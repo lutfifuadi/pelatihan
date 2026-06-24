@@ -338,11 +338,17 @@ $configData = Helper::appClasses();
         <div>
           @switch($enrollment->status)
             @case('pending') <span class="badge-premium badge-premium-warning">Pending</span> @break
-            @case('approved') <span class="badge-premium badge-premium-success">Approved</span> @break
+            @case('approved') <span class="badge-premium badge-premium-success">Approved (Tahap 1)</span> @break
             @case('rejected') <span class="badge-premium badge-premium-danger">Ditolak</span> @break
             @case('waitlist') <span class="badge-premium badge-premium-info">Cadangan</span> @break
           @endswitch
         </div>
+        @if($enrollment->status === 'approved')
+          <div class="mt-2" style="font-size: 0.8rem; color: #fbbf24; background: rgba(251, 191, 36, 0.1); padding: 8px 12px; border-radius: 5px; border: 1px solid rgba(251, 191, 36, 0.2);">
+            <i class="icon-base ti tabler-info-circle me-1"></i>
+            Peserta telah di-approve tahap 1. Silakan input data peserta ke <strong>NewBimma Disnaker Kota Bandung</strong> untuk approve final.
+          </div>
+        @endif
       </div>
     </div>
 
@@ -444,6 +450,10 @@ $configData = Helper::appClasses();
                       -
                     @endif
                   </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="detail-label">Usia</div>
+                  <div class="detail-value">{{ $usia ?? '-' }}</div>
                 </div>
                 <div class="col-md-4">
                   <div class="detail-label">Link Medsos</div>
@@ -568,45 +578,7 @@ $configData = Helper::appClasses();
             </div>
           </div>
 
-          {{-- Data Pelatihan --}}
-          <div class="col-12">
-            <div class="glass-card-premium px-4 py-4">
-              <h5 class="detail-section-title">
-                <i class="icon-base ti tabler-school"></i> Data Pelatihan
-              </h5>
-              <hr class="detail-divider">
-              <div class="row g-3">
-                <div class="col-md-4">
-                  <div class="detail-label">Nama Pelatihan</div>
-                  <div class="detail-value">{{ $enrollment->pelatihan->nama }}</div>
-                </div>
-                <div class="col-md-4">
-                  <div class="detail-label">Batch</div>
-                  <div class="detail-value">{{ $enrollment->pelatihan->batch }}</div>
-                </div>
-                <div class="col-md-4">
-                  <div class="detail-label">Dinas Penyelenggara</div>
-                  <div class="detail-value">{{ $enrollment->pelatihan->dinas->nama_dinas ?? '-' }}</div>
-                </div>
-                <div class="col-12">
-                  <div class="detail-label">Deskripsi Pelatihan</div>
-                  <div class="detail-value">{{ strip_tags($enrollment->pelatihan->deskripsi ?? '-') }}</div>
-                </div>
-                <div class="col-md-4">
-                  <div class="detail-label">Tanggal Mulai</div>
-                  <div class="detail-value">{{ $enrollment->pelatihan->tanggal_mulai ? \Carbon\Carbon::parse($enrollment->pelatihan->tanggal_mulai)->format('d/m/Y') : '-' }}</div>
-                </div>
-                <div class="col-md-4">
-                  <div class="detail-label">Tanggal Selesai</div>
-                  <div class="detail-value">{{ $enrollment->pelatihan->tanggal_selesai ? \Carbon\Carbon::parse($enrollment->pelatihan->tanggal_selesai)->format('d/m/Y') : '-' }}</div>
-                </div>
-                <div class="col-md-4">
-                  <div class="detail-label">Kuota</div>
-                  <div class="detail-value">{{ $enrollment->pelatihan->kuota ?? '-' }} peserta</div>
-                </div>
-              </div>
-            </div>
-          </div>
+
 
           {{-- Jawaban Pertanyaan (Tahap 5) --}}
           <div class="col-12">
@@ -808,7 +780,7 @@ $configData = Helper::appClasses();
                 <i class="icon-base ti tabler-check"></i>
               </div>
               <div class="ps-2">
-                <div class="detail-label mb-0" style="color: #34d399;">Tanggal Approve</div>
+                <div class="detail-label mb-0" style="color: #34d399;">Tanggal Approve (Tahap 1)</div>
                 <div class="detail-value" style="color: #34d399;">{{ $enrollment->approved_at->format('d/m/Y H:i') }}</div>
               </div>
             </div>

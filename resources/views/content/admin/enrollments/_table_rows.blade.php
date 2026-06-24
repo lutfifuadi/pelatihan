@@ -18,7 +18,7 @@
           <span class="badge-premium badge-premium-warning">Pending</span>
           @break
         @case('approved')
-          <span class="badge-premium badge-premium-success">Approved</span>
+          <span class="badge-premium badge-premium-success">Approved (Tahap 1)</span>
           @if($enrollment->waitlist_promoted_at)
             <div style="font-size: 0.65rem; color: #93c5fd; margin-top: 2px;">Dari cadangan</div>
           @endif
