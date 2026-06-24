@@ -65,6 +65,11 @@ class PesertaProfile extends Model
         return $this->belongsTo(Kelurahan::class, 'kelurahan_id');
     }
 
+    public function kelurahan(): BelongsTo
+    {
+        return $this->dataKelurahan();
+    }
+
     public function pelatihan()
     {
         return $this->belongsTo(Pelatihan::class);

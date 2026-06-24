@@ -34,7 +34,9 @@
             background-image:
                 radial-gradient(at 20% 30%, rgba(99, 102, 241, 0.12) 0px, transparent 55%),
                 radial-gradient(at 80% 70%, rgba(236, 72, 153, 0.10) 0px, transparent 55%),
-                radial-gradient(at 50% 50%, rgba(6, 182, 212, 0.06) 0px, transparent 50%);
+                radial-gradient(at 50% 50%, rgba(6, 182, 212, 0.06) 0px, transparent 50%),
+                repeating-linear-gradient(0deg, transparent, transparent 59px, rgba(255,255,255,0.015) 59px, rgba(255,255,255,0.015) 60px),
+                repeating-linear-gradient(90deg, transparent, transparent 59px, rgba(255,255,255,0.015) 59px, rgba(255,255,255,0.015) 60px);
         }
 
         .glow-orb {
@@ -69,13 +71,15 @@
             text-align: center;
             max-width: 520px;
             width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
             padding: 48px 40px;
             background: rgba(15, 23, 42, 0.35);
             backdrop-filter: blur(24px);
             -webkit-backdrop-filter: blur(24px);
             border: 1px solid rgba(255, 255, 255, 0.06);
-            border-radius: 20px;
-            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5);
+            border-radius: 5px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
             animation: cardEntrance 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
 
@@ -88,7 +92,7 @@
             width: 80px;
             height: 80px;
             margin: 0 auto 28px;
-            border-radius: 50%;
+            border-radius: 5px;
             background: rgba(99, 102, 241, 0.12);
             border: 1px solid rgba(99, 102, 241, 0.2);
             display: flex;
@@ -130,7 +134,7 @@
             padding: 10px 20px;
             background: rgba(255, 193, 7, 0.08);
             border: 1px solid rgba(255, 193, 7, 0.15);
-            border-radius: 50px;
+            border-radius: 5px;
             font-size: 0.85rem;
             color: #fbbf24;
             margin-bottom: 32px;
@@ -144,7 +148,7 @@
             align-items: center;
             gap: 8px;
             padding: 12px 32px;
-            border-radius: 10px;
+            border-radius: 5px;
             font-family: 'Sora', sans-serif;
             font-weight: 600;
             font-size: 0.9rem;
@@ -167,7 +171,7 @@
         @media (max-width: 480px) {
             .maintenance-card {
                 padding: 32px 24px;
-                border-radius: 16px;
+                border-radius: 5px;
             }
             .maintenance-icon {
                 width: 64px;
