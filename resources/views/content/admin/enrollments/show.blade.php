@@ -376,9 +376,13 @@ $configData = Helper::appClasses();
             <div class="fw-bold text-white" style="font-size: 1.2rem;">{{ $sisaKuota }}</div>
             <small class="text-body-premium">Sisa Kuota</small>
           </div>
+          <div class="text-center px-3 py-2" style="background: rgba(99, 102, 241, 0.1); border-radius: 5px; min-width: 100px;">
+            <div class="fw-bold text-white" style="font-size: 1.2rem;">{{ $totalPendaftar }}</div>
+            <small class="text-body-premium">Total Pendaftar</small>
+          </div>
           <div class="text-center px-3 py-2" style="background: rgba(255,255,255,0.04); border-radius: 5px; min-width: 80px;">
             <div class="fw-bold text-white" style="font-size: 1.2rem;">{{ $kuota }}</div>
-            <small class="text-body-premium">Total</small>
+            <small class="text-body-premium">Total Kuota</small>
           </div>
         </div>
       </div>

@@ -357,9 +357,10 @@ class EnrollmentController extends Controller
         $kuota = $pelatihan->kuota ?? 0;
         $approvedCount = Enrollment::where('pelatihan_id', $pelatihan->id)->where('status', 'approved')->count();
         $waitlistCount = Enrollment::where('pelatihan_id', $pelatihan->id)->where('status', 'waitlist')->count();
+        $totalPendaftar = Enrollment::where('pelatihan_id', $pelatihan->id)->count();
         $sisaKuota = max(0, $kuota - $approvedCount);
 
-        return view('content.admin.enrollments.show', compact('enrollment', 'previousEnrollment', 'nextEnrollment', 'usia', 'kuota', 'approvedCount', 'waitlistCount', 'sisaKuota'));
+        return view('content.admin.enrollments.show', compact('enrollment', 'previousEnrollment', 'nextEnrollment', 'usia', 'kuota', 'approvedCount', 'waitlistCount', 'totalPendaftar', 'sisaKuota'));
     }
 
     /**
