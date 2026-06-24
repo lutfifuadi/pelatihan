@@ -342,7 +342,11 @@ class EnrollmentController extends Controller
                 ];
                 $bulan = $bulanMap[$profile->bulan_lahir] ?? (int) $profile->bulan_lahir;
                 $tanggalLahir = \Carbon\Carbon::createFromDate((int) $profile->tahun_lahir, $bulan, (int) $profile->tanggal_lahir);
-                $usia = $tanggalLahir->age . ' Tahun';
+                $diff = $tanggalLahir->diff(\Carbon\Carbon::now());
+                $parts = [];
+                if ($diff->y > 0) $parts[] = $diff->y . ' Tahun';
+                if ($diff->m > 0) $parts[] = $diff->m . ' Bulan';
+                $usia = !empty($parts) ? implode(' ', $parts) : '0 Bulan';
             } catch (\Exception $e) {
                 $usia = '-';
             }
