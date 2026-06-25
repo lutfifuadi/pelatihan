@@ -4,7 +4,6 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cache;
 use App\Models\Setting;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -20,9 +19,7 @@ class CheckMaintenanceMode
             return $next($request);
         }
 
-        $maintenanceMode = Cache::remember('setting.maintenance_mode', 60, function () {
-            return Setting::where('key', 'maintenance_mode')->value('value');
-        });
+        $maintenanceMode = Setting::where('key', 'maintenance_mode')->value('value');
 
         if ($maintenanceMode === '1') {
             if ($request->user() && $request->user()->role === 'admin') {

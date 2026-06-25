@@ -4,15 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Models\Setting;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cache;
 
 class MaintenanceController extends Controller
 {
     public function index()
     {
-        $maintenanceMode = Cache::remember('setting.maintenance_mode', 60, function () {
-            return Setting::where('key', 'maintenance_mode')->value('value');
-        });
+        $maintenanceMode = Setting::where('key', 'maintenance_mode')->value('value');
 
         if ($maintenanceMode !== '1') {
             return redirect('/');

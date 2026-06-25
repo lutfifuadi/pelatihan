@@ -8,7 +8,6 @@ use App\Models\Kecamatan;
 use App\Models\Pelatihan;
 use App\Services\ActivityLogger;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cache;
 
 class PelatihanController extends Controller
 {
@@ -20,13 +19,8 @@ class PelatihanController extends Controller
 
     public function create()
     {
-        // Cache data master yang jarang berubah (3600 detik = 1 jam)
-        $dinas = Cache::remember('pelatihan.dinas.active', 3600, function () {
-            return Dinas::where('is_active', true)->orderBy('nama_dinas')->get();
-        });
-        $kecamatans = Cache::remember('pelatihan.kecamatans.all', 3600, function () {
-            return Kecamatan::orderBy('name')->get();
-        });
+        $dinas = Dinas::where('is_active', true)->orderBy('nama_dinas')->get();
+        $kecamatans = Kecamatan::orderBy('name')->get();
         return view('content.admin.pelatihan.create', compact('dinas', 'kecamatans'));
     }
 
@@ -49,14 +43,6 @@ class PelatihanController extends Controller
         $pelatihan = Pelatihan::create($request->all());
         $pelatihan->kecamatans()->sync($request->kecamatan_ids ?? []);
 
-        // Invalidate cache dashboard & pelatihan
-        Cache::forget('dashboard.admin.stats');
-        Cache::forget('pelatihan.active.list');
-        Cache::forget('pelatihan.dinas.active');
-        Cache::forget('pelatihan.kecamatans.all');
-
-        event(new \App\Events\DashboardUpdated());
-
         ActivityLogger::created($pelatihan, "Pelatihan {$pelatihan->nama} batch {$pelatihan->batch} berhasil dibuat");
 
         return redirect()->route('admin.pelatihan.index')
@@ -65,13 +51,8 @@ class PelatihanController extends Controller
 
     public function edit(Pelatihan $pelatihan)
     {
-        // Cache data master yang jarang berubah
-        $dinas = Cache::remember('pelatihan.dinas.active', 3600, function () {
-            return Dinas::where('is_active', true)->orderBy('nama_dinas')->get();
-        });
-        $kecamatans = Cache::remember('pelatihan.kecamatans.all', 3600, function () {
-            return Kecamatan::orderBy('name')->get();
-        });
+        $dinas = Dinas::where('is_active', true)->orderBy('nama_dinas')->get();
+        $kecamatans = Kecamatan::orderBy('name')->get();
         $pelatihan->load('kecamatans');
         return view('content.admin.pelatihan.edit', compact('pelatihan', 'dinas', 'kecamatans'));
     }
@@ -95,14 +76,6 @@ class PelatihanController extends Controller
         $oldValues = $pelatihan->getOriginal();
         $pelatihan->update($request->all());
         $pelatihan->kecamatans()->sync($request->kecamatan_ids ?? []);
-
-        // Invalidate cache
-        Cache::forget('dashboard.admin.stats');
-        Cache::forget('pelatihan.active.list');
-        Cache::forget('pelatihan.dinas.active');
-        Cache::forget('pelatihan.kecamatans.all');
-
-        event(new \App\Events\DashboardUpdated());
 
         $freshPelatihan = $pelatihan->fresh();
         ActivityLogger::updated($freshPelatihan, $oldValues, $freshPelatihan->getAttributes(), "Pelatihan {$freshPelatihan->nama} batch {$freshPelatihan->batch} berhasil diperbarui");
@@ -141,14 +114,6 @@ class PelatihanController extends Controller
         $nama = $pelatihan->nama;
         $batch = $pelatihan->batch;
         $pelatihan->delete();
-
-        // Invalidate cache
-        Cache::forget('dashboard.admin.stats');
-        Cache::forget('pelatihan.active.list');
-        Cache::forget('pelatihan.dinas.active');
-        Cache::forget('pelatihan.kecamatans.all');
-
-        event(new \App\Events\DashboardUpdated());
 
         ActivityLogger::log(
             action: 'deleted',
