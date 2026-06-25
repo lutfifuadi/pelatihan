@@ -71,6 +71,75 @@ $customizerHidden = 'customizer-hide';
               <input type="text" class="form-control" id="phone" name="phone" value="{{ old('phone') }}"
                 placeholder="Masukkan no. telepon" />
             </div>
+            
+            {{-- NIK --}}
+            <div class="mb-6 form-control-validation">
+              <label for="nik" class="form-label">NIK (Nomor Induk Kependudukan)</label>
+              <input type="text" class="form-control" id="nik" name="nik" value="{{ old('nik') }}"
+                placeholder="Masukkan 16 digit NIK" required maxlength="16" />
+            </div>
+
+            {{-- Status Tokoh --}}
+            <div class="mb-6">
+              <label class="form-label">Keterlibatan di Lingkungan Sekitar</label>
+              <div class="d-flex flex-wrap">
+                <div class="form-check me-3 me-lg-4">
+                  <input class="form-check-input" type="radio" name="status_tokoh" id="status_tokoh_kader" value="Kader" required {{ old('status_tokoh') == 'Kader' ? 'checked' : '' }}>
+                  <label class="form-check-label" for="status_tokoh_kader">Kader</label>
+                </div>
+                <div class="form-check me-3 me-lg-4">
+                  <input class="form-check-input" type="radio" name="status_tokoh" id="status_tokoh_relawan" value="Relawan" {{ old('status_tokoh') == 'Relawan' ? 'checked' : '' }}>
+                  <label class="form-check-label" for="status_tokoh_relawan">Relawan</label>
+                </div>
+                <div class="form-check me-3 me-lg-4">
+                  <input class="form-check-input" type="radio" name="status_tokoh" id="status_tokoh_simpatisan" value="Simpatisan" {{ old('status_tokoh') == 'Simpatisan' ? 'checked' : '' }}>
+                  <label class="form-check-label" for="status_tokoh_simpatisan">Simpatisan</label>
+                </div>
+                <div class="form-check me-3 me-lg-4">
+                  <input class="form-check-input" type="radio" name="status_tokoh" id="status_tokoh_umum" value="Masyarakat Umum" {{ old('status_tokoh') == 'Masyarakat Umum' ? 'checked' : '' }}>
+                  <label class="form-check-label" for="status_tokoh_umum">Umum</label>
+                </div>
+                <div class="form-check">
+                  <input class="form-check-input" type="radio" name="status_tokoh" id="status_tokoh_lainnya" value="Lainnya" {{ old('status_tokoh') == 'Lainnya' ? 'checked' : '' }}>
+                  <label class="form-check-label" for="status_tokoh_lainnya">Lainnya</label>
+                </div>
+              </div>
+            </div>
+
+            {{-- Sumber Informasi --}}
+            <div class="mb-6 form-control-validation">
+                <label for="sumber_informasi" class="form-label">Sumber Informasi</label>
+                <select id="sumber_informasi" name="sumber_informasi" class="form-select" required>
+                    <option value="">Pilih Sumber Informasi</option>
+                    <option value="koordinator" {{ old('sumber_informasi') == 'koordinator' ? 'selected' : '' }}>Nama Koordinator</option>
+                    <option value="sosmed" {{ old('sumber_informasi') == 'sosmed' ? 'selected' : '' }}>Sosial Media</option>
+                    <option value="lainnya" {{ old('sumber_informasi') == 'lainnya' ? 'selected' : '' }}>Lainnya</option>
+                </select>
+            </div>
+
+            <div class="mb-6 form-control-validation" id="sumber_informasi_detail_wrapper" style="display: none;">
+                <label for="sumber_informasi_detail" class="form-label">Sebutkan (Koordinator/Lainnya)</label>
+                <input type="text" class="form-control" id="sumber_informasi_detail" name="sumber_informasi_detail" value="{{ old('sumber_informasi_detail') }}" placeholder="Tuliskan nama koordinator atau sumber lainnya" />
+            </div>
+
+            <script>
+              document.addEventListener('DOMContentLoaded', function () {
+                const sumberInformasi = document.getElementById('sumber_informasi');
+                const detailWrapper = document.getElementById('sumber_informasi_detail_wrapper');
+                
+                function toggleDetail() {
+                  if (sumberInformasi.value === 'koordinator' || sumberInformasi.value === 'lainnya') {
+                    detailWrapper.style.display = 'block';
+                  } else {
+                    detailWrapper.style.display = 'none';
+                  }
+                }
+
+                sumberInformasi.addEventListener('change', toggleDetail);
+                toggleDetail(); // Run on page load
+              });
+            </script>
+
             <div class="mb-6 form-password-toggle form-control-validation">
               <label class="form-label" for="password">Password</label>
               <div class="input-group input-group-merge">
@@ -89,6 +158,21 @@ $customizerHidden = 'customizer-hide';
                 <span class="input-group-text cursor-pointer"><i class="icon-base ti tabler-eye-off"></i></span>
               </div>
             </div>
+            {{-- Placeholder for Live Capture Components --}}
+            <div class="mb-6 p-4 border rounded">
+                <h5>Upload Foto Diri (Live)</h5>
+                <div id="photo-capture-placeholder" class="text-center bg-light p-5">
+                    <p class="text-muted">[Komponen Live Capture Foto Diri akan ditempatkan di sini]</p>
+                </div>
+            </div>
+
+            <div class="mb-6 p-4 border rounded">
+                <h5>Upload Foto KTP (Live)</h5>
+                <div id="ktp-capture-placeholder" class="text-center bg-light p-5">
+                    <p class="text-muted">[Komponen Live Capture KTP akan ditempatkan di sini]</p>
+                </div>
+            </div>
+            
             <button class="btn btn-primary d-grid w-100" type="submit">Daftar</button>
           </form>
 

@@ -56,6 +56,7 @@ export default defineConfig({
         'resources/css/app.css',
         'resources/assets/css/demo.css',
         'resources/js/app.js',
+        'resources/js/foto-capture.js',
         ...pageJsFiles,
         ...vendorJsFiles,
         ...LibsJsFiles,

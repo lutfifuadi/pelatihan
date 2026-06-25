@@ -22,6 +22,10 @@ class RegisterController extends Controller
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
             'phone' => ['nullable', 'string', 'max:20'],
+            'nik' => ['required', 'string', 'size:16', 'unique:users,nik'],
+            'status_tokoh' => ['required', 'string', 'max:255'],
+            'sumber_informasi' => ['required', 'string', 'max:255'],
+            'sumber_informasi_detail' => ['nullable', 'string', 'max:255'],
         ]);
 
         $user = User::create([
@@ -29,6 +33,10 @@ class RegisterController extends Controller
             'email' => $validated['email'],
             'password' => Hash::make($validated['password']),
             'phone' => $validated['phone'] ?? null,
+            'nik' => $validated['nik'],
+            'status_tokoh' => $validated['status_tokoh'],
+            'sumber_informasi' => $validated['sumber_informasi'],
+            'sumber_informasi_detail' => $validated['sumber_informasi_detail'] ?? null,
             'role' => 'peserta', // Default role
         ]);
 

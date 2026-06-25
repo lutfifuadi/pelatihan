@@ -90,3 +90,31 @@ $configData = Helper::appClasses();
   </ul>
 
 </aside>
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    fetch('{{ route("admin.google-drive.check-status") }}')
+        .then(res => res.json())
+        .then(data => {
+            const menuItems = document.querySelectorAll('.menu-inner .menu-item');
+            menuItems.forEach(item => {
+                const link = item.querySelector('.menu-link');
+                if (link && link.textContent.includes('Google Drive')) {
+                    const dot = document.createElement('span');
+                    dot.className = 'ms-2 badge rounded-pill';
+                    dot.style.width = '8px';
+                    dot.style.height = '8px';
+                    dot.style.padding = '0';
+                    dot.style.backgroundColor = data.connected ? '#10b981' : '#ef4444';
+                    dot.style.display = 'inline-block';
+                    dot.style.borderRadius = '50%';
+                    dot.style.boxShadow = data.connected ? '0 0 6px rgba(16,185,129,0.6)' : '0 0 6px rgba(239,68,68,0.6)';
+                    link.querySelector('div').appendChild(dot);
+                }
+            });
+        })
+        .catch(() => {});
+});
+</script>
+@endpush

@@ -5,6 +5,7 @@
 /public/hot
 /public/storage
 /storage/*.key
+/storage/app/google_credentials.json
 /storage/pail
 /vendor
 /auth.json

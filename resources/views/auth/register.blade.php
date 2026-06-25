@@ -104,6 +104,19 @@ $customizerHidden = 'customizer-hide';
   }
   .form-control-custom::placeholder { color: rgba(255, 255, 255, 0.35) !important; }
   .form-control-custom.is-invalid { border-color: #f87171 !important; box-shadow: 0 0 0 4px rgba(248, 113, 113, 0.2) !important; }
+
+  /* Select dropdown options — matching dark theme */
+  .form-control-custom option,
+  .form-control-custom optgroup {
+    background: #1a1f2e !important;
+    color: #f8fafc !important;
+  }
+  .form-control-custom option:hover,
+  .form-control-custom option:focus,
+  .form-control-custom option:checked {
+    background: #6366f1 !important;
+    color: #ffffff !important;
+  }
   .form-control-custom:-webkit-autofill,
   .form-control-custom:-webkit-autofill:hover,
   .form-control-custom:-webkit-autofill:focus,
@@ -162,6 +175,55 @@ $customizerHidden = 'customizer-hide';
     .field-group { grid-template-columns: 1fr; gap: 0; }
   }
   .field-full { grid-column: 1 / -1; }
+  .field-group .is-invalid ~ .invalid-feedback,
+  .field-group .is-invalid .form-check-label { color: #f87171 !important; }
+
+  /* Autocomplete untuk pencarian koordinator */
+  .autocomplete-suggestions {
+    position: absolute;
+    left: 0;
+    right: 0;
+    z-index: 999;
+    background: #1a1f2e;
+    border: 1px solid rgba(255,255,255,0.12);
+    border-top: none;
+    border-radius: 0 0 5px 5px;
+    max-height: 200px;
+    overflow-y: auto;
+    box-sizing: border-box;
+  }
+  .autocomplete-item {
+    padding: 10px 14px;
+    cursor: pointer;
+    color: #f8fafc;
+    font-size: 14px;
+    transition: background 0.2s;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+  }
+  .autocomplete-item:last-child { border-bottom: none; }
+  .autocomplete-item:hover,
+  .autocomplete-item.active {
+    background: rgba(99,102,241,0.2);
+  }
+  .autocomplete-item small {
+    color: rgba(255,255,255,0.5);
+    font-size: 11px;
+    display: block;
+  }
+  .autocomplete-no-result {
+    padding: 14px;
+    text-align: center;
+    color: rgba(255,255,255,0.4);
+    font-size: 13px;
+  }
+  /* Responsive fix: di layar kecil suggestions tetap selebar input */
+  @media (max-width: 660px) {
+    .autocomplete-suggestions {
+      left: 0;
+      right: 0;
+    }
+  }
+
 </style>
 @endsection
 
@@ -172,14 +234,7 @@ $customizerHidden = 'customizer-hide';
   <div class="glow-orb orb-2"></div>
   <div class="glow-orb orb-3"></div>
 
-  <div class="glass-card-wide">
-    <!-- Logo -->
-    <div class="d-flex justify-content-center mb-3">
-      <a href="{{ url('/') }}" class="d-flex align-items-center gap-2 text-decoration-none">
-        <div class="logo-icon-glow"><i class="icon-base ti tabler-bulb text-white fs-4"></i></div>
-        <x-brand-logo size="lg" />
-      </a>
-    </div>
+    <div class="glass-card-wide">
 
     <!-- Title -->
     <div class="text-center mb-4">
@@ -232,6 +287,39 @@ $customizerHidden = 'customizer-hide';
           @error('email') <div class="invalid-feedback small mt-1 text-danger">{{ $message }}</div> @enderror
         </div>
 
+        <!-- Sumber Informasi -->
+        <div class="mb-0 field-full">
+          <label for="sumber_informasi" class="form-label form-label-custom">Sumber Informasi Pelatihan</label>
+          <select id="sumber_informasi" name="sumber_informasi" class="form-control form-control-custom @error('sumber_informasi') is-invalid @enderror" required>
+            <option value="" disabled {{ old('sumber_informasi') ? '' : 'selected' }}>Pilih sumber informasi</option>
+            <option value="koordinator" {{ old('sumber_informasi') == 'koordinator' ? 'selected' : '' }}>Nama Koordinator</option>
+            <option value="sosmed" {{ old('sumber_informasi') == 'sosmed' ? 'selected' : '' }}>Sosial Media</option>
+            <option value="lainnya" {{ old('sumber_informasi') == 'lainnya' ? 'selected' : '' }}>Lainnya</option>
+          </select>
+          @error('sumber_informasi') <div class="invalid-feedback small mt-1 text-danger">{{ $message }}</div> @enderror
+        </div>
+
+        <!-- Sumber Informasi Detail (show/hide) -->
+        <div class="mb-0 field-full" id="sumber_informasi_detail_wrapper" style="display: none;">
+          <!-- Dropdown Koordinator (muncul jika pilih "Nama Koordinator") -->
+          <div id="koordinator_input_wrapper" style="display: none; position: relative;">
+            <label for="koordinator_search" class="form-label form-label-custom">Cari Nama Koordinator</label>
+            <input type="text" id="koordinator_search" class="form-control form-control-custom"
+              placeholder="Ketik minimal 3 huruf nama koordinator..."
+              value="{{ old('sumber_informasi_detail') }}" autocomplete="off" />
+            <input type="hidden" id="sumber_informasi_detail" name="sumber_informasi_detail" value="{{ old('sumber_informasi_detail') }}" />
+            <div id="koordinator_suggestions" class="autocomplete-suggestions" style="display: none;"></div>
+            <small class="text-white-50-custom mt-1 d-block" style="font-size: 11px;">Sistem akan mencari secara otomatis setelah 3 huruf</small>
+          </div>
+          <!-- Input Teks (muncul jika pilih "Lainnya") -->
+          <div id="lainnya_input_wrapper" style="display: none;">
+            <label for="sumber_informasi_detail_lainnya" class="form-label form-label-custom">Sebutkan</label>
+            <input type="text" id="sumber_informasi_detail_lainnya" name="sumber_informasi_detail"
+              class="form-control form-control-custom"
+              placeholder="Sebutkan sumber informasi" value="{{ old('sumber_informasi_detail') }}" />
+          </div>
+        </div>
+
         <!-- Password Info -->
         <div class="mb-0 field-full">
           <div class="d-flex align-items-start gap-2 p-3 rounded-3" style="background: rgba(255, 193, 7, 0.08); border: 1px solid rgba(255, 193, 7, 0.15);">
@@ -268,20 +356,7 @@ $customizerHidden = 'customizer-hide';
       </button>
     </form>
 
-    <!-- Divider -->
-    <div class="d-flex align-items-center gap-3 my-4">
-      <hr class="flex-grow-1" style="border-color: rgba(255,255,255,0.08); margin: 0;">
-      <span class="text-white-50-custom" style="font-size: 12px; letter-spacing: 0.05em;">atau</span>
-      <hr class="flex-grow-1" style="border-color: rgba(255,255,255,0.08); margin: 0;">
-    </div>
 
-    <!-- Login Link -->
-    <p class="text-center mb-0">
-      <span class="text-white-50-custom small">Sudah punya akun? </span>
-      @if (Route::has('login'))
-      <a href="{{ route('login') }}" class="small fw-semibold text-warning text-decoration-none hover-white">Login di sini</a>
-      @endif
-    </p>
   </div>
 </div>
 @endsection
@@ -394,6 +469,139 @@ document.addEventListener('DOMContentLoaded', function() {
           waFeedback.innerHTML = '<i class="icon-base ti tabler-cloud-off me-1"></i> Gagal verifikasi WA';
         });
       }, 600);
+    });
+  }
+
+  // ============================================================
+  // 3. SUMBER INFORMASI — Autocomplete Koordinator
+  // ============================================================
+  const sumberInfo = document.getElementById('sumber_informasi');
+  const detailWrapper = document.getElementById('sumber_informasi_detail_wrapper');
+  const koordinatorWrapper = document.getElementById('koordinator_input_wrapper');
+  const lainnyaWrapper = document.getElementById('lainnya_input_wrapper');
+
+  if (sumberInfo && detailWrapper) {
+    function toggleDetail() {
+      const val = sumberInfo.value;
+      if (val === 'koordinator' || val === 'lainnya') {
+        detailWrapper.style.display = 'block';
+        if (val === 'koordinator') {
+          koordinatorWrapper.style.display = 'block';
+          lainnyaWrapper.style.display = 'none';
+        } else {
+          koordinatorWrapper.style.display = 'none';
+          lainnyaWrapper.style.display = 'block';
+        }
+      } else {
+        detailWrapper.style.display = 'none';
+      }
+    }
+    sumberInfo.addEventListener('change', toggleDetail);
+    toggleDetail();
+  }
+
+  // — Autocomplete Logic —
+  const koordinatorSearch = document.getElementById('koordinator_search');
+  const koordinatorHidden = document.getElementById('sumber_informasi_detail');
+  const suggestionsBox = document.getElementById('koordinator_suggestions');
+
+  if (koordinatorSearch && suggestionsBox) {
+    let searchTimeout = null;
+    let selectedIndex = -1;
+    let currentResults = [];
+
+    koordinatorSearch.addEventListener('input', function () {
+      clearTimeout(searchTimeout);
+      const q = this.value.trim();
+      koordinatorHidden.value = q; // Simpan teks ketikan
+
+      if (q.length < 3) {
+        suggestionsBox.style.display = 'none';
+        suggestionsBox.innerHTML = '';
+        return;
+      }
+
+      searchTimeout = setTimeout(function () {
+        fetch('{{ route('api.koordinator') }}?q=' + encodeURIComponent(q))
+          .then(res => res.json())
+          .then(data => {
+            currentResults = data;
+            selectedIndex = -1;
+            if (data.length === 0) {
+              suggestionsBox.innerHTML = '<div class="autocomplete-no-result">Koordinator tidak ditemukan</div>';
+              suggestionsBox.style.display = 'block';
+              return;
+            }
+            let html = '';
+            data.forEach(function (item, idx) {
+              html += '<div class="autocomplete-item" data-index="' + idx + '" data-value="' + item.name + '">' +
+                      item.name + '<small>NIK: ' + (item.nik || '-') + '</small></div>';
+            });
+            suggestionsBox.innerHTML = html;
+            suggestionsBox.style.display = 'block';
+
+            // Click handler for each item
+            suggestionsBox.querySelectorAll('.autocomplete-item').forEach(function (el) {
+              el.addEventListener('click', function () {
+                const name = this.getAttribute('data-value');
+                koordinatorSearch.value = name;
+                koordinatorHidden.value = name;
+                suggestionsBox.style.display = 'none';
+                suggestionsBox.innerHTML = '';
+              });
+            });
+          })
+          .catch(function () {
+            console.error('Gagal mencari koordinator');
+          });
+      }, 300);
+    });
+
+    // Keyboard navigation (arrows + enter)
+    koordinatorSearch.addEventListener('keydown', function (e) {
+      const items = suggestionsBox.querySelectorAll('.autocomplete-item');
+      if (items.length === 0) return;
+
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        if (selectedIndex < items.length - 1) selectedIndex++;
+        updateActiveItem(items);
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        if (selectedIndex > 0) selectedIndex--;
+        updateActiveItem(items);
+      } else if (e.key === 'Enter') {
+        e.preventDefault();
+        if (selectedIndex >= 0 && items[selectedIndex]) {
+          items[selectedIndex].click();
+        }
+      } else if (e.key === 'Escape') {
+        suggestionsBox.style.display = 'none';
+        suggestionsBox.innerHTML = '';
+      }
+    });
+
+    function updateActiveItem(items) {
+      items.forEach(function (el, idx) {
+        el.classList.toggle('active', idx === selectedIndex);
+      });
+      if (selectedIndex >= 0 && items[selectedIndex]) {
+        koordinatorSearch.value = items[selectedIndex].getAttribute('data-value');
+      }
+    }
+
+    // Hide suggestions on blur (with delay to allow click)
+    koordinatorSearch.addEventListener('blur', function () {
+      setTimeout(function () {
+        suggestionsBox.style.display = 'none';
+      }, 200);
+    });
+
+    // Show suggestions on focus if there are results
+    koordinatorSearch.addEventListener('focus', function () {
+      if (currentResults.length > 0) {
+        suggestionsBox.style.display = 'block';
+      }
     });
   }
 });

@@ -42,6 +42,12 @@ class User extends Authenticatable
         'bio',
         'is_active',
         'nik',
+        'status_tokoh',
+        'sumber_informasi',
+        'sumber_informasi_detail',
+        'google_drive_photo_url',
+        'google_drive_ktp_url',
+        'google_drive_folder_id',
         'whatsapp',
     ];
 

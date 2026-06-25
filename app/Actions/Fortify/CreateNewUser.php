@@ -24,11 +24,14 @@ class CreateNewUser implements CreatesNewUsers
             'nik' => ['required', 'string', 'digits_between:15,16', 'unique:users,nik'],
             'whatsapp' => ['required', 'string', 'max:20'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
+            'sumber_informasi' => ['required', 'string', 'in:koordinator,sosmed,lainnya'],
+            'sumber_informasi_detail' => ['nullable', 'string', 'max:255'],
             'terms' => Jetstream::hasTermsAndPrivacyPolicyFeature() ? ['accepted', 'required'] : '',
         ], [
             'nik.unique' => 'NIK ini sudah terdaftar. Silakan login saja.',
             'nik.digits_between' => 'NIK harus 15 atau 16 digit.',
             'whatsapp.required' => 'Nomor WhatsApp wajib diisi.',
+            'sumber_informasi.required' => 'Silakan pilih sumber informasi pelatihan.',
         ])->validate();
 
         // Auto-convert WA number: 08xxx -> 628xxx
@@ -45,6 +48,8 @@ class CreateNewUser implements CreatesNewUsers
             'nik' => $input['nik'],
             'whatsapp' => $whatsapp,
             'email' => $input['email'],
+            'sumber_informasi' => $input['sumber_informasi'],
+            'sumber_informasi_detail' => $input['sumber_informasi_detail'] ?? null,
             'password' => Hash::make('pelatihanku2026'),
             'role' => 'peserta',
             'is_active' => true,

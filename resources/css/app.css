@@ -153,3 +153,82 @@ label, .form-label, .form-control, .form-select, input, select, textarea, button
     width: calc(100% - 40px);
   }
 }
+
+/* ============================================================
+   Face Capture — Camera Viewfinder Overlays
+   ============================================================ */
+
+/* Viewfinder semi-transparent overlay (digunakan bersama box-shadow) */
+.viewfinder-frame {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 10;
+  pointer-events: none;
+}
+
+/* Bingkai oval untuk foto diri */
+.frame-oval {
+  width: 60%;
+  aspect-ratio: 3 / 4;
+  border-radius: 50%;
+  border: 2.5px solid rgba(99, 102, 241, 0.7);
+  box-shadow:
+    0 0 0 2px rgba(99, 102, 241, 0.3),
+    0 0 30px rgba(99, 102, 241, 0.15),
+    0 0 0 9999px rgba(0, 0, 0, 0.5);
+}
+
+/* Bingkai persegi panjang untuk KTP (proporsi KTP ~1.585:1) */
+.frame-ktp {
+  width: 75%;
+  aspect-ratio: 1.585 / 1;
+  border: 2.5px solid rgba(99, 102, 241, 0.7);
+  border-radius: 4px;
+  box-shadow:
+    0 0 0 2px rgba(99, 102, 241, 0.3),
+    0 0 30px rgba(99, 102, 241, 0.15),
+    0 0 0 9999px rgba(0, 0, 0, 0.5);
+}
+
+/* Corner markers untuk KTP */
+.ktp-corners .corner {
+  position: absolute;
+  width: 24px;
+  height: 24px;
+  border-color: #818cf8;
+  border-style: solid;
+  filter: drop-shadow(0 0 4px rgba(99, 102, 241, 0.5));
+}
+.corner-tl { top: -3px; left: -3px; border-width: 3px 0 0 3px; border-radius: 4px 0 0 0; }
+.corner-tr { top: -3px; right: -3px; border-width: 3px 3px 0 0; border-radius: 0 4px 0 0; }
+.corner-bl { bottom: -3px; left: -3px; border-width: 0 0 3px 3px; border-radius: 0 0 0 4px; }
+.corner-br { bottom: -3px; right: -3px; border-width: 0 3px 3px 0; border-radius: 0 0 4px 0; }
+
+/* Progress bar fill animation */
+.progress-bar-fill {
+  background: linear-gradient(90deg, #6366f1, #a78bfa, #d946ef);
+  background-size: 200% 100%;
+  animation: progressShimmer 1.5s ease-in-out infinite;
+}
+@keyframes progressShimmer {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Dark mode compatibility untuk viewfinder */
+.dark .viewfinder-wrapper {
+  background: #000;
+}
+
+/* Pulse ring pada bingkai saat posisi sempurna */
+.frame-oval.guide-success,
+.frame-ktp.guide-success {
+  animation: framePulse 1s ease-in-out infinite;
+}
+@keyframes framePulse {
+  0%, 100% { border-color: rgba(16, 185, 129, 0.6); box-shadow: 0 0 0 9999px rgba(0,0,0,0.5), 0 0 20px rgba(16, 185, 129, 0.2); }
+  50% { border-color: rgba(16, 185, 129, 0.9); box-shadow: 0 0 0 9999px rgba(0,0,0,0.5), 0 0 40px rgba(16, 185, 129, 0.4); }
+}

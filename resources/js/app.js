@@ -9,3 +9,4 @@ import.meta.glob([
 ]);
 
 import './notification-bell';
+import './foto-capture';

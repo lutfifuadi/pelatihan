@@ -6,6 +6,7 @@ use App\Events\PesertaRegistered;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Services\ActivityLogger;
+use App\Services\FolderUploadService;
 use App\Services\WhatsAppService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -25,10 +26,13 @@ class RegistrationController extends Controller
             'nik'      => 'required|string|digits_between:15,16|unique:users,nik',
             'whatsapp' => 'required|string|max:20',
             'email'    => 'required|email|unique:users,email',
+            'sumber_informasi' => ['required', 'string', 'in:koordinator,sosmed,lainnya'],
+            'sumber_informasi_detail' => ['nullable', 'string', 'max:255'],
         ], [
             'nik.unique' => 'NIK ini sudah terdaftar. Silakan login saja.',
             'nik.digits_between'   => 'NIK harus 15 atau 16 digit.',
             'email.unique' => 'Email ini sudah terdaftar. Silakan login saja.',
+            'sumber_informasi.required' => 'Silakan pilih sumber informasi pelatihan.',
         ]);
 
         // Auto-convert WA number: 08xxx → 628xxx
@@ -49,6 +53,8 @@ class RegistrationController extends Controller
             'nik'      => $request->nik,
             'whatsapp' => $whatsapp,
             'email'    => $request->email,
+            'sumber_informasi' => $request->sumber_informasi,
+            'sumber_informasi_detail' => $request->sumber_informasi_detail ?? null,
             'password' => $hashedPassword,
             'role'     => 'peserta',
             'is_active' => true,
@@ -88,6 +94,28 @@ class RegistrationController extends Controller
         PesertaRegistered::dispatch($user);
 
         event(new \App\Events\DashboardUpdated());
+
+        // Upload foto ke Google Drive jika ada
+        if ($request->filled('foto_diri') || $request->filled('foto_ktp')) {
+            try {
+                $folderUploadService = new FolderUploadService();
+                $uploadResult = $folderUploadService->uploadFotoPeserta(
+                    $user,
+                    $request->input('foto_diri'),
+                    $request->input('foto_ktp')
+                );
+
+                if ($uploadResult['success']) {
+                    $user->update([
+                        'google_drive_photo_url' => $uploadResult['foto_diri_id'],
+                        'google_drive_ktp_url' => $uploadResult['foto_ktp_id'],
+                        'google_drive_folder_id' => $uploadResult['folder_id'],
+                    ]);
+                }
+            } catch (\Exception $e) {
+                Log::warning("Gagal upload foto ke Google Drive untuk user {$user->id}: " . $e->getMessage());
+            }
+        }
 
         // Auto-login the user
         auth()->login($user);

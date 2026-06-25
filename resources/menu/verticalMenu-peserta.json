@@ -61,6 +61,15 @@
       "slug": "dashboard.peserta.form-review"
     },
     {
+      "menuHeader": "Upload"
+    },
+    {
+      "url": "/dashboard/peserta/upload-foto",
+      "name": "Upload Foto",
+      "icon": "menu-icon icon-base ti tabler-camera",
+      "slug": "dashboard.peserta.upload-foto"
+    },
+    {
       "menuHeader": "Notifikasi"
     },
     {
