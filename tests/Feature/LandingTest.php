@@ -51,6 +51,7 @@ class LandingTest extends TestCase
             'nik' => '3273010101000002',
             'whatsapp' => '081234567891',
             'email' => 'test@daftar.test',
+            'sumber_informasi' => 'sosmed',
         ]);
 
         $response->assertRedirect(route('landing.sukses'));
