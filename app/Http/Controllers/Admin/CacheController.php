@@ -11,7 +11,8 @@ class CacheController extends Controller
 {
     public function index()
     {
-        return view('content.admin.cache.index');
+        $lastCleared = session('last_cleared', 'Belum pernah');
+        return view('content.admin.cache.index', compact('lastCleared'));
     }
 
     public function clear()
@@ -21,21 +22,24 @@ class CacheController extends Controller
 
         try {
             Cache::flush();
-            $results[] = '✅ Cache aplikasi';
+            $results[] = 'Cache aplikasi';
 
             Artisan::call('view:clear');
-            $results[] = '✅ Compiled views';
+            $results[] = 'Compiled views';
 
             Artisan::call('config:clear');
-            $results[] = '✅ Config cache';
+            $results[] = 'Config cache';
 
             Artisan::call('route:clear');
-            $results[] = '✅ Route cache';
+            $results[] = 'Route cache';
 
             Artisan::call('optimize:clear');
-            $results[] = '✅ Compiled services & manifest';
+            $results[] = 'Compiled services & manifest';
 
             $duration = round(microtime(true) - $start, 2);
+
+            $now = now()->translatedFormat('d M Y H:i');
+            session(['last_cleared' => $now]);
 
             Log::info('Cache berhasil dibersihkan oleh admin', [
                 'admin' => auth()->user()?->name,
