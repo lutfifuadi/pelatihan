@@ -28,7 +28,7 @@ HEALTH_URL="${HEALTH_URL:-https://pelatihanku.my.id}"
 BUILD_ASSET_NAME="aplikasi-pelatihan-build.zip"
 GITHUB_OWNER=""
 GITHUB_REPO=""
-MAINTENANCE_ACTIVE=false
+# MAINTENANCE_ACTIVE=false    # Nonaktifkan maintenance mode
 
 # Pastikan direktori log ada
 mkdir -p "$DEPLOY_LOG_DIR"
@@ -57,11 +57,12 @@ die() {
 # ----------------------------------------------------------
 cleanup() {
     local exit_code=$?
-    if [ "$MAINTENANCE_ACTIVE" = true ]; then
-        log_warn "Cleanup: maintenance mode masih aktif, mencoba mematikan..."
-        cd "$APP_PATH" && php artisan up 2>&1 | tee -a "$DEPLOY_LOG" || true
-        log_info "Maintenance mode OFF."
-    fi
+    # MAINTENANCE: dinonaktifkan sesuai permintaan
+    # if [ "$MAINTENANCE_ACTIVE" = true ]; then
+    #     log_warn "Cleanup: maintenance mode masih aktif, mencoba mematikan..."
+    #     cd "$APP_PATH" && php artisan up 2>&1 | tee -a "$DEPLOY_LOG" || true
+    #     log_info "Maintenance mode OFF."
+    # fi
     if [ $exit_code -ne 0 ]; then
         log_error "Script berakhir dengan exit code $exit_code."
     fi
@@ -137,13 +138,14 @@ else
 fi
 
 # ----------------------------------------------------------
-# 0. Maintenance mode ON
+# 0. Maintenance mode ON (DINONAKTIFKAN)
 # ----------------------------------------------------------
-log_info "[0/12] Maintenance mode ON..."
-php artisan down --retry=60 --refresh=15 \
-    || die "Gagal mengaktifkan maintenance mode."
-MAINTENANCE_ACTIVE=true
-log_ok "Maintenance mode aktif."
+# log_info "[0/12] Maintenance mode ON..."
+# php artisan down --retry=60 --refresh=15 \
+#     || die "Gagal mengaktifkan maintenance mode."
+# MAINTENANCE_ACTIVE=true
+# log_ok "Maintenance mode aktif."
+log_info "[0/12] Maintenance mode: dilewati (sesuai konfigurasi)"
 
 # ----------------------------------------------------------
 # 1. Pull kode terbaru dari Git
@@ -359,12 +361,13 @@ fi
 log_ok "Permission selesai."
 
 # ----------------------------------------------------------
-# 11. Maintenance mode OFF
+# 11. Maintenance mode OFF (DINONAKTIFKAN)
 # ----------------------------------------------------------
-log_info "[11/12] Maintenance mode OFF..."
-php artisan up 2>&1 | tee -a "$DEPLOY_LOG" || die "Gagal mematikan maintenance mode."
-MAINTENANCE_ACTIVE=false
-log_ok "Maintenance mode nonaktif."
+# log_info "[11/12] Maintenance mode OFF..."
+# php artisan up 2>&1 | tee -a "$DEPLOY_LOG" || die "Gagal mematikan maintenance mode."
+# MAINTENANCE_ACTIVE=false
+# log_ok "Maintenance mode nonaktif."
+log_info "[11/12] Maintenance mode: dilewati (sesuai konfigurasi)"
 
 # ----------------------------------------------------------
 # 12. Health check homepage
