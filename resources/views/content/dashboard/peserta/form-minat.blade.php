@@ -338,6 +338,159 @@ $fActive = $fields->where('is_active', true)->pluck('field_key')->toArray();
     text-transform: uppercase;
     font-family: 'Sora', sans-serif;
   }
+
+  /* ============================================================
+     POPUP DITUTUP STYLES
+     ============================================================ */
+  .popup-ditutup-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  .popup-ditutup-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+  .popup-ditutup-card {
+    position: relative;
+    width: 100%;
+    max-width: 440px;
+    background: rgba(15, 23, 42, 0.95);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 40px 32px 28px;
+    text-align: center;
+    z-index: 10;
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.5);
+  }
+  .popup-ditutup-close {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.05);
+    color: rgba(255, 255, 255, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 1.1rem;
+  }
+  .popup-ditutup-close:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+  }
+  .popup-ditutup-icon {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    background: rgba(239, 68, 68, 0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+    font-size: 2rem;
+    color: #ef4444;
+  }
+  .popup-ditutup-title {
+    font-family: 'Sora', sans-serif;
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin-bottom: 12px;
+  }
+  .popup-ditutup-message {
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.75);
+    line-height: 1.6;
+    margin-bottom: 6px;
+  }
+  .popup-ditutup-message strong {
+    color: #ffffff;
+  }
+  .popup-ditutup-submessage {
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.5);
+    margin-bottom: 24px;
+  }
+  .popup-ditutup-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .popup-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-family: 'Outfit', sans-serif;
+    font-weight: 600;
+    font-size: 0.9rem;
+    text-decoration: none;
+    transition: all 0.25s ease;
+    cursor: pointer;
+    border: none;
+  }
+  .popup-btn-primary {
+    background: linear-gradient(135deg, #6366f1, #4f46e5);
+    color: #ffffff;
+    box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+  }
+  .popup-btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4);
+    color: #ffffff;
+  }
+  .popup-btn-secondary {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: rgba(255, 255, 255, 0.7);
+  }
+  .popup-btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+  }
+
+  /* --- Popup Transitions --- */
+  .popup-fade-enter { transition: opacity 0.25s ease; }
+  .popup-fade-enter-start { opacity: 0; }
+  .popup-fade-enter-end { opacity: 1; }
+  .popup-fade-leave { transition: opacity 0.2s ease; }
+  .popup-fade-leave-start { opacity: 1; }
+  .popup-fade-leave-end { opacity: 0; }
+
+  .popup-scale-enter { transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
+  .popup-scale-enter-start { opacity: 0; transform: scale(0.9) translateY(20px); }
+  .popup-scale-enter-end { opacity: 1; transform: scale(1) translateY(0); }
+  .popup-scale-leave { transition: all 0.2s ease; }
+  .popup-scale-leave-start { opacity: 1; transform: scale(1) translateY(0); }
+  .popup-scale-leave-end { opacity: 0; transform: scale(0.95) translateY(10px); }
+
+  @media (max-width: 767.98px) {
+    .popup-ditutup-card {
+      padding: 32px 20px 24px;
+      margin: 10px;
+    }
+    .popup-ditutup-icon {
+      width: 60px;
+      height: 60px;
+      font-size: 1.6rem;
+    }
+  }
 </style>
 @endsection
 
