@@ -375,6 +375,10 @@ $pelatihans = \App\Models\Pelatihan::where('is_active', true)->orderBy('nama')->
           </span>
         </div>
         <div class="d-flex gap-3 flex-wrap">
+          <div class="text-center px-3 py-2" style="background: rgba(99, 102, 241, 0.1); border-radius: 5px; min-width: 100px;">
+            <div class="fw-bold text-white" style="font-size: 1.2rem;">{{ $totalPendaftar }}</div>
+            <small class="text-body-premium">Total Pendaftar</small>
+          </div>
           <div class="text-center px-3 py-2" style="background: rgba(16, 185, 129, 0.1); border-radius: 5px; min-width: 100px;">
             <div class="fw-bold text-white" style="font-size: 1.2rem;">{{ $approvedCount }}</div>
             <small class="text-body-premium">Approved</small>
@@ -383,17 +387,9 @@ $pelatihans = \App\Models\Pelatihan::where('is_active', true)->orderBy('nama')->
             <div class="fw-bold text-white" style="font-size: 1.2rem;">{{ $waitlistCount }}</div>
             <small class="text-body-premium">Cadangan</small>
           </div>
-          <div class="text-center px-3 py-2" style="background: {{ $sisaKuota > 0 ? 'rgba(251, 191, 36, 0.1)' : 'rgba(239, 68, 68, 0.1)' }}; border-radius: 5px; min-width: 100px;">
-            <div class="fw-bold text-white" style="font-size: 1.2rem;">{{ $sisaKuota }}</div>
-            <small class="text-body-premium">Sisa Kuota</small>
-          </div>
-          <div class="text-center px-3 py-2" style="background: rgba(99, 102, 241, 0.1); border-radius: 5px; min-width: 100px;">
-            <div class="fw-bold text-white" style="font-size: 1.2rem;">{{ $totalPendaftar }}</div>
-            <small class="text-body-premium">Total Pendaftar</small>
-          </div>
-          <div class="text-center px-3 py-2" style="background: rgba(255,255,255,0.04); border-radius: 5px; min-width: 80px;">
-            <div class="fw-bold text-white" style="font-size: 1.2rem;">{{ $kuota }}</div>
-            <small class="text-body-premium">Total Kuota</small>
+          <div class="text-center px-3 py-2" style="background: {{ $sisaBelumTercek > 0 ? 'rgba(251, 191, 36, 0.1)' : 'rgba(16, 185, 129, 0.1)' }}; border-radius: 5px; min-width: 100px;">
+            <div class="fw-bold text-white" style="font-size: 1.2rem;">{{ $sisaBelumTercek }}</div>
+            <small class="text-body-premium">Sisa Belum Tercek</small>
           </div>
         </div>
       </div>
