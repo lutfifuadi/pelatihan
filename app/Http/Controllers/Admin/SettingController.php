@@ -74,6 +74,8 @@ class SettingController extends Controller
             );
         }
 
+        Cache::forget('setting.general');
+
         return redirect()->route('admin.settings.branding')
             ->with('success', 'Pengaturan branding berhasil diperbarui.');
     }
@@ -178,6 +180,8 @@ class SettingController extends Controller
             );
         }
 
+        Cache::forget('setting.landing');
+
         return redirect()->route('admin.settings.landing')
             ->with('success', 'Konten halaman publik berhasil diperbarui.');
     }
@@ -237,6 +241,9 @@ class SettingController extends Controller
                 ]
             );
         }
+
+        Cache::forget('setting.seo');
+        Cache::forget('sitemap_xml');
 
         return redirect()->route('admin.settings.seo')
             ->with('success', 'Pengaturan SEO berhasil diperbarui.');

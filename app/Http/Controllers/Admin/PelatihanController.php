@@ -51,6 +51,9 @@ class PelatihanController extends Controller
 
         // Invalidate cache dashboard & pelatihan
         Cache::forget('dashboard.admin.stats');
+        Cache::forget('pelatihan.active.list');
+        Cache::forget('pelatihan.dinas.active');
+        Cache::forget('pelatihan.kecamatans.all');
 
         event(new \App\Events\DashboardUpdated());
 
@@ -95,6 +98,9 @@ class PelatihanController extends Controller
 
         // Invalidate cache
         Cache::forget('dashboard.admin.stats');
+        Cache::forget('pelatihan.active.list');
+        Cache::forget('pelatihan.dinas.active');
+        Cache::forget('pelatihan.kecamatans.all');
 
         event(new \App\Events\DashboardUpdated());
 
@@ -138,6 +144,9 @@ class PelatihanController extends Controller
 
         // Invalidate cache
         Cache::forget('dashboard.admin.stats');
+        Cache::forget('pelatihan.active.list');
+        Cache::forget('pelatihan.dinas.active');
+        Cache::forget('pelatihan.kecamatans.all');
 
         event(new \App\Events\DashboardUpdated());
 
