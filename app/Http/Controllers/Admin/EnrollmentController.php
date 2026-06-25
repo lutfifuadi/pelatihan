@@ -99,10 +99,14 @@ class EnrollmentController extends Controller
                 'approved_at' => now(),
                 'notes' => request('notes', $enrollment->notes),
             ]);
-
-            // Dispatch notifikasi WA
-            \App\Events\PendaftaranApproved::dispatch($enrollment->user, $enrollment->pelatihan);
         });
+
+        // Dispatch notifikasi WA — di luar transaction agar kegagalan notif tidak rollback status
+        try {
+            \App\Events\PendaftaranApproved::dispatch($enrollment->user, $enrollment->pelatihan);
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('Notifikasi approved gagal dikirim: ' . $e->getMessage());
+        }
 
         ActivityLogger::action('approved', 'Enrollment', "Pendaftaran {$enrollment->user?->name} untuk pelatihan {$enrollment->pelatihan?->nama} disetujui", $enrollment->id, $enrollment->user?->name);
 
@@ -125,11 +129,15 @@ class EnrollmentController extends Controller
         ]);
 
         // Dispatch notifikasi WA
-        \App\Events\PendaftaranRejected::dispatch(
-            $enrollment->user,
-            $enrollment->pelatihan,
-            $request->notes
-        );
+        try {
+            \App\Events\PendaftaranRejected::dispatch(
+                $enrollment->user,
+                $enrollment->pelatihan,
+                $request->notes
+            );
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('Notifikasi rejected gagal dikirim: ' . $e->getMessage());
+        }
 
         // Cek apakah ada waitlist yang bisa dipromosikan
         $this->promoteFromWaitlist($enrollment->pelatihan_id);
@@ -153,14 +161,18 @@ class EnrollmentController extends Controller
 
         // Dispatch notif masuk_cadangan
         if ($enrollment->user && $enrollment->pelatihan) {
-            $this->notificationService->sendByTemplate(
-                $enrollment->user,
-                'masuk_cadangan',
-                [
-                    'nama' => $enrollment->user->name,
-                    'pelatihan' => $enrollment->pelatihan->nama,
-                ]
-            );
+            try {
+                $this->notificationService->sendByTemplate(
+                    $enrollment->user,
+                    'masuk_cadangan',
+                    [
+                        'nama' => $enrollment->user->name,
+                        'pelatihan' => $enrollment->pelatihan->nama,
+                    ]
+                );
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::warning('Notifikasi waitlist gagal dikirim: ' . $e->getMessage());
+            }
         }
 
         ActivityLogger::action('updated', 'Enrollment', "Pendaftaran {$enrollment->user?->name} untuk pelatihan {$enrollment->pelatihan?->nama} dipindahkan ke daftar cadangan", $enrollment->id, $enrollment->user?->name);
@@ -226,17 +238,27 @@ class EnrollmentController extends Controller
             return redirect()->back()->with('error', 'Tidak dapat meng-approve. Kuota pelatihan "' . $pelatihan->nama . '" sudah penuh.');
         }
 
-        $count = 0;
-        DB::transaction(function () use ($enrollmentsToApprove, &$count) {
+        $approvedList = [];
+        DB::transaction(function () use ($enrollmentsToApprove, &$approvedList) {
             foreach ($enrollmentsToApprove as $enrollment) {
                 $enrollment->update([
                     'status' => 'approved',
                     'approved_at' => now(),
                 ]);
-                \App\Events\PendaftaranApproved::dispatch($enrollment->user, $enrollment->pelatihan);
-                $count++;
+                $approvedList[] = $enrollment;
             }
         });
+
+        // Dispatch notifikasi di luar transaction
+        foreach ($approvedList as $enrollment) {
+            try {
+                \App\Events\PendaftaranApproved::dispatch($enrollment->user, $enrollment->pelatihan);
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::warning('Notifikasi approve-all gagal dikirim: ' . $e->getMessage());
+            }
+        }
+
+        $count = count($approvedList);
 
         $totalPending = $pendingEnrollments->count();
         $remainingPending = $totalPending - $count;
@@ -308,6 +330,13 @@ class EnrollmentController extends Controller
 
             $enrollment->update(['notes' => '[Ubah Status: ' . now()->format('d/m/Y H:i') . '] ' . $request->notes]);
 
+            if ($oldStatus === 'approved' && $newStatus !== 'approved') {
+                $this->promoteFromWaitlist($enrollment->pelatihan_id, $enrollment->id);
+            }
+        });
+
+        // Event/notifikasi di luar transaction agar tidak rollback status jika gagal
+        try {
             switch ($newStatus) {
                 case 'approved':
                     \App\Events\PendaftaranApproved::dispatch($enrollment->user, $enrollment->pelatihan);
@@ -332,11 +361,9 @@ class EnrollmentController extends Controller
                     }
                     break;
             }
-
-            if ($oldStatus === 'approved' && $newStatus !== 'approved') {
-                $this->promoteFromWaitlist($enrollment->pelatihan_id, $enrollment->id);
-            }
-        });
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('Notifikasi change-status gagal dikirim: ' . $e->getMessage());
+        }
 
         ActivityLogger::action('status_changed', 'Enrollment',
             "Status {$enrollment->user?->name} untuk {$enrollment->pelatihan?->nama}: {$oldStatus} \u{2192} {$newStatus}. Alasan: {$request->notes}",
@@ -400,8 +427,11 @@ class EnrollmentController extends Controller
             if ($statusSaatIni === 'approved') {
                 $this->promoteFromWaitlist($pelatihanAsal->id, $enrollment->id);
             }
+        });
 
-            if ($enrollment->user && $pelatihanTujuan) {
+        // Notifikasi di luar transaction
+        if ($enrollment->user && $pelatihanTujuan) {
+            try {
                 $this->notificationService->sendByTemplate(
                     $enrollment->user,
                     'dialihkan',
@@ -412,8 +442,10 @@ class EnrollmentController extends Controller
                         'alasan' => $request->notes,
                     ]
                 );
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::warning('Notifikasi transfer gagal dikirim: ' . $e->getMessage());
             }
-        });
+        }
 
         ActivityLogger::action('transferred', 'Enrollment',
             "Peserta {$enrollment->user?->name} dialihkan dari {$pelatihanAsal->nama} ke {$pelatihanTujuan->nama}. Status: {$statusSaatIni}. Alasan: {$request->notes}",
