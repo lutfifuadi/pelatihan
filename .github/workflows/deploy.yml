@@ -42,7 +42,8 @@ jobs:
       - name: Build frontend assets (needed for PHPUnit views)
         run: |
           cp .env.example .env
-          npm install --legacy-peer-deps --no-audit --no-fund
+          npm cache clean --force
+          npm ci --legacy-peer-deps
           npm run build
 
       - name: Run PHPUnit
@@ -70,7 +71,9 @@ jobs:
         run: cp .env.example .env
 
       - name: Install NPM dependencies
-        run: npm install --legacy-peer-deps --no-audit --no-fund
+        run: |
+          npm cache clean --force
+          npm ci --legacy-peer-deps
 
       - name: Build frontend assets
         run: npm run build
