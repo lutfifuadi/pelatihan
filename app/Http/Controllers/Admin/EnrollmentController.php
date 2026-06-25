@@ -46,7 +46,7 @@ class EnrollmentController extends Controller
         }
 
         $enrollments = $query->orderBy('created_at', 'desc')->paginate(20)->withQueryString();
-        $pelatihans = Cache::remember('pelatihan.active.list', 3600, function () {
+        $pelatihans = Cache::remember('pelatihan.active.list', 300, function () {
             return Pelatihan::where('is_active', true)->orderBy('nama')->get(['id', 'nama', 'batch']);
         });
 
@@ -78,6 +78,7 @@ class EnrollmentController extends Controller
             return response()->json([
                 'rows' => $rows,
                 'pagination' => $pagination,
+                'counts' => $counts,
             ]);
         }
 

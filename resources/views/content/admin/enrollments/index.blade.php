@@ -215,7 +215,7 @@ $configData = Helper::appClasses();
           <div class="stat-icon-box mx-auto mb-2" style="background: rgba(245, 158, 11, 0.15); color: #fbbf24;">
             <i class="icon-base ti tabler-clock"></i>
           </div>
-          <h3 class="fw-bold text-white mb-0">{{ $counts['pending'] }}</h3>
+          <h3 class="fw-bold text-white mb-0" id="stat-pending">{{ $counts['pending'] }}</h3>
           <small class="text-body-premium">Pending</small>
         </div>
       </div>
@@ -224,7 +224,7 @@ $configData = Helper::appClasses();
           <div class="stat-icon-box mx-auto mb-2" style="background: rgba(16, 185, 129, 0.15); color: #34d399;">
             <i class="icon-base ti tabler-check"></i>
           </div>
-          <h3 class="fw-bold text-white mb-0">{{ $counts['approved'] }}</h3>
+          <h3 class="fw-bold text-white mb-0" id="stat-approved">{{ $counts['approved'] }}</h3>
           <small class="text-body-premium">Approved</small>
         </div>
       </div>
@@ -233,7 +233,7 @@ $configData = Helper::appClasses();
           <div class="stat-icon-box mx-auto mb-2" style="background: rgba(239, 68, 68, 0.15); color: #f87171;">
             <i class="icon-base ti tabler-x"></i>
           </div>
-          <h3 class="fw-bold text-white mb-0">{{ $counts['rejected'] }}</h3>
+          <h3 class="fw-bold text-white mb-0" id="stat-rejected">{{ $counts['rejected'] }}</h3>
           <small class="text-body-premium">Ditolak</small>
         </div>
       </div>
@@ -242,7 +242,7 @@ $configData = Helper::appClasses();
           <div class="stat-icon-box mx-auto mb-2" style="background: rgba(96, 165, 250, 0.15); color: #93c5fd;">
             <i class="icon-base ti tabler-users"></i>
           </div>
-          <h3 class="fw-bold text-white mb-0">{{ $counts['waitlist'] }}</h3>
+          <h3 class="fw-bold text-white mb-0" id="stat-waitlist">{{ $counts['waitlist'] }}</h3>
           <small class="text-body-premium">Cadangan</small>
         </div>
       </div>
@@ -511,6 +511,25 @@ $configData = Helper::appClasses();
           paginationContainer.innerHTML = data.pagination;
         } else {
           paginationContainer.innerHTML = '';
+        }
+
+        // Update stat cards dari response
+        if (data.counts) {
+          const pendingEl = document.getElementById('stat-pending');
+          if (pendingEl) pendingEl.textContent = data.counts.pending || 0;
+          const approvedEl = document.getElementById('stat-approved');
+          if (approvedEl) approvedEl.textContent = data.counts.approved || 0;
+          const rejectedEl = document.getElementById('stat-rejected');
+          if (rejectedEl) rejectedEl.textContent = data.counts.rejected || 0;
+          const waitlistEl = document.getElementById('stat-waitlist');
+          if (waitlistEl) waitlistEl.textContent = data.counts.waitlist || 0;
+
+          const approveAllBtn = document.getElementById('btn-approve-all');
+          if (approveAllBtn) {
+            const badge = approveAllBtn.querySelector('.badge');
+            if (badge) badge.textContent = data.counts.pending || 0;
+            approveAllBtn.setAttribute('data-pending', data.counts.pending || 0);
+          }
         }
 
         // Sync URL — hanya update search & page, filter params sudah dihandle oleh applyFilters
