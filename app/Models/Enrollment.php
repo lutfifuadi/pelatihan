@@ -17,6 +17,13 @@ class Enrollment extends Model
         'approved_at',
         'rejected_at',
         'waitlist_promoted_at',
+        'verification_code',
+        'verification_code_expires_at',
+        'wa_confirmed_at',
+        'wa_confirmed_by',
+        'newbimma_checked_at',
+        'newbimma_checked_by',
+        'newbimma_result',
     ];
 
     protected function casts(): array
@@ -25,6 +32,9 @@ class Enrollment extends Model
             'approved_at' => 'datetime',
             'rejected_at' => 'datetime',
             'waitlist_promoted_at' => 'datetime',
+            'verification_code_expires_at' => 'datetime',
+            'wa_confirmed_at' => 'datetime',
+            'newbimma_checked_at' => 'datetime',
         ];
     }
 
@@ -67,5 +77,20 @@ class Enrollment extends Model
     public function scopeWaitlist($query)
     {
         return $query->where('status', 'waitlist');
+    }
+
+    public function scopeWaitingConfirmation($query)
+    {
+        return $query->where('status', 'waiting_wa_confirmation');
+    }
+
+    public function scopeWaitingNewbimmaCheck($query)
+    {
+        return $query->where('status', 'waiting_newbimma_check');
+    }
+
+    public function scopeConfirmed($query)
+    {
+        return $query->where('status', 'confirmed');
     }
 }

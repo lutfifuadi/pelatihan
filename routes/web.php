@@ -283,7 +283,12 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
         Route::post('enrollments/{enrollment}/reset', [EnrollmentController::class, 'reset'])->name('enrollments.reset');
         Route::post('enrollments/{enrollment}/change-status', [EnrollmentController::class, 'changeStatus'])->name('enrollments.change-status');
         Route::post('enrollments/{enrollment}/transfer', [EnrollmentController::class, 'transfer'])->name('enrollments.transfer');
+        Route::post('enrollments/{enrollment}/confirm-wa-chat', [EnrollmentController::class, 'confirmWaChat'])->name('enrollments.confirm-wa-chat');
+        Route::post('enrollments/{enrollment}/confirm-newbimma-valid', [EnrollmentController::class, 'confirmNewbimmaValid'])->name('enrollments.confirm-newbimma-valid');
+        Route::post('enrollments/{enrollment}/reject-newbimma-invalid', [EnrollmentController::class, 'rejectNewbimmaInvalid'])->name('enrollments.reject-newbimma-invalid');
+        Route::post('enrollments/{enrollment}/generate-verification-code', [EnrollmentController::class, 'generateVerificationCode'])->name('enrollments.generate-verification-code');
         Route::get('enrollments/{enrollment}/available-pelatihans', [EnrollmentController::class, 'getAvailablePelatihans'])->name('enrollments.available-pelatihans');
+        Route::post('enrollments/generate-all-verification-codes', [EnrollmentController::class, 'generateAllVerificationCodes'])->name('enrollments.generate-all-verification-codes');
 
         // Absensi
         Route::get('attendances/{pelatihan}', [AttendanceController::class, 'index'])->name('attendances.index');

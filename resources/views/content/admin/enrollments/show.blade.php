@@ -340,6 +340,9 @@ $pelatihans = \App\Models\Pelatihan::where('is_active', true)->orderBy('nama')->
           @switch($enrollment->status)
             @case('pending') <span class="badge-premium badge-premium-warning">Pending</span> @break
             @case('approved') <span class="badge-premium badge-premium-success">Approved (Tahap 1)</span> @break
+            @case('waiting_wa_confirmation') <span class="badge" style="background: rgba(234,179,8,0.15); color: #eab308; border: 1px solid rgba(234,179,8,0.3);"><i class="icon-base ti tabler-brand-whatsapp me-1"></i>Menunggu Chat WA</span> @break
+            @case('waiting_newbimma_check') <span class="badge" style="background: rgba(59,130,246,0.15); color: #3b82f6; border: 1px solid rgba(59,130,246,0.3);"><i class="icon-base ti tabler-search me-1"></i>Cek Newbimma</span> @break
+            @case('confirmed') <span class="badge" style="background: rgba(34,197,94,0.15); color: #22c55e; border: 1px solid rgba(34,197,94,0.3);"><i class="icon-base ti tabler-circle-check me-1"></i>Terkonfirmasi</span> @break
             @case('rejected') <span class="badge-premium badge-premium-danger">Ditolak</span> @break
             @case('waitlist') <span class="badge-premium badge-premium-info">Cadangan</span> @break
           @endswitch
@@ -692,6 +695,44 @@ $pelatihans = \App\Models\Pelatihan::where('is_active', true)->orderBy('nama')->
                   </div>
                 </div>
               </div>
+            </div>
+          </div>
+
+          {{-- Verifikasi WA & Newbimma --}}
+          <div class="col-12">
+            <div class="glass-card-premium px-4 py-4">
+              <h5 class="detail-section-title">
+                <i class="icon-base ti tabler-brand-whatsapp"></i> 🔑 Verifikasi WA & Newbimma
+              </h5>
+              <hr class="detail-divider">
+              <table class="table table-sm table-borderless text-white" style="margin-bottom: 0;">
+                <tr>
+                  <td class="detail-label" style="width: 180px;">Kode Verifikasi</td>
+                  <td class="detail-value"><strong>{{ $enrollment->verification_code ?? '-' }}</strong></td>
+                </tr>
+                <tr>
+                  <td class="detail-label">Status WA</td>
+                  <td class="detail-value">
+                    @if($enrollment->wa_confirmed_at)
+                      ✅ WA dikonfirmasi oleh Admin ({{ $enrollment->wa_confirmed_at->format('d M Y H:i') }})
+                    @else
+                      ⏳ Menunggu
+                    @endif
+                  </td>
+                </tr>
+                <tr>
+                  <td class="detail-label">Status Newbimma</td>
+                  <td class="detail-value">
+                    @if($enrollment->newbimma_result === 'valid')
+                      ✅ Valid - {{ $enrollment->newbimma_checked_at?->format('d M Y H:i') }}
+                    @elseif($enrollment->newbimma_result === 'invalid')
+                      ❌ Tidak Valid (Duplicate) - {{ $enrollment->newbimma_checked_at?->format('d M Y H:i') }}
+                    @else
+                      ⏳ Belum dicek
+                    @endif
+                  </td>
+                </tr>
+              </table>
             </div>
           </div>
 

@@ -18,9 +18,27 @@
           <span class="badge-premium badge-premium-warning">Pending</span>
           @break
         @case('approved')
-          <span class="badge-premium badge-premium-success">Approved (Tahap 1)</span>
-          @if($enrollment->waitlist_promoted_at)
-            <div style="font-size: 0.65rem; color: #93c5fd; margin-top: 2px;">Dari cadangan</div>
+          @if($enrollment->verification_code && !$enrollment->wa_confirmed_at)
+            <span class="badge" style="background: rgba(234,179,8,0.15); color: #eab308; border: 1px solid rgba(234,179,8,0.3);">
+              <i class="icon-base ti tabler-brand-whatsapp me-1"></i>Menunggu Chat WA
+            </span>
+          @elseif($enrollment->wa_confirmed_at && !$enrollment->newbimma_checked_at)
+            <span class="badge" style="background: rgba(59,130,246,0.15); color: #3b82f6; border: 1px solid rgba(59,130,246,0.3);">
+              <i class="icon-base ti tabler-search me-1"></i>Cek Newbimma
+            </span>
+          @elseif($enrollment->newbimma_result === 'valid')
+            <span class="badge" style="background: rgba(34,197,94,0.15); color: #22c55e; border: 1px solid rgba(34,197,94,0.3);">
+              <i class="icon-base ti tabler-circle-check me-1"></i>Terkonfirmasi
+            </span>
+          @elseif($enrollment->newbimma_result === 'invalid')
+            <span class="badge" style="background: rgba(239,68,68,0.15); color: #f87171; border: 1px solid rgba(239,68,68,0.3);">
+              <i class="icon-base ti tabler-x me-1"></i>Ditolak Newbimma
+            </span>
+          @else
+            <span class="badge-premium badge-premium-success">Approved</span>
+            @if($enrollment->waitlist_promoted_at)
+              <div style="font-size: 0.65rem; color: #93c5fd; margin-top: 2px;">Dari cadangan</div>
+            @endif
           @endif
           @break
         @case('rejected')
@@ -94,6 +112,54 @@
           <i class="icon-base ti tabler-refresh fs-5"></i>
         </button>
       </form>
+
+      {{-- Tombol Generate Kode Verifikasi --}}
+      @if($enrollment->status === 'approved' && !$enrollment->verification_code)
+        <form action="{{ route('admin.enrollments.generate-verification-code', $enrollment) }}" method="POST" class="d-inline">
+          @csrf
+          <button type="submit" class="btn btn-sm"
+                  style="background: #6366f1; color: white; border: none; border-radius: 5px; padding: 4px 10px;">
+            <i class="icon-base ti tabler-key"></i> Generate Kode
+          </button>
+        </form>
+      @endif
+
+      {{-- Tombol WA Confirmation --}}
+      @if($enrollment->status === 'approved' && $enrollment->verification_code && !$enrollment->wa_confirmed_at)
+        <form action="{{ route('admin.enrollments.confirm-wa-chat', $enrollment) }}" method="POST" class="d-inline">
+          @csrf
+          <button type="submit" class="btn btn-sm"
+                  style="background: #25D366; color: white; border: none; border-radius: 5px; padding: 4px 10px;"
+                  onclick="return confirm('Konfirmasi bahwa peserta sudah chat WA?')">
+            <i class="icon-base ti tabler-brand-whatsapp"></i> Sudah Chat WA
+          </button>
+        </form>
+      @endif
+
+      {{-- Tombol Newbimma Check --}}
+      @if($enrollment->status === 'approved' && $enrollment->wa_confirmed_at && !$enrollment->newbimma_checked_at)
+        <a href="#" class="btn btn-sm btn-outline-primary"
+           onclick="window.open('https://newbimma.example.com', '_blank')"
+           style="font-size: 11px;">
+          🔍 Cek Newbimma
+        </a>
+        <form action="{{ route('admin.enrollments.confirm-newbimma-valid', $enrollment) }}" method="POST" class="d-inline">
+          @csrf
+          <button type="submit" class="btn btn-sm"
+                  style="background: #22c55e; color: white; border: none; border-radius: 5px; padding: 4px 10px;"
+                  onclick="return confirm('Validasi Newbimma: Pastikan peserta TIDAK TERDAFTAR di pelatihan yang sama. Lanjutkan?')">
+            ✅ Valid
+          </button>
+        </form>
+        <form action="{{ route('admin.enrollments.reject-newbimma-invalid', $enrollment) }}" method="POST" class="d-inline">
+          @csrf
+          <button type="submit" class="btn btn-sm"
+                  style="background: #ef4444; color: white; border: none; border-radius: 5px; padding: 4px 10px;"
+                  onclick="return confirm('Yakin ingin menolak? Peserta sudah pernah ikut pelatihan yang sama di Newbimma.')">
+            ❌ Tolak
+          </button>
+        </form>
+      @endif
     </td>
   </tr>
 @empty

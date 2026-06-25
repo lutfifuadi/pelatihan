@@ -8,6 +8,7 @@ use App\Models\Pelatihan;
 use App\Models\User;
 use App\Services\ActivityLogger;
 use App\Services\NotificationService;
+use App\Services\VerificationCodeService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -33,16 +34,31 @@ class EnrollmentController extends Controller
             $query->where('pelatihan_id', $request->pelatihan_id);
         }
 
-        // Filter search by user name
+        // Filter search by user name or verification code
         $query->when($search, function ($q, $search) {
             $q->whereHas('user', function ($q) use ($search) {
                 $q->where('name', 'like', '%' . $search . '%');
-            });
+            })->orWhere('verification_code', 'like', '%' . $search . '%');
         });
 
         // Filter status
         if ($request->filled('status')) {
-            $query->where('status', $request->status);
+            $status = $request->status;
+            if ($status === 'waiting_wa') {
+                $query->where('status', 'approved')
+                      ->whereNotNull('verification_code')
+                      ->whereNull('wa_confirmed_at');
+            } elseif ($status === 'waiting_newbimma') {
+                $query->where('status', 'approved')
+                      ->whereNotNull('wa_confirmed_at')
+                      ->whereNull('newbimma_checked_at');
+            } elseif ($status === 'confirmed') {
+                $query->where('status', 'approved')
+                      ->whereNotNull('newbimma_checked_at')
+                      ->where('newbimma_result', 'valid');
+            } else {
+                $query->where('status', $status);
+            }
         }
 
         $enrollments = $query->orderBy('created_at', 'desc')->paginate(20)->withQueryString();
@@ -57,14 +73,24 @@ class EnrollmentController extends Controller
             $countQuery->where('pelatihan_id', $request->pelatihan_id);
         }
         $statusCounts = (clone $countQuery)
-            ->selectRaw('status, COUNT(*) as total')
-            ->whereIn('status', ['pending', 'approved', 'rejected', 'waitlist'])
-            ->groupBy('status')
-            ->pluck('total', 'status');
+            ->selectRaw("
+                CASE 
+                    WHEN status = 'approved' AND verification_code IS NOT NULL AND wa_confirmed_at IS NULL THEN 'waiting_wa'
+                    WHEN status = 'approved' AND wa_confirmed_at IS NOT NULL AND newbimma_checked_at IS NULL THEN 'waiting_newbimma'
+                    WHEN status = 'approved' AND newbimma_checked_at IS NOT NULL AND newbimma_result = 'valid' THEN 'confirmed'
+                    ELSE status 
+                END as status_group,
+                COUNT(*) as total
+            ")
+            ->groupBy('status_group')
+            ->pluck('total', 'status_group');
 
         $counts = [
             'pending' => $statusCounts['pending'] ?? 0,
             'approved' => $statusCounts['approved'] ?? 0,
+            'waiting_wa' => $statusCounts['waiting_wa'] ?? 0,
+            'waiting_newbimma' => $statusCounts['waiting_newbimma'] ?? 0,
+            'confirmed' => $statusCounts['confirmed'] ?? 0,
             'rejected' => $statusCounts['rejected'] ?? 0,
             'waitlist' => $statusCounts['waitlist'] ?? 0,
         ];
@@ -98,6 +124,8 @@ class EnrollmentController extends Controller
                 'status' => 'approved',
                 'approved_at' => now(),
                 'notes' => request('notes', $enrollment->notes),
+                'verification_code' => VerificationCodeService::generate($enrollment),
+                'verification_code_expires_at' => now()->addHours(24),
             ]);
         });
 
@@ -108,11 +136,11 @@ class EnrollmentController extends Controller
             \Illuminate\Support\Facades\Log::warning('Notifikasi approved gagal dikirim: ' . $e->getMessage());
         }
 
-        ActivityLogger::action('approved', 'Enrollment', "Pendaftaran {$enrollment->user?->name} untuk pelatihan {$enrollment->pelatihan?->nama} disetujui", $enrollment->id, $enrollment->user?->name);
+        ActivityLogger::action('approved', 'Enrollment', "Pendaftaran {$enrollment->user?->name} untuk pelatihan {$enrollment->pelatihan?->nama} disetujui, kode verifikasi dibuat", $enrollment->id, $enrollment->user?->name);
 
         $this->broadcastDashboardUpdate();
 
-        return redirect()->back()->with('success', 'Pendaftaran berhasil di-approve.');
+        return redirect()->back()->with('success', 'Pendaftaran berhasil di-approve. Kode verifikasi WA telah dibuat.');
     }
 
     /**
@@ -564,6 +592,125 @@ class EnrollmentController extends Controller
         $sisaBelumTercek = $totalPendaftar - $approvedCount - $waitlistCount;
 
         return view('content.admin.enrollments.show', compact('enrollment', 'previousEnrollment', 'nextEnrollment', 'usia', 'approvedCount', 'waitlistCount', 'totalPendaftar', 'sisaBelumTercek'));
+    }
+
+    /**
+     * Konfirmasi bahwa peserta sudah di-chat via WA.
+     */
+    public function confirmWaChat(Enrollment $enrollment)
+    {
+        if ($enrollment->status !== 'approved') {
+            return redirect()->back()->with('error', 'Status enrollment harus approved.');
+        }
+
+        if (!VerificationCodeService::isValid($enrollment)) {
+            return redirect()->back()->with('error', 'Kode verifikasi sudah expired. Silakan generate ulang.');
+        }
+
+        $enrollment->update([
+            'wa_confirmed_at' => now(),
+            'wa_confirmed_by' => auth()->id(),
+        ]);
+
+        ActivityLogger::action('updated', 'Enrollment', "Konfirmasi WA chat untuk {$enrollment->user?->name} pada pelatihan {$enrollment->pelatihan?->nama}", $enrollment->id, $enrollment->user?->name);
+
+        $this->broadcastDashboardUpdate();
+
+        return redirect()->back()->with('success', 'WA chat berhasil dikonfirmasi.');
+    }
+
+    /**
+     * Konfirmasi pengecekan Newbimma valid.
+     */
+    public function confirmNewbimmaValid(Enrollment $enrollment)
+    {
+        if ($enrollment->status !== 'approved') {
+            return redirect()->back()->with('error', 'Status enrollment harus approved.');
+        }
+
+        $enrollment->update([
+            'newbimma_result' => 'valid',
+            'newbimma_checked_at' => now(),
+            'newbimma_checked_by' => auth()->id(),
+        ]);
+
+        ActivityLogger::action('approved', 'Enrollment', "Pengecekan Newbimma untuk {$enrollment->user?->name} pada pelatihan {$enrollment->pelatihan?->nama}: valid", $enrollment->id, $enrollment->user?->name);
+
+        $this->broadcastDashboardUpdate();
+
+        return redirect()->back()->with('success', 'Peserta dinyatakan valid.');
+    }
+
+    /**
+     * Tolak karena pengecekan Newbimma invalid.
+     */
+    public function rejectNewbimmaInvalid(Enrollment $enrollment)
+    {
+        if ($enrollment->status !== 'approved') {
+            return redirect()->back()->with('error', 'Status enrollment harus approved.');
+        }
+
+        $enrollment->update([
+            'newbimma_result' => 'invalid',
+            'newbimma_checked_at' => now(),
+            'newbimma_checked_by' => auth()->id(),
+            'status' => 'rejected',
+            'notes' => 'Pernah mengikuti pelatihan yang sama di Newbimma',
+        ]);
+
+        ActivityLogger::action('rejected', 'Enrollment', "Pengecekan Newbimma untuk {$enrollment->user?->name} pada pelatihan {$enrollment->pelatihan?->nama}: invalid — ditolak", $enrollment->id, $enrollment->user?->name);
+
+        $this->broadcastDashboardUpdate();
+
+        return redirect()->back()->with('error', 'Peserta ditolak karena pernah mengikuti pelatihan yang sama di Newbimma.');
+    }
+
+    /**
+     * Generate verification code untuk approved enrollment yang belum punya kode.
+     */
+    public function generateVerificationCode(Enrollment $enrollment)
+    {
+        if ($enrollment->status !== 'approved') {
+            return redirect()->back()->with('error', 'Kode verifikasi hanya bisa digenerate untuk enrollment dengan status Approved.');
+        }
+
+        if ($enrollment->verification_code) {
+            return redirect()->back()->with('error', 'Enrollment ini sudah memiliki kode verifikasi: ' . $enrollment->verification_code);
+        }
+
+        $code = app(\App\Services\VerificationCodeService::class)->generate($enrollment);
+        $enrollment->update([
+            'verification_code' => $code,
+            'verification_code_expires_at' => now()->addHours(24),
+        ]);
+
+        return redirect()->back()->with('success', 'Kode verifikasi berhasil digenerate: ' . $code);
+    }
+
+    /**
+     * Generate verification code untuk semua approved enrollment yang belum punya kode.
+     */
+    public function generateAllVerificationCodes()
+    {
+        $enrollments = Enrollment::where('status', 'approved')
+            ->whereNull('verification_code')
+            ->get();
+
+        if ($enrollments->isEmpty()) {
+            return redirect()->back()->with('info', 'Semua enrollment approved sudah memiliki kode verifikasi.');
+        }
+
+        $count = 0;
+        foreach ($enrollments as $enrollment) {
+            $code = app(\App\Services\VerificationCodeService::class)->generate($enrollment);
+            $enrollment->update([
+                'verification_code' => $code,
+                'verification_code_expires_at' => now()->addHours(24),
+            ]);
+            $count++;
+        }
+
+        return redirect()->back()->with('success', "Berhasil generate {$count} kode verifikasi.");
     }
 
     /**

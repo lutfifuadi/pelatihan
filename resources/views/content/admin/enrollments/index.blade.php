@@ -34,6 +34,15 @@ $configData = Helper::appClasses();
     color: #f8fafc !important;
   }
 
+  .layout-navbar-fixed .layout-page::before {
+    display: none !important;
+  }
+
+  .content-wrapper > .container-xxl {
+    max-width: 100% !important;
+    padding: 0 !important;
+  }
+
   .glass-card-premium {
     background: rgba(15, 23, 42, 0.25) !important;
     backdrop-filter: blur(16px);
@@ -58,6 +67,16 @@ $configData = Helper::appClasses();
     align-items: center;
     justify-content: center;
     font-size: 1.6rem;
+    flex-shrink: 0;
+  }
+
+  .stat-icon-box-sm {
+    width: 32px;
+    height: 32px;
+    border-radius: 5px !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     flex-shrink: 0;
   }
 
@@ -209,41 +228,96 @@ $configData = Helper::appClasses();
     @endif
 
     {{-- Stat Cards --}}
-    <div class="row g-3 mb-4">
-      <div class="col-sm-6 col-md-3">
-        <div class="glass-card-premium px-3 py-3 text-center">
-          <div class="stat-icon-box mx-auto mb-2" style="background: rgba(245, 158, 11, 0.15); color: #fbbf24;">
-            <i class="icon-base ti tabler-clock"></i>
+    <div class="row g-2 mb-4">
+      <div class="col-md col-6">
+        <div class="glass-card-premium px-2 py-2">
+          <div class="d-flex align-items-center justify-content-between gap-2">
+            <div class="stat-icon-box-sm" style="background: rgba(245, 158, 11, 0.15); color: #fbbf24;">
+              <i class="icon-base ti tabler-clock" style="font-size: 1rem;"></i>
+            </div>
+            <div class="text-end">
+              <h5 class="fw-bold text-white mb-0" id="stat-pending" style="font-size: 1.5rem; line-height: 1.2;">{{ $counts['pending'] }}</h5>
+              <small class="text-body-premium" style="font-size: 0.65rem;">Pending</small>
+            </div>
           </div>
-          <h3 class="fw-bold text-white mb-0" id="stat-pending">{{ $counts['pending'] }}</h3>
-          <small class="text-body-premium">Pending</small>
         </div>
       </div>
-      <div class="col-sm-6 col-md-3">
-        <div class="glass-card-premium px-3 py-3 text-center">
-          <div class="stat-icon-box mx-auto mb-2" style="background: rgba(16, 185, 129, 0.15); color: #34d399;">
-            <i class="icon-base ti tabler-check"></i>
+      <div class="col-md col-6">
+        <div class="glass-card-premium px-2 py-2">
+          <div class="d-flex align-items-center justify-content-between gap-2">
+            <div class="stat-icon-box-sm" style="background: rgba(16, 185, 129, 0.15); color: #34d399;">
+              <i class="icon-base ti tabler-check" style="font-size: 1rem;"></i>
+            </div>
+            <div class="text-end">
+              <h5 class="fw-bold text-white mb-0" id="stat-approved" style="font-size: 1.5rem; line-height: 1.2;">{{ $counts['approved'] }}</h5>
+              <small class="text-body-premium" style="font-size: 0.65rem;">Approved</small>
+            </div>
           </div>
-          <h3 class="fw-bold text-white mb-0" id="stat-approved">{{ $counts['approved'] }}</h3>
-          <small class="text-body-premium">Approved</small>
         </div>
       </div>
-      <div class="col-sm-6 col-md-3">
-        <div class="glass-card-premium px-3 py-3 text-center">
-          <div class="stat-icon-box mx-auto mb-2" style="background: rgba(239, 68, 68, 0.15); color: #f87171;">
-            <i class="icon-base ti tabler-x"></i>
+      <div class="col-md col-6">
+        <div class="glass-card-premium px-2 py-2">
+          <div class="d-flex align-items-center justify-content-between gap-2">
+            <div class="stat-icon-box-sm" style="background: rgba(234,179,8,0.15); color: #eab308;">
+              <i class="icon-base ti tabler-brand-whatsapp" style="font-size: 1rem;"></i>
+            </div>
+            <div class="text-end">
+              <h5 class="fw-bold text-white mb-0" id="stat-waiting-wa" style="font-size: 1.5rem; line-height: 1.2;">{{ $counts['waiting_wa'] ?? 0 }}</h5>
+              <small class="text-body-premium" style="font-size: 0.65rem;">M. Chat WA</small>
+            </div>
           </div>
-          <h3 class="fw-bold text-white mb-0" id="stat-rejected">{{ $counts['rejected'] }}</h3>
-          <small class="text-body-premium">Ditolak</small>
         </div>
       </div>
-      <div class="col-sm-6 col-md-3">
-        <div class="glass-card-premium px-3 py-3 text-center">
-          <div class="stat-icon-box mx-auto mb-2" style="background: rgba(96, 165, 250, 0.15); color: #93c5fd;">
-            <i class="icon-base ti tabler-users"></i>
+      <div class="col-md col-6">
+        <div class="glass-card-premium px-2 py-2">
+          <div class="d-flex align-items-center justify-content-between gap-2">
+            <div class="stat-icon-box-sm" style="background: rgba(59,130,246,0.15); color: #3b82f6;">
+              <i class="icon-base ti tabler-search" style="font-size: 1rem;"></i>
+            </div>
+            <div class="text-end">
+              <h5 class="fw-bold text-white mb-0" id="stat-waiting-newbimma" style="font-size: 1.5rem; line-height: 1.2;">{{ $counts['waiting_newbimma'] ?? 0 }}</h5>
+              <small class="text-body-premium" style="font-size: 0.65rem;">Cek Newbimma</small>
+            </div>
           </div>
-          <h3 class="fw-bold text-white mb-0" id="stat-waitlist">{{ $counts['waitlist'] }}</h3>
-          <small class="text-body-premium">Cadangan</small>
+        </div>
+      </div>
+      <div class="col-md col-6">
+        <div class="glass-card-premium px-2 py-2">
+          <div class="d-flex align-items-center justify-content-between gap-2">
+            <div class="stat-icon-box-sm" style="background: rgba(34,197,94,0.15); color: #22c55e;">
+              <i class="icon-base ti tabler-circle-check" style="font-size: 1rem;"></i>
+            </div>
+            <div class="text-end">
+              <h5 class="fw-bold text-white mb-0" id="stat-confirmed" style="font-size: 1.5rem; line-height: 1.2;">{{ $counts['confirmed'] ?? 0 }}</h5>
+              <small class="text-body-premium" style="font-size: 0.65rem;">Terkonfirmasi</small>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md col-6">
+        <div class="glass-card-premium px-2 py-2">
+          <div class="d-flex align-items-center justify-content-between gap-2">
+            <div class="stat-icon-box-sm" style="background: rgba(239, 68, 68, 0.15); color: #f87171;">
+              <i class="icon-base ti tabler-x" style="font-size: 1rem;"></i>
+            </div>
+            <div class="text-end">
+              <h5 class="fw-bold text-white mb-0" id="stat-rejected" style="font-size: 1.5rem; line-height: 1.2;">{{ $counts['rejected'] }}</h5>
+              <small class="text-body-premium" style="font-size: 0.65rem;">Ditolak</small>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md col-6">
+        <div class="glass-card-premium px-2 py-2">
+          <div class="d-flex align-items-center justify-content-between gap-2">
+            <div class="stat-icon-box-sm" style="background: rgba(96, 165, 250, 0.15); color: #93c5fd;">
+              <i class="icon-base ti tabler-users" style="font-size: 1rem;"></i>
+            </div>
+            <div class="text-end">
+              <h5 class="fw-bold text-white mb-0" id="stat-waitlist" style="font-size: 1.5rem; line-height: 1.2;">{{ $counts['waitlist'] }}</h5>
+              <small class="text-body-premium" style="font-size: 0.65rem;">Cadangan</small>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -295,6 +369,15 @@ $configData = Helper::appClasses();
             <option value="">Semua Status</option>
             <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Pending</option>
             <option value="approved" {{ request('status') == 'approved' ? 'selected' : '' }}>Approved</option>
+            <option value="waiting_wa" {{ request('status') == 'waiting_wa' ? 'selected' : '' }}>
+              ⏳ Menunggu Chat WA
+            </option>
+            <option value="waiting_newbimma" {{ request('status') == 'waiting_newbimma' ? 'selected' : '' }}>
+              🔄 Cek Newbimma
+            </option>
+            <option value="confirmed" {{ request('status') == 'confirmed' ? 'selected' : '' }}>
+              ✅ Terkonfirmasi
+            </option>
             <option value="rejected" {{ request('status') == 'rejected' ? 'selected' : '' }}>Ditolak</option>
             <option value="waitlist" {{ request('status') == 'waitlist' ? 'selected' : '' }}>Cadangan</option>
           </select>
@@ -323,6 +406,23 @@ $configData = Helper::appClasses();
         </div>
       </div>
     @endif
+
+    {{-- Generate All Verification Codes Button --}}
+    <div class="glass-card-premium px-4 py-3 mb-4">
+      <div class="row align-items-center">
+        <div class="col-12">
+        <form action="{{ route('admin.enrollments.generate-all-verification-codes') }}" method="POST" class="d-inline" id="form-generate-all-codes">
+          @csrf
+          <button type="submit" class="btn btn-action px-4"
+                  style="background: #6366f1; color: white; border: none; border-radius: 5px; padding: 6px 16px;">
+            <i class="icon-base ti tabler-key me-1"></i>
+            Generate Semua Kode Verifikasi
+          </button>
+        </form>
+          <small class="text-body-premium ms-2">Generate kode untuk semua enrollment approved yang belum punya</small>
+        </div>
+      </div>
+    </div>
 
     {{-- Export Buttons --}}
     <div class="glass-card-premium px-4 py-3 mb-4">
@@ -523,6 +623,12 @@ $configData = Helper::appClasses();
           if (rejectedEl) rejectedEl.textContent = data.counts.rejected || 0;
           const waitlistEl = document.getElementById('stat-waitlist');
           if (waitlistEl) waitlistEl.textContent = data.counts.waitlist || 0;
+          const waitingWaEl = document.getElementById('stat-waiting-wa');
+          if (waitingWaEl) waitingWaEl.textContent = data.counts.waiting_wa || 0;
+          const waitingNewbimmaEl = document.getElementById('stat-waiting-newbimma');
+          if (waitingNewbimmaEl) waitingNewbimmaEl.textContent = data.counts.waiting_newbimma || 0;
+          const confirmedEl = document.getElementById('stat-confirmed');
+          if (confirmedEl) confirmedEl.textContent = data.counts.confirmed || 0;
 
           const approveAllBtn = document.getElementById('btn-approve-all');
           if (approveAllBtn) {
@@ -681,6 +787,39 @@ $configData = Helper::appClasses();
           form.submit();
         }
       });
+    });
+  });
+
+  // Generate All Verification Codes form handler
+  document.getElementById('form-generate-all-codes')?.addEventListener('submit', function(e) {
+    e.preventDefault();
+    const form = this;
+
+    Swal.fire({
+      title: 'Generate Semua Kode?',
+      html: `<div>Generate kode verifikasi untuk <strong style="color: #818cf8;">SEMUA</strong> enrollment <strong style="color: #34d399;">Approved</strong> yang belum punya kode?</div>
+             <div class="mt-2" style="font-size: 0.8rem; color: rgba(255,255,255,0.5);">Peserta akan otomatis mendapat popup congratulations di dashboard-nya.</div>`,
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: 'Ya, Generate!',
+      cancelButtonText: 'Batal',
+      confirmButtonColor: '#6366f1',
+      cancelButtonColor: '#6b7280',
+      reverseButtons: true,
+      background: '#0f172a',
+      color: '#f8fafc',
+      customClass: {
+        popup: 'rounded-3 shadow-lg',
+        title: 'fw-bold text-white',
+        htmlContainer: 'text-body-premium',
+        confirmButton: 'btn btn-primary px-4 py-2 border-0 me-2',
+        cancelButton: 'btn btn-secondary-custom px-4 py-2 border-0',
+      },
+      buttonsStyling: false,
+    }).then((result) => {
+      if (result.isConfirmed) {
+        form.submit();
+      }
     });
   });
 </script>

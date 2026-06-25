@@ -414,6 +414,11 @@ $configData = Helper::appClasses();
 @endsection
 
 @section('content')
+  {{-- Popup Congratulations Wajib Chat WA --}}
+  @if(auth()->user()->enrollments()->where('status', 'approved')->whereNotNull('verification_code')->whereNull('wa_confirmed_at')->exists())
+    <livewire:peserta.waiting-confirmation />
+  @endif
+
   <!-- Floating Gradient Background Orbs -->
   <div class="glow-orb orb-1"></div>
   <div class="glow-orb orb-2"></div>
