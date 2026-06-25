@@ -8,123 +8,118 @@ use App\Models\NotificationTemplate;
 use App\Models\Pelatihan;
 use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cache;
 
 class DashboardController extends Controller
 {
     /**
-     * Dashboard Admin — Data di-cache untuk performa optimal.
+     * Dashboard Admin — Real-time (no cache).
      */
     public function admin()
     {
-        $data = Cache::remember('dashboard.admin.stats', 3600, function () {
-            // --- Statistik dengan single query menggunakan GROUP BY ---
-            $userCounts = User::selectRaw("
-                    COUNT(*) as total,
-                    SUM(CASE WHEN role = 'peserta' THEN 1 ELSE 0 END) as total_peserta,
-                    SUM(CASE WHEN role = 'instruktur' THEN 1 ELSE 0 END) as total_instruktur,
-                    SUM(CASE WHEN role = 'koordinator' THEN 1 ELSE 0 END) as total_koordinator
-                ")->first();
+        // --- Statistik dengan single query menggunakan GROUP BY ---
+        $userCounts = User::selectRaw("
+                COUNT(*) as total,
+                SUM(CASE WHEN role = 'peserta' THEN 1 ELSE 0 END) as total_peserta,
+                SUM(CASE WHEN role = 'instruktur' THEN 1 ELSE 0 END) as total_instruktur,
+                SUM(CASE WHEN role = 'koordinator' THEN 1 ELSE 0 END) as total_koordinator
+            ")->first();
 
-            // --- Notifikasi stats dalam 2 query ---
-            $waSentToday = Notification::where('channel', 'whatsapp')
-                ->where('status', 'sent')
-                ->whereDate('sent_at', today())
-                ->count();
+        // --- Notifikasi stats dalam 2 query ---
+        $waSentToday = Notification::where('channel', 'whatsapp')
+            ->where('status', 'sent')
+            ->whereDate('sent_at', today())
+            ->count();
 
-            $waFailed = Notification::where('channel', 'whatsapp')
-                ->where('status', 'failed')
-                ->count();
+        $waFailed = Notification::where('channel', 'whatsapp')
+            ->where('status', 'failed')
+            ->count();
 
-            $notifPending = Notification::where('status', 'pending')->count();
+        $notifPending = Notification::where('status', 'pending')->count();
 
-            $activeTemplates = NotificationTemplate::where('is_active', true)->count();
+        $activeTemplates = NotificationTemplate::where('is_active', true)->count();
 
-            // --- Koordinator pending (aktif & tidak aktif) ---
-            $pendingKoordinators = User::where('role', 'koordinator')
-                ->where('is_active', false)
-                ->with('kecamatan:id,name')
-                ->orderBy('created_at', 'desc')
-                ->take(5)
-                ->get();
+        // --- Koordinator pending (aktif & tidak aktif) ---
+        $pendingKoordinators = User::where('role', 'koordinator')
+            ->where('is_active', false)
+            ->with('kecamatan:id,name')
+            ->orderBy('created_at', 'desc')
+            ->take(5)
+            ->get();
 
-            $pendingKoordinatorCount = User::where('role', 'koordinator')
-                ->where('is_active', false)
-                ->count();
+        $pendingKoordinatorCount = User::where('role', 'koordinator')
+            ->where('is_active', false)
+            ->count();
 
-            // --- Koordinator aktif ---
-            $activeKoors = User::where('role', 'koordinator')
-                ->where('is_active', true)
-                ->with('kecamatan:id,name')
-                ->orderBy('created_at', 'desc')
-                ->take(4)
-                ->get();
+        // --- Koordinator aktif ---
+        $activeKoors = User::where('role', 'koordinator')
+            ->where('is_active', true)
+            ->with('kecamatan:id,name')
+            ->orderBy('created_at', 'desc')
+            ->take(4)
+            ->get();
 
-            $koorActiveCount = User::where('role', 'koordinator')
-                ->where('is_active', true)
-                ->count();
+        $koorActiveCount = User::where('role', 'koordinator')
+            ->where('is_active', true)
+            ->count();
 
-            // --- Pelatihan ---
-            $totalPelatihan = Pelatihan::count();
-            $activePelatihanCount = Pelatihan::where('is_active', true)->count();
+        // --- Pelatihan ---
+        $totalPelatihan = Pelatihan::count();
+        $activePelatihanCount = Pelatihan::where('is_active', true)->count();
 
-            $latestPelatihan = Pelatihan::select('id', 'nama', 'batch', 'kuota', 'is_active', 'created_at')
-                ->orderBy('created_at', 'desc')
-                ->take(4)
-                ->get();
+        $latestPelatihan = Pelatihan::select('id', 'nama', 'batch', 'kuota', 'is_active', 'created_at')
+            ->orderBy('created_at', 'desc')
+            ->take(4)
+            ->get();
 
-            // --- Kecamatan ---
-            $totalKecamatan = Kecamatan::count();
+        // --- Kecamatan ---
+        $totalKecamatan = Kecamatan::count();
 
-            // --- Sebaran Pendaftar per Kecamatan (Leaflet) ---
-            $sebaranKecamatan = Kecamatan::select('kecamatans.id', 'kecamatans.name', 'kecamatans.latitude', 'kecamatans.longitude')
-                ->selectRaw('COUNT(users.id) as total_pendaftar')
-                ->leftJoin('users', function ($join) {
-                    $join->on('kecamatans.id', '=', 'users.kecamatan_id')
-                        ->where('users.role', '=', 'peserta');
-                })
-                ->whereNotNull('kecamatans.latitude')
-                ->whereNotNull('kecamatans.longitude')
-                ->groupBy('kecamatans.id', 'kecamatans.name', 'kecamatans.latitude', 'kecamatans.longitude')
-                ->get();
+        // --- Sebaran Pendaftar per Kecamatan (Leaflet) ---
+        $sebaranKecamatan = Kecamatan::select('kecamatans.id', 'kecamatans.name', 'kecamatans.latitude', 'kecamatans.longitude')
+            ->selectRaw('COUNT(users.id) as total_pendaftar')
+            ->leftJoin('users', function ($join) {
+                $join->on('kecamatans.id', '=', 'users.kecamatan_id')
+                    ->where('users.role', '=', 'peserta');
+            })
+            ->whereNotNull('kecamatans.latitude')
+            ->whereNotNull('kecamatans.longitude')
+            ->groupBy('kecamatans.id', 'kecamatans.name', 'kecamatans.latitude', 'kecamatans.longitude')
+            ->get();
 
-            // --- Peserta terbaru ---
-            $pesertaCount = $userCounts->total_peserta;
+        // --- Peserta terbaru ---
+        $pesertaCount = $userCounts->total_peserta;
 
-            $latestPeserta = User::select('id', 'name', 'nik', 'created_at')
-                ->where('role', 'peserta')
-                ->orderBy('created_at', 'desc')
-                ->take(4)
-                ->get();
+        $latestPeserta = User::select('id', 'name', 'nik', 'created_at')
+            ->where('role', 'peserta')
+            ->orderBy('created_at', 'desc')
+            ->take(4)
+            ->get();
 
-            // --- Log Aktivitas Terbaru ---
-            $latestActivities = \App\Models\ActivityLog::with('user:id,name,role')
-                ->orderBy('created_at', 'desc')
-                ->take(5)
-                ->get();
+        // --- Log Aktivitas Terbaru ---
+        $latestActivities = \App\Models\ActivityLog::with('user:id,name,role')
+            ->orderBy('created_at', 'desc')
+            ->take(5)
+            ->get();
 
-            return compact(
-                'userCounts',
-                'waSentToday',
-                'waFailed',
-                'notifPending',
-                'activeTemplates',
-                'pendingKoordinators',
-                'pendingKoordinatorCount',
-                'activeKoors',
-                'koorActiveCount',
-                'totalPelatihan',
-                'activePelatihanCount',
-                'latestPelatihan',
-                'totalKecamatan',
-                'sebaranKecamatan',
-                'pesertaCount',
-                'latestPeserta',
-                'latestActivities',
-            );
-        });
-
-        return view('content.dashboard.admin', $data);
+        return view('content.dashboard.admin', compact(
+            'userCounts',
+            'waSentToday',
+            'waFailed',
+            'notifPending',
+            'activeTemplates',
+            'pendingKoordinators',
+            'pendingKoordinatorCount',
+            'activeKoors',
+            'koorActiveCount',
+            'totalPelatihan',
+            'activePelatihanCount',
+            'latestPelatihan',
+            'totalKecamatan',
+            'sebaranKecamatan',
+            'pesertaCount',
+            'latestPeserta',
+            'latestActivities',
+        ));
     }
 
     /**
