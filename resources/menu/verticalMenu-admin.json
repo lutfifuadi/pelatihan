@@ -190,6 +190,12 @@
       ]
     },
     {
+      "url": "/admin/cache",
+      "name": "Clear Cache",
+      "icon": "menu-icon icon-base ti tabler-broom",
+      "slug": "admin.cache.index"
+    },
+    {
       "url": "/admin/whatsapp-gateway",
       "name": "WhatsApp Gateway",
       "icon": "menu-icon icon-base ti tabler-brand-whatsapp",
@@ -236,6 +242,31 @@
           "name": "Preferensi",
           "icon": "menu-icon icon-base ti tabler-settings",
           "slug": "notifications.preferences"
+        }
+      ]
+    },
+    {
+      "menuHeader": "Pengaturan"
+    },
+    {
+      "url": "#",
+      "name": "Google Drive",
+      "icon": "menu-icon icon-base ti tabler-brand-google-drive",
+      "slug": [
+        "admin.google-drive"
+      ],
+      "submenu": [
+        {
+          "url": "/admin/google-drive",
+          "name": "Status Koneksi",
+          "icon": "menu-icon icon-base ti tabler-plug-connected",
+          "slug": "admin.google-drive.status"
+        },
+        {
+          "url": "/admin/google-drive/settings",
+          "name": "Pengaturan",
+          "icon": "menu-icon icon-base ti tabler-settings",
+          "slug": "admin.google-drive.settings"
         }
       ]
     },

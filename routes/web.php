@@ -42,12 +42,14 @@ use App\Http\Controllers\Admin\CertificateController;
 use App\Http\Controllers\Admin\ExportController;
 use App\Http\Controllers\Admin\ScheduleController;
 use App\Http\Controllers\Admin\ActivityLogController;
+use App\Http\Controllers\Admin\CacheController;
 use App\Http\Controllers\Admin\FormOptionController;
 use App\Http\Controllers\Admin\FormFieldConfigController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\KoordinatorRegisterController;
 use App\Http\Controllers\Peserta\PesertaFormController;
 use App\Http\Controllers\Admin\Auth\AdminLoginController;
+use App\Http\Controllers\GoogleAuthController;
 use Illuminate\Support\Facades\Auth;
 
 // Main Page Route
@@ -114,6 +116,26 @@ Route::get('/api/kelurahan', function (Illuminate\Http\Request $request) {
     return response()->json($kelurahans);
 })->name('api.kelurahan');
 
+// Public API: Daftar Koordinator untuk autocomplete registrasi
+Route::get('/api/koordinator', function (Illuminate\Http\Request $request) {
+    $query = $request->get('q');
+    $koordinator = App\Models\User::where('role', 'koordinator')
+        ->where('is_active', true);
+    
+    if ($query && strlen($query) >= 3) {
+        $koordinator->where(function ($q) use ($query) {
+            $q->where('name', 'like', '%' . $query . '%')
+              ->orWhere('nik', 'like', '%' . $query . '%');
+        });
+    }
+    
+    return response()->json(
+        $koordinator->orderBy('name')
+            ->limit(20)
+            ->get(['id', 'name', 'nik'])
+    );
+})->name('api.koordinator');
+
 // ===== DASHBOARD (Protected - via Jetstream Fortify) =====
 Route::middleware(['auth:sanctum', 'verified'])->group(function () {
     // Impersonate Leave
@@ -174,6 +196,11 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
 
             // Halaman Notifikasi Peserta
             Route::get('/notifikasi', [\App\Http\Controllers\NotificationController::class, 'index'])->name('notifikasi');
+
+            // Halaman Upload Foto
+            Route::get('/upload-foto', function () {
+                return view('content.dashboard.peserta.upload-foto');
+            })->name('dashboard.peserta.upload-foto');
         });
     });
 
@@ -198,6 +225,9 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
         Route::patch('users/{user}/toggle-status', [UserController::class, 'toggleStatus'])->name('users.toggle-status');
         Route::post('users/{user}/reset-password', [UserController::class, 'resetPassword'])->name('users.reset-password');
         Route::delete('users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
+
+        // KTA Members Management
+        Route::resource('kta-members', \App\Http\Controllers\KtaMemberController::class);
 
         // Kecamatan
         Route::resource('kecamatan', KecamatanController::class);
@@ -336,6 +366,13 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
         Route::post('form-config/{formFieldConfig}/toggle-required', [FormFieldConfigController::class, 'toggleRequired'])->name('form-config.toggle-required');
         Route::post('form-config/reorder', [FormFieldConfigController::class, 'reorder'])->name('form-config.reorder');
 
+        // ===== GOOGLE DRIVE =====
+        Route::get('google-drive', [GoogleAuthController::class, 'statusPage'])->name('google-drive.status');
+        Route::post('google-drive/revoke', [GoogleAuthController::class, 'revokeGoogleAccess'])->name('google-drive.revoke');
+        Route::get('google-drive/status', [GoogleAuthController::class, 'checkGoogleStatus'])->name('google-drive.check-status');
+        Route::get('google-drive/settings', [GoogleAuthController::class, 'edit'])->name('google-drive.settings');
+        Route::put('google-drive/settings', [GoogleAuthController::class, 'update'])->name('google-drive.update');
+
         // ===== WHATSAPP SUPPORT NUMBERS =====
         Route::get('whatsapp-numbers', [WhatsAppSupportController::class, 'index'])->name('whatsapp-numbers.index');
         Route::post('whatsapp-numbers', [WhatsAppSupportController::class, 'store'])->name('whatsapp-numbers.store');
@@ -343,7 +380,17 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
         Route::delete('whatsapp-numbers/{id}', [WhatsAppSupportController::class, 'destroy'])->name('whatsapp-numbers.destroy');
         Route::post('whatsapp-numbers/reorder', [WhatsAppSupportController::class, 'reorder'])->name('whatsapp-numbers.reorder');
         Route::post('whatsapp-numbers/{id}/toggle-active', [WhatsAppSupportController::class, 'toggleActive'])->name('whatsapp-numbers.toggle-active');
+
+        // ===== CLEAR CACHE =====
+        Route::get('cache', [CacheController::class, 'index'])->name('cache.index');
+        Route::post('cache/clear', [CacheController::class, 'clear'])->name('cache.clear');
     });
+});
+
+// ===== GOOGLE OAUTH ROUTES (public - for OAuth callback) =====
+Route::prefix('auth/google')->name('google.')->group(function () {
+    Route::get('redirect', [GoogleAuthController::class, 'redirectToGoogle'])->name('redirect');
+    Route::get('callback', [GoogleAuthController::class, 'handleGoogleCallback'])->name('callback');
 });
 
 // ===== ADMIN LOGIN (separate from regular user login) =====
@@ -370,6 +417,11 @@ Route::get('/offline', function () {
 
 // ===== PUBLIC: Verifikasi Sertifikat =====
 Route::get('/verifikasi-sertifikat', [\App\Http\Controllers\Admin\CertificateController::class, 'verify'])->name('certificates.verify');
+
+// ===== FOTO CAPTURE TEST (Livewire Component) =====
+Route::get('/coba-foto-capture', function () {
+    return view('content.peserta.coba-foto-capture');
+})->name('coba.foto-capture');
 
 // Old auth routes - redirect to new Jetstream routes
 Route::get('/auth/login-basic', function () {
