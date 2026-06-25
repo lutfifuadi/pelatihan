@@ -2,8 +2,8 @@
   <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.04);">
     <td class="px-0 py-3 text-body-premium">{{ $enrollments->firstItem() + $index }}</td>
     <td class="py-3">
-      <div class="fw-semibold text-white">{{ $enrollment->user->name }}</div>
-      <div class="text-body-premium" style="font-size: 0.75rem;">{{ $enrollment->user->email }}</div>
+      <div class="fw-semibold text-white">{{ $enrollment->user?->name ?? 'User tidak ditemukan' }}</div>
+      <div class="text-body-premium" style="font-size: 0.75rem;">{{ $enrollment->user?->email ?? '-' }}</div>
     </td>
     <td class="py-3">
       <div class="fw-semibold text-white" style="font-size: 0.85rem;">{{ $enrollment->pelatihan->nama }}</div>
@@ -88,7 +88,7 @@
       </a>
 
       {{-- Tombol Reset --}}
-      <form action="{{ route('admin.enrollments.reset', $enrollment) }}" method="POST" class="d-inline reset-enrollment-form" data-name="{{ $enrollment->user->name }}" data-pelatihan="{{ $enrollment->pelatihan->nama }}">
+      <form action="{{ route('admin.enrollments.reset', $enrollment) }}" method="POST" class="d-inline reset-enrollment-form" data-name="{{ $enrollment->user?->name ?? 'Unknown' }}" data-pelatihan="{{ $enrollment->pelatihan->nama }}">
         @csrf
         <button type="submit" class="btn btn-warning btn-sm d-inline-flex align-items-center justify-content-center ms-1" style="border-radius: 5px; width: 32px; height: 32px; padding: 0; border: none; background: linear-gradient(135deg, #f59e0b, #d97706);" title="Reset pendaftaran">
           <i class="icon-base ti tabler-refresh fs-5"></i>

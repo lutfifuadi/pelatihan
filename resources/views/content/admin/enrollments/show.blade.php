@@ -332,7 +332,7 @@ $pelatihans = \App\Models\Pelatihan::where('is_active', true)->orderBy('nama')->
         <div class="text-center flex-grow-1">
           <h4 class="fw-bold text-white mb-1">Detail Pendaftaran</h4>
           <p class="text-body-premium mb-0" style="font-size: 0.95rem;">
-            {{ $enrollment->user->name }} — {{ $enrollment->pelatihan->nama }}
+            {{ $enrollment->user?->name ?? 'User tidak ditemukan' }} — {{ $enrollment->pelatihan->nama }}
           </p>
         </div>
 
@@ -404,7 +404,7 @@ $pelatihans = \App\Models\Pelatihan::where('is_active', true)->orderBy('nama')->
                class="nav-btn-prevnext">
               <i class="icon-base ti tabler-chevron-left"></i>
               <span>
-                <span class="nav-name">{{ $previousEnrollment->user->name }}</span>
+                <span class="nav-name">{{ $previousEnrollment->user?->name ?? 'User tidak ditemukan' }}</span>
                 <span class="nav-label">Sebelumnya</span>
               </span>
             </a>
@@ -423,7 +423,7 @@ $pelatihans = \App\Models\Pelatihan::where('is_active', true)->orderBy('nama')->
             <a href="{{ route('admin.enrollments.show', $nextEnrollment->id) }}"
                class="nav-btn-prevnext">
               <span>
-                <span class="nav-name">{{ $nextEnrollment->user->name }}</span>
+                <span class="nav-name">{{ $nextEnrollment->user?->name ?? 'User tidak ditemukan' }}</span>
                 <span class="nav-label">Selanjutnya</span>
               </span>
               <i class="icon-base ti tabler-chevron-right"></i>
@@ -456,40 +456,40 @@ $pelatihans = \App\Models\Pelatihan::where('is_active', true)->orderBy('nama')->
               <div class="row g-3">
                 <div class="col-md-4">
                   <div class="detail-label">Nama Lengkap</div>
-                  <div class="detail-value">{{ $enrollment->user->name }}</div>
+                  <div class="detail-value">{{ $enrollment->user?->name ?? '-' }}</div>
                 </div>
                 <div class="col-md-4">
                   <div class="detail-label">NIK</div>
-                  <div class="detail-value">{{ $enrollment->user->nik ?? '-' }}</div>
+                  <div class="detail-value">{{ $enrollment->user?->nik ?? '-' }}</div>
                 </div>
                 <div class="col-md-4">
                   <div class="detail-label">WhatsApp</div>
-                  <div class="detail-value">{{ $enrollment->user->whatsapp ?? '-' }}</div>
+                  <div class="detail-value">{{ $enrollment->user?->whatsapp ?? '-' }}</div>
                 </div>
                 <div class="col-md-4">
                   <div class="detail-label">Email</div>
-                  <div class="detail-value">{{ $enrollment->user->email ?? '-' }}</div>
+                  <div class="detail-value">{{ $enrollment->user?->email ?? '-' }}</div>
                 </div>
                 <div class="col-md-4">
                   <div class="detail-label">Jenis Kelamin</div>
-                  <div class="detail-value">{{ $enrollment->user->pesertaProfile->jenis_kelamin ?? '-' }}</div>
+                  <div class="detail-value">{{ $enrollment->user?->pesertaProfile?->jenis_kelamin ?? '-' }}</div>
                 </div>
                 <div class="col-md-4">
                   <div class="detail-label">Tempat, Tanggal Lahir</div>
                   <div class="detail-value">
-                    @if($enrollment->user->pesertaProfile && $enrollment->user->pesertaProfile->tempat_lahir)
+                    @if($enrollment->user?->pesertaProfile && $enrollment->user->pesertaProfile->tempat_lahir)
                       {{ $enrollment->user->pesertaProfile->tempat_lahir }},
                     @endif
-                    @if($enrollment->user->pesertaProfile && $enrollment->user->pesertaProfile->tanggal_lahir)
+                    @if($enrollment->user?->pesertaProfile && $enrollment->user->pesertaProfile->tanggal_lahir)
                       {{ $enrollment->user->pesertaProfile->tanggal_lahir }}
                     @endif
-                    @if($enrollment->user->pesertaProfile && $enrollment->user->pesertaProfile->bulan_lahir)
+                    @if($enrollment->user?->pesertaProfile && $enrollment->user->pesertaProfile->bulan_lahir)
                       /{{ $enrollment->user->pesertaProfile->bulan_lahir }}
                     @endif
-                    @if($enrollment->user->pesertaProfile && $enrollment->user->pesertaProfile->tahun_lahir)
+                    @if($enrollment->user?->pesertaProfile && $enrollment->user->pesertaProfile->tahun_lahir)
                       /{{ $enrollment->user->pesertaProfile->tahun_lahir }}
                     @endif
-                    @if(!$enrollment->user->pesertaProfile || (!$enrollment->user->pesertaProfile->tempat_lahir && !$enrollment->user->pesertaProfile->tanggal_lahir))
+                    @if(!$enrollment->user?->pesertaProfile || (!$enrollment->user?->pesertaProfile?->tempat_lahir && !$enrollment->user?->pesertaProfile?->tanggal_lahir))
                       -
                     @endif
                   </div>
@@ -502,7 +502,7 @@ $pelatihans = \App\Models\Pelatihan::where('is_active', true)->orderBy('nama')->
                   <div class="detail-label">Link Medsos</div>
                   <div class="detail-value">
                     @php
-                      $medsos = $enrollment->user->pesertaProfile->link_medsos ?? null;
+                      $medsos = $enrollment->user?->pesertaProfile?->link_medsos ?? null;
                     @endphp
                     @if($medsos && is_array($medsos))
                       <div class="d-flex flex-wrap gap-2">
@@ -551,35 +551,35 @@ $pelatihans = \App\Models\Pelatihan::where('is_active', true)->orderBy('nama')->
               <div class="row g-3">
                 <div class="col-md-6">
                   <div class="detail-label">Alamat KTP</div>
-                  <div class="detail-value">{{ $enrollment->user->pesertaProfile->alamat_ktp ?? '-' }}</div>
+                  <div class="detail-value">{{ $enrollment->user?->pesertaProfile?->alamat_ktp ?? '-' }}</div>
                 </div>
                 <div class="col-md-2">
                   <div class="detail-label">RT</div>
-                  <div class="detail-value">{{ $enrollment->user->pesertaProfile->rt ?? '-' }}</div>
+                  <div class="detail-value">{{ $enrollment->user?->pesertaProfile?->rt ?? '-' }}</div>
                 </div>
                 <div class="col-md-2">
                   <div class="detail-label">RW</div>
-                  <div class="detail-value">{{ $enrollment->user->pesertaProfile->rw ?? '-' }}</div>
+                  <div class="detail-value">{{ $enrollment->user?->pesertaProfile?->rw ?? '-' }}</div>
                 </div>
                 <div class="col-md-2">
                   <div class="detail-label">Kodepos</div>
-                  <div class="detail-value">{{ $enrollment->user->pesertaProfile->kodepos ?? '-' }}</div>
+                  <div class="detail-value">{{ $enrollment->user?->pesertaProfile?->kodepos ?? '-' }}</div>
                 </div>
                 <div class="col-md-3">
                   <div class="detail-label">Kelurahan</div>
-                  <div class="detail-value">{{ $enrollment->user->kelurahan->name ?? $enrollment->user->pesertaProfile->kelurahan ?? '-' }}</div>
+                  <div class="detail-value">{{ $enrollment->user?->kelurahan?->name ?? $enrollment->user?->pesertaProfile?->kelurahan ?? '-' }}</div>
                 </div>
                 <div class="col-md-3">
                   <div class="detail-label">Kecamatan</div>
-                  <div class="detail-value">{{ $enrollment->user->kecamatan->name ?? $enrollment->user->pesertaProfile->kecamatan ?? '-' }}</div>
+                  <div class="detail-value">{{ $enrollment->user?->kecamatan?->name ?? $enrollment->user?->pesertaProfile?->kecamatan ?? '-' }}</div>
                 </div>
                 <div class="col-md-3">
                   <div class="detail-label">Kota</div>
-                  <div class="detail-value">{{ $enrollment->user->pesertaProfile->kota ?? '-' }}</div>
+                  <div class="detail-value">{{ $enrollment->user?->pesertaProfile?->kota ?? '-' }}</div>
                 </div>
                 <div class="col-md-3">
                   <div class="detail-label">Provinsi</div>
-                  <div class="detail-value">{{ $enrollment->user->pesertaProfile->provinsi ?? '-' }}</div>
+                  <div class="detail-value">{{ $enrollment->user?->pesertaProfile?->provinsi ?? '-' }}</div>
                 </div>
               </div>
             </div>
@@ -595,27 +595,27 @@ $pelatihans = \App\Models\Pelatihan::where('is_active', true)->orderBy('nama')->
               <div class="row g-3">
                 <div class="col-md-3">
                   <div class="detail-label">Pendidikan Terakhir</div>
-                  <div class="detail-value">{{ $enrollment->user->pesertaProfile->pendidikan_terakhir ?? '-' }}</div>
+                  <div class="detail-value">{{ $enrollment->user?->pesertaProfile?->pendidikan_terakhir ?? '-' }}</div>
                 </div>
                 <div class="col-md-3">
                   <div class="detail-label">Nama Institusi</div>
-                  <div class="detail-value">{{ $enrollment->user->pesertaProfile->nama_institusi ?? '-' }}</div>
+                  <div class="detail-value">{{ $enrollment->user?->pesertaProfile?->nama_institusi ?? '-' }}</div>
                 </div>
                 <div class="col-md-3">
                   <div class="detail-label">Jurusan</div>
-                  <div class="detail-value">{{ $enrollment->user->pesertaProfile->jurusan ?? '-' }}</div>
+                  <div class="detail-value">{{ $enrollment->user?->pesertaProfile?->jurusan ?? '-' }}</div>
                 </div>
                 <div class="col-md-3">
                   <div class="detail-label">Tahun Lulus</div>
-                  <div class="detail-value">{{ $enrollment->user->pesertaProfile->tahun_lulus ?? '-' }}</div>
+                  <div class="detail-value">{{ $enrollment->user?->pesertaProfile?->tahun_lulus ?? '-' }}</div>
                 </div>
                 <div class="col-md-4">
                   <div class="detail-label">Status Pekerjaan</div>
-                  <div class="detail-value">{{ $enrollment->user->pesertaProfile->status_pekerjaan ?? '-' }}</div>
+                  <div class="detail-value">{{ $enrollment->user?->pesertaProfile?->status_pekerjaan ?? '-' }}</div>
                 </div>
                 <div class="col-md-4">
                   <div class="detail-label">Nama Perusahaan</div>
-                  <div class="detail-value">{{ $enrollment->user->pesertaProfile->nama_perusahaan ?? '-' }}</div>
+                  <div class="detail-value">{{ $enrollment->user?->pesertaProfile?->nama_perusahaan ?? '-' }}</div>
                 </div>
               </div>
             </div>
@@ -631,7 +631,7 @@ $pelatihans = \App\Models\Pelatihan::where('is_active', true)->orderBy('nama')->
               </h5>
               <hr class="detail-divider">
               @php
-                $jawaban = $enrollment->user->pesertaProfile->jawaban_pertanyaan ?? [];
+                $jawaban = $enrollment->user?->pesertaProfile?->jawaban_pertanyaan ?? [];
                 if (is_string($jawaban)) {
                     $jawaban = json_decode($jawaban, true) ?? [];
                 }
@@ -684,7 +684,7 @@ $pelatihans = \App\Models\Pelatihan::where('is_active', true)->orderBy('nama')->
                 <div class="col-md-3">
                   <div class="detail-label">Status</div>
                   <div class="detail-value">
-                    @if($enrollment->user->is_active)
+                    @if($enrollment->user?->is_active)
                       <span class="badge-premium badge-premium-success">Aktif</span>
                     @else
                       <span class="badge-premium badge-premium-warning">Nonaktif</span>
@@ -709,9 +709,9 @@ $pelatihans = \App\Models\Pelatihan::where('is_active', true)->orderBy('nama')->
           <hr class="detail-divider">
 
           @php
-            $profile = $enrollment->user->pesertaProfile;
+            $profile = $enrollment->user?->pesertaProfile;
             $step1Done = $profile && !empty($profile->nama_lengkap) && !empty($profile->nik);
-            $step2Done = $profile && !empty($profile->alamat_ktp) && !empty($enrollment->user->whatsapp);
+            $step2Done = $profile && !empty($profile->alamat_ktp) && !empty($enrollment->user?->whatsapp);
             $step3Done = $profile && !empty($profile->pendidikan_terakhir) && !empty($profile->nama_institusi);
             $step4Done = $profile && !empty($profile->pelatihan_id);
             $step5Done = $profile && !empty($profile->jawaban_pertanyaan);
@@ -897,7 +897,7 @@ $pelatihans = \App\Models\Pelatihan::where('is_active', true)->orderBy('nama')->
 
             {{-- Reset --}}
             @if(in_array($enrollment->status, ['approved', 'waitlist', 'pending', 'rejected']))
-            <form action="{{ route('admin.enrollments.reset', $enrollment) }}" method="POST" class="reset-enrollment-form mt-2" data-name="{{ $enrollment->user->name }}" data-pelatihan="{{ $enrollment->pelatihan->nama }}">
+            <form action="{{ route('admin.enrollments.reset', $enrollment) }}" method="POST" class="reset-enrollment-form mt-2" data-name="{{ $enrollment->user?->name ?? 'Unknown' }}" data-pelatihan="{{ $enrollment->pelatihan->nama }}">
               @csrf
               <button type="submit" class="btn btn-warning w-100 d-inline-flex align-items-center justify-content-center gap-2" style="border-radius: 5px; font-weight: 600; padding: 10px; background: linear-gradient(135deg, #f59e0b, #d97706); border: none;">
                 <i class="icon-base ti tabler-refresh fs-6"></i> Reset Pendaftaran
@@ -974,7 +974,7 @@ $pelatihans = \App\Models\Pelatihan::where('is_active', true)->orderBy('nama')->
             <div style="background: rgba(255,255,255,0.04); padding: 12px; border-radius: 5px; margin-bottom: 16px;">
               <div class="d-flex justify-content-between mb-2">
                 <span class="text-body-premium">Peserta:</span>
-                <span class="text-white fw-semibold">{{ $enrollment->user->name }}</span>
+                <span class="text-white fw-semibold">{{ $enrollment->user?->name ?? '-' }}</span>
               </div>
               <div class="d-flex justify-content-between mb-2">
                 <span class="text-body-premium">Pelatihan Asal:</span>
