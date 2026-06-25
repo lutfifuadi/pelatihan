@@ -28,9 +28,7 @@ class CertificateController extends Controller
         }
 
         $certificates = $query->orderBy('created_at', 'desc')->paginate(20);
-        $pelatihans = Cache::remember('pelatihan.active.list', 3600, function () {
-            return Pelatihan::where('is_active', true)->orderBy('nama')->get(['id', 'nama', 'batch']);
-        });
+        $pelatihans = Pelatihan::where('is_active', true)->orderBy('nama')->get(['id', 'nama', 'batch']);
 
         return view('content.admin.certificates.index', compact('certificates', 'pelatihans'));
     }

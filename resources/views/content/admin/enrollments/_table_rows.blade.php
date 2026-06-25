@@ -43,7 +43,7 @@
             <form action="{{ route('admin.enrollments.change-status', $enrollment) }}" method="POST" class="change-status-form">
               @csrf
               <input type="hidden" name="status" value="pending">
-              <input type="hidden" name="notes" value="Ubah status via dropdown">
+              <input type="hidden" name="notes" value="">
               <button type="submit" class="dropdown-item" style="color: #fbbf24; font-size: 0.8rem; padding: 6px 16px;">
                 ⏳ Pending
               </button>
@@ -53,7 +53,7 @@
             <form action="{{ route('admin.enrollments.change-status', $enrollment) }}" method="POST" class="change-status-form">
               @csrf
               <input type="hidden" name="status" value="approved">
-              <input type="hidden" name="notes" value="Ubah status via dropdown">
+              <input type="hidden" name="notes" value="">
               <button type="submit" class="dropdown-item" style="color: #34d399; font-size: 0.8rem; padding: 6px 16px;">
                 ✅ Approved
               </button>
@@ -63,7 +63,7 @@
             <form action="{{ route('admin.enrollments.change-status', $enrollment) }}" method="POST" class="change-status-form">
               @csrf
               <input type="hidden" name="status" value="rejected">
-              <input type="hidden" name="notes" value="Ubah status via dropdown">
+              <input type="hidden" name="notes" value="">
               <button type="submit" class="dropdown-item" style="color: #f87171; font-size: 0.8rem; padding: 6px 16px;">
                 ❌ Rejected
               </button>
@@ -73,7 +73,7 @@
             <form action="{{ route('admin.enrollments.change-status', $enrollment) }}" method="POST" class="change-status-form">
               @csrf
               <input type="hidden" name="status" value="waitlist">
-              <input type="hidden" name="notes" value="Ubah status via dropdown">
+              <input type="hidden" name="notes" value="">
               <button type="submit" class="dropdown-item" style="color: #93c5fd; font-size: 0.8rem; padding: 6px 16px;">
                 🟡 Waitlist
               </button>

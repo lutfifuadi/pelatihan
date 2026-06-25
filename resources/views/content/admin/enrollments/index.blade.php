@@ -678,35 +678,7 @@ $configData = Helper::appClasses();
         buttonsStyling: false,
       }).then((result) => {
         if (result.isConfirmed) {
-          // Prompt alasan
-          Swal.fire({
-            title: 'Alasan',
-            input: 'textarea',
-            inputLabel: 'Alasan perubahan status',
-            inputPlaceholder: 'Jelaskan alasan...',
-            inputAttributes: { required: 'required' },
-            showCancelButton: true,
-            confirmButtonText: 'Konfirmasi',
-            cancelButtonText: 'Batal',
-            background: '#0f172a',
-            color: '#f8fafc',
-            customClass: {
-              confirmButton: 'btn btn-primary px-4 py-2 border-0',
-              cancelButton: 'btn btn-secondary-custom px-4 py-2 border-0',
-            },
-            buttonsStyling: false,
-            preConfirm: (notes) => {
-              if (!notes) {
-                Swal.showValidationMessage('Alasan wajib diisi');
-              }
-              return notes;
-            }
-          }).then((notesResult) => {
-            if (notesResult.isConfirmed) {
-              form.querySelector('input[name="notes"]').value = notesResult.value;
-              form.submit();
-            }
-          });
+          form.submit();
         }
       });
     });

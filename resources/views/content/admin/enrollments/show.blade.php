@@ -952,10 +952,7 @@ $pelatihans = \App\Models\Pelatihan::where('is_active', true)->orderBy('nama')->
           <div class="modal-body">
             <div id="changeStatusInfo"></div>
             <input type="hidden" name="status" id="changeStatusNewStatus">
-            <div class="mb-3">
-              <label class="detail-label mb-2">Alasan Perubahan Status <span style="color: #f87171;">*</span></label>
-              <textarea name="notes" id="changeStatusNotes" class="form-control" rows="3" placeholder="Jelaskan alasan perubahan status..." style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); color: #f8fafc; border-radius: 5px;"></textarea>
-            </div>
+            <input type="hidden" name="notes" value="">
           </div>
           <div class="modal-footer border-0">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); color: rgba(255,255,255,0.7); border-radius: 5px;">Batal</button>

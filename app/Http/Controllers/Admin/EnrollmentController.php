@@ -46,9 +46,7 @@ class EnrollmentController extends Controller
         }
 
         $enrollments = $query->orderBy('created_at', 'desc')->paginate(20)->withQueryString();
-        $pelatihans = Cache::remember('pelatihan.active.list', 300, function () {
-            return Pelatihan::where('is_active', true)->orderBy('nama')->get(['id', 'nama', 'batch']);
-        });
+        $pelatihans = Pelatihan::where('is_active', true)->orderBy('nama')->get(['id', 'nama', 'batch']);
 
         // Optimasi: 1 query GROUP BY menggantikan 4 query COUNT terpisah
         // Hitung counts berdasarkan filter pelatihan yang dipilih
