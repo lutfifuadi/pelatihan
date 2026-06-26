@@ -409,7 +409,7 @@ class PesertaFormController extends Controller
         }
 
         // Data pendukung untuk view (sama seperti sebelumnya)
-        $user = auth()->user();
+        $user = auth()->user()->load('kecamatan');
 
         $query = Pelatihan::where('is_active', true);
         if ($user->kecamatan_id) {
@@ -420,6 +420,39 @@ class PesertaFormController extends Controller
             });
         }
         $pelatihans = $query->with('dinas')->orderBy('batch')->get();
+
+        $userLocation = null;
+        if ($user->kecamatan_id && $user->kecamatan) {
+            $userLocation = [
+                'kecamatan' => $user->kecamatan->name,
+                'kota' => '-',
+            ];
+        }
+
+        $alternativePelatihans = collect();
+        if ($user->kecamatan_id && $pelatihans->isEmpty()) {
+            $alternativePelatihans = Pelatihan::where('is_active', true)
+                ->whereHas('kecamatans', function ($q) use ($user) {
+                    $q->where('kecamatan_id', '!=', $user->kecamatan_id);
+                })
+                ->with(['dinas', 'kecamatans'])
+                ->take(3)
+                ->get()
+                ->map(function ($p) {
+                    $kecNames = $p->kecamatans ? $p->kecamatans->pluck('name')->toArray() : [];
+                    return [
+                        'nama' => $p->nama,
+                        'batch' => $p->batch,
+                        'kecamatans' => $kecNames,
+                        'dinas_name' => $p->dinas->nama_dinas ?? '-',
+                        'tanggal' => $p->tanggal_mulai
+                            ? \Carbon\Carbon::parse($p->tanggal_mulai)->format('d-m-Y')
+                            : 'COMING SOON',
+                    ];
+                });
+        }
+
+        $adminWa = Setting::where('key', 'whatsapp_sender')->value('value') ?? '6285212345678';
 
         $previousTrainings = PesertaProfile::where('user_id', $user->id)
             ->whereNotNull('pelatihan_id')
@@ -469,7 +502,8 @@ class PesertaFormController extends Controller
         $fields = $this->formConfig->getFieldsBySection('minat');
 
         return view('content.dashboard.peserta.form-minat', compact(
-            'data', 'pelatihans', 'dinasRestrictions', 'batchList', 'fields'
+            'data', 'pelatihans', 'dinasRestrictions', 'batchList', 'fields',
+            'userLocation', 'alternativePelatihans', 'adminWa'
         ));
     }
 
