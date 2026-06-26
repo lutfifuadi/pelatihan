@@ -356,17 +356,20 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   const targetInputs = document.querySelectorAll('input[name="target"]');
-  const pelatihanField = document.getElementById('pelatihanField');
-  const csvField = document.getElementById('csvField');
-  const enrollmentStatusField = document.getElementById('enrollmentStatusField');
   const pelatihanSelect = document.getElementById('pelatihan_id');
   const enrollmentStatusSelect = document.getElementById('enrollment_status');
   const recipientCountBadge = document.getElementById('recipientCountBadge');
   const recipientCountText = document.getElementById('recipientCountText');
 
   async function updateRecipientCount() {
+    console.log('updateRecipientCount dipanggil');
     const target = document.querySelector('input[name="target"]:checked');
-    if (!target) return;
+    if (!target) {
+      console.log('Tidak ada target yang dipilih');
+      return;
+    }
+
+    console.log('Target:', target.value);
 
     const params = new URLSearchParams();
     params.append('target', target.value);
@@ -389,12 +392,18 @@ document.addEventListener('DOMContentLoaded', function () {
       return;
     }
 
+    // Untuk target all_peserta dan all_koordinator, langsung hitung
+    const countUrl = `{{ route('admin.notifications.broadcast.count') }}?${params.toString()}`;
+    console.log('Fetching:', countUrl);
+
     try {
-      const res = await fetch(`{{ route('admin.notifications.broadcast.count') }}?${params.toString()}`, {
+      const res = await fetch(countUrl, {
         headers: { 'X-Requested-With': 'XMLHttpRequest' }
       });
-      if (!res.ok) throw new Error('Gagal mengambil estimasi');
+      console.log('Response status:', res.status);
+      if (!res.ok) throw new Error('Gagal mengambil estimasi: ' + res.status);
       const data = await res.json();
+      console.log('Response data:', data);
       const count = data.count || 0;
       recipientCountText.textContent = `Estimasi penerima: ${count} orang`;
       recipientCountBadge.style.display = 'inline-flex';
@@ -404,12 +413,31 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   }
 
-  targetInputs.forEach(input => input.addEventListener('change', updateRecipientCount));
-  if (pelatihanSelect) pelatihanSelect.addEventListener('change', updateRecipientCount);
-  if (enrollmentStatusSelect) enrollmentStatusSelect.addEventListener('change', updateRecipientCount);
+  // Event listener untuk radio target
+  targetInputs.forEach(input => {
+    input.addEventListener('change', function() {
+      console.log('Target changed:', this.value);
+      updateRecipientCount();
+    });
+  });
+
+  // Event listener untuk dropdown pelatihan (native + select2)
+  if (pelatihanSelect) {
+    pelatihanSelect.addEventListener('change', updateRecipientCount);
+    jQuery(pelatihanSelect).on('change.select2', updateRecipientCount);
+  }
+
+  // Event listener untuk dropdown status enrollment (native + select2)
+  if (enrollmentStatusSelect) {
+    enrollmentStatusSelect.addEventListener('change', function() {
+      console.log('Status changed:', this.value);
+      updateRecipientCount();
+    });
+    jQuery(enrollmentStatusSelect).on('change.select2', updateRecipientCount);
+  }
 
   // Hitung estimasi saat halaman dimuat jika target sudah terpilih
-  updateRecipientCount();
+  setTimeout(updateRecipientCount, 100);
 
   const templateSelect = document.getElementById('template_id');
   const customMsg = document.getElementById('custom_message');
@@ -461,7 +489,14 @@ function selectTarget(val) {
 function confirmBroadcast() {
   const target = document.querySelector('input[name="target"]:checked');
   if (!target) { alert('Pilih target penerima terlebih dahulu.'); return false; }
-  return confirm('Broadcast akan dikirim ke antrian (queue). Lanjutkan?');
+
+  const recipientCountText = document.getElementById('recipientCountText');
+  let countInfo = '';
+  if (recipientCountText && recipientCountText.textContent) {
+    countInfo = '\n\n' + recipientCountText.textContent;
+  }
+
+  return confirm(`Broadcast akan dikirim ke antrian (queue).${countInfo}\n\nLanjutkan?`);
 }
 </script>
 @endsection
