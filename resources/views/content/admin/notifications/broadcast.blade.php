@@ -183,6 +183,19 @@ $configData = Helper::appClasses();
                 </div>
               </div>
               <div class="col-md-6">
+                <div class="target-card @if(old('target') == 'by_enrollment_status') active @endif" onclick="selectTarget('by_enrollment_status')">
+                  <div class="form-check">
+                    <input class="form-check-input" type="radio" name="target" id="target_by_enrollment_status" value="by_enrollment_status"
+                      {{ old('target') == 'by_enrollment_status' ? 'checked' : '' }}
+                      onchange="selectTarget('by_enrollment_status')">
+                    <label class="form-check-label text-white fw-semibold" for="target_by_enrollment_status">
+                      Per Status Enrollment
+                    </label>
+                  </div>
+                  <small class="text-body-premium">Kirim ke peserta berdasarkan status pendaftarannya</small>
+                </div>
+              </div>
+              <div class="col-md-6">
                 <div class="target-card @if(old('target') == 'custom') active @endif" onclick="selectTarget('custom')">
                   <div class="form-check">
                     <input class="form-check-input" type="radio" name="target" id="target_custom" value="custom"
@@ -206,6 +219,20 @@ $configData = Helper::appClasses();
                     {{ $pel->nama }} (Batch {{ $pel->batch }})
                   </option>
                 @endforeach
+              </select>
+            </div>
+
+            <div id="enrollmentStatusField" class="mb-4" style="display: {{ old('target') == 'by_enrollment_status' ? 'block' : 'none' }};">
+              <label for="enrollment_status" class="form-label">Pilih Status Enrollment <span class="text-danger">*</span></label>
+              <select class="select2 form-select" id="enrollment_status" name="enrollment_status" data-placeholder="-- Pilih Status --">
+                <option value=""></option>
+                <option value="pending" {{ old('enrollment_status') == 'pending' ? 'selected' : '' }}>⏳ Pending</option>
+                <option value="approved" {{ old('enrollment_status') == 'approved' ? 'selected' : '' }}>✅ Approved</option>
+                <option value="waiting_wa_confirmation" {{ old('enrollment_status') == 'waiting_wa_confirmation' ? 'selected' : '' }}>⏳ Menunggu Chat WA</option>
+                <option value="waiting_newbimma_check" {{ old('enrollment_status') == 'waiting_newbimma_check' ? 'selected' : '' }}>🔄 Cek Newbimma</option>
+                <option value="confirmed" {{ old('enrollment_status') == 'confirmed' ? 'selected' : '' }}>✅ Terkonfirmasi</option>
+                <option value="rejected" {{ old('enrollment_status') == 'rejected' ? 'selected' : '' }}>❌ Ditolak</option>
+                <option value="waitlist" {{ old('enrollment_status') == 'waitlist' ? 'selected' : '' }}>🟡 Cadangan</option>
               </select>
             </div>
 
@@ -257,6 +284,12 @@ $configData = Helper::appClasses();
           </div>
 
           <div class="text-end mb-4">
+            <div class="mb-3">
+              <span class="badge-premium" id="recipientCountBadge" style="display: none;">
+                <i class="icon-base ti tabler-users me-1"></i>
+                <span id="recipientCountText">Estimasi penerima: 0 orang</span>
+              </span>
+            </div>
             <button type="submit" class="btn btn-wa px-5 py-3 d-inline-flex align-items-center gap-2" onclick="return confirmBroadcast()">
               <i class="icon-base ti tabler-brand-whatsapp fs-5"></i> Kirim Broadcast
             </button>
@@ -322,6 +355,62 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
+  const targetInputs = document.querySelectorAll('input[name="target"]');
+  const pelatihanField = document.getElementById('pelatihanField');
+  const csvField = document.getElementById('csvField');
+  const enrollmentStatusField = document.getElementById('enrollmentStatusField');
+  const pelatihanSelect = document.getElementById('pelatihan_id');
+  const enrollmentStatusSelect = document.getElementById('enrollment_status');
+  const recipientCountBadge = document.getElementById('recipientCountBadge');
+  const recipientCountText = document.getElementById('recipientCountText');
+
+  async function updateRecipientCount() {
+    const target = document.querySelector('input[name="target"]:checked');
+    if (!target) return;
+
+    const params = new URLSearchParams();
+    params.append('target', target.value);
+
+    if (target.value === 'by_pelatihan' && pelatihanSelect && pelatihanSelect.value) {
+      params.append('pelatihan_id', pelatihanSelect.value);
+    }
+
+    if (target.value === 'by_enrollment_status' && enrollmentStatusSelect && enrollmentStatusSelect.value) {
+      params.append('enrollment_status', enrollmentStatusSelect.value);
+    }
+
+    if (target.value === 'by_pelatihan' && (!pelatihanSelect || !pelatihanSelect.value)) {
+      recipientCountBadge.style.display = 'none';
+      return;
+    }
+
+    if (target.value === 'by_enrollment_status' && (!enrollmentStatusSelect || !enrollmentStatusSelect.value)) {
+      recipientCountBadge.style.display = 'none';
+      return;
+    }
+
+    try {
+      const res = await fetch(`{{ route('admin.notifications.broadcast.count') }}?${params.toString()}`, {
+        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+      });
+      if (!res.ok) throw new Error('Gagal mengambil estimasi');
+      const data = await res.json();
+      const count = data.count || 0;
+      recipientCountText.textContent = `Estimasi penerima: ${count} orang`;
+      recipientCountBadge.style.display = 'inline-flex';
+    } catch (e) {
+      console.error('Gagal mengambil estimasi penerima:', e);
+      recipientCountBadge.style.display = 'none';
+    }
+  }
+
+  targetInputs.forEach(input => input.addEventListener('change', updateRecipientCount));
+  if (pelatihanSelect) pelatihanSelect.addEventListener('change', updateRecipientCount);
+  if (enrollmentStatusSelect) enrollmentStatusSelect.addEventListener('change', updateRecipientCount);
+
+  // Hitung estimasi saat halaman dimuat jika target sudah terpilih
+  updateRecipientCount();
+
   const templateSelect = document.getElementById('template_id');
   const customMsg = document.getElementById('custom_message');
   const previewBox = document.getElementById('previewBox');
@@ -359,12 +448,14 @@ function selectTarget(val) {
   document.querySelectorAll('.target-card').forEach(c => c.classList.remove('active'));
   document.getElementById('pelatihanField').style.display = 'none';
   document.getElementById('csvField').style.display = 'none';
+  document.getElementById('enrollmentStatusField').style.display = 'none';
 
   const card = document.querySelector(`.target-card:has(input[value="${val}"])`);
   if (card) card.classList.add('active');
 
   if (val === 'by_pelatihan') document.getElementById('pelatihanField').style.display = 'block';
   if (val === 'custom') document.getElementById('csvField').style.display = 'block';
+  if (val === 'by_enrollment_status') document.getElementById('enrollmentStatusField').style.display = 'block';
 }
 
 function confirmBroadcast() {

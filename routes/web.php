@@ -318,6 +318,7 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
 
         // Broadcast (harus sebelum {notification} agar 'broadcast' tidak dianggap sebagai ID)
         Route::get('notifications/broadcast', [NotificationAdminController::class, 'broadcast'])->name('notifications.broadcast');
+        Route::get('notifications/broadcast/count', [NotificationAdminController::class, 'estimateCount'])->name('notifications.broadcast.count');
         Route::post('notifications/broadcast/send', [NotificationAdminController::class, 'sendBroadcast'])->name('notifications.broadcast.send');
 
         Route::get('notifications/{notification}', [NotificationAdminController::class, 'show'])->name('notifications.show');

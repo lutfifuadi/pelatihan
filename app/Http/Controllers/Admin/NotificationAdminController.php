@@ -212,11 +212,60 @@ class NotificationAdminController extends Controller
         return view('content.admin.notifications.broadcast', compact('pelatihans', 'templates', 'recentBroadcasts'));
     }
 
+    public function estimateCount(Request $request)
+    {
+        $validated = $request->validate([
+            'target' => 'required|in:all_peserta,by_pelatihan,all_koordinator,by_enrollment_status,custom',
+            'pelatihan_id' => 'required_if:target,by_pelatihan|exists:pelatihan,id',
+            'enrollment_status' => 'required_if:target,by_enrollment_status|in:pending,approved,waiting_wa_confirmation,waiting_newbimma_check,confirmed,rejected,waitlist',
+        ]);
+
+        $count = 0;
+
+        switch ($validated['target']) {
+            case 'all_peserta':
+                $count = User::where('role', 'peserta')->where('is_active', true)->whereNotNull('whatsapp')->count();
+                break;
+
+            case 'by_pelatihan':
+                $pesertaIds = \App\Models\PesertaProfile::where('pelatihan_id', $validated['pelatihan_id'])->pluck('user_id');
+                $count = User::whereIn('id', $pesertaIds)->where('is_active', true)->whereNotNull('whatsapp')->count();
+                break;
+
+            case 'all_koordinator':
+                $count = User::where('role', 'koordinator')->where('is_active', true)->whereNotNull('whatsapp')->count();
+                break;
+
+            case 'by_enrollment_status':
+                $userIds = \App\Models\Enrollment::where('status', $validated['enrollment_status'])
+                    ->pluck('user_id')
+                    ->unique()
+                    ->values();
+                $count = User::whereIn('id', $userIds)->where('is_active', true)->whereNotNull('whatsapp')->count();
+                break;
+
+            case 'custom':
+                $count = 0;
+                if ($request->hasFile('csv_file')) {
+                    $file = $request->file('csv_file');
+                    $count = collect(file($file->getRealPath()))
+                        ->map(fn($line) => trim($line))
+                        ->filter(fn($line) => !empty($line))
+                        ->unique()
+                        ->count();
+                }
+                break;
+        }
+
+        return response()->json(['count' => $count]);
+    }
+
     public function sendBroadcast(Request $request)
     {
         $validated = $request->validate([
-            'target' => 'required|in:all_peserta,by_pelatihan,all_koordinator,custom',
+            'target' => 'required|in:all_peserta,by_pelatihan,all_koordinator,by_enrollment_status,custom',
             'pelatihan_id' => 'required_if:target,by_pelatihan|exists:pelatihan,id',
+            'enrollment_status' => 'required_if:target,by_enrollment_status|in:pending,approved,waiting_wa_confirmation,waiting_newbimma_check,confirmed,rejected,waitlist',
             'template_id' => 'nullable|exists:notification_templates,id',
             'custom_message' => 'required_without:template_id|nullable|string',
             'csv_file' => 'nullable|file|mimes:csv,txt',
@@ -243,6 +292,17 @@ class NotificationAdminController extends Controller
 
             case 'all_koordinator':
                 $recipients = User::where('role', 'koordinator')
+                    ->where('is_active', true)
+                    ->whereNotNull('whatsapp')
+                    ->get();
+                break;
+
+            case 'by_enrollment_status':
+                $userIds = \App\Models\Enrollment::where('status', $validated['enrollment_status'])
+                    ->pluck('user_id')
+                    ->unique()
+                    ->values();
+                $recipients = User::whereIn('id', $userIds)
                     ->where('is_active', true)
                     ->whereNotNull('whatsapp')
                     ->get();
