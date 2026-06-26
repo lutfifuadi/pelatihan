@@ -265,6 +265,9 @@ $configData = Helper::appClasses();
             <a href="{{ route('admin.notifications.index') }}" class="btn btn-secondary-custom px-3 py-2" style="font-size: 13px;">
               <i class="icon-base ti tabler-refresh me-1"></i> Reset
             </a>
+            <button type="button" class="btn btn-danger px-3 py-2" style="font-size: 13px;" onclick="countNotifications()">
+              <i class="icon-base ti tabler-trash me-1"></i> Hapus Semua Notifikasi
+            </button>
           </div>
         </div>
       </form>
@@ -344,6 +347,11 @@ $configData = Helper::appClasses();
                         onclick="showDetail({{ $notification->id }})" title="Detail">
                         <i class="icon-base ti tabler-eye fs-5"></i>
                       </button>
+                      <button type="button" class="btn btn-danger btn-sm d-flex align-items-center justify-content-center"
+                        style="border-radius: 5px; width: 32px; height: 32px; padding: 0;" title="Hapus"
+                        onclick="showDeleteModal({{ $notification->id }}, '{{ $notification->user->name ?? 'System' }}', '{{ $notification->channel }}', '{{ addslashes($notification->title) }}', '{{ $notification->status }}')">
+                        <i class="icon-base ti tabler-trash fs-5"></i>
+                      </button>
                       @if($notification->status == 'failed')
                         <form action="{{ route('admin.notifications.resend', $notification) }}" method="POST" class="d-inline">
                           @csrf
@@ -389,6 +397,89 @@ $configData = Helper::appClasses();
           <div class="text-center py-4">
             <div class="spinner-border text-primary" role="status"></div>
           </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Hapus Semua Modal -->
+  <div class="modal fade" id="destroyAllModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="fw-bold text-white mb-0">🗑️ Hapus Semua Notifikasi</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body" id="destroyAllBody">
+          <p class="text-white mb-3" id="destroyAllCountText">Anda akan menghapus <strong>0 notifikasi</strong> yang sesuai filter berikut:</p>
+          <div id="destroyAllFilterList" class="mb-3"></div>
+          <div class="p-3" style="background: rgba(239,68,68,0.1); border-radius: 5px; border: 1px solid rgba(239,68,68,0.2);">
+            <p class="text-danger fw-semibold mb-0">
+              <i class="icon-base ti tabler-alert-triangle me-1"></i> Tindakan ini tidak dapat dibatalkan.
+            </p>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary-custom px-3 py-2" data-bs-dismiss="modal">Batal</button>
+          <button type="button" class="btn btn-danger px-3 py-2" onclick="destroyAll()">
+            <i class="icon-base ti tabler-trash me-1"></i> Ya, Hapus Semua
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Hapus Individual Modal -->
+  <div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="fw-bold text-white mb-0">🗑️ Hapus Notifikasi</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <p class="text-white mb-3">Anda akan menghapus notifikasi berikut:</p>
+
+          <div class="p-3 mb-3" style="background: rgba(255,255,255,0.03); border-radius: 5px; border: 1px solid rgba(255,255,255,0.08);">
+            <table class="table table-borderless text-white mb-0" style="font-size: 0.85rem;">
+              <tr>
+                <td class="text-body-premium ps-0" style="width: 100px;">ID</td>
+                <td class="fw-semibold" id="deleteNotifId">-</td>
+              </tr>
+              <tr>
+                <td class="text-body-premium ps-0">User</td>
+                <td class="fw-semibold" id="deleteNotifUser">-</td>
+              </tr>
+              <tr>
+                <td class="text-body-premium ps-0">Channel</td>
+                <td class="fw-semibold" id="deleteNotifChannel">-</td>
+              </tr>
+              <tr>
+                <td class="text-body-premium ps-0">Judul</td>
+                <td class="fw-semibold" id="deleteNotifTitle">-</td>
+              </tr>
+              <tr>
+                <td class="text-body-premium ps-0">Status</td>
+                <td class="fw-semibold" id="deleteNotifStatus">-</td>
+              </tr>
+            </table>
+          </div>
+
+          <div class="p-3" style="background: rgba(239,68,68,0.1); border-radius: 5px; border: 1px solid rgba(239,68,68,0.2);">
+            <p class="text-danger fw-semibold mb-0">
+              <i class="icon-base ti tabler-alert-triangle me-1"></i> Tindakan ini tidak dapat dibatalkan.
+            </p>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary-custom px-3 py-2" data-bs-dismiss="modal">Batal</button>
+          <form id="deleteForm" method="POST" style="display: inline;">
+            @csrf
+            @method('DELETE')
+            <button type="submit" class="btn btn-danger px-3 py-2">
+              <i class="icon-base ti tabler-trash me-1"></i> Ya, Hapus
+            </button>
+          </form>
         </div>
       </div>
     </div>
@@ -468,6 +559,109 @@ function showDetail(id) {
     .catch(err => {
       body.innerHTML = '<div class="text-center py-4 text-danger">Gagal memuat detail notifikasi.</div>';
     });
+}
+
+function getFilterValues() {
+  const form = document.querySelector('.filter-section').closest('form');
+  return {
+    channel: form.querySelector('[name="channel"]').value,
+    status: form.querySelector('[name="status"]').value,
+    date_from: form.querySelector('[name="date_from"]').value,
+    date_to: form.querySelector('[name="date_to"]').value,
+    search: form.querySelector('[name="search"]').value,
+  };
+}
+
+function getActiveFilters(filters) {
+  const labels = {
+    channel: { key: 'Channel', map: { whatsapp: 'WhatsApp', email: 'Email', in_app: 'In-App' } },
+    status: { key: 'Status', map: { pending: 'Pending', sent: 'Sent', failed: 'Failed', read: 'Read' } },
+    date_from: { key: 'Dari Tanggal' },
+    date_to: { key: 'Sampai Tanggal' },
+    search: { key: 'Cari User' },
+  };
+  return Object.entries(filters).filter(([k, v]) => v).map(([k, v]) => {
+    const label = labels[k];
+    const val = label && label.map ? (label.map[v] || v) : v;
+    return { key: label ? label.key : k, value: val };
+  });
+}
+
+function countNotifications() {
+  const filters = getFilterValues();
+  const params = new URLSearchParams(filters);
+  const countText = document.getElementById('destroyAllCountText');
+  const filterList = document.getElementById('destroyAllFilterList');
+
+  countText.innerHTML = 'Sedang memeriksa... <div class="spinner-border spinner-border-sm text-primary ms-2"></div>';
+  filterList.innerHTML = '';
+
+  fetch('{{ route('admin.notifications.count-filtered') }}?' + params.toString())
+    .then(res => res.json())
+    .then(data => {
+      const activeFilters = getActiveFilters(filters);
+      countText.innerHTML = 'Anda akan menghapus <strong>' + data.count + ' notifikasi</strong> yang sesuai filter berikut:';
+
+      if (activeFilters.length > 0) {
+        let html = '<table class="table table-borderless text-white mb-0" style="font-size: 0.9rem;"><tbody>';
+        activeFilters.forEach(f => {
+          html += '<tr><td class="text-body-premium ps-0" style="width: 120px;">' + f.key + '</td><td class="fw-semibold">' + f.value + '</td></tr>';
+        });
+        html += '</tbody></table>';
+        filterList.innerHTML = html;
+      } else {
+        filterList.innerHTML = '<p class="text-body-premium mb-0">Tidak ada filter aktif — semua notifikasi akan dihapus.</p>';
+      }
+
+      new bootstrap.Modal(document.getElementById('destroyAllModal')).show();
+    })
+    .catch(err => {
+      countText.innerHTML = '<span class="text-danger">Gagal memuat jumlah notifikasi. Silakan coba lagi.</span>';
+    });
+}
+
+function showDeleteModal(id, user, channel, title, status) {
+    document.getElementById('deleteNotifId').textContent = '#' + id;
+    document.getElementById('deleteNotifUser').textContent = user;
+
+    const channelLabels = { whatsapp: 'WhatsApp', email: 'Email', in_app: 'In-App' };
+    document.getElementById('deleteNotifChannel').textContent = channelLabels[channel] || channel;
+
+    document.getElementById('deleteNotifTitle').textContent = title || '(Tidak ada judul)';
+
+    const statusLabels = { sent: 'Terkirim', pending: 'Menunggu', failed: 'Gagal', read: 'Dibaca' };
+    document.getElementById('deleteNotifStatus').textContent = statusLabels[status] || status;
+
+    document.getElementById('deleteForm').action = '/admin/notifications/' + id;
+
+    const modal = new bootstrap.Modal(document.getElementById('deleteModal'));
+    modal.show();
+}
+
+function destroyAll() {
+  const filters = getFilterValues();
+  const form = document.createElement('form');
+  form.method = 'POST';
+  form.action = '{{ route('admin.notifications.destroy-all') }}';
+
+  const csrf = document.createElement('input');
+  csrf.type = 'hidden';
+  csrf.name = '_token';
+  csrf.value = '{{ csrf_token() }}';
+  form.appendChild(csrf);
+
+  Object.entries(filters).forEach(([key, value]) => {
+    if (value) {
+      const input = document.createElement('input');
+      input.type = 'hidden';
+      input.name = key;
+      input.value = value;
+      form.appendChild(input);
+    }
+  });
+
+  document.body.appendChild(form);
+  form.submit();
 }
 </script>
 @endsection

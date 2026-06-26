@@ -90,6 +90,80 @@ class NotificationAdminController extends Controller
         }
     }
 
+    public function destroy(Notification $notification)
+    {
+        $notification->delete();
+
+        return redirect()->route('admin.notifications.index')
+            ->with('success', 'Notifikasi berhasil dihapus.');
+    }
+
+    public function destroyAll(Request $request)
+    {
+        $query = Notification::query();
+
+        if ($request->filled('channel')) {
+            $query->where('channel', $request->channel);
+        }
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        if ($request->filled('date_from')) {
+            $query->whereDate('created_at', '>=', $request->date_from);
+        }
+
+        if ($request->filled('date_to')) {
+            $query->whereDate('created_at', '<=', $request->date_to);
+        }
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->whereHas('user', function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%");
+            });
+        }
+
+        $count = $query->count();
+        $query->delete();
+
+        return redirect()->route('admin.notifications.index')
+            ->with('success', "Berhasil menghapus {$count} notifikasi.");
+    }
+
+    public function countFiltered(Request $request)
+    {
+        $query = Notification::query();
+
+        if ($request->filled('channel')) {
+            $query->where('channel', $request->channel);
+        }
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        if ($request->filled('date_from')) {
+            $query->whereDate('created_at', '>=', $request->date_from);
+        }
+
+        if ($request->filled('date_to')) {
+            $query->whereDate('created_at', '<=', $request->date_to);
+        }
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->whereHas('user', function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%");
+            });
+        }
+
+        $count = $query->count();
+
+        return response()->json(['count' => $count]);
+    }
+
     public function templates()
     {
         $templates = NotificationTemplate::latest()->paginate(15);

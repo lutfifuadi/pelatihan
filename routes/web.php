@@ -322,8 +322,11 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
         Route::get('notifications/broadcast/count', [NotificationAdminController::class, 'estimateCount'])->name('notifications.broadcast.count');
         Route::post('notifications/broadcast/send', [NotificationAdminController::class, 'sendBroadcast'])->name('notifications.broadcast.send');
 
+        Route::get('notifications/count-filtered', [NotificationAdminController::class, 'countFiltered'])->name('notifications.count-filtered');
         Route::get('notifications/{notification}', [NotificationAdminController::class, 'show'])->name('notifications.show');
         Route::post('notifications/{notification}/resend', [NotificationAdminController::class, 'resend'])->name('notifications.resend');
+        Route::delete('notifications/{notification}', [NotificationAdminController::class, 'destroy'])->name('notifications.destroy');
+        Route::post('notifications/destroy-all', [NotificationAdminController::class, 'destroyAll'])->name('notifications.destroy-all');
 
         // System Logs
         Route::get('system/logs', [SystemLogController::class, 'index'])->name('system-logs.index');
