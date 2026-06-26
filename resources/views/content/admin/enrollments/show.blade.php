@@ -930,7 +930,7 @@ $pelatihans = \App\Models\Pelatihan::where('is_active', true)->orderBy('nama')->
             </div>
 
             {{-- Tombol Alihkan Pelatihan --}}
-            @if(in_array($enrollment->status, ['approved', 'waitlist']))
+            @if(in_array($enrollment->status, ['pending', 'approved', 'waitlist', 'waiting_wa_confirmation', 'waiting_newbimma_check', 'confirmed']))
             <button type="button" class="btn btn-secondary-custom w-100 d-inline-flex align-items-center justify-content-center gap-2" id="transferBtn" style="border-radius: 5px; font-weight: 600; padding: 10px;">
               <i class="icon-base ti tabler-arrows-shuffle fs-6"></i> Alihkan Pelatihan
             </button>

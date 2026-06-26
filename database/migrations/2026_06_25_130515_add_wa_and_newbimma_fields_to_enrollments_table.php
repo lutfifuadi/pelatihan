@@ -21,12 +21,16 @@ return new class extends Migration
             });
         }
 
-        DB::statement("ALTER TABLE enrollments MODIFY COLUMN status ENUM('pending','approved','waiting_wa_confirmation','waiting_newbimma_check','confirmed','rejected','waitlist') NOT NULL DEFAULT 'pending'");
+        if (DB::getDriverName() !== 'sqlite') {
+            DB::statement("ALTER TABLE enrollments MODIFY COLUMN status ENUM('pending','approved','waiting_wa_confirmation','waiting_newbimma_check','confirmed','rejected','waitlist') NOT NULL DEFAULT 'pending'");
+        }
     }
 
     public function down(): void
     {
-        DB::statement("ALTER TABLE enrollments MODIFY COLUMN status ENUM('pending','approved','rejected','waitlist') NOT NULL DEFAULT 'pending'");
+        if (DB::getDriverName() !== 'sqlite') {
+            DB::statement("ALTER TABLE enrollments MODIFY COLUMN status ENUM('pending','approved','rejected','waitlist') NOT NULL DEFAULT 'pending'");
+        }
 
         if (Schema::hasColumn('enrollments', 'verification_code')) {
             Schema::table('enrollments', function (Blueprint $table) {

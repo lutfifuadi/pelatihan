@@ -304,6 +304,58 @@ class EnrollmentController extends Controller
     }
 
     /**
+     * Tolak semua pending enrollment untuk pelatihan tertentu.
+     */
+    public function rejectAll(Request $request, Pelatihan $pelatihan)
+    {
+        $pendingEnrollments = Enrollment::where('pelatihan_id', $pelatihan->id)
+            ->where('status', 'pending')
+            ->get();
+
+        if ($pendingEnrollments->isEmpty()) {
+            return redirect()->back()->with('error', 'Tidak ada pendaftaran pending untuk pelatihan ini.');
+        }
+
+        DB::transaction(function () use ($pendingEnrollments) {
+            foreach ($pendingEnrollments as $enrollment) {
+                $enrollment->update([
+                    'status' => 'rejected',
+                    'rejected_at' => now(),
+                    'notes' => '[Reject All: ' . now()->format('d/m/Y H:i') . '] Penolakan massal oleh admin',
+                ]);
+            }
+        });
+
+        // Dispatch notifikasi WA di luar transaction
+        foreach ($pendingEnrollments as $enrollment) {
+            try {
+                \App\Events\PendaftaranRejected::dispatch(
+                    $enrollment->user,
+                    $enrollment->pelatihan,
+                    'Pendaftaran ditolak oleh admin.'
+                );
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::warning('Notifikasi reject-all gagal dikirim: ' . $e->getMessage());
+            }
+        }
+
+        // Promosi dari waitlist jika ada slot
+        $this->promoteFromWaitlist($pelatihan->id);
+
+        $count = $pendingEnrollments->count();
+
+        ActivityLogger::action('rejected', 'Enrollment',
+            "{$count} pendaftaran untuk pelatihan {$pelatihan->nama} ({$pelatihan->batch}) ditolak massal oleh admin",
+            $pelatihan->id,
+            $pelatihan->nama
+        );
+
+        $this->broadcastDashboardUpdate();
+
+        return redirect()->back()->with('success', "{$count} pendaftaran berhasil ditolak untuk pelatihan {$pelatihan->nama}.");
+    }
+
+    /**
      * Reset enrollment — hapus pendaftaran agar peserta bisa daftar ulang.
      */
     public function reset(Request $request, Enrollment $enrollment)
@@ -443,7 +495,7 @@ class EnrollmentController extends Controller
         DB::transaction(function () use ($request, $enrollment, $pelatihanTujuan, $pelatihanAsal, $statusSaatIni, $kuotaPenuh) {
             $enrollment->update(['pelatihan_id' => $request->pelatihan_id]);
 
-            if ($statusSaatIni === 'approved' && $kuotaPenuh) {
+            if (in_array($statusSaatIni, ['pending', 'approved', 'waiting_wa_confirmation', 'waiting_newbimma_check', 'confirmed']) && $kuotaPenuh) {
                 $enrollment->update(['status' => 'waitlist', 'waitlist_promoted_at' => null]);
             }
 
@@ -452,7 +504,7 @@ class EnrollmentController extends Controller
             $enrollment->attendances()->delete();
             $enrollment->certificate()->delete();
 
-            if ($statusSaatIni === 'approved') {
+            if (in_array($statusSaatIni, ['pending', 'approved', 'waiting_wa_confirmation', 'waiting_newbimma_check', 'confirmed'])) {
                 $this->promoteFromWaitlist($pelatihanAsal->id, $enrollment->id);
             }
         });

@@ -155,6 +155,19 @@ $configData = Helper::appClasses();
   .btn-action:hover {
     transform: translateY(-1px);
   }
+  .btn-danger {
+    background: linear-gradient(135deg, #ef4444, #dc2626) !important;
+    border: none !important;
+    color: #ffffff !important;
+  }
+  .btn-danger:hover {
+    background: linear-gradient(135deg, #f87171, #ef4444) !important;
+    transform: translateY(-1px);
+    color: #ffffff !important;
+  }
+  .btn-danger:focus {
+    box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.4) !important;
+  }
   select.form-select {
     background-color: rgba(255,255,255,0.04) !important;
     border: 1px solid rgba(255,255,255,0.08) !important;
@@ -390,22 +403,31 @@ $configData = Helper::appClasses();
       </div>
     </div>
 
-    {{-- Approve All Button --}}
-    @if(request('pelatihan_id'))
-      <div class="glass-card-premium px-4 py-3 mb-4">
-        <div class="row align-items-center">
-          <div class="col-12">
+    {{-- Action Buttons --}}
+    <div class="glass-card-premium px-4 py-3 mb-4 {{ request('pelatihan_id') ? '' : 'd-none' }}" id="action-buttons-container">
+      <div class="row align-items-center g-2">
+        <div class="col-12">
+          <div class="d-flex flex-wrap gap-2">
+            {{-- Approve All --}}
             <button type="button" id="btn-approve-all" class="btn btn-success btn-action px-4"
-              data-url="{{ route('admin.enrollments.approve-all', ['pelatihan' => request('pelatihan_id')]) }}"
+              data-url="{{ request('pelatihan_id') ? route('admin.enrollments.approve-all', ['pelatihan' => request('pelatihan_id')]) : '' }}"
               data-pending="{{ $counts['pending'] }}">
               <i class="icon-base ti tabler-check me-1"></i>
               Approve All Pending <span class="badge bg-white text-dark ms-1">{{ $counts['pending'] }}</span>
             </button>
-            <small class="text-body-premium ms-2">Approve semua pendaftaran pending untuk pelatihan ini</small>
+
+            {{-- Reject All --}}
+            <button type="button" id="btn-reject-all" class="btn btn-danger btn-action px-4"
+              data-url="{{ request('pelatihan_id') ? route('admin.enrollments.reject-all', ['pelatihan' => request('pelatihan_id')]) : '' }}"
+              data-pending="{{ $counts['pending'] }}">
+              <i class="icon-base ti tabler-x me-1"></i>
+              Reject All Pending <span class="badge bg-white text-dark ms-1">{{ $counts['pending'] }}</span>
+            </button>
           </div>
+          <small class="text-body-premium mt-1 d-block">Approve atau tolak semua pendaftaran pending untuk pelatihan ini</small>
         </div>
       </div>
-    @endif
+    </div>
 
     {{-- Generate All Verification Codes Button --}}
     <div class="glass-card-premium px-4 py-3 mb-4">
@@ -473,7 +495,7 @@ $configData = Helper::appClasses();
 
 @section('page-script')
 <script>
-  // Approve All button handler
+  // Approve All & Reject All button handlers
   document.addEventListener('DOMContentLoaded', function() {
     const approveAllBtn = document.getElementById('btn-approve-all');
     if (approveAllBtn) {
@@ -506,6 +528,60 @@ $configData = Helper::appClasses();
             // Show loading
             approveAllBtn.disabled = true;
             approveAllBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Processing...';
+
+            fetch(url, {
+              method: 'POST',
+              headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '{{ csrf_token() }}',
+                'X-Requested-With': 'XMLHttpRequest',
+              }
+            }).then(res => {
+              if (res.ok) {
+                window.location.reload();
+              } else {
+                throw new Error('Gagal');
+              }
+            }).catch(() => {
+              window.location.reload();
+            });
+          }
+        });
+      });
+    }
+
+    // Reject All button handler
+    const rejectAllBtn = document.getElementById('btn-reject-all');
+    if (rejectAllBtn) {
+      rejectAllBtn.addEventListener('click', function() {
+        const url = this.getAttribute('data-url');
+        const pending = this.getAttribute('data-pending');
+
+        Swal.fire({
+          title: 'Tolak Semua?',
+          html: `<div>Anda akan menolak <strong style="color: #f87171;">${pending}</strong> pendaftaran pending untuk pelatihan ini.</div>
+                 <div class="mt-2" style="font-size: 0.8rem; color: rgba(255,255,255,0.5);">Tindakan ini tidak dapat dibatalkan.</div>`,
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonText: 'Ya, Tolak Semua!',
+          cancelButtonText: 'Batal',
+          confirmButtonColor: '#ef4444',
+          cancelButtonColor: '#6b7280',
+          reverseButtons: true,
+          background: '#0f172a',
+          color: '#f8fafc',
+          customClass: {
+            popup: 'rounded-3 shadow-lg',
+            title: 'fw-bold text-white',
+            htmlContainer: 'text-body-premium',
+            confirmButton: 'btn btn-danger px-4 py-2 border-0 me-2',
+            cancelButton: 'btn btn-secondary-custom px-4 py-2 border-0',
+          },
+          buttonsStyling: false,
+        }).then((result) => {
+          if (result.isConfirmed) {
+            // Show loading
+            rejectAllBtn.disabled = true;
+            rejectAllBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Processing...';
 
             fetch(url, {
               method: 'POST',
@@ -613,6 +689,27 @@ $configData = Helper::appClasses();
           paginationContainer.innerHTML = '';
         }
 
+        // Update action buttons container visibility & URL
+        const actionContainer = document.getElementById('action-buttons-container');
+        const approveAllBtn = document.getElementById('btn-approve-all');
+        const rejectAllBtn = document.getElementById('btn-reject-all');
+        const pelatihanId = dropdownFilters.pelatihan_id;
+
+        if (actionContainer) {
+          if (pelatihanId) {
+            actionContainer.classList.remove('d-none');
+          } else {
+            actionContainer.classList.add('d-none');
+          }
+        }
+
+        if (approveAllBtn && pelatihanId) {
+          approveAllBtn.setAttribute('data-url', `/admin/enrollments/pelatihan/${pelatihanId}/approve-all`);
+        }
+        if (rejectAllBtn && pelatihanId) {
+          rejectAllBtn.setAttribute('data-url', `/admin/enrollments/pelatihan/${pelatihanId}/reject-all`);
+        }
+
         // Update stat cards dari response
         if (data.counts) {
           const pendingEl = document.getElementById('stat-pending');
@@ -635,6 +732,13 @@ $configData = Helper::appClasses();
             const badge = approveAllBtn.querySelector('.badge');
             if (badge) badge.textContent = data.counts.pending || 0;
             approveAllBtn.setAttribute('data-pending', data.counts.pending || 0);
+          }
+
+          const rejectAllBtn = document.getElementById('btn-reject-all');
+          if (rejectAllBtn) {
+            const badge = rejectAllBtn.querySelector('.badge');
+            if (badge) badge.textContent = data.counts.pending || 0;
+            rejectAllBtn.setAttribute('data-pending', data.counts.pending || 0);
           }
         }
 
@@ -683,6 +787,10 @@ $configData = Helper::appClasses();
       filterStatus.value = '';
       search = '';
       searchInput.value = '';
+
+      const actionContainer = document.getElementById('action-buttons-container');
+      if (actionContainer) actionContainer.classList.add('d-none');
+
       window.location.href = '{{ route('admin.enrollments.index') }}';
     });
 
