@@ -322,6 +322,7 @@ $configData = Helper::appClasses();
   }
   .swal2-actions.swal2-custom-actions {
     margin-top: 1rem !important;
+    gap: 1rem !important;
   }
 </style>
 @endsection
@@ -687,24 +688,91 @@ $configData = Helper::appClasses();
       if (impersonateForm) {
         e.preventDefault();
         const userName = impersonateForm.getAttribute('data-name');
+        const userAvatar = impersonateForm.getAttribute('data-avatar') || '';
+        const userEmail = impersonateForm.getAttribute('data-email') || '';
+        const userRole = impersonateForm.getAttribute('data-role') || '';
+        const userStatus = impersonateForm.getAttribute('data-status') || '';
+
+        // Generate avatar HTML
+        let avatarHtml = '';
+        if (userAvatar) {
+          avatarHtml = '<img src="' + userAvatar + '" alt="' + userName + '" style="width: 64px; height: 64px; border-radius: 50%; object-fit: cover; border: 2px solid rgba(99, 102, 241, 0.3);">';
+        } else {
+          // Generate inisial
+          const initials = (userName.match(/\b\w/g) || []).map(function(char) { return char.toUpperCase(); });
+          const initialsStr = ((initials.shift() || '') + (initials.pop() || '')).toUpperCase();
+          avatarHtml = '<div style="width: 64px; height: 64px; border-radius: 50%; background: linear-gradient(135deg, #6366f1, #d946ef); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: 700; color: #fff; font-family: \'Sora\', sans-serif; border: 2px solid rgba(99, 102, 241, 0.3);">' + initialsStr + '</div>';
+        }
+
+        // Role badge color mapping
+        var roleColors = {
+          'admin': { bg: 'rgba(139, 92, 246, 0.15)', border: 'rgba(139, 92, 246, 0.3)', color: '#a78bfa' },
+          'instruktur': { bg: 'rgba(6, 182, 212, 0.15)', border: 'rgba(6, 182, 212, 0.3)', color: '#22d3ee' },
+          'koordinator': { bg: 'rgba(245, 158, 11, 0.15)', border: 'rgba(245, 158, 11, 0.3)', color: '#fbbf24' },
+          'peserta': { bg: 'rgba(16, 185, 129, 0.15)', border: 'rgba(16, 185, 129, 0.3)', color: '#34d399' },
+        };
+        var roleColor = roleColors[userRole] || roleColors['peserta'];
+
+        // Status badge
+        var statusColor = userStatus === 'aktif' ? '#34d399' : '#ef4444';
+        var statusBg = userStatus === 'aktif' ? 'rgba(16, 185, 129, 0.15)' : 'rgba(239, 68, 68, 0.15)';
+        var statusBorder = userStatus === 'aktif' ? 'rgba(16, 185, 129, 0.3)' : 'rgba(239, 68, 68, 0.3)';
+
+        var htmlContent = [
+          '<div style="text-align: center; padding: 8px 0;">',
+          '  <div style="display: flex; justify-content: center; margin-bottom: 16px;">',
+          '    ' + avatarHtml,
+          '  </div>',
+          '  <h4 style="font-family: \'Sora\', sans-serif; font-weight: 700; font-size: 1.2rem; color: #ffffff; margin: 0 0 4px 0;">',
+          '    ' + userName,
+          '  </h4>',
+          '  <p style="font-family: \'Outfit\', sans-serif; font-size: 0.85rem; color: rgba(255, 255, 255, 0.6); margin: 0 0 12px 0;">',
+          '    ' + userEmail,
+          '  </p>',
+          '  <div style="display: flex; justify-content: center; gap: 8px; margin-bottom: 16px;">',
+          '    <span style="font-family: \'Outfit\', sans-serif; font-size: 0.75rem; font-weight: 600; padding: 4px 12px; border-radius: 5px; background: ' + roleColor.bg + '; border: 1px solid ' + roleColor.border + '; color: ' + roleColor.color + '; text-transform: capitalize;">',
+          '      ' + userRole,
+          '    </span>',
+          '    <span style="font-family: \'Outfit\', sans-serif; font-size: 0.75rem; font-weight: 600; padding: 4px 12px; border-radius: 5px; background: ' + statusBg + '; border: 1px solid ' + statusBorder + '; color: ' + statusColor + '; text-transform: capitalize;">',
+          '      ' + userStatus,
+          '    </span>',
+          '  </div>',
+          '  <div style="background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.2); border-radius: 5px; padding: 10px 14px; margin: 0 4px;">',
+          '    <p style="font-family: \'Outfit\', sans-serif; font-size: 0.8rem; color: #fbbf24; margin: 0; line-height: 1.5;">',
+          '      <i class="icon-base ti tabler-shield-alert" style="font-size: 0.9rem; margin-right: 6px;"></i>',
+          '      Anda akan masuk sebagai user ini. Sesi admin Anda akan disimpan sementara.',
+          '    </p>',
+          '  </div>',
+          '</div>'
+        ].join('\n');
 
         swalDark.fire({
-          title: 'Login As (Impersonasi)?',
-          text: `Anda akan masuk ke dalam sistem sebagai "${userName}". Sesi Anda sebagai administrator akan disimpan sementara.`,
-          icon: 'question',
+          title: 'Konfirmasi Impersonasi',
+          html: htmlContent,
+          icon: null,
           showCancelButton: true,
-          confirmButtonText: 'Ya, Masuk!',
+          confirmButtonText: '<i class="icon-base ti tabler-user-shield me-1"></i> Ya, Masuk!',
           cancelButtonText: 'Batal',
           customClass: {
             popup: 'swal2-custom-popup shadow-lg',
             title: 'swal2-custom-title',
             htmlContainer: 'swal2-custom-text',
             actions: 'swal2-custom-actions',
-            confirmButton: 'btn btn-warning px-4 py-2 border-0 me-2',
+            confirmButton: 'btn px-4 py-2 border-0 me-2',
             cancelButton: 'btn btn-secondary-custom px-4 py-2 border-0',
           },
-          reverseButtons: true
-        }).then((result) => {
+          reverseButtons: true,
+          didOpen: function() {
+            var confirmBtn = document.querySelector('.swal2-confirm');
+            if (confirmBtn) {
+              confirmBtn.style.background = 'linear-gradient(135deg, #6366f1, #d946ef)';
+              confirmBtn.style.color = '#fff';
+              confirmBtn.style.borderRadius = '5px';
+              confirmBtn.style.fontFamily = "'Sora', sans-serif";
+              confirmBtn.style.fontWeight = '600';
+            }
+          }
+        }).then(function(result) {
           if (result.isConfirmed) {
             impersonateForm.submit();
           }

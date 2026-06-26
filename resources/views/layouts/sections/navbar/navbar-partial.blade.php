@@ -36,6 +36,8 @@ use Illuminate\Support\Facades\Route;
     });
 @endphp
 
+@livewire('navbar-component')
+
 <div class="navbar-nav-right d-flex align-items-center" id="navbar-collapse">
   @if($maintenanceActive === '1')
   <div class="maintenance-indicator d-flex align-items-center gap-2 px-3 py-1 mx-2 rounded-pill" style="background: rgba(255, 193, 7, 0.12); border: 1px solid rgba(255, 193, 7, 0.2);">

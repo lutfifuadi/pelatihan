@@ -57,7 +57,11 @@
 
           @if($u->role !== 'admin')
             <form action="{{ route('admin.users.impersonate', $u) }}" method="POST" class="d-inline impersonate-form"
-              data-name="{{ $u->name }}">
+              data-name="{{ $u->name }}"
+              data-avatar="{{ $u->avatar ?? '' }}"
+              data-email="{{ $u->email }}"
+              data-role="{{ $u->role }}"
+              data-status="{{ $u->is_active ? 'aktif' : 'nonaktif' }}">
               @csrf
               <button type="submit" class="btn btn-warning btn-sm d-flex align-items-center justify-content-center" style="border-radius: 5px; width: 32px; height: 32px; padding: 0; background: linear-gradient(135deg, #fbbf24, #d97706); border: none; color: #fff;" title="Login As (Impersonasi)">
                 <i class="icon-base ti tabler-user-shield fs-5"></i>

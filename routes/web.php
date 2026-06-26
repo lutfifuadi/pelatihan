@@ -194,13 +194,16 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
             // Halaman Status Pendaftaran
             Route::get('/status', [PesertaFormController::class, 'statusPendaftaran'])->name('status');
 
+            // Halaman Profil
+            Route::get('/profil', [PesertaFormController::class, 'profil'])->name('profil');
+
             // Halaman Notifikasi Peserta
             Route::get('/notifikasi', [\App\Http\Controllers\NotificationController::class, 'index'])->name('notifikasi');
 
             // Halaman Upload Foto
             Route::get('/upload-foto', function () {
                 return view('content.dashboard.peserta.upload-foto');
-            })->name('dashboard.peserta.upload-foto');
+            })->name('upload-foto');
         });
     });
 

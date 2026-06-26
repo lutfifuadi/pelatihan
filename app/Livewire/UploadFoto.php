@@ -75,6 +75,7 @@ class UploadFoto extends Component
                     $user->google_drive_ktp_url = $result['foto_ktp_url'];
                     $user->google_drive_folder_id = $result['folder_id'];
                     $user->save();
+                    $this->dispatch('profile-updated');
 
                     $this->step = 'selesai';
                 }

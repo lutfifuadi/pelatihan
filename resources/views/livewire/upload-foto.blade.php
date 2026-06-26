@@ -127,15 +127,6 @@
                 $user = auth()->user();
             @endphp
 
-            @if($user->google_drive_folder_id)
-                <a href="https://drive.google.com/drive/folders/{{ $user->google_drive_folder_id }}"
-                    target="_blank"
-                    class="btn btn-outline-glass fw-semibold py-2 px-4"
-                    style="font-size: 13px;">
-                    <i class="icon-base ti tabler-external-link me-1"></i> Buka Google Drive
-                </a>
-            @endif
-
             <div class="mt-4 p-3 rounded text-start"
                 style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.06); max-width: 500px; margin: 0 auto;">
                 <div class="d-flex align-items-center gap-3 mb-2">

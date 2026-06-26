@@ -832,6 +832,18 @@ class PesertaFormController extends Controller
     }
 
     // ========================================================================
+    // PROFIL PESERTA
+    // ========================================================================
+
+    public function profil()
+    {
+        $user = auth()->user();
+        $profile = \App\Models\PesertaProfile::where('user_id', $user->id)->first();
+
+        return view('content.dashboard.peserta.profil', compact('user', 'profile'));
+    }
+
+    // ========================================================================
     // METHOD LAMA YANG TETAP DIPERTAHANKAN (tidak dihapus)
     // ========================================================================
 

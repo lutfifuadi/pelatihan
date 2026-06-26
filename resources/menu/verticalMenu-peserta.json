@@ -16,6 +16,12 @@
       "slug": "dashboard.peserta"
     },
     {
+      "url": "/dashboard/peserta/profil",
+      "name": "Profil Saya",
+      "icon": "menu-icon icon-base ti tabler-user-circle",
+      "slug": "dashboard.peserta.profil"
+    },
+    {
       "url": "/dashboard/peserta/status",
       "name": "Status Pendaftaran",
       "icon": "menu-icon icon-base ti tabler-clipboard-check",
