@@ -42,6 +42,7 @@ use App\Http\Controllers\Admin\CertificateController;
 use App\Http\Controllers\Admin\ExportController;
 use App\Http\Controllers\Admin\ScheduleController;
 use App\Http\Controllers\Admin\ActivityLogController;
+use App\Http\Controllers\Admin\SystemLogController;
 use App\Http\Controllers\Admin\CacheController;
 use App\Http\Controllers\Admin\FormOptionController;
 use App\Http\Controllers\Admin\FormFieldConfigController;
@@ -323,6 +324,12 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
 
         Route::get('notifications/{notification}', [NotificationAdminController::class, 'show'])->name('notifications.show');
         Route::post('notifications/{notification}/resend', [NotificationAdminController::class, 'resend'])->name('notifications.resend');
+
+        // System Logs
+        Route::get('system/logs', [SystemLogController::class, 'index'])->name('system-logs.index');
+        Route::get('system/logs/data', [SystemLogController::class, 'getLogs'])->name('system-logs.data');
+        Route::get('system/logs/download', [SystemLogController::class, 'download'])->name('system-logs.download');
+        Route::post('system/logs/clear', [SystemLogController::class, 'clear'])->name('system-logs.clear');
 
         // Template
         Route::get('notification-templates', [NotificationAdminController::class, 'templates'])->name('notification-templates.index');

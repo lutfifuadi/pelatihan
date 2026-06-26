@@ -304,6 +304,12 @@
       "name": "Log Aktivitas",
       "icon": "menu-icon icon-base ti tabler-activity",
       "slug": "admin.activity-logs.index"
+    },
+    {
+      "url": "/admin/system/logs",
+      "name": "Log Sistem",
+      "icon": "menu-icon icon-base ti tabler-file-text",
+      "slug": "admin.system-logs.index"
     }
   ]
 }
