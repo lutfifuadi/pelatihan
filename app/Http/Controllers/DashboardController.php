@@ -196,6 +196,21 @@ class DashboardController extends Controller
             'whatsapp_sender' => $whatsappSender,
         ];
 
+        // Hitung elapsed time sejak newbimma_checked_at (FR-011, FR-012)
+        $elapsedTime = null;
+        if ($enrollment && $enrollment->newbimma_checked_at) {
+            $elapsedTime = $enrollment->newbimma_checked_at->diffForHumans(now(), [
+                'parts' => 2,
+                'syntax' => \Carbon\CarbonInterface::DIFF_RELATIVE_TO_NOW,
+            ]);
+        }
+
+        // Passing data tambahan untuk State 4 (Cek Newbimma) dan State 3
+        $data['elapsedTime'] = $elapsedTime;
+        $data['newbimmaCheckedAt'] = $enrollment?->newbimma_checked_at;
+        $data['waConfirmedAt'] = $enrollment?->wa_confirmed_at;
+        $data['approvedAt'] = $enrollment?->approved_at;
+
         return view('content.dashboard.peserta', compact('profile', 'data'));
     }
 }

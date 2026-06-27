@@ -406,6 +406,77 @@ $configData = Helper::appClasses();
     font-weight: 500;
   }
 
+  /* === VERTICAL TIMELINE === */
+  .timeline-vert {
+    position: relative;
+    padding-left: 48px;
+    list-style: none;
+    margin-bottom: 0;
+  }
+  .timeline-vert::before {
+    content: '';
+    position: absolute;
+    left: 19px;
+    top: 8px;
+    bottom: 8px;
+    width: 2px;
+    background: linear-gradient(to bottom, #6366f1, rgba(99, 102, 241, 0.1));
+  }
+  .timeline-item {
+    position: relative;
+    margin-bottom: 32px;
+  }
+  .timeline-item:last-child {
+    margin-bottom: 0;
+  }
+  .timeline-icon {
+    position: absolute;
+    left: -48px;
+    top: 0;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    z-index: 2;
+    flex-shrink: 0;
+    border: 2px solid transparent;
+    transition: all 0.3s ease;
+  }
+  .timeline-icon.done {
+    background: rgba(16, 185, 129, 0.15);
+    border-color: rgba(16, 185, 129, 0.4);
+    color: #34d399;
+  }
+  .timeline-icon.active {
+    background: rgba(99, 102, 241, 0.15);
+    border-color: rgba(99, 102, 241, 0.4);
+    color: #818cf8;
+    box-shadow: 0 0 20px rgba(99, 102, 241, 0.3);
+    animation: timelinePulse 2s ease-in-out infinite;
+  }
+  .timeline-icon.waiting {
+    background: rgba(255, 255, 255, 0.04);
+    border-color: rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.3);
+  }
+  @keyframes timelinePulse {
+    0% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.4); }
+    70% { box-shadow: 0 0 0 12px rgba(99, 102, 241, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0); }
+  }
+  .timeline-content h6 {
+    font-size: 0.9rem;
+    margin-bottom: 2px;
+  }
+  .timeline-content p {
+    font-size: 0.78rem;
+    margin-bottom: 0;
+  }
+  /* === END VERTICAL TIMELINE === */
+
   /* Override container-p-y padding top khusus halaman ini */
   body .content-wrapper > .container-p-y {
     padding-top: 1.5rem !important; /* Disamakan persis dengan admin dashboard (1.5rem) */
@@ -414,8 +485,8 @@ $configData = Helper::appClasses();
 @endsection
 
 @section('content')
-  {{-- Popup Congratulations Wajib Chat WA --}}
-  @if(auth()->user()->enrollments()->where('status', 'approved')->whereNotNull('verification_code')->whereNull('wa_confirmed_at')->exists())
+  {{-- Popup Congratulations Wajib Chat WA (hanya untuk status waiting_wa_confirmation) --}}
+  @if(auth()->user()->enrollments()->where('status', 'waiting_wa_confirmation')->whereNotNull('verification_code')->whereNull('wa_confirmed_at')->exists())
     <livewire:peserta.waiting-confirmation />
   @endif
 
@@ -445,7 +516,7 @@ $configData = Helper::appClasses();
         </div>
         <div class="col-12 col-lg-4 mt-3 mt-lg-0">
           <div class="d-flex align-items-center gap-4 justify-content-lg-end">
-            @if($data['isProfileCompleted'] && $data['hasPelatihan'] && $data['enrollment'] && $data['enrollment']->status?->value === 'approved')
+            @if($data['isProfileCompleted'] && $data['hasPelatihan'] && $data['enrollment'] && in_array($data['enrollment']->status?->value, ['approved', 'confirmed']))
               <div class="text-center">
                 <p class="text-body-premium small mb-0">Kehadiran</p>
                 <h5 class="text-white fw-bold mb-0">{{ $data['attendanceRate'] }}%</h5>
@@ -676,7 +747,7 @@ $configData = Helper::appClasses();
     <!-- ============================================================
          STATE 2: Pendaftaran Selesai, Menunggu Verifikasi / Cadangan / Ditolak
          ============================================================ -->
-    @elseif(!$data['enrollment'] || $data['enrollment']->status?->value !== 'approved')
+    @elseif(!$data['enrollment'] || in_array($data['enrollment']->status?->value, ['pending', 'rejected', 'waitlist', 'waiting_wa_confirmation']))
       <div class="row g-4 mb-4">
         <div class="col-12 col-xl-8">
           <div class="glass-card-premium px-4 px-xl-5 py-4 h-100">
@@ -806,6 +877,218 @@ $configData = Helper::appClasses();
               </li>
             </ul>
           </div>
+        </div>
+      </div>
+
+    <!-- ============================================================
+         STATE 4: Cek Newbimma — Menunggu pengecekan admin
+         ============================================================ -->
+    @elseif($data['enrollment'] && $data['enrollment']->status?->value === 'waiting_newbimma_check')
+      <div class="row g-4 mb-4">
+        {{-- Kiri: Status & Timeline --}}
+        <div class="col-12 col-xl-8">
+          <div class="glass-card-premium px-4 px-xl-5 py-4 h-100">
+            {{-- Header Status --}}
+            <div class="text-center py-4">
+              <div class="stat-icon-box stat-icon-info mx-auto mb-3" style="width: 64px; height: 64px; font-size: 2rem; border-radius: 50% !important; background: rgba(59,130,246,0.12) !important; color: #60a5fa !important;">
+                <i class="icon-base ti tabler-search fs-1"></i>
+              </div>
+              <h4 class="fw-bold text-white mb-2">Status: 🔄 Cek Newbimma</h4>
+              <p class="text-body-premium mx-auto" style="max-width: 550px; font-size: 0.95rem; line-height: 1.6;">
+                Pendaftaran Anda telah disetujui dan terkonfirmasi. Saat ini data Anda sedang dalam proses pengecekan Newbimma oleh Admin/Dinas penyelenggara.
+              </p>
+              <div class="d-inline-flex align-items-center gap-2 px-3 py-2 mt-3" style="border-radius: 20px; border: 1px solid rgba(59,130,246,0.3); background: rgba(59,130,246,0.15); color: #60a5fa;">
+                <span class="spinner-grow spinner-grow-sm" role="status" style="width: 10px; height: 10px; color: #60a5fa;"></span>
+                <span class="fw-semibold small text-uppercase" style="letter-spacing: 0.05em; color: #60a5fa;">🔄 Cek Newbimma</span>
+              </div>
+              @if($data['elapsedTime'] ?? null)
+                <p class="text-body-premium mt-3 mb-0" style="font-size: 0.85rem;">
+                  <i class="icon-base ti tabler-clock me-1"></i> Menunggu pengecekan sejak {{ $data['elapsedTime'] }}
+                </p>
+              @else
+                <p class="text-body-premium mt-3 mb-0" style="font-size: 0.85rem;">
+                  <i class="icon-base ti tabler-clock me-1"></i> Segera diperiksa
+                </p>
+              @endif
+            </div>
+
+            <hr class="dark-premium my-4">
+
+            {{-- Timeline Vertikal --}}
+            <h5 class="fw-bold text-white mb-4 d-flex align-items-center gap-2">
+              <i class="icon-base ti tabler-timeline text-primary"></i>
+              Alur Seleksi
+            </h5>
+
+            <ul class="timeline-vert">
+              {{-- Langkah 1: Pendaftaran Disetujui --}}
+              <li class="timeline-item">
+                <div class="timeline-icon done">
+                  <i class="icon-base ti tabler-check"></i>
+                </div>
+                <div class="timeline-content">
+                  <h6 class="fw-bold text-white">✅ Pendaftaran Disetujui</h6>
+                  <p class="text-body-premium">
+                    Pendaftaran Anda telah diverifikasi dan disetujui oleh Admin.
+                    @if($data['approvedAt'] ?? null)
+                      <br><span class="text-white-50" style="font-size: 0.75rem;">
+                        <i class="icon-base ti tabler-clock me-1"></i>{{ $data['approvedAt']->format('d M Y H:i') }}
+                      </span>
+                    @endif
+                  </p>
+                </div>
+              </li>
+
+              {{-- Langkah 2: Konfirmasi WA --}}
+              <li class="timeline-item">
+                <div class="timeline-icon done">
+                  <i class="icon-base ti tabler-check"></i>
+                </div>
+                <div class="timeline-content">
+                  <h6 class="fw-bold text-white">✅ Konfirmasi WA</h6>
+                  <p class="text-body-premium">
+                    Anda telah mengkonfirmasi pendaftaran melalui WhatsApp.
+                    @if($data['waConfirmedAt'] ?? null)
+                      <br><span class="text-white-50" style="font-size: 0.75rem;">
+                        <i class="icon-base ti tabler-clock me-1"></i>{{ $data['waConfirmedAt']->format('d M Y H:i') }}
+                      </span>
+                    @endif
+                  </p>
+                </div>
+              </li>
+
+              {{-- Langkah 3: Cek Newbimma (active) --}}
+              <li class="timeline-item">
+                <div class="timeline-icon active">
+                  <i class="icon-base ti tabler-search"></i>
+                </div>
+                <div class="timeline-content">
+                  <h6 class="fw-bold text-white">🔄 Cek Newbimma</h6>
+                  <p class="text-body-premium">
+                    Data Anda sedang diperiksa oleh Admin melalui sistem Newbimma.
+                    <br><span class="fw-semibold" style="font-size: 0.78rem; color: #818cf8;">SEDANG DIPROSES</span>
+                  </p>
+                </div>
+              </li>
+
+              {{-- Langkah 4: Hasil Seleksi (waiting) --}}
+              <li class="timeline-item">
+                <div class="timeline-icon waiting">
+                  <i class="icon-base ti tabler-clock"></i>
+                </div>
+                <div class="timeline-content">
+                  <h6 class="text-white-50 fw-bold">⏳ Hasil Seleksi</h6>
+                  <p class="text-body-premium">
+                    Menunggu hasil pengecekan Newbimma dari Admin.
+                  </p>
+                </div>
+              </li>
+            </ul>
+
+            {{-- Link ke halaman Status Pendaftaran --}}
+            <hr class="dark-premium my-4">
+            <div class="text-center">
+              <a href="{{ route('dashboard.peserta.status') }}" class="btn btn-outline-glass px-4 py-2 fw-semibold" style="border-radius: 5px; font-size: 0.85rem;">
+                <i class="icon-base ti tabler-external-link me-1"></i> Lihat Status Lengkap <span aria-hidden="true">&rarr;</span>
+              </a>
+            </div>
+          </div>
+        </div>
+
+        {{-- Kanan: Info Pelatihan + Butuh Bantuan + Profil --}}
+        <div class="col-12 col-xl-4 d-flex flex-column gap-4">
+
+          {{-- Card Info Pelatihan --}}
+          <div class="glass-card-premium px-4 px-xl-5 py-4">
+            <h5 class="fw-bold text-white mb-4 d-flex align-items-center gap-2">
+              <i class="icon-base ti tabler-book text-success"></i>
+              Info Pelatihan
+            </h5>
+
+            @if($data['pelatihan'])
+              <div class="p-3 rounded" style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06);">
+                <div class="row g-3">
+                  <div class="col-12">
+                    <span class="info-label d-block">Nama Pelatihan</span>
+                    <span class="info-value fw-bold text-white">{{ $data['pelatihan']->nama }}</span>
+                  </div>
+                  <div class="col-6">
+                    <span class="info-label d-block">Batch</span>
+                    <span class="info-value text-white">{{ $data['pelatihan']->batch }}</span>
+                  </div>
+                  <div class="col-6">
+                    <span class="info-label d-block">Dinas Penyelenggara</span>
+                    <span class="info-value text-white">{{ $data['pelatihan']->dinas->nama_dinas ?? '-' }}</span>
+                  </div>
+                  <div class="col-12">
+                    <span class="info-label d-block">Jadwal Pelaksanaan</span>
+                    <span class="info-value text-white">
+                      @if($data['pelatihan']->tanggal_mulai)
+                        {{ $data['pelatihan']->tanggal_mulai->format('d M Y') }}
+                        @if($data['pelatihan']->tanggal_selesai)
+                          — {{ $data['pelatihan']->tanggal_selesai->format('d M Y') }}
+                        @endif
+                      @else
+                        Akan segera diumumkan
+                      @endif
+                    </span>
+                  </div>
+                </div>
+              </div>
+            @else
+              <div class="text-center py-4 rounded border border-white border-opacity-5" style="background: rgba(255, 255, 255, 0.05);">
+                <i class="icon-base ti tabler-book-off fs-2 text-muted mb-2 d-block"></i>
+                <span class="text-body-premium small">Belum ada data pelatihan.</span>
+              </div>
+            @endif
+          </div>
+
+          {{-- Card Butuh Bantuan / Hubungi Admin --}}
+          <div class="glass-card-premium px-4 px-xl-5 py-4">
+            <h5 class="fw-bold text-white mb-4 d-flex align-items-center gap-2">
+              <i class="icon-base ti tabler-headset text-info"></i>
+              💬 Butuh Bantuan?
+            </h5>
+            <p class="text-body-premium mb-4" style="font-size: 0.9rem; line-height: 1.5;">
+              Jika Anda memiliki pertanyaan seputar proses pengecekan Newbimma, silakan hubungi Admin melalui WhatsApp.
+            </p>
+
+            @php
+              $waNamaPeserta = optional($profile)->nama_lengkap ?? auth()->user()->name ?? '-';
+              $waNikPeserta = optional($profile)->nik ?? '-';
+              $waMessage = "Halo Admin, saya ingin menanyakan status pengecekan Newbimma saya. Nama: {$waNamaPeserta}, NIK: {$waNikPeserta}";
+              $waNumber = $data['whatsapp_sender'] ?? \App\Models\Setting::where('key', 'whatsapp_sender')->value('value') ?? '62888888888';
+            @endphp
+            <a href="https://wa.me/{{ $waNumber }}?text={{ urlencode($waMessage) }}"
+               target="_blank"
+               class="btn btn-glow-premium w-100 py-2 fw-semibold d-flex align-items-center justify-content-center gap-2">
+              <i class="icon-base ti tabler-brand-whatsapp fs-5"></i>
+              Hubungi Admin via WhatsApp
+            </a>
+          </div>
+
+          {{-- Card Profil Peserta --}}
+          <div class="glass-card-premium px-4 px-xl-5 py-4">
+            <h5 class="fw-bold text-white mb-4 d-flex align-items-center gap-2">
+              <i class="icon-base ti tabler-user-circle text-info"></i>
+              Profil Peserta
+            </h5>
+            <div class="row g-3">
+              <div class="col-12">
+                <span class="info-label d-block">Nama Lengkap</span>
+                <span class="info-value text-white">{{ optional($profile)->nama_lengkap ?? auth()->user()->name ?? '-' }}</span>
+              </div>
+              <div class="col-6">
+                <span class="info-label d-block">NIK</span>
+                <span class="info-value text-white" style="font-family: monospace;">{{ optional($profile)->nik ?? '-' }}</span>
+              </div>
+              <div class="col-6">
+                <span class="info-label d-block">WhatsApp</span>
+                <span class="info-value text-white">{{ optional($profile)->whatsapp ?? '-' }}</span>
+              </div>
+            </div>
+          </div>
+
         </div>
       </div>
 
@@ -955,7 +1238,7 @@ $configData = Helper::appClasses();
     <!-- ============================================================
          BOTTOM ROW: Hanya tampil di State 3 (Approved)
          ============================================================ -->
-    @if($data['isProfileCompleted'] && $data['enrollment'] && $data['enrollment']->status?->value === 'approved')
+    @if($data['isProfileCompleted'] && $data['enrollment'] && in_array($data['enrollment']->status?->value, ['approved', 'confirmed']))
     <div class="row g-4">
 
       <!-- Instruktur Saya (Placeholder) -->
