@@ -244,9 +244,19 @@ $fActive = $fields->where('is_active', true)->pluck('field_key')->toArray();
       scroll-snap-type: x mandatory;
       scrollbar-width: none;
       -ms-overflow-style: none;
+      cursor: grab;
+      user-select: none;
+      -webkit-user-select: none;
     }
     .grid-cards-container::-webkit-scrollbar {
       display: none;
+    }
+    .grid-cards-container.is-dragging {
+      cursor: grabbing;
+      scroll-snap-type: none;
+    }
+    .grid-cards-container.is-dragging .training-card {
+      pointer-events: none;
     }
     .training-card {
       flex: 0 0 85vw;
@@ -732,6 +742,25 @@ $fActive = $fields->where('is_active', true)->pluck('field_key')->toArray();
       font-size: 1.6rem;
     }
   }
+
+  /* Mode Grid di Mobile — override horizontal scroll */
+  @media (max-width: 768px) {
+    .grid-cards-container.view-grid {
+      display: flex;
+      flex-direction: column;
+      flex-wrap: wrap;
+      overflow-x: visible;
+      gap: 16px;
+      padding-bottom: 0;
+      scroll-snap-type: none;
+    }
+
+    .grid-cards-container.view-grid .training-card {
+      flex: 0 0 100%;
+      width: 100%;
+      scroll-snap-align: none;
+    }
+  }
 </style>
 @endsection
 
@@ -859,100 +888,108 @@ $fActive = $fields->where('is_active', true)->pluck('field_key')->toArray();
                 {{ $fPlaceholders['batch_pelatihan'] ?? 'PELAKSANAAN BATCH SELANJUTNYA AKAN DI INFORMASIKAN LEWAT EMAIL ATAU WA TERDAFTAR' }}
               </p>
             </div>
-            <div class="grid-cards-container mt-1" :class="{ 'has-cards': batchList.length > 0 }">
-              <template x-for="(batch, index) in batchList" :key="index">
-                <div 
-                  class="training-card"
-                  :style="`--card-delay: ${index * 80}ms`"
-                  :class="{ 
-                    'active': form.batch_pelatihan === batch.value.toString() || form.batch_pelatihan === batch.value, 
-                    'disabled': batch.restricted || batch.ditutup 
-                  }"
-                  @click="
-                    if (batch.ditutup) {
-                      window.dispatchEvent(new CustomEvent('open-popup-ditutup', { detail: { nama: batch.label, batch: batch.value, tanggal: batch.batas_ditutup || '-' } }));
-                    } else if (!batch.restricted) {
-                      form.batch_pelatihan = batch.value.toString()
-                    }
-                  "
-                >
-                  <!-- Watermark DITUTUP -->
-                  <template x-if="batch.ditutup">
-                    <div class="watermark-overlay-card">
-                      <span class="watermark-text-card">DITUTUP</span>
-                    </div>
-                  </template>
+            <!-- Cards Container -->
+            <div>
+              <div
+                class="grid-cards-container mt-1 {{ $mobileViewMode === 'grid' ? 'view-grid' : '' }}"
+                :class="{ 'has-cards': batchList.length > 0, 'is-dragging': isDragging }"
+                x-ref="dragContainer"
+                @mousedown="startDrag($event)"
+                @mousemove="onDrag($event)"
+                @mouseup="endDrag"
+                @mouseleave="endDrag"
+                @touchstart="startDrag($event)"
+                @touchmove="onDrag($event)"
+                @touchend="endDrag"
+              >
+                <template x-for="(batch, index) in batchList" :key="index">
+                  <div 
+                    class="training-card"
+                    :style="`--card-delay: ${index * 80}ms`"
+                    :class="{ 
+                      'active': form.batch_pelatihan === batch.value.toString() || form.batch_pelatihan === batch.value, 
+                      'disabled': batch.restricted || batch.ditutup 
+                    }"
+                    @click="handleCardClick(batch)"
+                  >
+                    <!-- Watermark DITUTUP -->
+                    <template x-if="batch.ditutup">
+                      <div class="watermark-overlay-card">
+                        <span class="watermark-text-card">DITUTUP</span>
+                      </div>
+                    </template>
 
-                  <!-- Hidden Radio for standard form submit -->
-                  <input 
-                    type="radio" 
-                    name="batch_pelatihan" 
-                    :value="batch.value" 
-                    :checked="form.batch_pelatihan === batch.value.toString() || form.batch_pelatihan === batch.value" 
-                    :disabled="batch.restricted || batch.ditutup" 
-                    class="sr-only"
-                  />
+                    <!-- Hidden Radio for standard form submit -->
+                    <input 
+                      type="radio" 
+                      name="batch_pelatihan" 
+                      :value="batch.value" 
+                      :checked="form.batch_pelatihan === batch.value.toString() || form.batch_pelatihan === batch.value" 
+                      :disabled="batch.restricted || batch.ditutup" 
+                      class="sr-only"
+                    />
 
-                  <!-- Top Row: Badge Batch + Radio Indicator -->
-                  <div class="card-top-row">
-                    <span class="badge-batch" x-text="'Batch ' + (batch.value.toUpperCase().startsWith('BATCH ') ? batch.value.substring(6) : batch.value)"></span>
-                    <div class="card-radio-indicator">
-                      <div class="card-radio-dot"></div>
+                    <!-- Top Row: Badge Batch + Radio Indicator -->
+                    <div class="card-top-row">
+                      <span class="badge-batch" x-text="'Batch ' + (batch.value.toUpperCase().startsWith('BATCH ') ? batch.value.substring(6) : batch.value)"></span>
+                      <div class="card-radio-indicator">
+                        <div class="card-radio-dot"></div>
+                      </div>
                     </div>
+
+                    <!-- Nama Pelatihan -->
+                    <h5 class="card-title" x-text="batch.label.split(' : ')[1] ? batch.label.split(' : ')[1].split(' (')[0] : batch.label"></h5>
+
+                    <!-- Info: Dinas, Tanggal, Lokasi -->
+                    <div class="card-info-section">
+                      <div class="card-info-item">
+                        <i class="icon-base ti tabler-building"></i>
+                        <span x-text="batch.dinas_name"></span>
+                      </div>
+                      <div class="card-info-item">
+                        <i class="icon-base ti tabler-calendar"></i>
+                        <span x-text="batch.label.includes('(') ? batch.label.substring(batch.label.indexOf('(') + 1, batch.label.lastIndexOf(')')) : 'COMING SOON'"></span>
+                      </div>
+                      <div class="card-info-item">
+                        <i class="icon-base ti tabler-map-pin"></i>
+                        <span x-text="batch.kecamatans && batch.kecamatans.length > 0 ? 'Khusus: ' + batch.kecamatans.join(', ') : 'Untuk semua kecamatan'"></span>
+                      </div>
+                    </div>
+
+                    <!-- CTA Button: Gradient Warna-warni -->
+                    <button type="button" class="card-cta" @click.stop="handleCardClick(batch)">
+                      <template x-if="form.batch_pelatihan === batch.value.toString() || form.batch_pelatihan === batch.value">
+                        <i class="icon-base ti tabler-check" style="font-size: 15px;"></i>
+                      </template>
+                      <template x-if="!(form.batch_pelatihan === batch.value.toString() || form.batch_pelatihan === batch.value)">
+                        <i class="icon-base ti tabler-plus" style="font-size: 15px;"></i>
+                      </template>
+                      <span x-text="form.batch_pelatihan === batch.value.toString() || form.batch_pelatihan === batch.value ? 'Terpilih' : 'Pilih Ini'"></span>
+                      <template x-if="!(form.batch_pelatihan === batch.value.toString() || form.batch_pelatihan === batch.value)">
+                        <i class="icon-base ti tabler-arrow-right" style="font-size: 14px;"></i>
+                      </template>
+                    </button>
+
+                    <!-- Restricted Warning -->
+                    <template x-if="batch.restricted">
+                      <div class="restricted-warning-box">
+                        <i class="icon-base ti tabler-alert-triangle"></i>
+                        <span>
+                          Sudah pernah mengikuti pelatihan di <strong x-text="batch.restricted_dinas"></strong>. Tersedia setelah <strong x-text="batch.restricted_until"></strong>
+                        </span>
+                      </div>
+                    </template>
+
+                    <!-- Ditutup Info -->
+                    <template x-if="batch.ditutup">
+                      <div class="restricted-warning-box" style="border-color: rgba(239, 68, 68, 0.25);">
+                        <i class="icon-base ti tabler-ban"></i>
+                        <span>Pendaftaran ditutup pada <strong x-text="batch.batas_ditutup"></strong></span>
+                      </div>
+                    </template>
                   </div>
-
-                  <!-- Nama Pelatihan -->
-                  <h5 class="card-title" x-text="batch.label.split(' : ')[1] ? batch.label.split(' : ')[1].split(' (')[0] : batch.label"></h5>
-
-                  <!-- Info: Dinas, Tanggal, Lokasi -->
-                  <div class="card-info-section">
-                    <div class="card-info-item">
-                      <i class="icon-base ti tabler-building"></i>
-                      <span x-text="batch.dinas_name"></span>
-                    </div>
-                    <div class="card-info-item">
-                      <i class="icon-base ti tabler-calendar"></i>
-                      <span x-text="batch.label.includes('(') ? batch.label.substring(batch.label.indexOf('(') + 1, batch.label.lastIndexOf(')')) : 'COMING SOON'"></span>
-                    </div>
-                    <div class="card-info-item">
-                      <i class="icon-base ti tabler-map-pin"></i>
-                      <span x-text="batch.kecamatans && batch.kecamatans.length > 0 ? 'Khusus: ' + batch.kecamatans.join(', ') : 'Untuk semua kecamatan'"></span>
-                    </div>
-                  </div>
-
-                  <!-- CTA Button: Gradient Warna-warni -->
-                  <button type="button" class="card-cta">
-                    <template x-if="form.batch_pelatihan === batch.value.toString() || form.batch_pelatihan === batch.value">
-                      <i class="icon-base ti tabler-check" style="font-size: 15px;"></i>
-                    </template>
-                    <template x-if="!(form.batch_pelatihan === batch.value.toString() || form.batch_pelatihan === batch.value)">
-                      <i class="icon-base ti tabler-plus" style="font-size: 15px;"></i>
-                    </template>
-                    <span x-text="form.batch_pelatihan === batch.value.toString() || form.batch_pelatihan === batch.value ? 'Terpilih' : 'Pilih Ini'"></span>
-                    <template x-if="!(form.batch_pelatihan === batch.value.toString() || form.batch_pelatihan === batch.value)">
-                      <i class="icon-base ti tabler-arrow-right" style="font-size: 14px;"></i>
-                    </template>
-                  </button>
-
-                  <!-- Restricted Warning -->
-                  <template x-if="batch.restricted">
-                    <div class="restricted-warning-box">
-                      <i class="icon-base ti tabler-alert-triangle"></i>
-                      <span>
-                        Sudah pernah mengikuti pelatihan di <strong x-text="batch.restricted_dinas"></strong>. Tersedia setelah <strong x-text="batch.restricted_until"></strong>
-                      </span>
-                    </div>
-                  </template>
-
-                  <!-- Ditutup Info -->
-                  <template x-if="batch.ditutup">
-                    <div class="restricted-warning-box" style="border-color: rgba(239, 68, 68, 0.25);">
-                      <i class="icon-base ti tabler-ban"></i>
-                      <span>Pendaftaran ditutup pada <strong x-text="batch.batas_ditutup"></strong></span>
-                    </div>
-                  </template>
-                </div>
-              </template>
+                </template>
+              </div>
             </div>
 
               <!-- Empty State: Tidak ada pelatihan di wilayah user -->
@@ -1127,12 +1164,53 @@ $fActive = $fields->where('is_active', true)->pluck('field_key')->toArray();
         userLocation: @json($userLocation),
         alternativePelatihans: @json($alternativePelatihans ?? []),
         adminWa: @json($adminWa ?? '6285212345678'),
+        // --- Drag-to-scroll state ---
+        isDragging: false,
+        startX: 0,
+        scrollLeft: 0,
+        moved: false,
+        dragThreshold: 5,
+        // --- View mode from admin setting ---
+        mode: '{{ $mobileViewMode ?? 'horizontal' }}',
         form: {
           batch_pelatihan: fd.batch_pelatihan || '',
         },
         errors: {},
 
         clearErrors() { this.errors = {}; },
+
+        startDrag(e) {
+          if (this.mode === 'grid') return;
+          const container = this.$refs.dragContainer;
+          const pageX = e.touches ? e.touches[0].pageX : e.pageX;
+          this.isDragging = true;
+          this.moved = false;
+          this.startX = pageX - container.offsetLeft;
+          this.scrollLeft = container.scrollLeft;
+        },
+        onDrag(e) {
+          if (!this.isDragging) return;
+          e.preventDefault();
+          const container = this.$refs.dragContainer;
+          const pageX = e.touches ? e.touches[0].pageX : e.pageX;
+          const x = pageX - container.offsetLeft;
+          const walk = (x - this.startX) * 1.5;
+          if (Math.abs(walk) > this.dragThreshold) this.moved = true;
+          container.scrollLeft = this.scrollLeft - walk;
+        },
+        endDrag() {
+          this.isDragging = false;
+          // Reset moved setelah siklus click selesai agar klik berikutnya tetap berfungsi
+          setTimeout(() => { this.moved = false; }, 50);
+        },
+        handleCardClick(batch) {
+          if (this.isDragging || this.moved) return;
+          if (batch.ditutup) {
+            window.dispatchEvent(new CustomEvent('open-popup-ditutup', { detail: { nama: batch.label, batch: batch.value, tanggal: batch.batas_ditutup || '-' } }));
+          } else if (!batch.restricted) {
+            this.form.batch_pelatihan = batch.value.toString();
+          }
+        },
 
         validate() {
           this.clearErrors();
