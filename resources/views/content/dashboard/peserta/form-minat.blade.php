@@ -261,6 +261,27 @@ $fActive = $fields->where('is_active', true)->pluck('field_key')->toArray();
     grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
     gap: 20px;
   }
+  
+  @media (max-width: 768px) {
+    .grid-cards-container {
+      display: flex;
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      gap: 16px;
+      padding-bottom: 10px;
+      scroll-snap-type: x mandatory;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+    .grid-cards-container::-webkit-scrollbar {
+      display: none;
+    }
+    .training-card {
+      flex: 0 0 85vw;
+      scroll-snap-align: start;
+    }
+  }
+
   @media (min-width: 1400px) {
     .grid-cards-container {
       grid-template-columns: repeat(auto-fill, minmax(420px, 1fr));
@@ -271,12 +292,6 @@ $fActive = $fields->where('is_active', true)->pluck('field_key')->toArray();
     .grid-cards-container {
       grid-template-columns: repeat(auto-fill, minmax(480px, 1fr));
       gap: 28px;
-    }
-  }
-  @media (max-width: 660px) {
-    .grid-cards-container {
-      grid-template-columns: 1fr;
-      gap: 16px;
     }
   }
 
