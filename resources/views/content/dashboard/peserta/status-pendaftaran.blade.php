@@ -336,7 +336,7 @@ $configData = Helper::appClasses();
         </h5>
 
         @php
-          $status = $enrollment ? $enrollment->status : null;
+          $status = $enrollment?->status?->value;
           $createdAt = $enrollment ? $enrollment->created_at : null;
           $approvedAt = $enrollment ? $enrollment->approved_at : null;
           $rejectedAt = $enrollment ? $enrollment->rejected_at : null;
