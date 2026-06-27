@@ -356,6 +356,10 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
         // ===== ACTIVITY LOGS =====
         Route::get('/activity-logs', [ActivityLogController::class, 'index'])->name('activity-logs.index');
 
+        // ===== ACTIVITY LOGS - DELETE =====
+        Route::delete('/activity-logs/bulk/delete', [ActivityLogController::class, 'bulkDestroy'])->name('activity-logs.bulk-destroy');
+        Route::delete('/activity-logs/{id}', [ActivityLogController::class, 'destroy'])->name('activity-logs.destroy');
+
         // ===== SCHEDULES / KALENDER JADWAL =====
         Route::prefix('schedules')->name('schedules.')->group(function () {
             Route::get('/', [ScheduleController::class, 'index'])->name('index');

@@ -395,6 +395,66 @@ $configData = Helper::appClasses();
     text-overflow: ellipsis;
     white-space: nowrap;
   }
+
+  /* Checkbox styling */
+  .checkbox-log {
+    width: 18px;
+    height: 18px;
+    accent-color: #6366f1;
+    cursor: pointer;
+  }
+
+  .delete-btn-log {
+    background: none;
+    border: none;
+    color: rgba(248, 113, 113, 0.6);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    padding: 4px 8px;
+    border-radius: 6px;
+  }
+
+  .delete-btn-log:hover {
+    color: #f87171;
+    background: rgba(248, 113, 113, 0.1);
+  }
+
+  .bulk-delete-bar {
+    display: none;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 16px;
+    background: rgba(239, 68, 68, 0.08);
+    border: 1px solid rgba(239, 68, 68, 0.15);
+    border-radius: 8px;
+    margin-bottom: 12px;
+  }
+
+  .bulk-delete-bar.show {
+    display: flex;
+  }
+
+  .btn-bulk-delete {
+    background: rgba(239, 68, 68, 0.15);
+    border: 1px solid rgba(239, 68, 68, 0.25);
+    color: #fca5a5;
+    padding: 6px 16px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .btn-bulk-delete:hover {
+    background: rgba(239, 68, 68, 0.25);
+    color: #f87171;
+  }
+
+  /* Prevent modal trigger on checkbox & delete */
+  .no-modal-trigger {
+    cursor: default;
+  }
 </style>
 @endsection
 
@@ -501,16 +561,34 @@ $configData = Helper::appClasses();
           </div>
         </div>
 
+        <!-- Bulk Delete Bar -->
+        <div class="bulk-delete-bar" id="bulkDeleteBar">
+          <span class="text-white small" id="selectedCount">0 dipilih</span>
+          <form action="{{ route('admin.activity-logs.bulk-destroy') }}" method="POST" 
+            id="bulkDeleteForm">
+            @csrf
+            @method('DELETE')
+            <div id="bulkIdsContainer"></div>
+            <button type="submit" class="btn-bulk-delete">
+              <i class="icon-base ti tabler-trash me-1"></i> Hapus Terpilih
+            </button>
+          </form>
+        </div>
+
         <div class="table-responsive">
           <table class="table table-borderless text-white align-middle">
             <thead>
               <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.08);">
+                <th class="text-body-premium small fw-semibold px-0" style="width: 40px;">
+                  <input type="checkbox" class="checkbox-log" id="selectAll">
+                </th>
                 <th class="text-body-premium small fw-semibold px-0" style="width: 170px;">Waktu</th>
                 <th class="text-body-premium small fw-semibold" style="width: 180px;">Admin</th>
                 <th class="text-body-premium small fw-semibold" style="width: 100px;">Aksi</th>
                 <th class="text-body-premium small fw-semibold" style="width: 120px;">Entitas</th>
                 <th class="text-body-premium small fw-semibold">Deskripsi</th>
                 <th class="text-body-premium small fw-semibold text-end px-0" style="width: 140px;">IP Address</th>
+                <th class="text-end px-0" style="width: 50px;"></th>
               </tr>
             </thead>
             <tbody>
@@ -519,6 +597,9 @@ $configData = Helper::appClasses();
                   data-bs-toggle="modal" 
                   data-bs-target="#detailModal{{ $log->id }}"
                   style="border-bottom: 1px solid rgba(255, 255, 255, 0.04);">
+                  <td class="px-0 py-3 no-modal-trigger" onclick="event.stopPropagation()">
+                    <input type="checkbox" class="checkbox-log row-checkbox" value="{{ $log->id }}">
+                  </td>
                   <td class="px-0 py-3">
                     <div class="timestamp-cell">
                       <div class="date">{{ $log->created_at->format('d M Y') }}</div>
@@ -561,6 +642,16 @@ $configData = Helper::appClasses();
                   </td>
                   <td class="text-end px-0 py-3">
                     <span class="text-body-premium small">{{ $log->ip_address ?? '-' }}</span>
+                  </td>
+                  <td class="text-end px-0 py-3 no-modal-trigger" onclick="event.stopPropagation()">
+                    <form action="{{ route('admin.activity-logs.destroy', $log->id) }}" method="POST" 
+                      onsubmit="return confirm('Yakin ingin menghapus log aktivitas ini?')">
+                      @csrf
+                      @method('DELETE')
+                      <button type="submit" class="delete-btn-log" title="Hapus log">
+                        <i class="icon-base ti tabler-trash"></i>
+                      </button>
+                    </form>
                   </td>
                 </tr>
 
@@ -648,7 +739,7 @@ $configData = Helper::appClasses();
                 </div>
               @empty
                 <tr>
-                  <td colspan="6" class="text-center text-body-premium py-5">
+                  <td colspan="8" class="text-center text-body-premium py-5">
                     <i class="icon-base ti tabler-activity-off fs-1 mb-2 d-block text-warning"></i>
                     Belum ada log aktivitas.
                   </td>
@@ -667,4 +758,57 @@ $configData = Helper::appClasses();
     </div>
 
   </div>
+@endsection
+
+@section('page-script')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const selectAll = document.getElementById('selectAll');
+  const rowCheckboxes = document.querySelectorAll('.row-checkbox');
+  const bulkDeleteBar = document.getElementById('bulkDeleteBar');
+  const selectedCount = document.getElementById('selectedCount');
+  const bulkDeleteForm = document.getElementById('bulkDeleteForm');
+
+  function updateBulkBar() {
+    const checked = document.querySelectorAll('.row-checkbox:checked');
+    const container = document.getElementById('bulkIdsContainer');
+    if (checked.length > 0) {
+      bulkDeleteBar.classList.add('show');
+      selectedCount.textContent = checked.length + ' dipilih';
+      // Hapus hidden inputs lama, buat baru sebagai array
+      container.innerHTML = '';
+      checked.forEach(cb => {
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'ids[]';
+        input.value = cb.value;
+        container.appendChild(input);
+      });
+    } else {
+      bulkDeleteBar.classList.remove('show');
+    }
+  }
+
+  // Select All
+  if (selectAll) {
+    selectAll.addEventListener('change', function() {
+      rowCheckboxes.forEach(cb => cb.checked = this.checked);
+      updateBulkBar();
+    });
+  }
+
+  // Individual checkbox
+  rowCheckboxes.forEach(cb => {
+    cb.addEventListener('change', updateBulkBar);
+  });
+
+  // Confirm bulk delete
+  bulkDeleteForm.addEventListener('submit', function(e) {
+    const checked = document.querySelectorAll('.row-checkbox:checked');
+    if (!confirm('Yakin ingin menghapus ' + checked.length + ' log aktivitas terpilih?')) {
+      e.preventDefault();
+    }
+  });
+});
+</script>
 @endsection

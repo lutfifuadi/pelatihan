@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\ActivityLog;
+use App\Services\ActivityLogger;
 use Illuminate\Http\Request;
 
 class ActivityLogController extends Controller
@@ -57,5 +58,37 @@ class ActivityLogController extends Controller
             ->pluck('subject_type');
 
         return view('content.admin.activity-logs.index', compact('logs', 'actions', 'subjectTypes'));
+    }
+
+    /**
+     * Hapus satu log aktivitas.
+     */
+    public function destroy($id)
+    {
+        $log = ActivityLog::findOrFail($id);
+        $log->delete();
+
+        ActivityLogger::action('deleted', 'ActivityLog', "Log aktivitas {$log->id} berhasil dihapus");
+
+        return redirect()->route('admin.activity-logs.index')
+            ->with('success', 'Log aktivitas berhasil dihapus.');
+    }
+
+    /**
+     * Hapus massal log aktivitas.
+     */
+    public function bulkDestroy(Request $request)
+    {
+        $request->validate([
+            'ids' => 'required|array',
+            'ids.*' => 'exists:activity_logs,id',
+        ]);
+
+        $count = ActivityLog::whereIn('id', $request->ids)->delete();
+
+        ActivityLogger::action('deleted', 'ActivityLog', "{$count} log aktivitas berhasil dihapus massal");
+
+        return redirect()->route('admin.activity-logs.index')
+            ->with('success', "{$count} log aktivitas berhasil dihapus.");
     }
 }
