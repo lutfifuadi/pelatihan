@@ -11,12 +11,20 @@ class CheckUserActive
 {
     /**
      * Handle an incoming request.
-     * Cek apakah user active = true, jika tidak logout & redirect.
+     * Cek apakah user active = true.
+     * - Koordinator nonaktif tetap bisa akses (frontend yang handle popup).
+     * - Role lain yang nonaktif akan di-logout.
      */
     public function handle(Request $request, Closure $next): Response
     {
         if (Auth::check() && !Auth::user()->is_active) {
-            // Use 'web' guard explicitly since the active guard might be 'sanctum' (RequestGuard) which doesn't support logout()
+            // Koordinator nonaktif tetap bisa melanjutkan request, dengan flag popup
+            if (Auth::user()->role === 'koordinator') {
+                session()->flash('account_disabled', true);
+                return $next($request);
+            }
+
+            // Untuk role lain (peserta, instruktur, admin), logout
             Auth::guard('web')->logout();
 
             $request->session()->invalidate();

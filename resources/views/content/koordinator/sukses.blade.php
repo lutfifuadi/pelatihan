@@ -131,7 +131,7 @@ $configData = Helper::appClasses();
         <i class="icon-base ti tabler-clock-hour-4 text-warning fs-4 mt-1"></i>
         <div>
           <p style="color: rgba(255,255,255,0.7); font-size: 0.9rem; margin-bottom: 4px; line-height: 1.5;">
-            Setelah disetujui, Anda akan bisa login menggunakan <strong>email</strong> dan <strong>password</strong> yang telah didaftarkan.
+            Setelah disetujui, Anda akan bisa login menggunakan <strong>NIK</strong> sebagai username dan password default <strong>katakuncikoordinator</strong>.
           </p>
         </div>
       </div>

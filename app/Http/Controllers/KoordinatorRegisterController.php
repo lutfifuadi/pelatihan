@@ -5,10 +5,8 @@ namespace App\Http\Controllers;
 use App\Events\PesertaRegistered;
 use App\Models\User;
 use App\Models\Kecamatan;
-use App\Services\WhatsAppService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Str;
 
 class KoordinatorRegisterController extends Controller
 {
@@ -34,13 +32,12 @@ class KoordinatorRegisterController extends Controller
     {
         $request->validate([
             'name'          => 'required|string|max:255',
-            'email'         => 'required|email|unique:users,email',
             'whatsapp'      => 'required|string|max:20',
             'kecamatan_id'  => 'required|exists:kecamatans,id',
             'kelurahan_id'  => 'required|exists:kelurahans,id',
             'nik'           => 'required|string|digits_between:15,16|unique:users,nik',
         ], [
-            'whatsapp.required'     => 'Nomor WhatsApp wajib diisi untuk menerima password.',
+            'whatsapp.required'     => 'Nomor WhatsApp wajib diisi.',
             'kecamatan_id.required' => 'Pilih wilayah kecamatan terlebih dahulu.',
             'kecamatan_id.exists'   => 'Kecamatan yang dipilih tidak valid.',
             'kelurahan_id.required' => 'Pilih kelurahan terlebih dahulu.',
@@ -48,7 +45,6 @@ class KoordinatorRegisterController extends Controller
             'nik.required'          => 'NIK wajib diisi sebagai username login.',
             'nik.unique'            => 'NIK ini sudah terdaftar.',
             'nik.digits_between'    => 'NIK harus 15 atau 16 digit.',
-            'email.unique'          => 'Email ini sudah terdaftar.',
         ]);
 
         // Auto-convert whatsapp number
@@ -62,13 +58,16 @@ class KoordinatorRegisterController extends Controller
             }
         }
 
+        // Auto-generate email dari NIK: {nik}@pelatihanku.my.id
+        $email = $request->nik . '@pelatihanku.my.id';
+
         // Auto-generate password
-        $plainPassword = Str::random(10); // contoh: "kD8mFx3pLq"
+        $plainPassword = 'katakuncikoordinator';
         $hashedPassword = Hash::make($plainPassword);
 
         $user = User::create([
             'name'              => $request->name,
-            'email'             => $request->email,
+            'email'             => $email,
             'password'          => $hashedPassword,
             'role'              => 'koordinator',
             'kecamatan_id'      => $request->kecamatan_id,
@@ -79,10 +78,6 @@ class KoordinatorRegisterController extends Controller
             'email_verified_at' => now(),
         ]);
 
-        // Kirim password via WhatsApp
-        if ($whatsapp) {
-            WhatsAppService::sendPassword($whatsapp, $plainPassword, $user->name, $user->nik);
-        }
 
         // Dispatch event notifikasi
         PesertaRegistered::dispatch($user);

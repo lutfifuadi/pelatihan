@@ -6,7 +6,73 @@ $configData = Helper::appClasses();
 
 @section('title', 'Dashboard Koordinator')
 
+@section('page-style')
+<style>
+  /* Popup blur overlay for disabled account */
+  #disabled-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    background: rgba(0,0,0,0.5);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .disabled-card {
+    max-width: 480px;
+    width: 90%;
+    background: rgba(15,23,42,0.85);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 5px;
+    box-shadow: 0 30px 80px rgba(0,0,0,0.6);
+  }
+  .disabled-card .btn-logout {
+    background: linear-gradient(135deg, #6366f1, #d946ef);
+    border: none;
+    border-radius: 5px;
+    font-family: 'Sora', sans-serif;
+    font-weight: 600;
+    box-shadow: 0 4px 15px rgba(99,102,241,0.3);
+    transition: all 0.3s ease;
+  }
+  .disabled-card .btn-logout:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(99,102,241,0.4);
+  }
+</style>
+@endsection
+
 @section('content')
+@php
+  $isDisabledKoordinator = auth()->check()
+      && auth()->user()->role === 'koordinator'
+      && !auth()->user()->is_active;
+@endphp
+
+@if(session('account_disabled') || $isDisabledKoordinator)
+  <!-- Disabled Account Overlay -->
+  <div id="disabled-overlay">
+    <div class="disabled-card p-5 text-center">
+      <i class="icon-base ti tabler-alert-triangle fs-1 text-warning mb-3 d-inline-block"></i>
+      <h4 class="text-white fw-bold mb-2">Akun Dinonaktifkan</h4>
+      <p class="text-body-premium mb-4" style="font-size: 0.95rem;">
+        Akun koordinator Anda telah dinonaktifkan oleh admin. Silakan hubungi admin untuk informasi lebih lanjut.
+      </p>
+      <form action="{{ route('logout') }}" method="POST">
+        @csrf
+        <button type="submit" class="btn btn-logout text-white px-4 py-2">Logout</button>
+      </form>
+    </div>
+  </div>
+@endif
+
 <div class="row">
   <div class="col-12 mb-4">
     <h4>Dashboard Koordinator</h4>

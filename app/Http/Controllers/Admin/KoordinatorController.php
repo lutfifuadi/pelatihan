@@ -40,7 +40,7 @@ class KoordinatorController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
+            'email' => 'nullable|string|email|max:255|unique:users',
             'password' => 'required|string|min:8',
             'kecamatan_id' => 'required|exists:kecamatans,id',
             'kelurahan_id' => 'required|exists:kelurahans,id',
@@ -51,7 +51,7 @@ class KoordinatorController extends Controller
 
         User::create([
             'name' => $request->name,
-            'email' => $request->email,
+            'email' => $request->email ?? $request->nik . '@koordinator.pelatihanku.app',
             'password' => Hash::make($request->password),
             'role' => 'koordinator',
             'kecamatan_id' => $request->kecamatan_id,
@@ -93,7 +93,7 @@ class KoordinatorController extends Controller
 
         $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users,email,' . $koordinator->id,
+            'email' => 'nullable|string|email|max:255|unique:users,email,' . $koordinator->id,
             'password' => 'nullable|string|min:8',
             'kecamatan_id' => 'required|exists:kecamatans,id',
             'kelurahan_id' => 'required|exists:kelurahans,id',
@@ -192,5 +192,44 @@ class KoordinatorController extends Controller
 
         return redirect()->route('admin.koordinator.index')
             ->with('success', 'Koordinator berhasil dihapus.');
+    }
+
+    /**
+     * Toggle status aktif/nonaktif koordinator.
+     * 
+     * @param User $koordinator
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function toggleStatus(User $koordinator)
+    {
+        if ($koordinator->role !== 'koordinator') {
+            return response()->json([
+                'success' => false,
+                'message' => 'User yang dipilih bukan koordinator.',
+            ], 404);
+        }
+
+        $oldStatus = $koordinator->is_active;
+        $newStatus = !$oldStatus;
+
+        $koordinator->update(['is_active' => $newStatus]);
+
+        $statusLabel = $newStatus ? 'diaktifkan' : 'dinonaktifkan';
+
+        ActivityLogger::action(
+            'updated',
+            'Koordinator',
+            "Koordinator {$koordinator->name} berhasil {$statusLabel} oleh " . auth()->user()->name,
+            $koordinator->id,
+            $koordinator->name
+        );
+
+        event(new \App\Events\DashboardUpdated());
+
+        return response()->json([
+            'success' => true,
+            'is_active' => $koordinator->fresh()->is_active,
+            'message' => "Koordinator {$koordinator->name} berhasil {$statusLabel}.",
+        ]);
     }
 }

@@ -26,10 +26,15 @@ class LoginController extends Controller
             $user = Auth::user();
 
             if (!$user->is_active) {
-                Auth::logout();
-                return back()->withErrors([
-                    'email' => 'Akun Anda telah dinonaktifkan.',
-                ]);
+                // Koordinator nonaktif tetap bisa login, frontend akan handle popup
+                if ($user->role === 'koordinator') {
+                    session()->flash('account_disabled', true);
+                } else {
+                    Auth::logout();
+                    return back()->withErrors([
+                        'email' => 'Akun Anda telah dinonaktifkan.',
+                    ]);
+                }
             }
 
             // Clear intended URL if it points to notifications or API to prevent loop/wrong redirection
@@ -42,6 +47,7 @@ class LoginController extends Controller
             return match ($user->role) {
                 'admin' => redirect()->intended(route('dashboard.admin')),
                 'instruktur' => redirect()->intended(route('dashboard.instruktur')),
+                'koordinator' => redirect()->intended(route('dashboard.koordinator')),
                 default => redirect()->intended(route('dashboard.peserta')),
             };
         }

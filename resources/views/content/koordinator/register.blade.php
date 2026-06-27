@@ -285,15 +285,7 @@ $configData = Helper::appClasses();
           @error('whatsapp') <div class="invalid-feedback">{{ $message }}</div> @enderror
         </div>
 
-        <!-- Baris 3 kolom: Email | Kecamatan | NIK -->
-        <div class="col-md-4">
-          <label class="form-label">Email <span class="text-danger">*</span></label>
-          <input type="email" name="email" class="form-control @error('email') is-invalid @enderror"
-            value="{{ old('email') }}" placeholder="contoh@email.com" required>
-          @error('email') <div class="invalid-feedback">{{ $message }}</div> @enderror
-        </div>
-
-        <div class="col-md-4">
+        <div class="col-md-6">
           <label class="form-label">Wilayah Kecamatan <span class="text-danger">*</span></label>
           <select name="kecamatan_id" id="kecamatan_id" class="form-select @error('kecamatan_id') is-invalid @enderror" required>
             <option value="">— Pilih Kecamatan —</option>
@@ -306,7 +298,7 @@ $configData = Helper::appClasses();
           @error('kecamatan_id') <div class="invalid-feedback">{{ $message }}</div> @enderror
         </div>
 
-        <div class="col-md-4">
+        <div class="col-md-6">
           <label class="form-label">NIK (Username Login) <span class="text-danger">*</span></label>
           <input type="text" id="nik" name="nik" class="form-control @error('nik') is-invalid @enderror"
             value="{{ old('nik') }}" placeholder="15-16 digit NIK" maxlength="16" required>
@@ -332,7 +324,7 @@ $configData = Helper::appClasses();
       <div class="info-banner mt-4 mb-4">
         <i class="icon-base ti tabler-info-circle"></i>
         <div>
-          <p>🔑 Password akan dibuat otomatis dan dikirim ke WhatsApp. Login menggunakan <strong>NIK</strong> sebagai username dan password yang dikirimkan. Setelah mendaftar, akun akan diverifikasi admin. Silakan tunggu notifikasi aktivasi.</p>
+          <p>🔑 Password default: <strong>katakuncikoordinator</strong>. Login menggunakan <strong>NIK</strong> sebagai username dan password tersebut. Setelah mendaftar, akun akan diverifikasi admin. Silakan tunggu notifikasi aktivasi.</p>
         </div>
       </div>
 

@@ -312,6 +312,7 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
         Route::get('koordinator/pending', [KoordinatorController::class, 'pending'])->name('koordinator.pending');
         Route::post('koordinator/{koordinator}/approve', [KoordinatorController::class, 'approve'])->name('koordinator.approve');
         Route::post('koordinator/{koordinator}/reject', [KoordinatorController::class, 'reject'])->name('koordinator.reject');
+        Route::post('koordinator/{koordinator}/toggle-status', [KoordinatorController::class, 'toggleStatus'])->name('koordinator.toggle-status');
         Route::resource('koordinator', KoordinatorController::class);
 
         // Notifikasi Admin

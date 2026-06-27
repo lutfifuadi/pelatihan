@@ -258,6 +258,121 @@ $configData = Helper::appClasses();
     background: rgba(255, 255, 255, 0.08) !important;
     color: #ffffff !important;
   }
+
+  /* ===== TOGGLE SWITCH CUSTOM (Dark Theme) ===== */
+  .form-switch .form-check-input {
+    width: 44px !important;
+    height: 22px !important;
+    background-color: rgba(255,255,255,0.1) !important;
+    border: 1px solid rgba(255,255,255,0.15) !important;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='rgba(255,255,255,0.5)'/%3e%3c/svg%3e") !important;
+    cursor: pointer !important;
+    transition: all 0.3s ease !important;
+    background-size: 16px !important;
+    background-position: left center !important;
+    padding-left: 0 !important;
+    float: none !important;
+    margin: 0 !important;
+  }
+  .form-switch .form-check-input:checked {
+    background-color: #10b981 !important;
+    border-color: #10b981 !important;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23ffffff'/%3e%3c/svg%3e") !important;
+    background-position: right center !important;
+  }
+  .form-switch .form-check-input:focus {
+    box-shadow: none !important;
+    outline: none !important;
+  }
+  .toggle-koordinator {
+    user-select: none;
+  }
+
+  /* ===== MODAL GLASSMORPHISM ===== */
+  .modal-glass {
+    background: rgba(15,23,42,0.85) !important;
+    backdrop-filter: blur(24px) !important;
+    -webkit-backdrop-filter: blur(24px) !important;
+    border: 1px solid rgba(255,255,255,0.08) !important;
+    border-radius: 5px !important;
+    box-shadow: 0 30px 80px rgba(0,0,0,0.6) !important;
+  }
+
+  /* ===== BACKGROUND BLUR EFFECT ===== */
+  .blur-active {
+    filter: blur(4px) !important;
+    transition: filter 0.3s ease !important;
+    pointer-events: none;
+    user-select: none;
+  }
+  .modal-backdrop-blur {
+    backdrop-filter: blur(6px) !important;
+    -webkit-backdrop-filter: blur(6px) !important;
+    background: rgba(0,0,0,0.4) !important;
+  }
+  .modal-backdrop-blur.show {
+    opacity: 1 !important;
+  }
+
+  /* ===== TOAST NOTIFICATION ===== */
+  .toast-premium {
+    position: fixed;
+    top: 24px;
+    right: 24px;
+    z-index: 99999;
+    min-width: 320px;
+    max-width: 420px;
+    padding: 16px 20px;
+    border-radius: 5px;
+    background: rgba(15,23,42,0.92);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255,255,255,0.08);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    transform: translateX(120%);
+    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .toast-premium.show {
+    transform: translateX(0);
+  }
+  .toast-premium.toast-success {
+    border-color: rgba(16,185,129,0.3);
+  }
+  .toast-premium.toast-success .toast-icon {
+    color: #10b981;
+  }
+  .toast-premium.toast-error {
+    border-color: rgba(239,68,68,0.3);
+  }
+  .toast-premium.toast-error .toast-icon {
+    color: #ef4444;
+  }
+  .toast-premium .toast-icon {
+    font-size: 1.5rem;
+    flex-shrink: 0;
+  }
+  .toast-premium .toast-message {
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.9rem;
+    color: #f8fafc;
+    flex: 1;
+  }
+  .toast-premium .toast-close {
+    color: rgba(255,255,255,0.4);
+    cursor: pointer;
+    font-size: 1.2rem;
+    line-height: 1;
+    background: none;
+    border: none;
+    padding: 0;
+    transition: color 0.2s;
+  }
+  .toast-premium .toast-close:hover {
+    color: #ffffff;
+  }
 </style>
 @endsection
 
@@ -309,6 +424,7 @@ $configData = Helper::appClasses();
             <thead>
               <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.08);">
                 <th class="text-body-premium small fw-semibold px-0" style="width: 60px;">No</th>
+                <th class="text-body-premium small fw-semibold text-center" style="width: 80px;">Status</th>
                 <th class="text-body-premium small fw-semibold">Nama / NIK</th>
                 <th class="text-body-premium small fw-semibold">Email</th>
                 <th class="text-body-premium small fw-semibold">Wilayah (Kecamatan)</th>
@@ -321,6 +437,16 @@ $configData = Helper::appClasses();
               @forelse($koordinators as $index => $koordinator)
                 <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.04);">
                   <td class="px-0 py-3 text-body-premium">{{ $koordinators->firstItem() + $index }}</td>
+                  <td class="py-3 text-center">
+                    <div class="form-check form-switch mb-0 d-flex justify-content-center">
+                      <input class="form-check-input toggle-koordinator" type="checkbox" role="switch"
+                        data-id="{{ $koordinator->id }}"
+                        data-name="{{ $koordinator->name }}"
+                        data-is-active="{{ $koordinator->is_active ? 'true' : 'false' }}"
+                        data-toggle-url="{{ route('admin.koordinator.toggle-status', $koordinator) }}"
+                        {{ $koordinator->is_active ? 'checked' : '' }}>
+                    </div>
+                  </td>
                   <td class="py-3">
                     <div class="fw-semibold text-white">{{ $koordinator->name }}</div>
                     <small class="text-body-premium">{{ $koordinator->nik ?? '-' }}</small>
@@ -356,7 +482,7 @@ $configData = Helper::appClasses();
                 </tr>
               @empty
                 <tr>
-                  <td colspan="7" class="text-center text-body-premium py-5">
+                  <td colspan="8" class="text-center text-body-premium py-5">
                     <i class="icon-base ti tabler-discount-check fs-1 mb-2 d-block text-success"></i>
                     Tidak ada pendaftar koordinator yang menunggu persetujuan.
                   </td>
@@ -374,4 +500,234 @@ $configData = Helper::appClasses();
     </div>
 
   </div>
+
+@endsection
+
+@push('modals')
+  <!-- ===== TOGGLE CONFIRMATION MODAL (Premium Glassmorphism) ===== -->
+  <div class="modal fade" id="toggleConfirmModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-md">
+      <div class="modal-content modal-glass">
+        <div class="modal-body text-center p-4">
+          <!-- Dynamic Icon -->
+          <div id="toggleModalIcon" class="mb-3">
+            <i class="icon-base ti tabler-toggle-left fs-1 text-warning"></i>
+          </div>
+          <!-- Title -->
+          <h5 class="text-white fw-bold mb-2" id="toggleModalTitle">Konfirmasi</h5>
+          <!-- Message -->
+          <p class="text-body-premium mb-4" id="toggleModalMessage">Apakah Anda yakin?</p>
+          <!-- Hidden Data -->
+          <input type="hidden" id="toggleModalId" value="">
+          <input type="hidden" id="toggleModalAction" value="">
+          <!-- Buttons -->
+          <div class="d-flex gap-2 justify-content-center">
+            <button type="button" class="btn px-4 py-2" data-bs-dismiss="modal"
+              style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.7); border-radius: 5px; font-family: 'Sora', sans-serif; font-weight: 600; min-width: 100px;">
+              Batal
+            </button>
+            <button type="button" class="btn px-4 py-2 text-white fw-bold" id="toggleModalConfirmBtn"
+              style="background: linear-gradient(135deg, #6366f1, #d946ef); border: none; border-radius: 5px; font-family: 'Sora', sans-serif; font-weight: 600; box-shadow: 0 4px 15px rgba(99,102,241,0.3); min-width: 140px;">
+              <span id="toggleModalBtnText">Ya, Aktifkan</span>
+              <div class="spinner-border spinner-border-sm d-none ms-2" id="toggleModalSpinner" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- ===== END TOGGLE CONFIRMATION MODAL ===== -->
+@endpush
+
+@section('page-script')
+<script>
+(function() {
+    'use strict';
+
+    function initToggleKoordinator() {
+        // --- Bootstrap Modal Instance ---
+        const modalEl = document.getElementById('toggleConfirmModal');
+        if (!modalEl) return; // Halaman mungkin tidak punya modal
+
+        const modal = new bootstrap.Modal(modalEl, { backdrop: 'static', keyboard: false });
+        let currentCheckbox = null;
+        let originalState = false;
+
+        // --- 1. Toggle Switch Click Handler ---
+        document.querySelectorAll('.toggle-koordinator').forEach(function(el) {
+            el.addEventListener('click', function(e) {
+                e.preventDefault();
+
+                currentCheckbox = this;
+
+                // Sumber kebenaran: data attribute (bukan this.checked)
+                const isCurrentlyActive = this.getAttribute('data-is-active') === 'true';
+                const desiredState = !isCurrentlyActive; // Kebalikan: mau aktifkan atau nonaktifkan
+
+                // Simpan state awal untuk revert jika perlu
+                originalState = isCurrentlyActive;
+
+                // Pastikan checkbox TETAP di state semula (jangan biarkan browser berubah)
+                this.checked = isCurrentlyActive;
+
+                const id = this.dataset.id;
+                const name = this.dataset.name;
+
+                document.getElementById('toggleModalId').value = id;
+                document.getElementById('toggleModalAction').value = desiredState ? 'activate' : 'deactivate';
+
+                if (desiredState) {
+                    document.getElementById('toggleModalIcon').innerHTML =
+                        '<i class="icon-base ti tabler-toggle-right fs-1 text-success"></i>';
+                    document.getElementById('toggleModalTitle').textContent = 'Aktifkan Koordinator';
+                    document.getElementById('toggleModalMessage').innerHTML =
+                        'Aktifkan <strong class="text-white">' + escapeHtml(name) + '</strong> sebagai koordinator?';
+                    document.getElementById('toggleModalBtnText').textContent = 'Ya, Aktifkan';
+                } else {
+                    document.getElementById('toggleModalIcon').innerHTML =
+                        '<i class="icon-base ti tabler-toggle-left fs-1 text-warning"></i>';
+                    document.getElementById('toggleModalTitle').textContent = 'Nonaktifkan Koordinator';
+                    document.getElementById('toggleModalMessage').innerHTML =
+                        'Nonaktifkan <strong class="text-white">' + escapeHtml(name) + '</strong>? Akun tidak bisa digunakan.';
+                    document.getElementById('toggleModalBtnText').textContent = 'Ya, Nonaktifkan';
+                }
+
+                modal.show();
+            });
+        });
+
+        // --- 2. Confirm Button Handler (AJAX) ---
+        document.getElementById('toggleModalConfirmBtn').addEventListener('click', function() {
+            const id = document.getElementById('toggleModalId').value;
+            const action = document.getElementById('toggleModalAction').value;
+            const btnText = document.getElementById('toggleModalBtnText');
+            const spinner = document.getElementById('toggleModalSpinner');
+
+            btnText.textContent = 'Memproses...';
+            spinner.classList.remove('d-none');
+            this.disabled = true;
+
+            const url = currentCheckbox.dataset.toggleUrl;
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({})
+            })
+            .then(function(res) {
+                if (!res.ok) {
+                    return res.json().catch(function() {
+                        throw new Error('Server error (' + res.status + ')');
+                    }).then(function(errData) {
+                        throw new Error(errData.message || 'Server error (' + res.status + ')');
+                    });
+                }
+                return res.json();
+            })
+            .then(function(data) {
+                modal.hide();
+                if (data.success) {
+                    if (currentCheckbox) {
+                        // Update sumber kebenaran (data attribute)
+                        currentCheckbox.setAttribute('data-is-active', String(!originalState));
+                        // Update visual checkbox
+                        currentCheckbox.checked = !originalState;
+                    }
+                    showToast('success', data.message || 'Status koordinator berhasil diubah');
+                } else {
+                    // Revert checkbox ke state semula
+                    if (currentCheckbox) {
+                        currentCheckbox.checked = originalState;
+                    }
+                    showToast('error', data.message || 'Gagal mengubah status koordinator');
+                }
+            })
+            .catch(function(err) {
+                modal.hide();
+                // Revert checkbox to original state
+                if (currentCheckbox) {
+                    currentCheckbox.checked = originalState;
+                }
+                showToast('error', err.message || 'Terjadi kesalahan server. Silakan coba lagi.');
+            })
+            .finally(function() {
+                btnText.textContent = action === 'activate' ? 'Ya, Aktifkan' : 'Ya, Nonaktifkan';
+                spinner.classList.add('d-none');
+                document.getElementById('toggleModalConfirmBtn').disabled = false;
+                currentCheckbox = null;
+            });
+        });
+
+        // --- 3. Modal Hide → Revert if not confirmed ---
+        modalEl.addEventListener('hidden.bs.modal', function() {
+            if (currentCheckbox) {
+                currentCheckbox.checked = originalState;
+                currentCheckbox = null;
+            }
+            document.querySelector('.content-wrapper')?.classList.remove('blur-active');
+        });
+
+        // --- 4. Modal Show → Add blur effect ---
+        modalEl.addEventListener('show.bs.modal', function() {
+            document.querySelector('.content-wrapper')?.classList.add('blur-active');
+            // Also style the backdrop
+            setTimeout(function() {
+                var backdrop = document.querySelector('.modal-backdrop');
+                if (backdrop) backdrop.classList.add('modal-backdrop-blur');
+            }, 10);
+        });
+
+        // --- 5. Toast Notification System ---
+        function showToast(type, message) {
+            var existing = document.querySelector('.toast-premium');
+            if (existing) existing.remove();
+
+            var toast = document.createElement('div');
+            toast.className = 'toast-premium toast-' + type;
+
+            var icon = type === 'success'
+                ? '<i class="icon-base ti tabler-check-circle toast-icon"></i>'
+                : '<i class="icon-base ti tabler-alert-circle toast-icon"></i>';
+
+            toast.innerHTML = icon +
+                '<span class="toast-message">' + escapeHtml(message) + '</span>' +
+                '<button class="toast-close" onclick="this.parentElement.remove()">&times;</button>';
+
+            document.body.appendChild(toast);
+
+            setTimeout(function() { toast.classList.add('show'); }, 50);
+
+            setTimeout(function() {
+                toast.classList.remove('show');
+                setTimeout(function() { toast.remove(); }, 400);
+            }, 4000);
+        }
+
+        // --- 6. Utility: Escape HTML ---
+        function escapeHtml(str) {
+            if (!str) return '';
+            var div = document.createElement('div');
+            div.appendChild(document.createTextNode(str));
+            return div.innerHTML;
+        }
+    }
+
+    // Tunggu Bootstrap tersedia, lalu jalankan
+    if (typeof bootstrap !== 'undefined') {
+        initToggleKoordinator();
+    } else {
+        var checkBootstrap = setInterval(function() {
+            if (typeof bootstrap !== 'undefined') {
+                clearInterval(checkBootstrap);
+                initToggleKoordinator();
+            }
+        }, 50);
+    }
+})();
+</script>
 @endsection
