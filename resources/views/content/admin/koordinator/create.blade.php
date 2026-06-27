@@ -434,6 +434,38 @@ document.addEventListener('DOMContentLoaded', function() {
       kecamatanSelect.dispatchEvent(new Event('change'));
     }
   }
+
+  // ── Autofill Email dari NIK ──
+  const EMAIL_DOMAIN = '@koordinator.pelatihanku.app';
+  let userEditedEmail = false;
+
+  const nikInput = document.getElementById('nik');
+  const emailInput = document.getElementById('email');
+
+  if (nikInput && emailInput) {
+    // Helper: generate email dari NIK
+    function generateEmail(nik) {
+      return nik ? nik + EMAIL_DOMAIN : '';
+    }
+
+    // Tandai flag jika admin mengedit email secara manual
+    emailInput.addEventListener('input', function () {
+      if (this.value !== generateEmail(nikInput.value)) {
+        userEditedEmail = true;
+      }
+    });
+
+    // Autofill otomatis saat NIK diketik
+    nikInput.addEventListener('input', function () {
+      if (!userEditedEmail) {
+        emailInput.value = generateEmail(this.value);
+      }
+      // Reset flag jika kedua field kosong
+      if (!this.value && !emailInput.value) {
+        userEditedEmail = false;
+      }
+    });
+  }
 });
 </script>
 @endsection
