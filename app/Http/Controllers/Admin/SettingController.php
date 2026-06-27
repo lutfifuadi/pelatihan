@@ -15,7 +15,8 @@ class SettingController extends Controller
         $settings = Setting::whereIn('key', [
             'brand_name', 'brand_logo_size',
             'institution_name', 'institution_address', 'institution_phone', 'institution_email', 'institution_description',
-            'footer_copyright', 'lock_kota', 'lock_provinsi', 'validate_whatsapp', 'broadcast_enabled', 'timezone'
+            'footer_copyright', 'lock_kota', 'lock_provinsi', 'validate_whatsapp', 'broadcast_enabled', 'timezone',
+            'minat_mobile_view_mode'
         ])
             ->get()
             ->keyBy('key');
@@ -40,12 +41,14 @@ class SettingController extends Controller
             'validate_whatsapp' => 'required|in:0,1',
             'broadcast_enabled' => 'required|in:0,1',
             'timezone' => 'required|string|max:100',
+            'minat_mobile_view_mode' => 'sometimes|required|in:horizontal,grid',
         ]);
 
         $keys = [
             'brand_name', 'brand_logo_size',
             'institution_name', 'institution_address', 'institution_phone', 'institution_email', 'institution_description',
-            'footer_copyright', 'lock_kota', 'lock_provinsi', 'validate_whatsapp', 'broadcast_enabled', 'timezone'
+            'footer_copyright', 'lock_kota', 'lock_provinsi', 'validate_whatsapp', 'broadcast_enabled', 'timezone',
+            'minat_mobile_view_mode'
         ];
         $labels = [
             'brand_name' => 'Nama Brand Aplikasi',
@@ -61,6 +64,7 @@ class SettingController extends Controller
             'validate_whatsapp' => 'Validasi Otomatis Nomor WhatsApp',
             'broadcast_enabled' => 'Aktifkan Broadcast Real-time',
             'timezone' => 'Zona Waktu Aplikasi',
+            'minat_mobile_view_mode' => 'Mode Tampilan Mobile Form Minat',
         ];
 
         foreach ($keys as $key) {

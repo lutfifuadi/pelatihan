@@ -501,9 +501,11 @@ class PesertaFormController extends Controller
 
         $fields = $this->formConfig->getFieldsBySection('minat');
 
+        $mobileViewMode = \App\Models\Setting::where('key', 'minat_mobile_view_mode')->value('value') ?? 'horizontal';
+
         return view('content.dashboard.peserta.form-minat', compact(
             'data', 'pelatihans', 'dinasRestrictions', 'batchList', 'fields',
-            'userLocation', 'alternativePelatihans', 'adminWa'
+            'userLocation', 'alternativePelatihans', 'adminWa', 'mobileViewMode'
         ));
     }
 

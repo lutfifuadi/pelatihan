@@ -891,7 +891,7 @@ $fActive = $fields->where('is_active', true)->pluck('field_key')->toArray();
             <!-- Cards Container -->
             <div>
               <div
-                class="grid-cards-container mt-1 {{ $mobileViewMode === 'grid' ? 'view-grid' : '' }}"
+                class="grid-cards-container mt-1 {{ ($mobileViewMode ?? 'horizontal') === 'grid' ? 'view-grid' : '' }}"
                 :class="{ 'has-cards': batchList.length > 0, 'is-dragging': isDragging }"
                 x-ref="dragContainer"
                 @mousedown="startDrag($event)"

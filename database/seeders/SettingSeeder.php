@@ -90,6 +90,7 @@ class SettingSeeder extends Seeder
             ['key' => 'broadcast_enabled', 'value' => '1', 'group' => 'general', 'label' => 'Aktifkan Broadcast Real-time'],
             ['key' => 'validate_whatsapp', 'value' => '1', 'group' => 'general', 'label' => 'Validasi Otomatis Nomor WhatsApp'],
             ['key' => 'timezone', 'value' => 'Asia/Jakarta', 'group' => 'general', 'label' => 'Zona Waktu Aplikasi'],
+            ['key' => 'minat_mobile_view_mode', 'value' => 'horizontal', 'group' => 'general', 'label' => 'Mode Tampilan Mobile Form Minat Peserta'],
 
             // ===== MAINTENANCE MODE =====
             ['key' => 'maintenance_mode', 'value' => '0', 'group' => 'general', 'label' => 'Mode Maintenance'],

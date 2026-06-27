@@ -490,6 +490,29 @@ $configData = Helper::appClasses();
             </div>
           </div>
 
+          {{-- ======================== MOBILE VIEW MODE ======================== --}}
+          <div class="row mt-4">
+            <div class="col-12">
+              <h6 class="text-white fw-bold mb-3" style="font-size: 0.85rem;">
+                <i class="icon-base ti tabler-device-mobile me-2" style="color: #818cf8;"></i>Tampilan Mobile
+              </h6>
+            </div>
+            <div class="col-12 col-md-6">
+              <label for="minat_mobile_view_mode" class="form-label">Mode Tampilan Form Minat (Mobile)</label>
+              <select class="form-control @error('minat_mobile_view_mode') is-invalid @enderror"
+                id="minat_mobile_view_mode" name="minat_mobile_view_mode">
+                <option value="horizontal" {{ (old('minat_mobile_view_mode', $settings['minat_mobile_view_mode']->value ?? 'horizontal') == 'horizontal') ? 'selected' : '' }}>Horizontal (Swipe)</option>
+                <option value="grid" {{ (old('minat_mobile_view_mode', $settings['minat_mobile_view_mode']->value ?? 'horizontal') == 'grid') ? 'selected' : '' }}>Grid (Vertikal)</option>
+              </select>
+              @error('minat_mobile_view_mode')
+                <div class="invalid-feedback mt-1">{{ $message }}</div>
+              @enderror
+              <small class="text-body-premium mt-1 d-block" style="font-size: 0.8rem;">
+                Pilih bagaimana kartu pelatihan ditampilkan di perangkat mobile: Horizontal (swipe) atau Grid (vertikal).
+              </small>
+            </div>
+          </div>
+
           <hr class="my-5" style="border-color: rgba(255,255,255,0.08);">
 
           {{-- ======================== SECTION 4: PENGUNCIAN WILAYAH ======================== --}}
