@@ -189,8 +189,8 @@ class DashboardController extends Controller
         $data = [
             'isProfileCompleted' => $profile ? $profile->is_completed : false,
             'profileCompletion' => $profileCompletion,
-            'hasPelatihan' => $profile && $profile->pelatihan_id,
-            'pelatihan' => $profile ? $profile->pelatihan : null,
+            'hasPelatihan' => ($profile && $profile->pelatihan_id) || ($enrollment && $enrollment->pelatihan_id),
+            'pelatihan' => $profile?->pelatihan ?? $enrollment?->pelatihan,
             'enrollment' => $enrollment,
             'attendanceRate' => $attendanceRate,
             'hasCertificate' => $enrollment && $enrollment->certificate()->exists(),

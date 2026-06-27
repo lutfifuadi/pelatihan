@@ -1186,7 +1186,7 @@ $configData = Helper::appClasses();
                 </div>
                 <h5 class="fw-bold text-white mb-2">Selamat, Anda Lulus!</h5>
                 <p class="text-body-premium small mb-3" style="line-height: 1.4;">
-                  Anda dinyatakan lulus dari pelatihan <strong>{{ $data['pelatihan']->nama }}</strong>. Sertifikat resmi Anda telah diterbitkan.
+                  Anda dinyatakan lulus dari pelatihan <strong>{{ $data['pelatihan']->nama ?? 'Anda' }}</strong>. Sertifikat resmi Anda telah diterbitkan.
                 </p>
 
                 <div class="p-3 mb-4 rounded border border-white border-opacity-5 text-start" style="background: rgba(255, 255, 255, 0.05);">
@@ -1215,11 +1215,12 @@ $configData = Helper::appClasses();
 
             <hr class="dark-premium my-4">
 
+            @if($data['pelatihan'])
             <h6 class="text-white fw-semibold mb-3">Info Kelas Offline:</h6>
             <ul class="list-unstyled mb-0">
               <li class="d-flex justify-content-between mb-2">
                 <span class="text-body-premium small">Batch</span>
-                <span class="text-white small fw-semibold">{{ $data['pelatihan']->batch }}</span>
+                <span class="text-white small fw-semibold">{{ $data['pelatihan']->batch ?? '-' }}</span>
               </li>
               <li class="d-flex justify-content-between mb-2">
                 <span class="text-body-premium small">Mulai</span>
@@ -1230,6 +1231,7 @@ $configData = Helper::appClasses();
                 <span class="text-white small fw-semibold">{{ $data['pelatihan']->tanggal_selesai ? $data['pelatihan']->tanggal_selesai->format('d M Y') : '-' }}</span>
               </li>
             </ul>
+            @endif
           </div>
         </div>
       </div>
