@@ -127,6 +127,21 @@ $configData = Helper::appClasses();
     border: 1px solid rgba(245, 158, 11, 0.3);
     color: #fbbf24;
   }
+  .badge-status.waiting-wa {
+    background: rgba(245, 158, 11, 0.15);
+    border: 1px solid rgba(245, 158, 11, 0.3);
+    color: #fbbf24;
+  }
+  .badge-status.newbimma {
+    background: rgba(59, 130, 246, 0.15);
+    border: 1px solid rgba(59, 130, 246, 0.3);
+    color: #60a5fa;
+  }
+  .badge-status.confirmed {
+    background: rgba(16, 185, 129, 0.15);
+    border: 1px solid rgba(16, 185, 129, 0.3);
+    color: #34d399;
+  }
 
   /* === VERTICAL TIMELINE === */
   .timeline-vert {
@@ -288,6 +303,21 @@ $configData = Helper::appClasses();
             <i class="icon-base ti tabler-clock"></i>
             Cadangan (Waitlist)
           </span>
+        @elseif($enrollment->status?->value === 'waiting_wa_confirmation')
+          <span class="badge-status waiting-wa">
+            <span class="spinner-grow spinner-grow-sm me-1" style="width: 8px; height: 8px;"></span>
+            💬 Menunggu Chat WA
+          </span>
+        @elseif($enrollment->status?->value === 'waiting_newbimma_check')
+          <span class="badge-status newbimma">
+            <span class="spinner-grow spinner-grow-sm me-1" style="width: 8px; height: 8px;"></span>
+            🔄 Cek Newbimma
+          </span>
+        @elseif($enrollment->status?->value === 'confirmed')
+          <span class="badge-status confirmed">
+            <i class="icon-base ti tabler-circle-check"></i>
+            ✅ Terkonfirmasi
+          </span>
         @endif
       </div>
     </div>
@@ -312,41 +342,34 @@ $configData = Helper::appClasses();
           $rejectedAt = $enrollment ? $enrollment->rejected_at : null;
           $rejectedNotes = $enrollment ? $enrollment->notes : null;
           $pelatihanMulai = $profile->pelatihan ? $profile->pelatihan->tanggal_mulai : null;
+          $waConfirmedAt = $enrollment ? $enrollment->wa_confirmed_at : null;
+          $newbimmaCheckedAt = $enrollment ? $enrollment->newbimma_checked_at : null;
         @endphp
 
         <ul class="timeline-vert">
-          {{-- Langkah 1: Data Dikirim --}}
-          <li class="timeline-item">
-            <div class="timeline-icon done">
-              <i class="icon-base ti tabler-check"></i>
-            </div>
-            <div class="timeline-content">
-              <h6 class="fw-bold text-white">Data Dikirim</h6>
-              <p class="text-body-premium">
-                Pendaftaran Anda telah berhasil dikirim ke sistem.
-                @if($createdAt)
-                  <br><span class="text-white-50" style="font-size: 0.75rem;">
-                    <i class="icon-base ti tabler-clock me-1"></i>{{ $createdAt->format('d M Y H:i') }} WIB
-                  </span>
-                @endif
-              </p>
-            </div>
-          </li>
+          @if(in_array($status, ['waiting_wa_confirmation', 'waiting_newbimma_check', 'confirmed']))
+            {{-- ===== NEW 5-STEP TIMELINE ===== --}}
 
-          {{-- Langkah 2: Verifikasi Admin --}}
-          <li class="timeline-item">
-            @if($status === 'pending')
-              <div class="timeline-icon active">
-                <span class="spinner-border spinner-border-sm" style="width: 14px; height: 14px;"></span>
+            {{-- Langkah 1: Data Dikirim --}}
+            <li class="timeline-item">
+              <div class="timeline-icon done">
+                <i class="icon-base ti tabler-check"></i>
               </div>
               <div class="timeline-content">
-                <h6 class="fw-bold text-white">Verifikasi Admin</h6>
+                <h6 class="fw-bold text-white">Data Dikirim</h6>
                 <p class="text-body-premium">
-                  Tim Admin/Dinas sedang memverifikasi data dan kelengkapan berkas Anda.
-                  <br><span class="text-white-50" style="font-size: 0.75rem;">Proses verifikasi biasanya memakan waktu 1×24 jam.</span>
+                  Pendaftaran Anda telah berhasil dikirim ke sistem.
+                  @if($createdAt)
+                    <br><span class="text-white-50" style="font-size: 0.75rem;">
+                      <i class="icon-base ti tabler-clock me-1"></i>{{ $createdAt->format('d M Y H:i') }} WIB
+                    </span>
+                  @endif
                 </p>
               </div>
-            @elseif(in_array($status, ['approved', 'rejected', 'waitlist']))
+            </li>
+
+            {{-- Langkah 2: Verifikasi Admin --}}
+            <li class="timeline-item">
               <div class="timeline-icon done">
                 <i class="icon-base ti tabler-check"></i>
               </div>
@@ -361,129 +384,300 @@ $configData = Helper::appClasses();
                   @endif
                 </p>
               </div>
-            @else
-              <div class="timeline-icon waiting">
-                <i class="icon-base ti tabler-minus"></i>
-              </div>
-              <div class="timeline-content">
-                <h6 class="text-white-50 fw-bold">Verifikasi Admin</h6>
-                <p class="text-body-premium">Belum ada data pendaftaran.</p>
-              </div>
-            @endif
-          </li>
+            </li>
 
-          {{-- Langkah 3: Hasil Seleksi --}}
-          <li class="timeline-item">
-            @if($status === 'approved')
+            {{-- Langkah 3: Konfirmasi WA --}}
+            <li class="timeline-item">
+              @if($status === 'waiting_wa_confirmation')
+                <div class="timeline-icon active" style="background: rgba(245,158,11,0.15); border-color: rgba(245,158,11,0.4); color: #fbbf24;">
+                  <span class="spinner-border spinner-border-sm" style="width: 14px; height: 14px;"></span>
+                </div>
+                <div class="timeline-content">
+                  <h6 class="fw-bold" style="color: #fbbf24;">Konfirmasi WhatsApp</h6>
+                  <p class="text-body-premium">
+                    Silakan konfirmasi pendaftaran Anda melalui WhatsApp.
+                    <br><span style="color: #fbbf24; font-size: 0.75rem;"><i class="icon-base ti tabler-clock me-1"></i>Menunggu konfirmasi Anda</span>
+                  </p>
+                </div>
+              @else
+                <div class="timeline-icon done">
+                  <i class="icon-base ti tabler-check"></i>
+                </div>
+                <div class="timeline-content">
+                  <h6 class="fw-bold text-white">Konfirmasi WhatsApp</h6>
+                  <p class="text-body-premium">
+                    WhatsApp Anda telah terkonfirmasi.
+                    @if($waConfirmedAt)
+                      <br><span class="text-white-50" style="font-size: 0.75rem;">
+                        <i class="icon-base ti tabler-clock me-1"></i>{{ $waConfirmedAt->format('d M Y H:i') }} WIB
+                      </span>
+                    @endif
+                  </p>
+                </div>
+              @endif
+            </li>
+
+            {{-- Langkah 4: Cek Newbimma / Hasil Seleksi --}}
+            <li class="timeline-item">
+              @if($status === 'waiting_wa_confirmation')
+                <div class="timeline-icon waiting">
+                  <i class="icon-base ti tabler-minus"></i>
+                </div>
+                <div class="timeline-content">
+                  <h6 class="text-white-50 fw-bold">Hasil Seleksi</h6>
+                  <p class="text-body-premium">Menunggu konfirmasi WhatsApp Anda untuk melanjutkan ke tahap berikutnya.</p>
+                </div>
+              @elseif($status === 'waiting_newbimma_check')
+                <div class="timeline-icon active" style="background: rgba(59,130,246,0.15); border-color: rgba(59,130,246,0.4); color: #60a5fa;">
+                  <span class="spinner-border spinner-border-sm" style="width: 14px; height: 14px;"></span>
+                </div>
+                <div class="timeline-content">
+                  <h6 class="fw-bold" style="color: #60a5fa;">Cek Newbimma</h6>
+                  <p class="text-body-premium">
+                    Data Anda sedang diperiksa melalui sistem Newbimma.
+                    @if($elapsedTime ?? null)
+                      <br><span style="color: #60a5fa; font-size: 0.75rem;"><i class="icon-base ti tabler-clock me-1"></i>Menunggu pengecekan sejak {{ $elapsedTime }}</span>
+                    @else
+                      <br><span class="text-white-50" style="font-size: 0.75rem;">Segera diperiksa</span>
+                    @endif
+                  </p>
+                </div>
+              @elseif($status === 'confirmed')
+                <div class="timeline-icon done">
+                  <i class="icon-base ti tabler-check"></i>
+                </div>
+                <div class="timeline-content">
+                  <h6 class="fw-bold text-white">Cek Newbimma</h6>
+                  <p class="text-body-premium">
+                    Pengecekan Newbimma selesai.
+                    @if($newbimmaCheckedAt)
+                      <br><span class="text-white-50" style="font-size: 0.75rem;">
+                        <i class="icon-base ti tabler-clock me-1"></i>{{ $newbimmaCheckedAt->format('d M Y H:i') }} WIB
+                      </span>
+                    @endif
+                  </p>
+                </div>
+              @endif
+            </li>
+
+            {{-- Langkah 5: Hasil Seleksi / Pelatihan Dimulai --}}
+            <li class="timeline-item">
+              @if($status === 'waiting_wa_confirmation')
+                <div class="timeline-icon waiting">
+                  <i class="icon-base ti tabler-calendar-off"></i>
+                </div>
+                <div class="timeline-content">
+                  <h6 class="text-white-50 fw-bold">Pelatihan Dimulai</h6>
+                  <p class="text-body-premium">Menunggu konfirmasi WhatsApp Anda.</p>
+                </div>
+              @elseif($status === 'waiting_newbimma_check')
+                <div class="timeline-icon waiting">
+                  <i class="icon-base ti tabler-minus"></i>
+                </div>
+                <div class="timeline-content">
+                  <h6 class="text-white-50 fw-bold">Hasil Seleksi</h6>
+                  <p class="text-body-premium">Menunggu hasil pengecekan Newbimma.</p>
+                </div>
+              @elseif($status === 'confirmed')
+                <div class="timeline-icon done">
+                  <i class="icon-base ti tabler-check"></i>
+                </div>
+                <div class="timeline-content">
+                  <h6 class="fw-bold text-white">
+                    <span class="text-success"><i class="icon-base ti tabler-circle-check me-1"></i></span>
+                    Hasil Seleksi: Diterima
+                  </h6>
+                  <p class="text-body-premium">
+                    Selamat! Anda telah terkonfirmasi dan dinyatakan lolos seleksi.
+                    @if($pelatihanMulai)
+                      <br>Pelatihan akan dimulai pada:
+                      <br><span class="fw-bold text-white" style="font-size: 0.9rem;">
+                        <i class="icon-base ti tabler-calendar me-1"></i>{{ $pelatihanMulai->format('d M Y') }}
+                      </span>
+                      @if($profile->pelatihan && $profile->pelatihan->tanggal_selesai)
+                        <span class="text-white-50"> — {{ $profile->pelatihan->tanggal_selesai->format('d M Y') }}</span>
+                      @endif
+                    @else
+                      <br><span class="text-white-50" style="font-size: 0.75rem;">Tanggal mulai pelatihan akan diumumkan kemudian.</span>
+                    @endif
+                  </p>
+                </div>
+              @endif
+            </li>
+
+          @else
+            {{-- ===== EXISTING 4-STEP TIMELINE (old statuses) ===== --}}
+
+            {{-- Langkah 1: Data Dikirim --}}
+            <li class="timeline-item">
               <div class="timeline-icon done">
                 <i class="icon-base ti tabler-check"></i>
               </div>
               <div class="timeline-content">
-                <h6 class="fw-bold text-white">
-                  <span class="text-success"><i class="icon-base ti tabler-circle-check me-1"></i></span>
-                  Hasil Seleksi: Diterima
-                </h6>
+                <h6 class="fw-bold text-white">Data Dikirim</h6>
                 <p class="text-body-premium">
-                  Selamat! Pendaftaran Anda telah disetujui. Silakan siapkan diri untuk mengikuti pelatihan.
-                  @if($approvedAt)
+                  Pendaftaran Anda telah berhasil dikirim ke sistem.
+                  @if($createdAt)
                     <br><span class="text-white-50" style="font-size: 0.75rem;">
-                      <i class="icon-base ti tabler-clock me-1"></i>Disetujui {{ $approvedAt->format('d M Y H:i') }} WIB
+                      <i class="icon-base ti tabler-clock me-1"></i>{{ $createdAt->format('d M Y H:i') }} WIB
                     </span>
                   @endif
                 </p>
               </div>
-            @elseif($status === 'rejected')
-              <div class="timeline-icon rejected-status">
-                <i class="icon-base ti tabler-x"></i>
-              </div>
-              <div class="timeline-content">
-                <h6 class="fw-bold text-white">
-                  <span class="text-danger"><i class="icon-base ti tabler-circle-x me-1"></i></span>
-                  Hasil Seleksi: Ditolak
-                </h6>
-                <p class="text-body-premium">
-                  Mohon maaf, pendaftaran Anda belum dapat disetujui.
-                  @if($rejectedNotes)
-                    <br><span class="text-danger" style="font-size: 0.78rem;">Alasan: {{ $rejectedNotes }}</span>
-                  @endif
-                  @if($rejectedAt)
-                    <br><span class="text-white-50" style="font-size: 0.75rem;">
-                      <i class="icon-base ti tabler-clock me-1"></i>{{ $rejectedAt->format('d M Y H:i') }} WIB
-                    </span>
-                  @endif
-                </p>
-              </div>
-            @elseif($status === 'waitlist')
-              <div class="timeline-icon" style="background: rgba(245, 158, 11, 0.15); border-color: rgba(245, 158, 11, 0.4); color: #fbbf24;">
-                <i class="icon-base ti tabler-clock"></i>
-              </div>
-              <div class="timeline-content">
-                <h6 class="fw-bold text-white">
-                  <span class="text-warning"><i class="icon-base ti tabler-clock me-1"></i></span>
-                  Hasil Seleksi: Cadangan (Waitlist)
-                </h6>
-                <p class="text-body-premium">
-                  Kuota utama saat ini sudah terpenuhi. Anda masuk ke daftar cadangan dan akan dipromosikan jika ada peserta yang mengundurkan diri.
-                </p>
-              </div>
-            @elseif($status === 'pending')
-              <div class="timeline-icon active">
-                <span class="spinner-border spinner-border-sm" style="width: 14px; height: 14px;"></span>
-              </div>
-              <div class="timeline-content">
-                <h6 class="fw-bold text-white">Hasil Seleksi</h6>
-                <p class="text-body-premium">Menunggu hasil verifikasi dari Admin/Dinas penyelenggara.</p>
-              </div>
-            @else
-              <div class="timeline-icon waiting">
-                <i class="icon-base ti tabler-minus"></i>
-              </div>
-              <div class="timeline-content">
-                <h6 class="text-white-50 fw-bold">Hasil Seleksi</h6>
-                <p class="text-body-premium">Belum ada data pendaftaran.</p>
-              </div>
-            @endif
-          </li>
+            </li>
 
-          {{-- Langkah 4: Pelatihan Dimulai --}}
-          <li class="timeline-item">
-            @if($status === 'approved' && $pelatihanMulai)
-              <div class="timeline-icon" style="background: rgba(6, 182, 212, 0.15); border-color: rgba(6, 182, 212, 0.4); color: #22d3ee;">
-                <i class="icon-base ti tabler-calendar-event"></i>
-              </div>
-              <div class="timeline-content">
-                <h6 class="fw-bold text-white">
-                  <i class="icon-base ti tabler-calendar-check text-info me-1"></i>
-                  Pelatihan Dimulai
-                </h6>
-                <p class="text-body-premium">
-                  Pelatihan akan dimulai pada:
-                  <br><span class="fw-bold text-white" style="font-size: 0.9rem;">
-                    <i class="icon-base ti tabler-calendar me-1"></i>{{ $pelatihanMulai->format('d M Y') }}
-                  </span>
-                  @if($profile->pelatihan && $profile->pelatihan->tanggal_selesai)
-                    <span class="text-white-50"> — {{ $profile->pelatihan->tanggal_selesai->format('d M Y') }}</span>
-                  @endif
-                </p>
-              </div>
-            @elseif($status === 'approved')
-              <div class="timeline-icon waiting">
-                <i class="icon-base ti tabler-calendar-question"></i>
-              </div>
-              <div class="timeline-content">
-                <h6 class="text-white-50 fw-bold">Pelatihan Dimulai</h6>
-                <p class="text-body-premium">Tanggal mulai pelatihan akan diumumkan kemudian.</p>
-              </div>
-            @else
-              <div class="timeline-icon waiting">
-                <i class="icon-base ti tabler-calendar-off"></i>
-              </div>
-              <div class="timeline-content">
-                <h6 class="text-white-50 fw-bold">Pelatihan Dimulai</h6>
-                <p class="text-body-premium">Menunggu status pendaftaran Anda untuk melanjutkan ke tahap ini.</p>
-              </div>
-            @endif
-          </li>
+            {{-- Langkah 2: Verifikasi Admin --}}
+            <li class="timeline-item">
+              @if($status === 'pending')
+                <div class="timeline-icon active">
+                  <span class="spinner-border spinner-border-sm" style="width: 14px; height: 14px;"></span>
+                </div>
+                <div class="timeline-content">
+                  <h6 class="fw-bold text-white">Verifikasi Admin</h6>
+                  <p class="text-body-premium">
+                    Tim Admin/Dinas sedang memverifikasi data dan kelengkapan berkas Anda.
+                    <br><span class="text-white-50" style="font-size: 0.75rem;">Proses verifikasi biasanya memakan waktu 1×24 jam.</span>
+                  </p>
+                </div>
+              @elseif(in_array($status, ['approved', 'rejected', 'waitlist']))
+                <div class="timeline-icon done">
+                  <i class="icon-base ti tabler-check"></i>
+                </div>
+                <div class="timeline-content">
+                  <h6 class="fw-bold text-white">Verifikasi Admin</h6>
+                  <p class="text-body-premium">
+                    Data Anda telah diverifikasi oleh Admin.
+                    @if($approvedAt)
+                      <br><span class="text-white-50" style="font-size: 0.75rem;">
+                        <i class="icon-base ti tabler-clock me-1"></i>{{ $approvedAt->format('d M Y H:i') }} WIB
+                      </span>
+                    @endif
+                  </p>
+                </div>
+              @else
+                <div class="timeline-icon waiting">
+                  <i class="icon-base ti tabler-minus"></i>
+                </div>
+                <div class="timeline-content">
+                  <h6 class="text-white-50 fw-bold">Verifikasi Admin</h6>
+                  <p class="text-body-premium">Belum ada data pendaftaran.</p>
+                </div>
+              @endif
+            </li>
+
+            {{-- Langkah 3: Hasil Seleksi --}}
+            <li class="timeline-item">
+              @if($status === 'approved')
+                <div class="timeline-icon done">
+                  <i class="icon-base ti tabler-check"></i>
+                </div>
+                <div class="timeline-content">
+                  <h6 class="fw-bold text-white">
+                    <span class="text-success"><i class="icon-base ti tabler-circle-check me-1"></i></span>
+                    Hasil Seleksi: Diterima
+                  </h6>
+                  <p class="text-body-premium">
+                    Selamat! Pendaftaran Anda telah disetujui. Silakan siapkan diri untuk mengikuti pelatihan.
+                    @if($approvedAt)
+                      <br><span class="text-white-50" style="font-size: 0.75rem;">
+                        <i class="icon-base ti tabler-clock me-1"></i>Disetujui {{ $approvedAt->format('d M Y H:i') }} WIB
+                      </span>
+                    @endif
+                  </p>
+                </div>
+              @elseif($status === 'rejected')
+                <div class="timeline-icon rejected-status">
+                  <i class="icon-base ti tabler-x"></i>
+                </div>
+                <div class="timeline-content">
+                  <h6 class="fw-bold text-white">
+                    <span class="text-danger"><i class="icon-base ti tabler-circle-x me-1"></i></span>
+                    Hasil Seleksi: Ditolak
+                  </h6>
+                  <p class="text-body-premium">
+                    Mohon maaf, pendaftaran Anda belum dapat disetujui.
+                    @if($rejectedNotes)
+                      <br><span class="text-danger" style="font-size: 0.78rem;">Alasan: {{ $rejectedNotes }}</span>
+                    @endif
+                    @if($rejectedAt)
+                      <br><span class="text-white-50" style="font-size: 0.75rem;">
+                        <i class="icon-base ti tabler-clock me-1"></i>{{ $rejectedAt->format('d M Y H:i') }} WIB
+                      </span>
+                    @endif
+                  </p>
+                </div>
+              @elseif($status === 'waitlist')
+                <div class="timeline-icon" style="background: rgba(245, 158, 11, 0.15); border-color: rgba(245, 158, 11, 0.4); color: #fbbf24;">
+                  <i class="icon-base ti tabler-clock"></i>
+                </div>
+                <div class="timeline-content">
+                  <h6 class="fw-bold text-white">
+                    <span class="text-warning"><i class="icon-base ti tabler-clock me-1"></i></span>
+                    Hasil Seleksi: Cadangan (Waitlist)
+                  </h6>
+                  <p class="text-body-premium">
+                    Kuota utama saat ini sudah terpenuhi. Anda masuk ke daftar cadangan dan akan dipromosikan jika ada peserta yang mengundurkan diri.
+                  </p>
+                </div>
+              @elseif($status === 'pending')
+                <div class="timeline-icon active">
+                  <span class="spinner-border spinner-border-sm" style="width: 14px; height: 14px;"></span>
+                </div>
+                <div class="timeline-content">
+                  <h6 class="fw-bold text-white">Hasil Seleksi</h6>
+                  <p class="text-body-premium">Menunggu hasil verifikasi dari Admin/Dinas penyelenggara.</p>
+                </div>
+              @else
+                <div class="timeline-icon waiting">
+                  <i class="icon-base ti tabler-minus"></i>
+                </div>
+                <div class="timeline-content">
+                  <h6 class="text-white-50 fw-bold">Hasil Seleksi</h6>
+                  <p class="text-body-premium">Belum ada data pendaftaran.</p>
+                </div>
+              @endif
+            </li>
+
+            {{-- Langkah 4: Pelatihan Dimulai --}}
+            <li class="timeline-item">
+              @if($status === 'approved' && $pelatihanMulai)
+                <div class="timeline-icon" style="background: rgba(6, 182, 212, 0.15); border-color: rgba(6, 182, 212, 0.4); color: #22d3ee;">
+                  <i class="icon-base ti tabler-calendar-event"></i>
+                </div>
+                <div class="timeline-content">
+                  <h6 class="fw-bold text-white">
+                    <i class="icon-base ti tabler-calendar-check text-info me-1"></i>
+                    Pelatihan Dimulai
+                  </h6>
+                  <p class="text-body-premium">
+                    Pelatihan akan dimulai pada:
+                    <br><span class="fw-bold text-white" style="font-size: 0.9rem;">
+                      <i class="icon-base ti tabler-calendar me-1"></i>{{ $pelatihanMulai->format('d M Y') }}
+                    </span>
+                    @if($profile->pelatihan && $profile->pelatihan->tanggal_selesai)
+                      <span class="text-white-50"> — {{ $profile->pelatihan->tanggal_selesai->format('d M Y') }}</span>
+                    @endif
+                  </p>
+                </div>
+              @elseif($status === 'approved')
+                <div class="timeline-icon waiting">
+                  <i class="icon-base ti tabler-calendar-question"></i>
+                </div>
+                <div class="timeline-content">
+                  <h6 class="text-white-50 fw-bold">Pelatihan Dimulai</h6>
+                  <p class="text-body-premium">Tanggal mulai pelatihan akan diumumkan kemudian.</p>
+                </div>
+              @else
+                <div class="timeline-icon waiting">
+                  <i class="icon-base ti tabler-calendar-off"></i>
+                </div>
+                <div class="timeline-content">
+                  <h6 class="text-white-50 fw-bold">Pelatihan Dimulai</h6>
+                  <p class="text-body-premium">Menunggu status pendaftaran Anda untuk melanjutkan ke tahap ini.</p>
+                </div>
+              @endif
+            </li>
+          @endif
         </ul>
       </div>
     </div>
@@ -659,6 +853,57 @@ $configData = Helper::appClasses();
         <p class="text-body-premium small mb-0" style="font-size: 0.78rem;">
           Anda akan otomatis dipromosikan menjadi peserta utama jika ada peserta lain yang mengundurkan diri atau dibatalkan pendaftarannya. Status Anda akan diperbarui secara real-time di halaman ini.
         </p>
+      </div>
+    </div>
+    @endif
+
+    {{-- Info tambahan untuk waiting_wa_confirmation -- FR-011 --}}
+    @if($enrollment && $enrollment->status?->value === 'waiting_wa_confirmation')
+    <hr class="dark-premium my-3">
+    <div class="d-flex align-items-start gap-2">
+      <i class="icon-base ti tabler-brand-whatsapp text-warning mt-1 flex-shrink-0"></i>
+      <div>
+        <span class="text-warning fw-semibold small d-block">💬 Konfirmasi WhatsApp</span>
+        <p class="text-body-premium small mb-0" style="font-size: 0.78rem;">
+          Silakan konfirmasi pendaftaran Anda melalui WhatsApp. Klik tombol "Konfirmasi Pendaftaran" di atas untuk mengirim pesan otomatis ke Admin.
+        </p>
+      </div>
+    </div>
+    @endif
+
+    {{-- Info tambahan untuk waiting_newbimma_check -- FR-012 --}}
+    @if($enrollment && $enrollment->status?->value === 'waiting_newbimma_check')
+    <hr class="dark-premium my-3">
+    <div class="d-flex align-items-start gap-2">
+      <i class="icon-base ti tabler-search text-info mt-1 flex-shrink-0"></i>
+      <div>
+        <span class="text-info fw-semibold small d-block">🔄 Pengecekan Newbimma</span>
+        <p class="text-body-premium small mb-0" style="font-size: 0.78rem;">
+          Data Anda sedang diperiksa oleh Admin melalui sistem Newbimma.
+          @if($elapsedTime ?? null)
+            <br><span class="text-info"><i class="icon-base ti tabler-clock me-1"></i>Menunggu pengecekan sejak {{ $elapsedTime }}</span>
+          @else
+            <br><span class="text-muted">Segera diperiksa</span>
+          @endif
+        </p>
+      </div>
+    </div>
+    @endif
+
+    {{-- Info tambahan untuk confirmed -- FR-013, FR-014 --}}
+    @if($enrollment && $enrollment->status?->value === 'confirmed')
+    <hr class="dark-premium my-3">
+    <div class="d-flex align-items-start gap-2">
+      <i class="icon-base ti tabler-circle-check text-success mt-1 flex-shrink-0"></i>
+      <div>
+        <span class="text-success fw-semibold small d-block">✅ Terkonfirmasi</span>
+        <p class="text-body-premium small mb-0" style="font-size: 0.78rem;">
+          Selamat! Anda telah terkonfirmasi dan dinyatakan lolos seleksi. Silakan bersiap untuk mengikuti pelatihan.
+        </p>
+        <a href="{{ route('dashboard.peserta') }}" class="btn btn-sm fw-semibold mt-2 px-3"
+           style="border-radius: 5px; background: rgba(16,185,129,0.15); border: 1px solid rgba(16,185,129,0.3); color: #34d399;">
+          <i class="icon-base ti tabler-layout-dashboard me-1"></i> Lihat Dashboard
+        </a>
       </div>
     </div>
     @endif

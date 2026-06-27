@@ -860,8 +860,23 @@ class PesertaFormController extends Controller
             ->with(['pelatihan.dinas'])
             ->first();
 
+        // --- DATA TAMBAHAN (FR-015, FR-016) ---
+        $approvedAt = $enrollment?->approved_at;
+        $waConfirmedAt = $enrollment?->wa_confirmed_at;
+        $newbimmaCheckedAt = $enrollment?->newbimma_checked_at;
+
+        // Hitung elapsed time sejak newbimma_checked_at (sama seperti di DashboardController)
+        $elapsedTime = null;
+        if ($newbimmaCheckedAt) {
+            $elapsedTime = $newbimmaCheckedAt->diffForHumans(now(), [
+                'parts' => 2,
+                'syntax' => \Carbon\CarbonInterface::DIFF_RELATIVE_TO_NOW,
+            ]);
+        }
+
         return view('content.dashboard.peserta.status-pendaftaran', compact(
-            'profile', 'enrollment', 'user'
+            'profile', 'enrollment', 'user',
+            'approvedAt', 'waConfirmedAt', 'newbimmaCheckedAt', 'elapsedTime'
         ));
     }
 
