@@ -119,6 +119,14 @@ html, body, .layout-page, .content-wrapper, .layout-wrapper, .layout-container {
   box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3) !important;
 }
 
+.glow-orb-wrapper {
+  position: fixed;
+  inset: -100px;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+}
+
 .glow-orb {
   position: absolute;
   border-radius: 50%;
@@ -131,6 +139,7 @@ html, body, .layout-page, .content-wrapper, .layout-wrapper, .layout-container {
 }
 .orb-1 { width: 450px; height: 450px; background: radial-gradient(circle, #6366f1 0%, transparent 70%); top: -10%; left: -10%; animation-duration: 20s; }
 .orb-2 { width: 550px; height: 550px; background: radial-gradient(circle, #ec4899 0%, transparent 70%); bottom: 5%; right: -10%; animation-duration: 28s; }
+.orb-3 { width: 350px; height: 350px; background: radial-gradient(circle, #06b6d4 0%, transparent 70%); top: 35%; left: 25%; animation-duration: 24s; }
 @keyframes orbFloat {
   0% { transform: translate(0, 0) scale(1) rotate(0deg); }
   50% { transform: translate(60px, 40px) scale(1.08) rotate(180deg); }

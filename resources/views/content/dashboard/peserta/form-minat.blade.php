@@ -19,21 +19,6 @@ $fActive = $fields->where('is_active', true)->pluck('field_key')->toArray();
 <style>
 
 
-  .content-wrapper {
-    font-family: 'Outfit', sans-serif;
-    color: #f8fafc;
-    position: relative !important;
-    overflow: hidden !important;
-  }
-  .content-wrapper h1,
-  .content-wrapper h2,
-  .content-wrapper h3,
-  .content-wrapper h4,
-  .content-wrapper h5,
-  .content-wrapper h6 {
-    font-family: 'Sora', sans-serif;
-  }
-
   /* ============================================================
      FULL-WIDTH LAYOUT — override template constraints
      ============================================================ */
@@ -91,20 +76,6 @@ $fActive = $fields->where('is_active', true)->pluck('field_key')->toArray();
 
   .layout-navbar-fixed .layout-page::before { display: none !important; }
   .content-wrapper > .container-xxl { max-width: 100% !important; padding: 0 !important; }
-
-  .glow-orb {
-    position: fixed; border-radius: 50%; filter: blur(120px); opacity: 0.4;
-    mix-blend-mode: screen; pointer-events: none;
-    animation: orbFloat 25s infinite alternate ease-in-out; z-index: 0;
-  }
-  .orb-1 { width: 450px; height: 450px; background: radial-gradient(circle, #6366f1 0%, transparent 70%); top: -10%; left: -10%; animation-duration: 20s; }
-  .orb-2 { width: 550px; height: 550px; background: radial-gradient(circle, #ec4899 0%, transparent 70%); bottom: 5%; right: -10%; animation-duration: 28s; }
-  .orb-3 { width: 350px; height: 350px; background: radial-gradient(circle, #06b6d4 0%, transparent 70%); top: 35%; left: 25%; animation-duration: 24s; }
-  @keyframes orbFloat {
-    0% { transform: translate(0,0) scale(1) rotate(0deg); }
-    50% { transform: translate(60px,40px) scale(1.08) rotate(180deg); }
-    100% { transform: translate(-30px,-50px) scale(0.92) rotate(360deg); }
-  }
 
   .glass-card-dashboard {
     background: rgba(15, 23, 42, 0.25) !important;
@@ -269,6 +240,7 @@ $fActive = $fields->where('is_active', true)->pluck('field_key')->toArray();
       overflow-x: auto;
       gap: 16px;
       padding-bottom: 10px;
+      padding-right: 1rem;
       scroll-snap-type: x mandatory;
       scrollbar-width: none;
       -ms-overflow-style: none;
@@ -764,9 +736,11 @@ $fActive = $fields->where('is_active', true)->pluck('field_key')->toArray();
 @endsection
 
 @section('content')
-<div class="glow-orb orb-1"></div>
-<div class="glow-orb orb-2"></div>
-<div class="glow-orb orb-3"></div>
+<div class="glow-orb-wrapper" aria-hidden="true">
+  <div class="glow-orb orb-1"></div>
+  <div class="glow-orb orb-2"></div>
+  <div class="glow-orb orb-3"></div>
+</div>
 
 <div class="container-fluid px-1 px-lg-2 position-relative" style="z-index: 1;">
   @if(session('error'))
