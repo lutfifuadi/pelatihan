@@ -59,6 +59,7 @@
   <link rel="icon" type="image/x-icon" href="{{ asset('assets/img/favicon/favicon.ico') }}" />
 
   {{-- ===== PWA / Mobile Meta Tags ===== --}}
+  <meta name="application-name" content="Pelatihanku">
   <link rel="manifest" href="{{ asset('manifest.json') }}">
   <meta name="theme-color" content="#7367f0">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -67,6 +68,8 @@
   <meta name="apple-mobile-web-app-title" content="Pelatihanku">
   <link rel="apple-touch-icon" href="{{ asset('icons/icon-192x192.png') }}">
   <link rel="mask-icon" href="{{ asset('icons/icon.svg') }}" color="#7367f0">
+  <meta name="msapplication-TileColor" content="#7367f0">
+  <meta name="msapplication-TileImage" content="{{ asset('icons/icon-192x192.png') }}">
   {{-- ===== End PWA Meta Tags ===== --}}
 
   <!-- Include Styles -->
@@ -124,6 +127,21 @@
     }
   </script>
   {{-- ===== End PWA SW Registration ===== --}}
+
+  {{-- ===== PWA Helper: iOS install prompt detection ===== --}}
+  @vite(['resources/js/pwa-helper.js'])
+  {{-- ===== End PWA Helper ===== --}}
+
+  {{-- ===== Push Notification: Client-side subscription ===== --}}
+  @vite(['resources/js/push-subscription.js'])
+  {{-- ===== End Push Notification ===== --}}
+
+  {{-- Push Notification Overlay (hidden by default, shown after delay) --}}
+  <div id="push-notification-overlay" class="hidden fixed inset-0 z-[9999] flex items-center justify-center p-4"
+       style="background: rgba(0, 0, 0, 0.6);">
+    <x-push-subscription-toggle />
+  </div>
+  {{-- ===== End Push Notification Overlay ===== --}}
 
 </body>
 

@@ -1,13 +1,16 @@
 {
-  "name": "Aplikasi Pelatihan",
+  "id": "/",
+  "name": "Pelatihanku",
   "short_name": "Pelatihanku",
   "description": "Sistem Manajemen Pelatihan Offline",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
   "background_color": "#1a1d29",
   "theme_color": "#7367f0",
   "orientation": "portrait-primary",
   "lang": "id-ID",
+  "dir": "ltr",
   "categories": ["business", "education", "productivity"],
   "prefer_related_applications": false,
   "icons": [

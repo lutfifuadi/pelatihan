@@ -103,10 +103,15 @@
         .maintenance-icon i {
             font-size: 36px;
             color: #818cf8;
+            animation: iconSpin 6s linear infinite;
         }
         @keyframes pulseGlow {
             0%, 100% { box-shadow: 0 0 20px rgba(99, 102, 241, 0.2); }
             50% { box-shadow: 0 0 40px rgba(99, 102, 241, 0.4); }
+        }
+        @keyframes iconSpin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
 
         .maintenance-title {
@@ -137,10 +142,91 @@
             border-radius: 5px;
             font-size: 0.85rem;
             color: #fbbf24;
-            margin-bottom: 32px;
+            margin-bottom: 20px;
         }
         .maintenance-time i {
             font-size: 16px;
+        }
+
+        /* Progress Bar — animasi stripe loading */
+        .progress-wrapper {
+            margin-bottom: 28px;
+            width: 100%;
+            max-width: 360px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .progress-bar-track {
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 3px;
+            overflow: hidden;
+            position: relative;
+        }
+        .progress-bar-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #6366f1, #818cf8, #a78bfa);
+            border-radius: 3px;
+            animation: progressStripe 2s ease-in-out infinite alternate;
+            position: relative;
+        }
+        .progress-bar-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: repeating-linear-gradient(
+                90deg,
+                transparent,
+                transparent 8px,
+                rgba(255, 255, 255, 0.15) 8px,
+                rgba(255, 255, 255, 0.15) 16px
+            );
+            border-radius: 3px;
+        }
+        @keyframes progressStripe {
+            0% { width: 30%; }
+            50% { width: 70%; }
+            100% { width: 45%; }
+        }
+
+        /* Countdown Auto-Refresh Text */
+        .countdown-text {
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.4);
+            margin-top: 20px;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            animation: countdownPulse 2.5s ease-in-out infinite;
+        }
+        .countdown-text .dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #6366f1;
+            display: inline-block;
+            animation: dotPulse 1.5s ease-in-out infinite;
+        }
+        .countdown-text .dot:nth-child(2) {
+            animation-delay: 0.3s;
+        }
+        .countdown-text .dot:nth-child(3) {
+            animation-delay: 0.6s;
+        }
+        @keyframes countdownPulse {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 1; }
+        }
+        @keyframes dotPulse {
+            0%, 100% { opacity: 0.3; transform: scale(0.8); }
+            50% { opacity: 1; transform: scale(1.2); }
         }
 
         .maintenance-btn {
@@ -169,9 +255,13 @@
         }
 
         @media (max-width: 480px) {
+            .maintenance-wrapper {
+                padding: 16px;
+            }
             .maintenance-card {
-                padding: 32px 24px;
+                padding: 32px 20px;
                 border-radius: 5px;
+                max-height: 95vh;
             }
             .maintenance-icon {
                 width: 64px;
@@ -179,6 +269,47 @@
                 margin-bottom: 24px;
             }
             .maintenance-icon i { font-size: 28px; }
+            .maintenance-title {
+                font-size: clamp(1.3rem, 5vw, 1.6rem);
+            }
+            .maintenance-message {
+                font-size: clamp(0.85rem, 2.5vw, 0.95rem);
+                margin-bottom: 20px;
+            }
+            .maintenance-time {
+                font-size: 0.8rem;
+                padding: 8px 16px;
+                margin-bottom: 16px;
+            }
+            .progress-wrapper {
+                max-width: 100%;
+                padding: 0 10px;
+                margin-bottom: 20px;
+            }
+            .countdown-text {
+                font-size: 0.72rem;
+                margin-top: 16px;
+                margin-bottom: 20px;
+                flex-wrap: wrap;
+            }
+            .maintenance-btn {
+                padding: 10px 24px;
+                font-size: 0.85rem;
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 360px) {
+            .maintenance-card {
+                padding: 24px 16px;
+            }
+            .maintenance-icon {
+                width: 56px;
+                height: 56px;
+                margin-bottom: 20px;
+            }
+            .maintenance-icon i { font-size: 24px; }
         }
     </style>
 </head>
@@ -201,7 +332,19 @@
                 <i class="icon-base ti tabler-clock"></i>
                 <span>Estimasi selesai: <strong>{{ $estimatedTime }}</strong></span>
             </div>
+            <div class="progress-wrapper">
+                <div class="progress-bar-track">
+                    <div class="progress-bar-fill"></div>
+                </div>
+            </div>
             @endif
+
+            <div class="countdown-text">
+                <span>Halaman akan diperiksa kembali secara otomatis</span>
+                <span class="dot"></span>
+                <span class="dot"></span>
+                <span class="dot"></span>
+            </div>
 
             <a href="{{ url()->current() }}" class="maintenance-btn">
                 <i class="icon-base ti tabler-refresh"></i>

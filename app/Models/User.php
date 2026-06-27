@@ -113,6 +113,22 @@ class User extends Authenticatable
     }
 
     /**
+     * Relasi: User memiliki banyak push subscription (browser push).
+     */
+    public function pushSubscriptions(): HasMany
+    {
+        return $this->hasMany(PushSubscription::class);
+    }
+
+    /**
+     * Relasi: User (admin) memiliki banyak notifikasi yang dikirim.
+     */
+    public function pushNotifications(): HasMany
+    {
+        return $this->hasMany(PushNotification::class, 'admin_id');
+    }
+
+    /**
      * Get the attributes that should be cast.
      *
      * @return array<string, string>

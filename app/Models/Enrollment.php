@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\EnrollmentStatus;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -29,6 +30,7 @@ class Enrollment extends Model
     protected function casts(): array
     {
         return [
+            'status' => EnrollmentStatus::class,
             'approved_at' => 'datetime',
             'rejected_at' => 'datetime',
             'waitlist_promoted_at' => 'datetime',
@@ -58,39 +60,47 @@ class Enrollment extends Model
         return $this->hasOne(Certificate::class);
     }
 
+    /**
+     * Get human-readable label for the current status.
+     */
+    public function statusLabel(): string
+    {
+        return $this->status?->label() ?? '-';
+    }
+
     // Scope helper
     public function scopePending($query)
     {
-        return $query->where('status', 'pending');
+        return $query->where('status', EnrollmentStatus::Pending);
     }
 
     public function scopeApproved($query)
     {
-        return $query->where('status', 'approved');
+        return $query->where('status', EnrollmentStatus::Approved);
     }
 
     public function scopeRejected($query)
     {
-        return $query->where('status', 'rejected');
+        return $query->where('status', EnrollmentStatus::Rejected);
     }
 
     public function scopeWaitlist($query)
     {
-        return $query->where('status', 'waitlist');
+        return $query->where('status', EnrollmentStatus::Waitlist);
     }
 
     public function scopeWaitingConfirmation($query)
     {
-        return $query->where('status', 'waiting_wa_confirmation');
+        return $query->where('status', EnrollmentStatus::WaitingWaConfirmation);
     }
 
     public function scopeWaitingNewbimmaCheck($query)
     {
-        return $query->where('status', 'waiting_newbimma_check');
+        return $query->where('status', EnrollmentStatus::WaitingNewbimmaCheck);
     }
 
     public function scopeConfirmed($query)
     {
-        return $query->where('status', 'confirmed');
+        return $query->where('status', EnrollmentStatus::Confirmed);
     }
 }

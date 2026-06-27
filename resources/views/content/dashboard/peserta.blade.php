@@ -445,7 +445,7 @@ $configData = Helper::appClasses();
         </div>
         <div class="col-12 col-lg-4 mt-3 mt-lg-0">
           <div class="d-flex align-items-center gap-4 justify-content-lg-end">
-            @if($data['isProfileCompleted'] && $data['hasPelatihan'] && $data['enrollment'] && $data['enrollment']->status === 'approved')
+            @if($data['isProfileCompleted'] && $data['hasPelatihan'] && $data['enrollment'] && $data['enrollment']->status?->value === 'approved')
               <div class="text-center">
                 <p class="text-body-premium small mb-0">Kehadiran</p>
                 <h5 class="text-white fw-bold mb-0">{{ $data['attendanceRate'] }}%</h5>
@@ -676,7 +676,7 @@ $configData = Helper::appClasses();
     <!-- ============================================================
          STATE 2: Pendaftaran Selesai, Menunggu Verifikasi / Cadangan / Ditolak
          ============================================================ -->
-    @elseif(!$data['enrollment'] || $data['enrollment']->status !== 'approved')
+    @elseif(!$data['enrollment'] || $data['enrollment']->status?->value !== 'approved')
       <div class="row g-4 mb-4">
         <div class="col-12 col-xl-8">
           <div class="glass-card-premium px-4 px-xl-5 py-4 h-100">
@@ -689,7 +689,7 @@ $configData = Helper::appClasses();
                 Terima kasih telah melengkapi data pendaftaran Anda. Saat ini data Anda sedang dalam proses peninjauan dan verifikasi oleh tim Admin/Dinas penyelenggara.
               </p>
 
-              @if($data['enrollment'] && $data['enrollment']->status === 'waitlist')
+              @if($data['enrollment'] && $data['enrollment']->status?->value === 'waitlist')
                 <div class="alert alert-warning border-warning border-opacity-20 bg-warning bg-opacity-10 text-warning mx-auto p-3 mt-4 text-start" style="max-width: 550px; border-radius: 5px;">
                   <div class="d-flex gap-2">
                     <i class="icon-base ti tabler-alert-triangle mt-1 flex-shrink-0"></i>
@@ -702,7 +702,7 @@ $configData = Helper::appClasses();
                     </div>
                   </div>
                 </div>
-              @elseif($data['enrollment'] && $data['enrollment']->status === 'rejected')
+              @elseif($data['enrollment'] && $data['enrollment']->status?->value === 'rejected')
                 <div class="alert alert-danger border-danger border-opacity-20 bg-danger bg-opacity-10 text-danger mx-auto p-3 mt-4 text-start" style="max-width: 550px; border-radius: 5px;">
                   <div class="d-flex gap-2">
                     <i class="icon-base ti tabler-circle-x mt-1 flex-shrink-0"></i>
@@ -955,7 +955,7 @@ $configData = Helper::appClasses();
     <!-- ============================================================
          BOTTOM ROW: Hanya tampil di State 3 (Approved)
          ============================================================ -->
-    @if($data['isProfileCompleted'] && $data['enrollment'] && $data['enrollment']->status === 'approved')
+    @if($data['isProfileCompleted'] && $data['enrollment'] && $data['enrollment']->status?->value === 'approved')
     <div class="row g-4">
 
       <!-- Instruktur Saya (Placeholder) -->
@@ -1023,7 +1023,7 @@ $configData = Helper::appClasses();
             </div>
 
             {{-- Baris 2: Status berdasarkan enrollment --}}
-            @if($data['enrollment']->status === 'approved' && $data['enrollment']->approved_at)
+            @if($data['enrollment']->status?->value === 'approved' && $data['enrollment']->approved_at)
               <div class="d-flex align-items-start gap-3 mb-3">
                 <div class="stat-icon-box stat-icon-success" style="width: 36px; height: 36px; font-size: 1rem;">
                   <i class="icon-base ti tabler-check"></i>
@@ -1035,7 +1035,7 @@ $configData = Helper::appClasses();
                   </small>
                 </div>
               </div>
-            @elseif($data['enrollment']->status === 'waitlist')
+            @elseif($data['enrollment']->status?->value === 'waitlist')
               <div class="d-flex align-items-start gap-3 mb-3">
                 <div class="stat-icon-box stat-icon-warning" style="width: 36px; height: 36px; font-size: 1rem;">
                   <i class="icon-base ti tabler-clock"></i>
@@ -1045,7 +1045,7 @@ $configData = Helper::appClasses();
                   <small class="text-body-premium">Pelatihan: {{ $data['pelatihan']->nama ?? '-' }}</small>
                 </div>
               </div>
-            @elseif($data['enrollment']->status === 'rejected')
+            @elseif($data['enrollment']->status?->value === 'rejected')
               <div class="d-flex align-items-start gap-3 mb-3">
                 <div class="stat-icon-box stat-icon-danger" style="width: 36px; height: 36px; font-size: 1rem;">
                   <i class="icon-base ti tabler-circle-x"></i>

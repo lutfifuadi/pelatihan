@@ -54,9 +54,13 @@ export default defineConfig({
     laravel({
       input: [
         'resources/css/app.css',
+        'resources/css/admin-theme.css',
         'resources/assets/css/demo.css',
         'resources/js/app.js',
+        'resources/js/sweetalert2-global.js',
+        'resources/js/pwa-helper.js',
         'resources/js/foto-capture.js',
+        'resources/js/push-subscription.js',
         ...pageJsFiles,
         ...vendorJsFiles,
         ...LibsJsFiles,

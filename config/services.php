@@ -41,4 +41,12 @@ return [
         'redirect' => env('GOOGLE_REDIRECT_URI'),
     ],
 
+    'web_push' => [
+        'enabled' => env('PUSH_NOTIFICATION_ENABLED', true),
+        'vapid_public_key' => env('VAPID_PUBLIC_KEY'),
+        'vapid_private_key' => env('VAPID_PRIVATE_KEY'),
+        'vapid_subject' => env('VAPID_SUBJECT', 'mailto:admin@pelatihanku.com'),
+        'batch_size' => env('PUSH_NOTIFICATION_BATCH_SIZE', 100),
+    ],
+
 ];

@@ -1,5 +1,7 @@
 @php
 $configData = Helper::appClasses();
+$sortBy = $sortBy ?? 'created_at';
+$sortOrder = $sortOrder ?? 'desc';
 @endphp
 
 @extends('layouts/layoutMaster')
@@ -247,6 +249,15 @@ $configData = Helper::appClasses();
     background: rgba(255, 255, 255, 0.08) !important;
     color: #ffffff !important;
   }
+
+  /* Sort Icon Styles */
+  th a {
+    white-space: nowrap;
+  }
+  th a:hover i {
+    color: #ffffff !important;
+    transition: color 0.2s ease;
+  }
 </style>
 @endsection
 
@@ -308,13 +319,57 @@ $configData = Helper::appClasses();
             <thead>
               <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.08);">
                 <th class="text-body-premium small fw-semibold px-0" style="width: 60px;">No</th>
-                <th class="text-body-premium small fw-semibold">Batch</th>
-                <th class="text-body-premium small fw-semibold">Nama Pelatihan</th>
-                <th class="text-body-premium small fw-semibold">Dinas</th>
-                <th class="text-body-premium small fw-semibold">Tanggal Pelaksanaan</th>
-                <th class="text-body-premium small fw-semibold">Kuota</th>
-                <th class="text-body-premium small fw-semibold">Status</th>
-                <th class="text-body-premium small fw-semibold text-end px-0" style="width: 120px;">Aksi</th>
+                <th class="text-body-premium small fw-semibold">
+                  <a href="{{ route('admin.pelatihan.index', ['sort_by' => 'batch', 'sort_order' => $sortBy === 'batch' && $sortOrder === 'asc' ? 'desc' : 'asc']) }}" class="text-decoration-none text-body-premium d-flex align-items-center gap-1">
+                    Batch
+                    @if($sortBy === 'batch')
+                      <i class="icon-base ti {{ $sortOrder === 'asc' ? 'tabler-arrow-up' : 'tabler-arrow-down' }} fs-6" style="color: #6366f1;"></i>
+                    @else
+                      <i class="icon-base ti tabler-arrows-sort fs-6" style="color: rgba(255,255,255,0.3);"></i>
+                    @endif
+                  </a>
+                </th>
+                <th class="text-body-premium small fw-semibold">
+                  <a href="{{ route('admin.pelatihan.index', ['sort_by' => 'nama', 'sort_order' => $sortBy === 'nama' && $sortOrder === 'asc' ? 'desc' : 'asc']) }}" class="text-decoration-none text-body-premium d-flex align-items-center gap-1">
+                    Nama Pelatihan
+                    @if($sortBy === 'nama')
+                      <i class="icon-base ti {{ $sortOrder === 'asc' ? 'tabler-arrow-up' : 'tabler-arrow-down' }} fs-6" style="color: #6366f1;"></i>
+                    @else
+                      <i class="icon-base ti tabler-arrows-sort fs-6" style="color: rgba(255,255,255,0.3);"></i>
+                    @endif
+                  </a>
+                </th>
+                <th class="text-body-premium small fw-semibold">
+                  <a href="{{ route('admin.pelatihan.index', ['sort_by' => 'dinas_id', 'sort_order' => $sortBy === 'dinas_id' && $sortOrder === 'asc' ? 'desc' : 'asc']) }}" class="text-decoration-none text-body-premium d-flex align-items-center gap-1">
+                    Dinas
+                    @if($sortBy === 'dinas_id')
+                      <i class="icon-base ti {{ $sortOrder === 'asc' ? 'tabler-arrow-up' : 'tabler-arrow-down' }} fs-6" style="color: #6366f1;"></i>
+                    @else
+                      <i class="icon-base ti tabler-arrows-sort fs-6" style="color: rgba(255,255,255,0.3);"></i>
+                    @endif
+                  </a>
+                </th>
+                <th class="text-body-premium small fw-semibold">
+                  <a href="{{ route('admin.pelatihan.index', ['sort_by' => 'kuota', 'sort_order' => $sortBy === 'kuota' && $sortOrder === 'asc' ? 'desc' : 'asc']) }}" class="text-decoration-none text-body-premium d-flex align-items-center gap-1">
+                    Kuota
+                    @if($sortBy === 'kuota')
+                      <i class="icon-base ti {{ $sortOrder === 'asc' ? 'tabler-arrow-up' : 'tabler-arrow-down' }} fs-6" style="color: #6366f1;"></i>
+                    @else
+                      <i class="icon-base ti tabler-arrows-sort fs-6" style="color: rgba(255,255,255,0.3);"></i>
+                    @endif
+                  </a>
+                </th>
+                <th class="text-body-premium small fw-semibold">
+                  <a href="{{ route('admin.pelatihan.index', ['sort_by' => 'is_active', 'sort_order' => $sortBy === 'is_active' && $sortOrder === 'asc' ? 'desc' : 'asc']) }}" class="text-decoration-none text-body-premium d-flex align-items-center gap-1">
+                    Status
+                    @if($sortBy === 'is_active')
+                      <i class="icon-base ti {{ $sortOrder === 'asc' ? 'tabler-arrow-up' : 'tabler-arrow-down' }} fs-6" style="color: #6366f1;"></i>
+                    @else
+                      <i class="icon-base ti tabler-arrows-sort fs-6" style="color: rgba(255,255,255,0.3);"></i>
+                    @endif
+                  </a>
+                </th>
+                <th class="text-body-premium small fw-semibold text-end px-0" style="width: 140px;">Aksi</th>
               </tr>
             </thead>
             <tbody>
@@ -328,19 +383,7 @@ $configData = Helper::appClasses();
                       {{ $pelatihan->dinas->nama_dinas ?? '-' }}
                     </span>
                   </td>
-                  <td class="py-3 text-body-premium">
-                    <div><i class="icon-base ti tabler-calendar me-1"></i>
-                    {{ $pelatihan->tanggal_mulai ? \Carbon\Carbon::parse($pelatihan->tanggal_mulai)->format('d/m/Y') : '-' }}
-                    -
-                    {{ $pelatihan->tanggal_selesai ? \Carbon\Carbon::parse($pelatihan->tanggal_selesai)->format('d/m/Y') : '-' }}</div>
-                    @if($pelatihan->batas_pendaftaran)
-                      <div class="mt-1" style="font-size: 0.7rem;">
-                        <i class="icon-base ti tabler-clock me-1"></i>
-                        Batas daftar: {{ \Carbon\Carbon::parse($pelatihan->batas_pendaftaran)->format('d/m/Y') }}
-                      </div>
-                    @endif
-                  </td>
-                  <td class="py-3 text-body-premium">{{ $pelatihan->kuota ?? '-' }} Peserta</td>
+                  <td class="py-3 text-body-premium text-center fw-semibold">{{ $pelatihan->kuota ?? '-' }}</td>
                   <td class="py-3">
                     @if($pelatihan->is_active)
                       <span class="badge-premium badge-premium-success">Aktif</span>
@@ -369,7 +412,7 @@ $configData = Helper::appClasses();
                 </tr>
               @empty
                 <tr>
-                  <td colspan="8" class="text-center text-body-premium py-5">
+                  <td colspan="6" class="text-center text-body-premium py-5">
                     <i class="icon-base ti tabler-book-off fs-1 mb-2 d-block text-warning"></i>
                     Belum ada data pelatihan.
                   </td>

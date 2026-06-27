@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Enums\EnrollmentStatus;
 use App\Http\Controllers\Controller;
 use App\Models\Enrollment;
 use App\Models\Pelatihan;
@@ -12,6 +13,7 @@ use App\Services\VerificationCodeService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 
 class EnrollmentController extends Controller
 {
@@ -45,19 +47,13 @@ class EnrollmentController extends Controller
         if ($request->filled('status')) {
             $status = $request->status;
             if ($status === 'waiting_wa') {
-                $query->where('status', 'approved')
-                      ->whereNotNull('verification_code')
-                      ->whereNull('wa_confirmed_at');
+                $query->where('status', EnrollmentStatus::WaitingWaConfirmation);
             } elseif ($status === 'waiting_newbimma') {
-                $query->where('status', 'approved')
-                      ->whereNotNull('wa_confirmed_at')
-                      ->whereNull('newbimma_checked_at');
+                $query->where('status', EnrollmentStatus::WaitingNewbimmaCheck);
             } elseif ($status === 'confirmed') {
-                $query->where('status', 'approved')
-                      ->whereNotNull('newbimma_checked_at')
-                      ->where('newbimma_result', 'valid');
+                $query->where('status', EnrollmentStatus::Confirmed);
             } else {
-                $query->where('status', $status);
+                $query->where('status', EnrollmentStatus::fromValue($status)?->value ?? $status);
             }
         }
 
@@ -74,14 +70,18 @@ class EnrollmentController extends Controller
         }
         $statusCounts = (clone $countQuery)
             ->selectRaw("
-                CASE 
-                    WHEN status = 'approved' AND verification_code IS NOT NULL AND wa_confirmed_at IS NULL THEN 'waiting_wa'
-                    WHEN status = 'approved' AND wa_confirmed_at IS NOT NULL AND newbimma_checked_at IS NULL THEN 'waiting_newbimma'
-                    WHEN status = 'approved' AND newbimma_checked_at IS NOT NULL AND newbimma_result = 'valid' THEN 'confirmed'
-                    ELSE status 
+                CASE
+                    WHEN status = ? THEN 'waiting_wa'
+                    WHEN status = ? THEN 'waiting_newbimma'
+                    WHEN status = ? THEN 'confirmed'
+                    ELSE status
                 END as status_group,
                 COUNT(*) as total
-            ")
+            ", [
+                EnrollmentStatus::WaitingWaConfirmation->value,
+                EnrollmentStatus::WaitingNewbimmaCheck->value,
+                EnrollmentStatus::Confirmed->value,
+            ])
             ->groupBy('status_group')
             ->pluck('total', 'status_group');
 
@@ -106,7 +106,7 @@ class EnrollmentController extends Controller
             ]);
         }
 
-        return view('content.admin.enrollments.index', compact('enrollments', 'pelatihans', 'pelatihan', 'counts', 'search'));
+        return view('content.admin.enrollments.index', compact('enrollments', 'pelatihans', 'pelatihan', 'counts', 'search') + ['enrollmentStatuses' => EnrollmentStatus::values()]);
     }
 
     /**
@@ -121,7 +121,7 @@ class EnrollmentController extends Controller
 
         DB::transaction(function () use ($enrollment) {
             $enrollment->update([
-                'status' => 'approved',
+                'status' => EnrollmentStatus::Approved,
                 'approved_at' => now(),
                 'notes' => request('notes', $enrollment->notes),
                 'verification_code' => VerificationCodeService::generate($enrollment),
@@ -151,7 +151,7 @@ class EnrollmentController extends Controller
         $request->validate(['notes' => 'nullable|string|max:500']);
 
         $enrollment->update([
-            'status' => 'rejected',
+            'status' => EnrollmentStatus::Rejected,
             'rejected_at' => now(),
             'notes' => $request->notes,
         ]);
@@ -183,7 +183,7 @@ class EnrollmentController extends Controller
     public function waitlist(Enrollment $enrollment)
     {
         $enrollment->update([
-            'status' => 'waitlist',
+            'status' => EnrollmentStatus::Waitlist,
             'notes' => request('notes', 'Dimasukkan ke daftar cadangan'),
         ]);
 
@@ -220,7 +220,7 @@ class EnrollmentController extends Controller
         }
 
         $enrollment->update([
-            'status' => 'approved',
+            'status' => EnrollmentStatus::Approved,
             'approved_at' => now(),
             'waitlist_promoted_at' => now(),
             'notes' => request('notes', 'Dipromosikan dari daftar cadangan'),
@@ -251,7 +251,7 @@ class EnrollmentController extends Controller
     public function approveAll(Request $request, Pelatihan $pelatihan)
     {
         $pendingEnrollments = Enrollment::where('pelatihan_id', $pelatihan->id)
-            ->where('status', 'pending')
+            ->where('status', EnrollmentStatus::Pending)
             ->orderBy('created_at', 'asc')
             ->get();
 
@@ -270,7 +270,7 @@ class EnrollmentController extends Controller
         DB::transaction(function () use ($enrollmentsToApprove, &$approvedList) {
             foreach ($enrollmentsToApprove as $enrollment) {
                 $enrollment->update([
-                    'status' => 'approved',
+                    'status' => EnrollmentStatus::Approved,
                     'approved_at' => now(),
                 ]);
                 $approvedList[] = $enrollment;
@@ -309,7 +309,7 @@ class EnrollmentController extends Controller
     public function rejectAll(Request $request, Pelatihan $pelatihan)
     {
         $pendingEnrollments = Enrollment::where('pelatihan_id', $pelatihan->id)
-            ->where('status', 'pending')
+            ->where('status', EnrollmentStatus::Pending)
             ->get();
 
         if ($pendingEnrollments->isEmpty()) {
@@ -319,7 +319,7 @@ class EnrollmentController extends Controller
         DB::transaction(function () use ($pendingEnrollments) {
             foreach ($pendingEnrollments as $enrollment) {
                 $enrollment->update([
-                    'status' => 'rejected',
+                    'status' => EnrollmentStatus::Rejected,
                     'rejected_at' => now(),
                     'notes' => '[Reject All: ' . now()->format('d/m/Y H:i') . '] Penolakan massal oleh admin',
                 ]);
@@ -390,18 +390,19 @@ class EnrollmentController extends Controller
     public function changeStatus(Request $request, Enrollment $enrollment)
     {
         $request->validate([
-            'status' => 'required|in:pending,approved,rejected,waitlist',
+            'status' => ['required', Rule::in(EnrollmentStatus::values())],
             'notes' => 'nullable|string|max:500',
         ]);
 
         $oldStatus = $enrollment->status;
-        $newStatus = $request->status;
+        $newStatusValue = $request->status;
+        $newStatus = EnrollmentStatus::fromValue($newStatusValue);
 
-        if ($newStatus === 'approved' && $enrollment->pelatihan->isKuotaPenuh()) {
+        if ($newStatus === EnrollmentStatus::Approved && $enrollment->pelatihan->isKuotaPenuh()) {
             return redirect()->back()->with('error', 'Tidak dapat mengubah status ke approved. Kuota pelatihan "' . $enrollment->pelatihan->nama . '" sudah penuh.');
         }
 
-        DB::transaction(function () use ($request, $enrollment, $oldStatus, $newStatus) {
+        DB::transaction(function () use ($request, $enrollment, $oldStatus, $newStatus, $newStatusValue) {
             if ($oldStatus !== $newStatus) {
                 $this->updateTimestamps($enrollment, $newStatus);
             }
@@ -410,7 +411,7 @@ class EnrollmentController extends Controller
 
             $enrollment->update(['notes' => '[Ubah Status: ' . now()->format('d/m/Y H:i') . '] ' . $request->notes]);
 
-            if ($oldStatus === 'approved' && $newStatus !== 'approved') {
+            if ($oldStatus === EnrollmentStatus::Approved && $newStatus !== EnrollmentStatus::Approved) {
                 $this->promoteFromWaitlist($enrollment->pelatihan_id, $enrollment->id);
             }
         });
@@ -418,17 +419,17 @@ class EnrollmentController extends Controller
         // Event/notifikasi di luar transaction agar tidak rollback status jika gagal
         try {
             switch ($newStatus) {
-                case 'approved':
+                case EnrollmentStatus::Approved:
                     \App\Events\PendaftaranApproved::dispatch($enrollment->user, $enrollment->pelatihan);
                     break;
-                case 'rejected':
+                case EnrollmentStatus::Rejected:
                     \App\Events\PendaftaranRejected::dispatch(
                         $enrollment->user,
                         $enrollment->pelatihan,
                         $request->notes
                     );
                     break;
-                case 'waitlist':
+                case EnrollmentStatus::Waitlist:
                     if ($enrollment->user && $enrollment->pelatihan) {
                         $this->notificationService->sendByTemplate(
                             $enrollment->user,
@@ -446,14 +447,14 @@ class EnrollmentController extends Controller
         }
 
         ActivityLogger::action('status_changed', 'Enrollment',
-            "Status {$enrollment->user?->name} untuk {$enrollment->pelatihan?->nama}: {$oldStatus} \u{2192} {$newStatus}. Alasan: {$request->notes}",
+            "Status {$enrollment->user?->name} untuk {$enrollment->pelatihan?->nama}: {$oldStatus->value} \u{2192} {$newStatus->value}. Alasan: {$request->notes}",
             $enrollment->id,
             $enrollment->user?->name
         );
 
         $this->broadcastDashboardUpdate();
 
-        return redirect()->back()->with('success', "Status pendaftaran {$enrollment->user?->name} berhasil diubah menjadi {$newStatus}.");
+        return redirect()->back()->with('success', "Status pendaftaran {$enrollment->user?->name} berhasil diubah menjadi {$newStatus?->label()}.");
     }
 
     /**
@@ -485,7 +486,7 @@ class EnrollmentController extends Controller
         }
 
         $approvedCount = Enrollment::where('pelatihan_id', $request->pelatihan_id)
-            ->where('status', 'approved')->count();
+            ->where('status', EnrollmentStatus::Approved)->count();
 
         $kuotaPenuh = $pelatihanTujuan->kuota && $approvedCount >= $pelatihanTujuan->kuota;
 
@@ -495,8 +496,17 @@ class EnrollmentController extends Controller
         DB::transaction(function () use ($request, $enrollment, $pelatihanTujuan, $pelatihanAsal, $statusSaatIni, $kuotaPenuh) {
             $enrollment->update(['pelatihan_id' => $request->pelatihan_id]);
 
-            if (in_array($statusSaatIni, ['pending', 'approved', 'waiting_wa_confirmation', 'waiting_newbimma_check', 'confirmed']) && $kuotaPenuh) {
-                $enrollment->update(['status' => 'waitlist', 'waitlist_promoted_at' => null]);
+            $statusSaatIniEnum = $statusSaatIni instanceof EnrollmentStatus ? $statusSaatIni : EnrollmentStatus::fromValue($statusSaatIni);
+            $statusesToCheck = [
+                EnrollmentStatus::Pending,
+                EnrollmentStatus::Approved,
+                EnrollmentStatus::WaitingWaConfirmation,
+                EnrollmentStatus::WaitingNewbimmaCheck,
+                EnrollmentStatus::Confirmed,
+            ];
+
+            if (in_array($statusSaatIniEnum, $statusesToCheck, true) && $kuotaPenuh) {
+                $enrollment->update(['status' => EnrollmentStatus::Waitlist, 'waitlist_promoted_at' => null]);
             }
 
             $enrollment->update(['notes' => '[Alihkan: ' . now()->format('d/m/Y H:i') . '] ' . $request->notes]);
@@ -504,7 +514,7 @@ class EnrollmentController extends Controller
             $enrollment->attendances()->delete();
             $enrollment->certificate()->delete();
 
-            if (in_array($statusSaatIni, ['pending', 'approved', 'waiting_wa_confirmation', 'waiting_newbimma_check', 'confirmed'])) {
+            if (in_array($statusSaatIniEnum, $statusesToCheck, true)) {
                 $this->promoteFromWaitlist($pelatihanAsal->id, $enrollment->id);
             }
         });
@@ -528,7 +538,7 @@ class EnrollmentController extends Controller
         }
 
         ActivityLogger::action('transferred', 'Enrollment',
-            "Peserta {$enrollment->user?->name} dialihkan dari {$pelatihanAsal->nama} ke {$pelatihanTujuan->nama}. Status: {$statusSaatIni}. Alasan: {$request->notes}",
+            "Peserta {$enrollment->user?->name} dialihkan dari {$pelatihanAsal->nama} ke {$pelatihanTujuan->nama}. Status: {$statusSaatIni->value}. Alasan: {$request->notes}",
             $enrollment->id,
             $enrollment->user?->name
         );
@@ -548,7 +558,7 @@ class EnrollmentController extends Controller
         if (!$pelatihan || !$pelatihan->kuota) return;
 
         $approvedCount = Enrollment::where('pelatihan_id', $pelatihanId)
-            ->where('status', 'approved')
+            ->where('status', EnrollmentStatus::Approved)
             ->count();
 
         $availableSlots = $pelatihan->kuota - $approvedCount;
@@ -557,7 +567,7 @@ class EnrollmentController extends Controller
             // Ambil data enrollment yang akan dipromosikan (dengan relasi)
             $enrollmentsToPromote = Enrollment::with(['user', 'pelatihan'])
                 ->where('pelatihan_id', $pelatihanId)
-                ->where('status', 'waitlist')
+                ->where('status', EnrollmentStatus::Waitlist)
                 ->when($excludeId, function ($query, $excludeId) {
                     $query->where('id', '!=', $excludeId);
                 })
@@ -583,7 +593,7 @@ class EnrollmentController extends Controller
                 // Batch update status
                 Enrollment::whereIn('id', $enrollmentsToPromote->pluck('id'))
                     ->update([
-                        'status' => 'approved',
+                        'status' => EnrollmentStatus::Approved,
                         'approved_at' => now(),
                         'waitlist_promoted_at' => now(),
                     ]);
@@ -638,8 +648,8 @@ class EnrollmentController extends Controller
 
         // Hitung kapasitas pelatihan
         $pelatihan = $enrollment->pelatihan;
-        $approvedCount = Enrollment::where('pelatihan_id', $pelatihan->id)->where('status', 'approved')->count();
-        $waitlistCount = Enrollment::where('pelatihan_id', $pelatihan->id)->where('status', 'waitlist')->count();
+        $approvedCount = Enrollment::where('pelatihan_id', $pelatihan->id)->where('status', EnrollmentStatus::Approved)->count();
+        $waitlistCount = Enrollment::where('pelatihan_id', $pelatihan->id)->where('status', EnrollmentStatus::Waitlist)->count();
         $totalPendaftar = Enrollment::where('pelatihan_id', $pelatihan->id)->count();
         $sisaBelumTercek = $totalPendaftar - $approvedCount - $waitlistCount;
 
@@ -651,7 +661,7 @@ class EnrollmentController extends Controller
      */
     public function confirmWaChat(Enrollment $enrollment)
     {
-        if ($enrollment->status !== 'approved') {
+        if ($enrollment->status !== EnrollmentStatus::Approved) {
             return redirect()->back()->with('error', 'Status enrollment harus approved.');
         }
 
@@ -676,7 +686,7 @@ class EnrollmentController extends Controller
      */
     public function confirmNewbimmaValid(Enrollment $enrollment)
     {
-        if ($enrollment->status !== 'approved') {
+        if ($enrollment->status !== EnrollmentStatus::Approved) {
             return redirect()->back()->with('error', 'Status enrollment harus approved.');
         }
 
@@ -698,7 +708,7 @@ class EnrollmentController extends Controller
      */
     public function rejectNewbimmaInvalid(Enrollment $enrollment)
     {
-        if ($enrollment->status !== 'approved') {
+        if ($enrollment->status !== EnrollmentStatus::Approved) {
             return redirect()->back()->with('error', 'Status enrollment harus approved.');
         }
 
@@ -706,7 +716,7 @@ class EnrollmentController extends Controller
             'newbimma_result' => 'invalid',
             'newbimma_checked_at' => now(),
             'newbimma_checked_by' => auth()->id(),
-            'status' => 'rejected',
+            'status' => EnrollmentStatus::Rejected,
             'notes' => 'Pernah mengikuti pelatihan yang sama di Newbimma',
         ]);
 
@@ -722,7 +732,7 @@ class EnrollmentController extends Controller
      */
     public function generateVerificationCode(Enrollment $enrollment)
     {
-        if ($enrollment->status !== 'approved') {
+        if ($enrollment->status !== EnrollmentStatus::Approved) {
             return redirect()->back()->with('error', 'Kode verifikasi hanya bisa digenerate untuk enrollment dengan status Approved.');
         }
 
@@ -744,7 +754,7 @@ class EnrollmentController extends Controller
      */
     public function generateAllVerificationCodes()
     {
-        $enrollments = Enrollment::where('status', 'approved')
+        $enrollments = Enrollment::where('status', EnrollmentStatus::Approved)
             ->whereNull('verification_code')
             ->get();
 
@@ -784,11 +794,12 @@ class EnrollmentController extends Controller
     /**
      * Auto-manajemen timestamp berdasarkan status (FR-009).
      */
-    private function updateTimestamps(Enrollment $enrollment, string $newStatus): void
+    private function updateTimestamps(Enrollment $enrollment, EnrollmentStatus $newStatus): void
     {
         $oldStatus = $enrollment->getOriginal('status');
+        $oldStatusEnum = $oldStatus instanceof EnrollmentStatus ? $oldStatus : EnrollmentStatus::fromValue($oldStatus);
 
-        if ($oldStatus === $newStatus) {
+        if ($oldStatusEnum === $newStatus) {
             return;
         }
 
@@ -798,12 +809,12 @@ class EnrollmentController extends Controller
             'waitlist_promoted_at' => null,
         ];
 
-        if ($newStatus === 'approved') {
+        if ($newStatus === EnrollmentStatus::Approved) {
             $data['approved_at'] = now();
-            if ($oldStatus === 'waitlist') {
+            if ($oldStatusEnum === EnrollmentStatus::Waitlist) {
                 $data['waitlist_promoted_at'] = now();
             }
-        } elseif ($newStatus === 'rejected') {
+        } elseif ($newStatus === EnrollmentStatus::Rejected) {
             $data['rejected_at'] = now();
         }
 

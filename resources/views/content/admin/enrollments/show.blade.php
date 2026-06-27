@@ -337,14 +337,15 @@ $pelatihans = \App\Models\Pelatihan::where('is_active', true)->orderBy('nama')->
         </div>
 
         <div>
-          @switch($enrollment->status)
-            @case('pending') <span class="badge-premium badge-premium-warning">Pending</span> @break
-            @case('approved') <span class="badge-premium badge-premium-success">Approved (Tahap 1)</span> @break
-            @case('waiting_wa_confirmation') <span class="badge" style="background: rgba(234,179,8,0.15); color: #eab308; border: 1px solid rgba(234,179,8,0.3);"><i class="icon-base ti tabler-brand-whatsapp me-1"></i>Menunggu Chat WA</span> @break
-            @case('waiting_newbimma_check') <span class="badge" style="background: rgba(59,130,246,0.15); color: #3b82f6; border: 1px solid rgba(59,130,246,0.3);"><i class="icon-base ti tabler-search me-1"></i>Cek Newbimma</span> @break
-            @case('confirmed') <span class="badge" style="background: rgba(34,197,94,0.15); color: #22c55e; border: 1px solid rgba(34,197,94,0.3);"><i class="icon-base ti tabler-circle-check me-1"></i>Terkonfirmasi</span> @break
-            @case('rejected') <span class="badge-premium badge-premium-danger">Ditolak</span> @break
-            @case('waitlist') <span class="badge-premium badge-premium-info">Cadangan</span> @break
+          @php $currentStatus = $enrollment->status; @endphp
+          @switch($currentStatus?->value ?? $enrollment->status)
+            @case('pending') <span class="badge-premium badge-premium-warning">{{ $enrollment->statusLabel() }}</span> @break
+            @case('approved') <span class="badge-premium badge-premium-success">{{ $enrollment->statusLabel() }}</span> @break
+            @case('waiting_wa_confirmation') <span class="badge" style="background: rgba(234,179,8,0.15); color: #eab308; border: 1px solid rgba(234,179,8,0.3);"><i class="icon-base ti tabler-brand-whatsapp me-1"></i>{{ $enrollment->statusLabel() }}</span> @break
+            @case('waiting_newbimma_check') <span class="badge" style="background: rgba(59,130,246,0.15); color: #3b82f6; border: 1px solid rgba(59,130,246,0.3);"><i class="icon-base ti tabler-search me-1"></i>{{ $enrollment->statusLabel() }}</span> @break
+            @case('confirmed') <span class="badge" style="background: rgba(34,197,94,0.15); color: #22c55e; border: 1px solid rgba(34,197,94,0.3);"><i class="icon-base ti tabler-circle-check me-1"></i>{{ $enrollment->statusLabel() }}</span> @break
+            @case('rejected') <span class="badge-premium badge-premium-danger">{{ $enrollment->statusLabel() }}</span> @break
+            @case('waitlist') <span class="badge-premium badge-premium-info">{{ $enrollment->statusLabel() }}</span> @break
           @endswitch
         </div>
 
@@ -357,7 +358,7 @@ $pelatihans = \App\Models\Pelatihan::where('is_active', true)->orderBy('nama')->
           </div>
         @endif
 
-        @if($enrollment->status === 'approved')
+        @if($enrollment->status?->value === 'approved')
           <div class="mt-2" style="font-size: 0.8rem; color: #fbbf24; background: rgba(251, 191, 36, 0.1); padding: 8px 12px; border-radius: 5px; border: 1px solid rgba(251, 191, 36, 0.2);">
             <i class="icon-base ti tabler-info-circle me-1"></i>
             Peserta telah di-approve tahap 1. Silakan input data peserta ke <strong>NewBimma Disnaker Kota Bandung</strong> untuk approve final.
@@ -926,10 +927,12 @@ $pelatihans = \App\Models\Pelatihan::where('is_active', true)->orderBy('nama')->
               <div class="d-flex gap-2">
                 <select class="form-select" id="changeStatusSelect" style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); color: #f8fafc; border-radius: 5px;">
                   <option value="">-- Pilih Status --</option>
-                  <option value="pending">⏳ Pending</option>
-                  <option value="approved">✅ Approved</option>
-                  <option value="rejected">❌ Rejected</option>
-                  <option value="waitlist">🟡 Waitlist</option>
+                  @foreach(\App\Enums\EnrollmentStatus::values() as $statusValue)
+                    @php $statusEnum = \App\Enums\EnrollmentStatus::fromValue($statusValue); @endphp
+                    @if($statusEnum)
+                    <option value="{{ $statusEnum->value }}">{{ $statusEnum->label() }}</option>
+                    @endif
+                  @endforeach
                 </select>
                 <button type="button" class="btn btn-primary" id="changeStatusBtn" style="border-radius: 5px; font-weight: 600; padding: 8px 16px; white-space: nowrap;" disabled>
                   <i class="icon-base ti tabler-arrows-exchange fs-6 me-1"></i> Ubah
@@ -938,14 +941,14 @@ $pelatihans = \App\Models\Pelatihan::where('is_active', true)->orderBy('nama')->
             </div>
 
             {{-- Tombol Alihkan Pelatihan --}}
-            @if(in_array($enrollment->status, ['pending', 'approved', 'waitlist', 'waiting_wa_confirmation', 'waiting_newbimma_check', 'confirmed']))
+            @if(in_array($enrollment->status?->value, ['pending', 'approved', 'waitlist', 'waiting_wa_confirmation', 'waiting_newbimma_check', 'confirmed']))
             <button type="button" class="btn btn-secondary-custom w-100 d-inline-flex align-items-center justify-content-center gap-2" id="transferBtn" style="border-radius: 5px; font-weight: 600; padding: 10px;">
               <i class="icon-base ti tabler-arrows-shuffle fs-6"></i> Alihkan Pelatihan
             </button>
             @endif
 
             {{-- Reset --}}
-            @if(in_array($enrollment->status, ['approved', 'waitlist', 'pending', 'rejected']))
+            @if(in_array($enrollment->status?->value, ['approved', 'waitlist', 'pending', 'rejected']))
             <form action="{{ route('admin.enrollments.reset', $enrollment) }}" method="POST" class="reset-enrollment-form mt-2" data-name="{{ $enrollment->user?->name ?? 'Unknown' }}" data-pelatihan="{{ $enrollment->pelatihan->nama }}">
               @csrf
               <button type="submit" class="btn btn-warning w-100 d-inline-flex align-items-center justify-content-center gap-2" style="border-radius: 5px; font-weight: 600; padding: 10px; background: linear-gradient(135deg, #f59e0b, #d97706); border: none;">
@@ -1035,7 +1038,7 @@ $pelatihans = \App\Models\Pelatihan::where('is_active', true)->orderBy('nama')->
                   @switch($enrollment->status)
                     @case('approved') Approved (Tahap 1) @break
                     @case('waitlist') Cadangan @break
-                    @default {{ ucfirst($enrollment->status) }}
+                    @default {{ $enrollment->status?->value ? ucfirst($enrollment->status->value) : '-' }}
                   @endswitch
                 </span>
               </div>
@@ -1091,21 +1094,24 @@ $pelatihans = \App\Models\Pelatihan::where('is_active', true)->orderBy('nama')->
   });
 
   document.getElementById('changeStatusBtn')?.addEventListener('click', function() {
-    const status = document.getElementById('changeStatusSelect').value;
+    const select = document.getElementById('changeStatusSelect');
+    const status = select.value;
     if (!status) return;
+
+    // Ambil label dari teks opsi yang dipilih (dinamis, tidak hardcoded)
+    const statusLabel = select.options[select.selectedIndex]?.text || status;
 
     // Isi modal dengan data
     document.getElementById('changeStatusNewStatus').value = status;
-    const labels = {'pending': '⏳ Pending', 'approved': '✅ Approved', 'rejected': '❌ Rejected', 'waitlist': '🟡 Waitlist'};
     document.getElementById('changeStatusInfo').innerHTML = `
       <div style="background: rgba(255,255,255,0.04); padding: 12px; border-radius: 5px; margin-bottom: 12px;">
         <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
           <span class="text-body-premium">Status Saat Ini:</span>
-          <span class="badge-premium">${document.querySelector('.badge-premium')?.textContent?.trim() || '{{ ucfirst($enrollment->status) }}'}</span>
+          <span class="badge-premium">${document.querySelector('.badge-premium')?.textContent?.trim() || '{{ $enrollment->statusLabel() }}'}</span>
         </div>
         <div style="display: flex; justify-content: space-between;">
           <span class="text-body-premium">Status Baru:</span>
-          <span class="badge-premium">${labels[status] || status}</span>
+          <span class="badge-premium">${statusLabel}</span>
         </div>
       </div>
     `;

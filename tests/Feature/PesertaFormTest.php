@@ -7,6 +7,7 @@ use App\Models\Pelatihan;
 use App\Models\PesertaProfile;
 use App\Models\Setting;
 use App\Models\User;
+use App\Enums\EnrollmentStatus;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
@@ -458,7 +459,7 @@ class PesertaFormTest extends TestCase
             ->first();
 
         $this->assertNotNull($enrollment);
-        $this->assertEquals('waitlist', $enrollment->status);
+        $this->assertEquals(EnrollmentStatus::Waitlist, $enrollment->status);
         $this->assertNull($enrollment->approved_at);
     }
 
@@ -512,7 +513,7 @@ class PesertaFormTest extends TestCase
             ->first();
 
         $this->assertNotNull($enrollment);
-        $this->assertEquals('approved', $enrollment->status);
+        $this->assertEquals(EnrollmentStatus::Approved, $enrollment->status);
         $this->assertNotNull($enrollment->approved_at);
     }
 
@@ -577,7 +578,7 @@ class PesertaFormTest extends TestCase
             ->first();
 
         $this->assertNotNull($enrollment);
-        $this->assertEquals('approved', $enrollment->status);
+        $this->assertEquals(EnrollmentStatus::Approved, $enrollment->status);
     }
 
     public function test_non_auto_approve_dengan_kuota_penuh_jadi_waitlist(): void
@@ -638,6 +639,6 @@ class PesertaFormTest extends TestCase
             ->first();
 
         $this->assertNotNull($enrollment);
-        $this->assertEquals('waitlist', $enrollment->status);
+        $this->assertEquals(EnrollmentStatus::Waitlist, $enrollment->status);
     }
 }

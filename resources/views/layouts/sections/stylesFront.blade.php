@@ -22,4 +22,8 @@
 <!-- Page Styles -->
 @yield('page-style')
 
+{{-- app CSS (Tailwind utilities + custom styles) --}}
+@vite(['resources/css/app.css'])
+{{-- END app CSS --}}
+
 @livewireStyles

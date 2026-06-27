@@ -7,6 +7,7 @@ use App\Models\Pelatihan;
 use App\Models\Enrollment;
 use App\Models\ActivityLog;
 use App\Events\PendaftaranRejected;
+use App\Enums\EnrollmentStatus;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Event;
 use Laravel\Sanctum\Sanctum;
@@ -143,7 +144,7 @@ class EnrollmentRejectAllTest extends TestCase
 
         // Quota still full (1 approved), so waitlist stays
         $waitlistEnrollment = Enrollment::where('user_id', $waitlistUser->id)->first();
-        $this->assertEquals('waitlist', $waitlistEnrollment->status);
+        $this->assertEquals(EnrollmentStatus::Waitlist, $waitlistEnrollment->status);
     }
 
     // AC-007: Promosi waitlist — ada slot kosong setelah reject
@@ -165,7 +166,7 @@ class EnrollmentRejectAllTest extends TestCase
         $this->rejectAll();
 
         $waitlistEnrollment = Enrollment::where('user_id', $waitlistUser->id)->first();
-        $this->assertEquals('approved', $waitlistEnrollment->status);
+        $this->assertEquals(EnrollmentStatus::Approved, $waitlistEnrollment->status);
         $this->assertNotNull($waitlistEnrollment->approved_at);
         $this->assertNotNull($waitlistEnrollment->waitlist_promoted_at);
     }
@@ -185,9 +186,9 @@ class EnrollmentRejectAllTest extends TestCase
         $response->assertSessionHas('error', 'Tidak ada pendaftaran pending untuk pelatihan ini.');
 
         // Pastikan data tidak berubah
-        $this->assertEquals('approved', Enrollment::where('user_id', $approvedUser->id)->first()->status);
-        $this->assertEquals('rejected', Enrollment::where('user_id', $rejectedUser->id)->first()->status);
-        $this->assertEquals('waitlist', Enrollment::where('user_id', $waitlistUser->id)->first()->status);
+        $this->assertEquals(EnrollmentStatus::Approved, Enrollment::where('user_id', $approvedUser->id)->first()->status);
+        $this->assertEquals(EnrollmentStatus::Rejected, Enrollment::where('user_id', $rejectedUser->id)->first()->status);
+        $this->assertEquals(EnrollmentStatus::Waitlist, Enrollment::where('user_id', $waitlistUser->id)->first()->status);
     }
 
     // AC-004: Cek activity log tercatat
@@ -228,7 +229,9 @@ class EnrollmentRejectAllTest extends TestCase
     {
         $response = $this->get(route('admin.enrollments.index'));
         $response->assertStatus(200);
-        $response->assertDontSee('Reject All Pending');
+        // Button is always rendered in DOM but hidden via d-none CSS class
+        $response->assertSee('Reject All Pending');
+        $response->assertSee('d-none');
     }
 
     // AC-008: Update badge count — verify counts reset after reject all

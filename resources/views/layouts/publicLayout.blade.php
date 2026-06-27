@@ -19,4 +19,5 @@
 
   {{-- Floating WhatsApp Support (hanya untuk halaman publik) --}}
   @includeWhen(isset($whatsappNumbers) && $whatsappNumbers->isNotEmpty(), 'components.floating-whatsapp')
+
 @endsection

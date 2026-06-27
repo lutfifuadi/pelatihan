@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\EnrollmentStatus;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Kecamatan;
 use App\Models\Traits\HasSeo;
@@ -58,12 +59,12 @@ class Pelatihan extends Model
 
     public function pendingEnrollments()
     {
-        return $this->hasMany(Enrollment::class)->where('status', 'pending');
+        return $this->hasMany(Enrollment::class)->where('status', EnrollmentStatus::Pending);
     }
 
     public function approvedEnrollments()
     {
-        return $this->hasMany(Enrollment::class)->where('status', 'approved');
+        return $this->hasMany(Enrollment::class)->where('status', EnrollmentStatus::Approved);
     }
 
     public function schedules()

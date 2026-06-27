@@ -163,7 +163,7 @@ class EnrollmentExport extends DefaultValueBinder implements
             $enrollment->pelatihan?->nama ?? '-',
             $enrollment->pelatihan?->batch ?? '-',
             $enrollment->pelatihan?->dinas?->nama_dinas ?? '-',
-            ucfirst($enrollment->status ?? '-'),
+            ucfirst($enrollment->status?->value ?? '-'),
             $enrollment->created_at ? $enrollment->created_at->format('d-m-Y H:i') : '-',
             $enrollment->approved_at ? $enrollment->approved_at->format('d-m-Y H:i') : '-',
             $enrollment->rejected_at ? $enrollment->rejected_at->format('d-m-Y H:i') : '-',

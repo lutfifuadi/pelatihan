@@ -339,6 +339,12 @@ $configData = Helper::appClasses();
                 —
                 {{ $pelatihan->tanggal_selesai ? \Carbon\Carbon::parse($pelatihan->tanggal_selesai)->format('d/m/Y') : '-' }}
               </div>
+              @if($pelatihan->batas_pendaftaran)
+                <div class="mt-1" style="font-size: 0.7rem; color: rgba(251, 191, 36, 0.8);">
+                  <i class="icon-base ti tabler-clock me-1"></i>
+                  Batas daftar: {{ \Carbon\Carbon::parse($pelatihan->batas_pendaftaran)->format('d/m/Y') }}
+                </div>
+              @endif
             </div>
           </div>
         </div>

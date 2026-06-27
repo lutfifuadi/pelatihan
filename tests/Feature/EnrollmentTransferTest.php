@@ -8,6 +8,7 @@ use App\Models\Enrollment;
 use App\Models\Attendance;
 use App\Models\Certificate;
 use App\Models\ActivityLog;
+use App\Enums\EnrollmentStatus;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
@@ -95,7 +96,7 @@ class EnrollmentTransferTest extends TestCase
 
         $this->assertNotEquals($oldPelatihanId, $enrollment->pelatihan_id);
         $this->assertEquals($this->pelatihanB->id, $enrollment->pelatihan_id);
-        $this->assertEquals('approved', $enrollment->status);
+        $this->assertEquals(EnrollmentStatus::Approved, $enrollment->status);
         $this->assertStringContainsString('[Alihkan:', $enrollment->notes);
 
         $this->assertDatabaseHas('activity_logs', [
@@ -127,7 +128,7 @@ class EnrollmentTransferTest extends TestCase
         $enrollment->refresh();
 
         $this->assertEquals($pelatihanPenuh->id, $enrollment->pelatihan_id);
-        $this->assertEquals('waitlist', $enrollment->status);
+        $this->assertEquals(EnrollmentStatus::Waitlist, $enrollment->status);
         $this->assertNull($enrollment->waitlist_promoted_at);
     }
 
@@ -143,7 +144,7 @@ class EnrollmentTransferTest extends TestCase
         $enrollment->refresh();
 
         $this->assertEquals($this->pelatihanB->id, $enrollment->pelatihan_id);
-        $this->assertEquals('waitlist', $enrollment->status);
+        $this->assertEquals(EnrollmentStatus::Waitlist, $enrollment->status);
     }
 
     // TC-016: Validasi — pelatihan tujuan sama dengan asal
@@ -208,7 +209,7 @@ class EnrollmentTransferTest extends TestCase
         $this->transfer($enrollmentApproved, $this->pelatihanB, 'Pindah, promote waitlist');
 
         $enrollmentWaitlist->refresh();
-        $this->assertEquals('approved', $enrollmentWaitlist->status);
+        $this->assertEquals(EnrollmentStatus::Approved, $enrollmentWaitlist->status);
         $this->assertNotNull($enrollmentWaitlist->approved_at);
         $this->assertNotNull($enrollmentWaitlist->waitlist_promoted_at);
     }

@@ -202,6 +202,12 @@
       "slug": "admin.whatsapp-gateway"
     },
     {
+      "url": "/admin/push-notifications",
+      "name": "Push Notifications",
+      "icon": "menu-icon icon-base ti tabler-bell",
+      "slug": "admin.push-notifications.index"
+    },
+    {
       "menuHeader": "Notifikasi"
     },
     {

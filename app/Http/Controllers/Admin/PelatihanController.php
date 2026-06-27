@@ -11,10 +11,39 @@ use Illuminate\Http\Request;
 
 class PelatihanController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $pelatihans = Pelatihan::with('dinas')->orderBy('created_at', 'desc')->paginate(15);
-        return view('content.admin.pelatihan.index', compact('pelatihans'));
+        $sortBy = $request->get('sort_by', 'created_at');
+        $sortOrder = $request->get('sort_order', 'desc');
+
+        // Whitelist kolom yang diizinkan untuk sorting (cegah SQL injection)
+        $allowedSort = [
+            'batch', 'nama', 'dinas', 'kuota', 'is_active', 'created_at'
+        ];
+
+        if (!in_array($sortBy, $allowedSort)) {
+            $sortBy = 'created_at';
+        }
+
+        if (!in_array($sortOrder, ['asc', 'desc'])) {
+            $sortOrder = 'desc';
+        }
+
+        $query = Pelatihan::with('dinas');
+
+        // Handle khusus untuk relasi 'dinas'
+        if ($sortBy === 'dinas') {
+            $query = $query
+                ->select('pelatihans.*')
+                ->leftJoin('dinas', 'pelatihans.dinas_id', '=', 'dinas.id')
+                ->orderBy('dinas.nama_dinas', $sortOrder);
+        } else {
+            $query = $query->orderBy($sortBy, $sortOrder);
+        }
+
+        $pelatihans = $query->paginate(15);
+
+        return view('content.admin.pelatihan.index', compact('pelatihans', 'sortBy', 'sortOrder'));
     }
 
     public function create()

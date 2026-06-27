@@ -237,6 +237,17 @@ $configData = Helper::appClasses();
     background: rgba(255, 255, 255, 0.1);
     color: #ffffff;
   }
+
+  .preview-logo-card {
+    background: rgba(0,0,0,0.3);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 5px;
+    padding: 16px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
 </style>
 @endsection
 
@@ -278,219 +289,210 @@ $configData = Helper::appClasses();
         <form action="{{ route('admin.settings.branding.update') }}" method="POST">
           @csrf
 
-          <div class="mb-4">
-            <label for="brand_name" class="form-label">Nama Brand <span class="text-danger">*</span></label>
-            <input type="text" class="form-control @error('brand_name') is-invalid @enderror"
-              id="brand_name" name="brand_name"
-              value="{{ old('brand_name', $settings['brand_name']->value ?? 'SABA Kreatif') }}"
-              placeholder="SABA Kreatif" required>
-            @error('brand_name')
-              <div class="invalid-feedback mt-1">{{ $message }}</div>
-            @enderror
-            <small class="text-body-premium mt-1 d-block" style="font-size: 0.8rem;">
-              Nama brand akan ditampilkan di logo aplikasi (contoh: SABA Kreatif)
-            </small>
+          {{-- ======================== SECTION 1: BRAND IDENTITY ======================== --}}
+          <div class="row">
+            <div class="col-12 mb-3">
+              <label for="brand_name" class="form-label">Nama Brand <span class="text-danger">*</span></label>
+              <input type="text" class="form-control @error('brand_name') is-invalid @enderror"
+                id="brand_name" name="brand_name"
+                value="{{ old('brand_name', $settings['brand_name']->value ?? 'SABA Kreatif') }}"
+                placeholder="SABA Kreatif" required>
+              @error('brand_name')
+                <div class="invalid-feedback mt-1">{{ $message }}</div>
+              @enderror
+              <small class="text-body-premium mt-1 d-block" style="font-size: 0.8rem;">
+                Nama brand akan ditampilkan di logo aplikasi (contoh: SABA Kreatif)
+              </small>
+            </div>
           </div>
 
-          {{-- Ukuran Logo --}}
-          <div class="mb-3">
-            <label for="brand_logo_size" class="form-label">Ukuran Logo <span class="text-danger">*</span></label>
-            <select class="form-select @error('brand_logo_size') is-invalid @enderror"
-              id="brand_logo_size" name="brand_logo_size" required>
-              @php
-                $currentSize = old('brand_logo_size', $settings['brand_logo_size']->value ?? 'md');
-                $sizeOptions = ['sm' => 'Kecil (sm)', 'md' => 'Sedang (md)', 'lg' => 'Besar (lg)', 'xl' => 'Extra Besar (xl)'];
-              @endphp
-              @foreach($sizeOptions as $val => $label)
-                <option value="{{ $val }}" {{ $currentSize == $val ? 'selected' : '' }}>{{ $label }}</option>
-              @endforeach
-            </select>
-            @error('brand_logo_size')
-              <div class="invalid-feedback">{{ $message }}</div>
-            @enderror
-            <small class="text-muted">Pilih ukuran tampilan logo brand di halaman publik</small>
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label for="brand_logo_size" class="form-label">Ukuran Logo <span class="text-danger">*</span></label>
+              <select class="form-select @error('brand_logo_size') is-invalid @enderror"
+                id="brand_logo_size" name="brand_logo_size" required>
+                @php
+                  $currentSize = old('brand_logo_size', $settings['brand_logo_size']->value ?? 'md');
+                  $sizeOptions = ['sm' => 'Kecil (sm)', 'md' => 'Sedang (md)', 'lg' => 'Besar (lg)', 'xl' => 'Extra Besar (xl)'];
+                @endphp
+                @foreach($sizeOptions as $val => $label)
+                  <option value="{{ $val }}" {{ $currentSize == $val ? 'selected' : '' }}>{{ $label }}</option>
+                @endforeach
+              </select>
+              @error('brand_logo_size')
+                <div class="invalid-feedback">{{ $message }}</div>
+              @enderror
+              <small class="text-muted">Pilih ukuran tampilan logo brand di halaman publik</small>
+            </div>
+            <div class="col-md-6 mb-3">
+              <div class="preview-logo-card">
+                <p class="text-body-premium small mb-2" style="font-size: 0.75rem; letter-spacing: 0.05em;">
+                  <i class="icon-base ti tabler-eye me-1"></i>Pratinjau Logo
+                </p>
+                <div class="d-flex align-items-center gap-2">
+                  @php
+                    $previewSize = old('brand_logo_size', $settings['brand_logo_size']->value ?? 'md');
+                  @endphp
+                  <x-brand-logo size="{{ $previewSize }}" />
+                </div>
+                <small class="text-white-50 mt-2 d-block">Ukuran: {{ $previewSize }}</small>
+              </div>
+            </div>
           </div>
 
-          <hr class="my-4">
+          <hr class="my-5" style="border-color: rgba(255,255,255,0.08);">
+
+          {{-- ======================== SECTION 2: IDENTITAS INSTITUSI ======================== --}}
           <h6 class="mb-3">Identitas Institusi</h6>
 
           <div class="row">
-              <div class="col-md-6 mb-3">
-                  <label for="institution_name" class="form-label">Nama Institusi <span class="text-danger">*</span></label>
-                  <input type="text" class="form-control @error('institution_name') is-invalid @enderror"
-                      id="institution_name" name="institution_name"
-                      value="{{ old('institution_name', $settings['institution_name']->value ?? 'Lembaga Pelatihan') }}" required>
-                  @error('institution_name')
-                      <div class="invalid-feedback">{{ $message }}</div>
-                  @enderror
-              </div>
-              <div class="col-md-6 mb-3">
-                  <label for="institution_phone" class="form-label">Nomor Telepon</label>
-                  <input type="text" class="form-control @error('institution_phone') is-invalid @enderror"
-                      id="institution_phone" name="institution_phone"
-                      value="{{ old('institution_phone', $settings['institution_phone']->value ?? '+62 812-3456-7890') }}">
-                  @error('institution_phone')
-                      <div class="invalid-feedback">{{ $message }}</div>
-                  @enderror
-              </div>
-          </div>
-
-          <div class="mb-3">
+            <div class="col-md-6 mb-3">
+              <label for="institution_name" class="form-label">Nama Institusi <span class="text-danger">*</span></label>
+              <input type="text" class="form-control @error('institution_name') is-invalid @enderror"
+                id="institution_name" name="institution_name"
+                value="{{ old('institution_name', $settings['institution_name']->value ?? 'Lembaga Pelatihan') }}" required>
+              @error('institution_name')
+                <div class="invalid-feedback">{{ $message }}</div>
+              @enderror
+            </div>
+            <div class="col-md-6 mb-3">
               <label for="institution_email" class="form-label">Email Institusi</label>
               <input type="email" class="form-control @error('institution_email') is-invalid @enderror"
-                  id="institution_email" name="institution_email"
-                  value="{{ old('institution_email', $settings['institution_email']->value ?? 'admin@sabakreatif.com') }}">
+                id="institution_email" name="institution_email"
+                value="{{ old('institution_email', $settings['institution_email']->value ?? 'admin@sabakreatif.com') }}">
               @error('institution_email')
-                  <div class="invalid-feedback">{{ $message }}</div>
+                <div class="invalid-feedback">{{ $message }}</div>
               @enderror
+            </div>
           </div>
-
-          <div class="mb-3">
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label for="institution_phone" class="form-label">Nomor Telepon</label>
+              <input type="text" class="form-control @error('institution_phone') is-invalid @enderror"
+                id="institution_phone" name="institution_phone"
+                value="{{ old('institution_phone', $settings['institution_phone']->value ?? '+62 812-3456-7890') }}">
+              @error('institution_phone')
+                <div class="invalid-feedback">{{ $message }}</div>
+              @enderror
+            </div>
+            <div class="col-md-6 mb-3">
+              <label for="footer_copyright" class="form-label">Footer Copyright</label>
+              <input type="text" class="form-control @error('footer_copyright') is-invalid @enderror"
+                id="footer_copyright" name="footer_copyright"
+                value="{{ old('footer_copyright', $settings['footer_copyright']->value ?? 'Pelatihan — Pengembangan Kompetensi') }}"
+                placeholder="Pelatihan — Pengembangan Kompetensi">
+              @error('footer_copyright')
+                <div class="invalid-feedback mt-1">{{ $message }}</div>
+              @enderror
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-12 mb-3">
               <label for="institution_address" class="form-label">Alamat Institusi</label>
               <textarea class="form-control @error('institution_address') is-invalid @enderror"
-                  id="institution_address" name="institution_address" rows="2">{{ old('institution_address', $settings['institution_address']->value ?? 'Gedung Pusat Pembelajaran Kreatif') }}</textarea>
+                id="institution_address" name="institution_address" rows="2">{{ old('institution_address', $settings['institution_address']->value ?? 'Gedung Pusat Pembelajaran Kreatif') }}</textarea>
               @error('institution_address')
-                  <div class="invalid-feedback">{{ $message }}</div>
+                <div class="invalid-feedback">{{ $message }}</div>
               @enderror
+            </div>
           </div>
-
-          <div class="mb-3">
+          <div class="row">
+            <div class="col-12 mb-3">
               <label for="institution_description" class="form-label">Deskripsi Institusi</label>
               <textarea class="form-control @error('institution_description') is-invalid @enderror"
-                  id="institution_description" name="institution_description" rows="3">{{ old('institution_description', $settings['institution_description']->value ?? '') }}</textarea>
+                id="institution_description" name="institution_description" rows="3">{{ old('institution_description', $settings['institution_description']->value ?? '') }}</textarea>
               <small class="text-muted">Deskripsi singkat yang tampil di footer halaman beranda</small>
               @error('institution_description')
-                  <div class="invalid-feedback">{{ $message }}</div>
+                <div class="invalid-feedback">{{ $message }}</div>
               @enderror
-          </div>
-
-          {{-- Preview Logo --}}
-          <div class="mb-4 p-3 rounded" style="max-width: 300px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.08);">
-            <p class="text-body-premium small mb-2" style="font-size: 0.75rem; letter-spacing: 0.05em;">
-              <i class="icon-base ti tabler-eye me-1"></i>Pratinjau Logo
-            </p>
-            <div class="d-flex align-items-center gap-2">
-              @php
-                $previewSize = old('brand_logo_size', $settings['brand_logo_size']->value ?? 'md');
-              @endphp
-              <x-brand-logo size="{{ $previewSize }}" />
             </div>
-            <small class="text-white-50 mt-2 d-block">Ukuran: {{ $previewSize }}</small>
-          </div>
-
-          <div class="mb-4">
-            <label for="footer_copyright" class="form-label">Footer Copyright</label>
-            <input type="text" class="form-control @error('footer_copyright') is-invalid @enderror"
-              id="footer_copyright" name="footer_copyright"
-              value="{{ old('footer_copyright', $settings['footer_copyright']->value ?? 'Pelatihan — Pengembangan Kompetensi') }}"
-              placeholder="Pelatihan — Pengembangan Kompetensi">
-            @error('footer_copyright')
-              <div class="invalid-feedback mt-1">{{ $message }}</div>
-            @enderror
           </div>
 
           <hr class="my-5" style="border-color: rgba(255,255,255,0.08);">
 
+          {{-- ======================== SECTION 3: VALIDASI & KONFIGURASI ======================== --}}
           <h5 class="fw-bold text-white mb-4" style="font-family: 'Sora', sans-serif;">
-            <i class="icon-base ti tabler-brand-whatsapp me-2"></i>Validasi Pendaftaran
+            <i class="icon-base ti tabler-settings me-2"></i>Validasi & Konfigurasi
           </h5>
           <p class="text-body-premium mb-4" style="font-size: 0.85rem;">
-            Pengaturan ini digunakan untuk memverifikasi keaktifan nomor WhatsApp pendaftar pada form pendaftaran peserta.
+            Mengatur validasi pendaftaran, broadcast real-time, dan zona waktu aplikasi.
           </p>
 
-          {{-- Validasi Otomatis Nomor WhatsApp --}}
-          <div class="mb-4">
-            <label for="validate_whatsapp" class="form-label">Validasi Otomatis Nomor WhatsApp <span class="text-danger">*</span></label>
-            <select class="form-select @error('validate_whatsapp') is-invalid @enderror"
-              id="validate_whatsapp" name="validate_whatsapp" required>
-              @php
-                $currentValidateWa = old('validate_whatsapp', ($settings['validate_whatsapp'] ?? null)?->value ?? '1');
-              @endphp
-              <option value="1" {{ $currentValidateWa == '1' ? 'selected' : '' }}>Aktif (Periksa Nomor Terdaftar via API)</option>
-              <option value="0" {{ $currentValidateWa == '0' ? 'selected' : '' }}>Nonaktif (Lewati Pemeriksaan, Selalu Izinkan)</option>
-            </select>
-            @error('validate_whatsapp')
-              <div class="invalid-feedback mt-1">{{ $message }}</div>
-            @enderror
-            <small class="text-body-premium mt-1 d-block" style="font-size: 0.75rem;">
-              <i class="icon-base ti tabler-info-circle me-1"></i>Tentukan apakah sistem harus memverifikasi keaktifan nomor WhatsApp pendaftar melalui API eksternal.
-            </small>
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label for="validate_whatsapp" class="form-label">Validasi Otomatis Nomor WhatsApp <span class="text-danger">*</span></label>
+              <select class="form-select @error('validate_whatsapp') is-invalid @enderror"
+                id="validate_whatsapp" name="validate_whatsapp" required>
+                @php
+                  $currentValidateWa = old('validate_whatsapp', ($settings['validate_whatsapp'] ?? null)?->value ?? '1');
+                @endphp
+                <option value="1" {{ $currentValidateWa == '1' ? 'selected' : '' }}>Aktif (Periksa Nomor Terdaftar via API)</option>
+                <option value="0" {{ $currentValidateWa == '0' ? 'selected' : '' }}>Nonaktif (Lewati Pemeriksaan, Selalu Izinkan)</option>
+              </select>
+              @error('validate_whatsapp')
+                <div class="invalid-feedback mt-1">{{ $message }}</div>
+              @enderror
+              <small class="text-body-premium mt-1 d-block" style="font-size: 0.75rem;">
+                <i class="icon-base ti tabler-info-circle me-1"></i>Tentukan apakah sistem harus memverifikasi keaktifan nomor WhatsApp pendaftar melalui API eksternal.
+              </small>
+            </div>
+            <div class="col-md-6 mb-3">
+              <label for="broadcast_enabled" class="form-label">Status Broadcast <span class="text-danger">*</span></label>
+              <select class="form-select @error('broadcast_enabled') is-invalid @enderror"
+                id="broadcast_enabled" name="broadcast_enabled" required>
+                @php
+                  $currentBroadcast = old('broadcast_enabled', ($settings['broadcast_enabled'] ?? null)?->value ?? '1');
+                @endphp
+                <option value="1" {{ $currentBroadcast == '1' ? 'selected' : '' }}>Aktif (Broadcast real-time menyala)</option>
+                <option value="0" {{ $currentBroadcast == '0' ? 'selected' : '' }}>Nonaktif (Broadcast dimatikan)</option>
+              </select>
+              @error('broadcast_enabled')
+                <div class="invalid-feedback mt-1">{{ $message }}</div>
+              @enderror
+              <small class="text-body-premium mt-1 d-block" style="font-size: 0.75rem;">
+                <i class="icon-base ti tabler-info-circle me-1"></i>Nonaktifkan jika server WebSocket (Reverb) tidak berjalan, untuk menghindari error koneksi.
+              </small>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-12 mb-3">
+              <label for="timezone" class="form-label">Zona Waktu <span class="text-danger">*</span></label>
+              <select class="form-select @error('timezone') is-invalid @enderror"
+                id="timezone" name="timezone" required>
+                @php
+                  $currentTimezone = old('timezone', ($settings['timezone'] ?? null)?->value ?? 'Asia/Jakarta');
+                  $indonesianTimezones = [
+                    'Asia/Jakarta' => 'Asia/Jakarta (WIB)',
+                    'Asia/Makassar' => 'Asia/Makassar (WITA)',
+                    'Asia/Jayapura' => 'Asia/Jayapura (WIT)',
+                  ];
+                  $allTimezones = timezone_identifiers_list();
+                @endphp
+                <optgroup label="Zona Waktu Indonesia">
+                  @foreach($indonesianTimezones as $val => $label)
+                    <option value="{{ $val }}" {{ $currentTimezone == $val ? 'selected' : '' }}>{{ $label }}</option>
+                  @endforeach
+                </optgroup>
+                <optgroup label="Zona Waktu Lainnya">
+                  @foreach($allTimezones as $tz)
+                    @if(!in_array($tz, array_keys($indonesianTimezones)))
+                      <option value="{{ $tz }}" {{ $currentTimezone == $tz ? 'selected' : '' }}>{{ $tz }}</option>
+                    @endif
+                  @endforeach
+                </optgroup>
+              </select>
+              @error('timezone')
+                <div class="invalid-feedback mt-1">{{ $message }}</div>
+              @enderror
+              <small class="text-body-premium mt-1 d-block" style="font-size: 0.75rem;">
+                <i class="icon-base ti tabler-info-circle me-1"></i>Pilih zona waktu yang akan digunakan untuk pencatatan dan tampilan tanggal/waktu di seluruh sistem.
+              </small>
+            </div>
           </div>
 
           <hr class="my-5" style="border-color: rgba(255,255,255,0.08);">
 
-          <h5 class="fw-bold text-white mb-4" style="font-family: 'Sora', sans-serif;">
-            <i class="icon-base ti tabler-broadcast me-2"></i>Broadcast Real-time
-          </h5>
-          <p class="text-body-premium mb-4" style="font-size: 0.85rem;">
-            Mengaktifkan pembaruan dashboard secara real-time menggunakan WebSocket (Laravel Reverb).
-          </p>
-
-          {{-- Broadcast Enabled --}}
-          <div class="mb-4">
-            <label for="broadcast_enabled" class="form-label">Status Broadcast <span class="text-danger">*</span></label>
-            <select class="form-select @error('broadcast_enabled') is-invalid @enderror"
-              id="broadcast_enabled" name="broadcast_enabled" required>
-              @php
-                $currentBroadcast = old('broadcast_enabled', ($settings['broadcast_enabled'] ?? null)?->value ?? '1');
-              @endphp
-              <option value="1" {{ $currentBroadcast == '1' ? 'selected' : '' }}>Aktif (Broadcast real-time menyala)</option>
-              <option value="0" {{ $currentBroadcast == '0' ? 'selected' : '' }}>Nonaktif (Broadcast dimatikan)</option>
-            </select>
-            @error('broadcast_enabled')
-              <div class="invalid-feedback mt-1">{{ $message }}</div>
-            @enderror
-            <small class="text-body-premium mt-1 d-block" style="font-size: 0.75rem;">
-              <i class="icon-base ti tabler-info-circle me-1"></i>Nonaktifkan jika server WebSocket (Reverb) tidak berjalan, untuk menghindari error koneksi.
-            </small>
-          </div>
-
-          <hr class="my-5" style="border-color: rgba(255,255,255,0.08);">
-
-          <h5 class="fw-bold text-white mb-4" style="font-family: 'Sora', sans-serif;">
-            <i class="icon-base ti tabler-clock me-2"></i>Zona Waktu (Timezone)
-          </h5>
-          <p class="text-body-premium mb-4" style="font-size: 0.85rem;">
-            Pengaturan ini digunakan untuk menyesuaikan zona waktu (timezone) aplikasi secara global.
-          </p>
-
-          {{-- Timezone --}}
-          <div class="mb-4">
-            <label for="timezone" class="form-label">Zona Waktu <span class="text-danger">*</span></label>
-            <select class="form-select @error('timezone') is-invalid @enderror"
-              id="timezone" name="timezone" required>
-              @php
-                $currentTimezone = old('timezone', ($settings['timezone'] ?? null)?->value ?? 'Asia/Jakarta');
-                $indonesianTimezones = [
-                  'Asia/Jakarta' => 'Asia/Jakarta (WIB)',
-                  'Asia/Makassar' => 'Asia/Makassar (WITA)',
-                  'Asia/Jayapura' => 'Asia/Jayapura (WIT)',
-                ];
-                $allTimezones = timezone_identifiers_list();
-              @endphp
-              <optgroup label="Zona Waktu Indonesia">
-                @foreach($indonesianTimezones as $val => $label)
-                  <option value="{{ $val }}" {{ $currentTimezone == $val ? 'selected' : '' }}>{{ $label }}</option>
-                @endforeach
-              </optgroup>
-              <optgroup label="Zona Waktu Lainnya">
-                @foreach($allTimezones as $tz)
-                  @if(!in_array($tz, array_keys($indonesianTimezones)))
-                    <option value="{{ $tz }}" {{ $currentTimezone == $tz ? 'selected' : '' }}>{{ $tz }}</option>
-                  @endif
-                @endforeach
-              </optgroup>
-            </select>
-            @error('timezone')
-              <div class="invalid-feedback mt-1">{{ $message }}</div>
-            @enderror
-            <small class="text-body-premium mt-1 d-block" style="font-size: 0.75rem;">
-              <i class="icon-base ti tabler-info-circle me-1"></i>Pilih zona waktu yang akan digunakan untuk pencatatan dan tampilan tanggal/waktu di seluruh sistem.
-            </small>
-          </div>
-
-          <hr class="my-5" style="border-color: rgba(255,255,255,0.08);">
-
+          {{-- ======================== SECTION 4: PENGUNCIAN WILAYAH ======================== --}}
           <h5 class="fw-bold text-white mb-4" style="font-family: 'Sora', sans-serif;">
             <i class="icon-base ti tabler-lock me-2"></i>Penguncian Wilayah
           </h5>
@@ -529,7 +531,7 @@ $configData = Helper::appClasses();
 
           <hr class="my-5" style="border-color: rgba(255,255,255,0.08);">
 
-          {{-- ===== WHATSAPP SUPPORT SECTION ===== --}}
+          {{-- ======================== SECTION 5: WHATSAPP SUPPORT ======================== --}}
           <div x-data="waManager()" x-init="init()" class="mb-4">
             <h5 class="fw-bold text-white mb-4" style="font-family: 'Sora', sans-serif;">
               <i class="icon-base ti tabler-brand-whatsapp me-2"></i>WhatsApp Support
@@ -538,24 +540,27 @@ $configData = Helper::appClasses();
               Kelola nomor WhatsApp yang muncul di floating icon halaman publik.
             </p>
 
-            <button type="button" class="btn btn-glow-premium btn-sm mb-3" @click="openModal()">
-              + Tambah Nomor
+            <button type="button"
+                    class="btn btn-sm mb-3 d-inline-flex align-items-center gap-2"
+                    style="background: linear-gradient(135deg, #6366f1, #d946ef); border: none; color: white; border-radius: 5px; padding: 8px 20px; font-family: 'Sora', sans-serif; font-weight: 600; box-shadow: 0 4px 12px rgba(99,102,241,0.3);"
+                    @click="openModal()">
+              <i class="icon-base ti tabler-plus"></i> Tambah Nomor
             </button>
 
             <div x-show="numbers.length > 0">
-              <table class="table table-sm table-dark" style="--bs-table-bg: transparent;">
+              <table class="table table-borderless text-white align-middle">
                 <thead>
-                  <tr>
-                    <th style="width:40px">#</th>
-                    <th>Label</th>
-                    <th>Nomor</th>
-                    <th>Status</th>
-                    <th style="width:140px">Aksi</th>
+                  <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.08);">
+                    <th class="text-body-premium small fw-semibold" style="width:40px">#</th>
+                    <th class="text-body-premium small fw-semibold">Label</th>
+                    <th class="text-body-premium small fw-semibold">Nomor</th>
+                    <th class="text-body-premium small fw-semibold" style="width:90px">Status</th>
+                    <th class="text-body-premium small fw-semibold text-end" style="width:160px">Aksi</th>
                   </tr>
                 </thead>
                 <tbody>
                   <template x-for="(item, index) in numbers" :key="item.id">
-                    <tr>
+                    <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.04);">
                       <td class="text-muted" x-text="index + 1"></td>
                       <td x-text="item.label"></td>
                       <td>
@@ -567,23 +572,33 @@ $configData = Helper::appClasses();
                         </small>
                       </td>
                       <td>
-                        <button class="btn btn-sm" :class="item.is_active ? 'btn-success' : 'btn-secondary'"
-                                @click="toggleActive(item.id, index)">
+                        <span class="badge-premium" :class="item.is_active ? 'badge-premium-success' : 'badge-premium-warning'"
+                              @click="toggleActive(item.id, index)" style="cursor: pointer;">
                           <span x-text="item.is_active ? 'Aktif' : 'Nonaktif'"></span>
-                        </button>
+                        </span>
                       </td>
                       <td>
-                        <div class="d-flex gap-1">
-                          <button class="btn btn-sm btn-icon btn-outline-secondary"
-                                  @click="moveUp(index)" :disabled="index === 0"
-                                  title="Naik">↑</button>
-                          <button class="btn btn-sm btn-icon btn-outline-secondary"
-                                  @click="moveDown(index)" :disabled="index === numbers.length - 1"
-                                  title="Turun">↓</button>
-                          <button class="btn btn-sm btn-icon btn-outline-primary"
-                                  @click="openModal(item)" title="Edit">✏️</button>
-                          <button class="btn btn-sm btn-icon btn-outline-danger"
-                                  @click="deleteNumber(item.id, index)" title="Hapus">🗑️</button>
+                        <div class="d-flex gap-1 justify-content-end">
+                          <button class="btn btn-sm btn-action d-flex align-items-center justify-content-center"
+                                  style="width: 30px; height: 30px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); color: rgba(255,255,255,0.6); border-radius: 5px;"
+                                  @click="moveUp(index)" :disabled="index === 0" title="Naik">
+                            <i class="icon-base ti tabler-chevron-up fs-6"></i>
+                          </button>
+                          <button class="btn btn-sm btn-action d-flex align-items-center justify-content-center"
+                                  style="width: 30px; height: 30px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); color: rgba(255,255,255,0.6); border-radius: 5px;"
+                                  @click="moveDown(index)" :disabled="index === numbers.length - 1" title="Turun">
+                            <i class="icon-base ti tabler-chevron-down fs-6"></i>
+                          </button>
+                          <button class="btn btn-sm btn-action d-flex align-items-center justify-content-center"
+                                  style="width: 30px; height: 30px; background: rgba(99,102,241,0.12); border: 1px solid rgba(99,102,241,0.25); color: #818cf8; border-radius: 5px;"
+                                  @click="openModal(item)" title="Edit">
+                            <i class="icon-base ti tabler-edit fs-6"></i>
+                          </button>
+                          <button class="btn btn-sm btn-action d-flex align-items-center justify-content-center"
+                                  style="width: 30px; height: 30px; background: rgba(239,68,68,0.12); border: 1px solid rgba(239,68,68,0.25); color: #f87171; border-radius: 5px;"
+                                  @click="deleteNumber(item.id, index)" title="Hapus">
+                            <i class="icon-base ti tabler-trash fs-6"></i>
+                          </button>
                         </div>
                       </td>
                     </tr>
@@ -599,38 +614,65 @@ $configData = Helper::appClasses();
             <input type="hidden" name="wa_order" x-model="orderData">
 
             {{-- Modal --}}
-            <div class="wa-modal" :class="{ 'show': showModal }" x-show="showModal" x-cloak
-                 x-transition @keydown.escape.window="closeModal()">
-              <div class="modal-dialog" @click.outside="closeModal()">
-                <div class="modal-content" style="background: #1a1f2e; color: #f8fafc;">
-                  <div class="modal-header" style="border-bottom-color: rgba(255,255,255,0.08);">
-                    <h5 class="modal-title" x-text="editing ? 'Edit Nomor WhatsApp' : 'Tambah Nomor WhatsApp'"></h5>
-                    <button type="button" class="btn-close btn-close-white" @click="closeModal()"></button>
+            <div class="wa-modal" x-show="showModal" x-cloak
+                 x-transition:enter="transition ease-out duration-300"
+                 x-transition:enter-start="opacity-0 scale-95"
+                 x-transition:enter-end="opacity-100 scale-100"
+                 x-transition:leave="transition ease-in duration-200"
+                 x-transition:leave-start="opacity-100 scale-100"
+                 x-transition:leave-end="opacity-0 scale-95"
+                 @keydown.escape.window="closeModal()">
+              <div class="modal-dialog" style="width: 100%; max-width: 440px; margin: 1rem;" @click.outside="closeModal()">
+                <div class="modal-content wa-modal-content">
+                  <div class="modal-header" style="border-bottom: 1px solid rgba(255,255,255,0.08); padding: 16px 24px;">
+                    <h5 class="modal-title fw-bold" style="font-family: 'Sora', sans-serif; font-size: 1.05rem; color: #ffffff;" x-text="editing ? 'Edit Nomor WhatsApp' : 'Tambah Nomor WhatsApp'"></h5>
+                    <button type="button" class="btn-close btn-close-white" @click="closeModal()" style="opacity: 0.7;"></button>
                   </div>
-                  <div class="modal-body">
-                    <div class="mb-3">
-                      <label class="form-label">Label <span class="text-danger">*</span></label>
+                  <div class="modal-body" style="padding: 16px 24px;">
+                    <div class="mb-4">
+                      <label class="form-label text-body-premium small fw-semibold mb-1" style="font-size: 0.75rem; letter-spacing: 0.03em;">Label <span class="text-danger">*</span></label>
                       <input type="text" class="form-control" x-model="form.label"
-                             maxlength="100" placeholder="Contoh: Pendaftaran">
+                             maxlength="100" placeholder="Contoh: Pendaftaran"
+                             style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.12); color: #ffffff; border-radius: 5px; padding: 10px 14px; font-size: 0.9rem;">
                     </div>
                     <div class="mb-3">
-                      <label class="form-label">Nomor WhatsApp <span class="text-danger">*</span></label>
+                      <label class="form-label text-body-premium small fw-semibold mb-1" style="font-size: 0.75rem; letter-spacing: 0.03em;">Nomor WhatsApp <span class="text-danger">*</span></label>
                       <input type="text" class="form-control" x-model="form.number"
                              maxlength="15" placeholder="6281234567890"
-                             @input="form.number = form.number.replace(/[^0-9]/g, '')">
-                      <small class="text-body-premium" style="font-size:0.75rem;">Format: kode negara + nomor, tanpa + atau spasi. Contoh: 6281234567890</small>
-                      <div class="mt-1" x-show="form.number.length >= 10">
-                        <span class="badge bg-info">
-                          Pratinjau: wa.me/<span x-text="form.number"></span>
+                             @input="form.number = form.number.replace(/[^0-9]/g, '')"
+                             style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.12); color: #ffffff; border-radius: 5px; padding: 10px 14px; font-size: 0.9rem;">
+                      <small class="text-body-premium d-block mt-1" style="font-size: 0.7rem; line-height: 1.4;">
+                        <i class="icon-base ti tabler-info-circle me-1"></i>Format: kode negara + nomor, tanpa + atau spasi. Contoh: 6281234567890
+                      </small>
+                      <div class="mt-2" x-show="form.number.length >= 10">
+                        <span style="background: rgba(99,102,241,0.12); border: 1px solid rgba(99,102,241,0.25); color: #a5b4fc; border-radius: 5px; padding: 4px 10px; font-size: 0.75rem; display: inline-block;">
+                          <i class="icon-base ti tabler-brand-whatsapp me-1"></i>wa.me/<span x-text="form.number"></span>
                         </span>
                       </div>
                     </div>
-                    <div x-show="error" class="alert alert-danger py-2 small" x-text="error" style="background: rgba(248,113,113,0.15); border-color: #f87171; color: #fca5a5;"></div>
+                    <div x-show="error" 
+                         class="d-flex align-items-center gap-2 px-3 py-2 small" 
+                         style="background: rgba(239,68,68,0.12); border: 1px solid rgba(239,68,68,0.25); color: #fca5a5; border-radius: 5px; font-size: 0.8rem;"
+                         x-text="error">
+                    </div>
                   </div>
-                  <div class="modal-footer" style="border-top-color: rgba(255,255,255,0.08);">
-                    <button type="button" class="btn btn-secondary-custom" @click="closeModal()">Batal</button>
-                    <button type="button" class="btn btn-glow-premium" @click="saveNumber()"
-                            x-text="editing ? 'Update' : 'Simpan'" :disabled="saving">
+                  <div class="modal-footer" style="border-top: 1px solid rgba(255,255,255,0.08); padding: 12px 24px; display: flex; justify-content: flex-end; gap: 8px;">
+                    <button type="button" 
+                            style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.15); color: #ffffff; border-radius: 5px; padding: 8px 20px; font-family: 'Sora', sans-serif; font-weight: 600; font-size: 0.85rem; transition: all 0.3s ease;"
+                            @click="closeModal()"
+                            onmouseover="this.style.background='rgba(255,255,255,0.1)'"
+                            onmouseout="this.style.background='rgba(255,255,255,0.05)'">
+                      Batal
+                    </button>
+                    <button type="button"
+                            style="background: linear-gradient(135deg, #6366f1, #d946ef); border: none; color: #ffffff; border-radius: 5px; padding: 8px 24px; font-family: 'Sora', sans-serif; font-weight: 600; font-size: 0.85rem; box-shadow: 0 4px 12px rgba(99,102,241,0.3); transition: all 0.3s ease;"
+                            @click="saveNumber()" :disabled="saving"
+                            onmouseover="this.style.transform='translateY(-1px)'; this.style.boxShadow='0 6px 20px rgba(99,102,241,0.4)'"
+                            onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(99,102,241,0.3)'">
+                      <span x-show="!saving" x-text="editing ? 'Update' : 'Simpan'"></span>
+                      <span x-show="saving" style="display: inline-flex; align-items: center; gap: 4px;">
+                        <span class="spinner-border spinner-border-sm" style="width: 14px; height: 14px;"></span> Menyimpan...
+                      </span>
                     </button>
                   </div>
                 </div>
@@ -655,11 +697,16 @@ $configData = Helper::appClasses();
 
 @section('page-script')
 <style>
-  .btn-icon {
-    padding: 0.25rem 0.5rem;
-    line-height: 1;
-  }
   [x-cloak] { display: none !important; }
+  .wa-modal-content {
+    background: rgba(15, 23, 42, 0.95);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 5px;
+    box-shadow: 0 25px 80px rgba(0, 0, 0, 0.5), 0 0 40px rgba(99, 102, 241, 0.1);
+    width: 100%;
+  }
   .wa-modal {
     position: fixed;
     top: 0;
@@ -667,13 +714,12 @@ $configData = Helper::appClasses();
     width: 100%;
     height: 100%;
     z-index: 1055;
-    display: none;
+    display: flex;
     align-items: center;
     justify-content: center;
-    background: rgba(0, 0, 0, 0.5);
-  }
-  .wa-modal.show {
-    display: flex;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
   }
 </style>
 <script>
@@ -768,7 +814,17 @@ $configData = Helper::appClasses();
       },
 
       async deleteNumber(id, index) {
-        if (!confirm('Hapus nomor ini?')) return;
+        const result = await Swal.fire({
+          title: 'Hapus Nomor WhatsApp?',
+          text: `Nomor "${this.numbers[index].label}" akan dihapus permanen.`,
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonText: 'Ya, Hapus!',
+          cancelButtonText: 'Batal',
+          confirmButtonColor: '#ef4444',
+          cancelButtonColor: '#6b7280',
+        });
+        if (!result.isConfirmed) return;
         try {
           const response = await fetch(`/admin/whatsapp-numbers/${id}`, {
             method: 'DELETE',
@@ -782,7 +838,7 @@ $configData = Helper::appClasses();
             this.updateOrderData();
           }
         } catch (e) {
-          alert('Gagal menghapus');
+          Swal.fire({ icon: 'error', title: 'Gagal', text: 'Gagal menghapus nomor', confirmButtonColor: '#6366f1' });
         }
       },
 
@@ -800,7 +856,7 @@ $configData = Helper::appClasses();
             this.numbers[index].is_active = data.is_active;
           }
         } catch (e) {
-          alert('Gagal mengubah status');
+          Swal.fire({ icon: 'error', title: 'Gagal', text: 'Gagal mengubah status', confirmButtonColor: '#6366f1' });
         }
       },
 

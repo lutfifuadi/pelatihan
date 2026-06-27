@@ -133,13 +133,13 @@ $configData = Helper::appClasses();
           Status Pendaftaran
         </h5>
 
-        @if($enrollment && $enrollment->status === 'approved')
+        @if($enrollment && $enrollment->status?->value === 'approved')
           <div class="d-inline-flex align-items-center gap-2 badge-status approved mb-3">
             <i class="icon-base ti tabler-check-circle"></i>
             Disetujui Otomatis
           </div>
           <p class="text-white-50 small">Selamat! Pendaftaran Anda langsung disetujui. Anda dapat melihat detail pelatihan di dashboard.</p>
-        @elseif($enrollment && $enrollment->status === 'waitlist')
+        @elseif($enrollment && $enrollment->status?->value === 'waitlist')
           <div class="d-inline-flex align-items-center gap-2 badge-status waitlist mb-3">
             <i class="icon-base ti tabler-clock"></i>
             Cadangan (Waitlist)
@@ -165,12 +165,12 @@ $configData = Helper::appClasses();
             <span class="text-white small">Data dikirim & terverifikasi sistem</span>
           </li>
           <li class="d-flex align-items-center gap-3 mb-3">
-            @if($enrollment && $enrollment->status === 'approved')
+            @if($enrollment && $enrollment->status?->value === 'approved')
               <div class="d-flex align-items-center justify-content-center" style="width: 28px; height: 28px; border-radius: 50%; background: rgba(16,185,129,0.15); color: #10b981; flex-shrink: 0;">
                 <i class="icon-base ti tabler-check" style="font-size: 14px;"></i>
               </div>
               <span class="text-white small">Disetujui</span>
-            @elseif($enrollment && $enrollment->status === 'rejected')
+            @elseif($enrollment && $enrollment->status?->value === 'rejected')
               <div class="d-flex align-items-center justify-content-center" style="width: 28px; height: 28px; border-radius: 50%; background: rgba(248,113,113,0.15); color: #f87171; flex-shrink: 0;">
                 <i class="icon-base ti tabler-x" style="font-size: 14px;"></i>
               </div>

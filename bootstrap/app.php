@@ -1,39 +1,47 @@
 <?php
 
+use App\Http\Middleware\CanImpersonate;
+use App\Http\Middleware\CheckMaintenanceMode;
+use App\Http\Middleware\CheckUserActive;
+use App\Http\Middleware\LocaleMiddleware;
+use App\Http\Middleware\RedirectIfInstalled;
+use App\Http\Middleware\RoleMiddleware;
+use App\Http\Middleware\TimezoneMiddleware;
+use Illuminate\Encryption\MissingAppKeyException;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
-use App\Http\Middleware\LocaleMiddleware;
+use Illuminate\Http\Request;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
         channels: __DIR__.'/../routes/channels.php',
-        web: __DIR__ . '/../routes/web.php',
-        commands: __DIR__ . '/../routes/console.php',
+        web: __DIR__.'/../routes/web.php',
+        api: __DIR__.'/../routes/api.php',
+        commands: __DIR__.'/../routes/console.php',
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->web(LocaleMiddleware::class);
-        $middleware->web(\App\Http\Middleware\TimezoneMiddleware::class);
+        $middleware->web(TimezoneMiddleware::class);
 
         $middleware->alias([
-            'role'              => \App\Http\Middleware\RoleMiddleware::class,
-            'user.active'       => \App\Http\Middleware\CheckUserActive::class,
-            'redirect.if.installed' => \App\Http\Middleware\RedirectIfInstalled::class,
-            'can.impersonate'   => \App\Http\Middleware\CanImpersonate::class,
+            'role' => RoleMiddleware::class,
+            'user.active' => CheckUserActive::class,
+            'redirect.if.installed' => RedirectIfInstalled::class,
+            'can.impersonate' => CanImpersonate::class,
         ]);
 
         // Middleware untuk cek user aktif, dijalankan setelah session & auth
-        $middleware->web(\App\Http\Middleware\CheckUserActive::class);
-        $middleware->web(\App\Http\Middleware\CheckMaintenanceMode::class);
-
+        $middleware->web(CheckUserActive::class);
+        $middleware->web(CheckMaintenanceMode::class);
 
     })
     ->withExceptions(function (Exceptions $exceptions) {
         // Jika APP_KEY belum di-set, redirect ke installer
-        $exceptions->render(function (\Illuminate\Encryption\MissingAppKeyException $e, \Illuminate\Http\Request $request) {
+        $exceptions->render(function (MissingAppKeyException $e, Request $request) {
             $installed = file_exists(storage_path('installed'));
-            if (!$installed) {
+            if (! $installed) {
                 return redirect('/install');
             }
             throw $e;

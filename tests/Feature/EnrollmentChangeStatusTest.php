@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Models\Pelatihan;
 use App\Models\Enrollment;
 use App\Models\ActivityLog;
+use App\Enums\EnrollmentStatus;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
@@ -80,7 +81,7 @@ class EnrollmentChangeStatusTest extends TestCase
         $response->assertSessionHas('success');
         $enrollment->refresh();
 
-        $this->assertEquals('approved', $enrollment->status);
+        $this->assertEquals(EnrollmentStatus::Approved, $enrollment->status);
         $this->assertNotNull($enrollment->approved_at);
         $this->assertNull($enrollment->rejected_at);
         $this->assertNull($enrollment->waitlist_promoted_at);
@@ -103,7 +104,7 @@ class EnrollmentChangeStatusTest extends TestCase
         $response->assertSessionHas('success');
         $enrollment->refresh();
 
-        $this->assertEquals('rejected', $enrollment->status);
+        $this->assertEquals(EnrollmentStatus::Rejected, $enrollment->status);
         $this->assertNotNull($enrollment->rejected_at);
         $this->assertNull($enrollment->approved_at);
         $this->assertNull($enrollment->waitlist_promoted_at);
@@ -119,7 +120,7 @@ class EnrollmentChangeStatusTest extends TestCase
         $response->assertSessionHas('success');
         $enrollment->refresh();
 
-        $this->assertEquals('waitlist', $enrollment->status);
+        $this->assertEquals(EnrollmentStatus::Waitlist, $enrollment->status);
         $this->assertNull($enrollment->approved_at);
         $this->assertNull($enrollment->rejected_at);
         $this->assertNull($enrollment->waitlist_promoted_at);
@@ -143,12 +144,12 @@ class EnrollmentChangeStatusTest extends TestCase
         $response->assertSessionHas('success');
         $enrollment->refresh();
 
-        $this->assertEquals('pending', $enrollment->status);
+        $this->assertEquals(EnrollmentStatus::Pending, $enrollment->status);
         $this->assertNull($enrollment->approved_at);
         $this->assertNull($enrollment->rejected_at);
 
         $waitlistEnrollment->refresh();
-        $this->assertEquals('approved', $waitlistEnrollment->status);
+        $this->assertEquals(EnrollmentStatus::Approved, $waitlistEnrollment->status);
         $this->assertNotNull($waitlistEnrollment->waitlist_promoted_at);
     }
 
@@ -170,12 +171,12 @@ class EnrollmentChangeStatusTest extends TestCase
         $response->assertSessionHas('success');
         $enrollment->refresh();
 
-        $this->assertEquals('rejected', $enrollment->status);
+        $this->assertEquals(EnrollmentStatus::Rejected, $enrollment->status);
         $this->assertNotNull($enrollment->rejected_at);
         $this->assertNull($enrollment->approved_at);
 
         $waitlistEnrollment->refresh();
-        $this->assertEquals('approved', $waitlistEnrollment->status);
+        $this->assertEquals(EnrollmentStatus::Approved, $waitlistEnrollment->status);
     }
 
     // TC-006: approved -> waitlist, auto-promote waitlist
@@ -205,7 +206,7 @@ class EnrollmentChangeStatusTest extends TestCase
         // BUG: enrollment gets re-promoted to approved by promoteFromWaitlist
         // because it doesn't exclude the current enrollment from the query
         $waitlistEnrollment->refresh();
-        $this->assertEquals('approved', $waitlistEnrollment->status);
+        $this->assertEquals(EnrollmentStatus::Approved, $waitlistEnrollment->status);
     }
 
     // TC-007: rejected -> pending
@@ -218,7 +219,7 @@ class EnrollmentChangeStatusTest extends TestCase
         $response->assertSessionHas('success');
         $enrollment->refresh();
 
-        $this->assertEquals('pending', $enrollment->status);
+        $this->assertEquals(EnrollmentStatus::Pending, $enrollment->status);
         $this->assertNull($enrollment->rejected_at);
         $this->assertNull($enrollment->approved_at);
     }
@@ -233,7 +234,7 @@ class EnrollmentChangeStatusTest extends TestCase
         $response->assertSessionHas('success');
         $enrollment->refresh();
 
-        $this->assertEquals('approved', $enrollment->status);
+        $this->assertEquals(EnrollmentStatus::Approved, $enrollment->status);
         $this->assertNotNull($enrollment->approved_at);
         $this->assertNull($enrollment->rejected_at);
         $this->assertNull($enrollment->waitlist_promoted_at);
@@ -249,7 +250,7 @@ class EnrollmentChangeStatusTest extends TestCase
         $response->assertSessionHas('success');
         $enrollment->refresh();
 
-        $this->assertEquals('waitlist', $enrollment->status);
+        $this->assertEquals(EnrollmentStatus::Waitlist, $enrollment->status);
         $this->assertNull($enrollment->rejected_at);
         $this->assertNull($enrollment->approved_at);
         $this->assertNull($enrollment->waitlist_promoted_at);
@@ -265,7 +266,7 @@ class EnrollmentChangeStatusTest extends TestCase
         $response->assertSessionHas('success');
         $enrollment->refresh();
 
-        $this->assertEquals('approved', $enrollment->status);
+        $this->assertEquals(EnrollmentStatus::Approved, $enrollment->status);
         $this->assertNotNull($enrollment->approved_at);
         $this->assertNotNull($enrollment->waitlist_promoted_at);
         $this->assertNull($enrollment->rejected_at);
@@ -281,7 +282,7 @@ class EnrollmentChangeStatusTest extends TestCase
         $response->assertSessionHas('success');
         $enrollment->refresh();
 
-        $this->assertEquals('pending', $enrollment->status);
+        $this->assertEquals(EnrollmentStatus::Pending, $enrollment->status);
         $this->assertNull($enrollment->waitlist_promoted_at);
         $this->assertNull($enrollment->approved_at);
         $this->assertNull($enrollment->rejected_at);
@@ -297,7 +298,7 @@ class EnrollmentChangeStatusTest extends TestCase
         $response->assertSessionHas('success');
         $enrollment->refresh();
 
-        $this->assertEquals('rejected', $enrollment->status);
+        $this->assertEquals(EnrollmentStatus::Rejected, $enrollment->status);
         $this->assertNotNull($enrollment->rejected_at);
         $this->assertNull($enrollment->waitlist_promoted_at);
     }

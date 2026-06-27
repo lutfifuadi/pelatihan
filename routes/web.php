@@ -1,10 +1,9 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\SeoController;
-use App\Http\Controllers\language\LanguageController;
-
 use App\Http\Controllers\InstallerController;
+use App\Http\Controllers\language\LanguageController;
+use App\Http\Controllers\SeoController;
+use Illuminate\Support\Facades\Route;
 
 // ===== WEB INSTALLER ROUTES =====
 Route::prefix('install')->name('installer.')->middleware('redirect.if.installed')->group(function () {
@@ -20,43 +19,50 @@ Route::prefix('install')->name('installer.')->middleware('redirect.if.installed'
 // ===== SEO ROUTES =====
 Route::get('/sitemap.xml', [SeoController::class, 'sitemap'])->name('sitemap');
 Route::get('/robots.txt', [SeoController::class, 'robots'])->name('robots');
-use App\Http\Controllers\pages\HomePage;
-use App\Http\Controllers\pages\Page2;
-use App\Http\Controllers\pages\MiscError;
-use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\Landing\RegistrationController;
-use App\Http\Controllers\Admin\KecamatanController;
-use App\Http\Controllers\Admin\KoordinatorController;
-use App\Http\Controllers\Admin\PelatihanController;
-use App\Http\Controllers\Admin\DinasController;
-use App\Http\Controllers\Admin\KelurahanController;
-use App\Http\Controllers\Admin\PesertaController;
-use App\Http\Controllers\Admin\WhatsAppGatewayController;
-use App\Http\Controllers\Admin\SettingController;
-use App\Http\Controllers\Admin\FaqController;
-use App\Http\Controllers\Admin\WhatsAppSupportController;
-use App\Http\Controllers\Admin\NotificationAdminController;
-use App\Http\Controllers\Admin\EnrollmentController;
-use App\Http\Controllers\Admin\AttendanceController;
-use App\Http\Controllers\Admin\CertificateController;
-use App\Http\Controllers\Admin\ExportController;
-use App\Http\Controllers\Admin\ScheduleController;
 use App\Http\Controllers\Admin\ActivityLogController;
-use App\Http\Controllers\Admin\SystemLogController;
-use App\Http\Controllers\Admin\CacheController;
-use App\Http\Controllers\Admin\FormOptionController;
-use App\Http\Controllers\Admin\FormFieldConfigController;
-use App\Http\Controllers\Admin\UserController;
-use App\Http\Controllers\KoordinatorRegisterController;
-use App\Http\Controllers\Peserta\PesertaFormController;
+use App\Http\Controllers\Admin\AttendanceController;
 use App\Http\Controllers\Admin\Auth\AdminLoginController;
+use App\Http\Controllers\Admin\CacheController;
+use App\Http\Controllers\Admin\CertificateController;
+use App\Http\Controllers\Admin\DinasController;
+use App\Http\Controllers\Admin\EnrollmentController;
+use App\Http\Controllers\Admin\ExportController;
+use App\Http\Controllers\Admin\FaqController;
+use App\Http\Controllers\Admin\FormFieldConfigController;
+use App\Http\Controllers\Admin\FormOptionController;
+use App\Http\Controllers\Admin\ImpersonateController;
+use App\Http\Controllers\Admin\KecamatanController;
+use App\Http\Controllers\Admin\KelurahanController;
+use App\Http\Controllers\Admin\KoordinatorController;
+use App\Http\Controllers\Admin\NotificationAdminController;
+use App\Http\Controllers\Admin\PelatihanController;
+use App\Http\Controllers\Admin\PesertaController;
+use App\Http\Controllers\Admin\PushNotificationController;
+use App\Http\Controllers\Admin\ScheduleController;
+use App\Http\Controllers\Admin\SettingController;
+use App\Http\Controllers\Admin\SystemLogController;
+use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\WhatsAppGatewayController;
+use App\Http\Controllers\Admin\WhatsAppSupportController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\GoogleAuthController;
+use App\Http\Controllers\KoordinatorRegisterController;
+use App\Http\Controllers\KtaMemberController;
+use App\Http\Controllers\Landing\RegistrationController;
+use App\Http\Controllers\MaintenanceController;
+use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\pages\HomePage;
+use App\Http\Controllers\pages\MiscError;
+use App\Http\Controllers\pages\Page2;
+use App\Http\Controllers\Peserta\PesertaFormController;
+use App\Models\Kelurahan;
+use App\Models\User;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 // Main Page Route
 Route::get('/', [HomePage::class, 'index'])->name('pages-home');
 Route::get('/page-2', [Page2::class, 'index'])->name('pages-page-2');
-
 
 // locale
 Route::get('/lang/{locale}', [LanguageController::class, 'swap']);
@@ -68,10 +74,10 @@ Route::post('/daftar-koordinator', [KoordinatorRegisterController::class, 'regis
 Route::get('/daftar-koordinator/sukses', [KoordinatorRegisterController::class, 'sukses'])->name('koordinator.register.sukses');
 
 // ===== PUBLIC: Semua Pelatihan =====
-Route::get('/pelatihan', [\App\Http\Controllers\PelatihanController::class, 'index'])->name('pelatihan.index');
+Route::get('/pelatihan', [App\Http\Controllers\PelatihanController::class, 'index'])->name('pelatihan.index');
 
 // ===== PUBLIC: Detail Pelatihan (untuk SEO & Sitemap) =====
-Route::get('/pelatihan/{pelatihan}', [\App\Http\Controllers\PelatihanController::class, 'show'])
+Route::get('/pelatihan/{pelatihan}', [App\Http\Controllers\PelatihanController::class, 'show'])
     ->name('pelatihan.show');
 
 // ===== Landing Page Registration =====
@@ -84,12 +90,14 @@ Route::post('/daftar/cek-wa', [RegistrationController::class, 'checkWa'])->name(
 Route::get('/daftar/sukses', [RegistrationController::class, 'sukses'])->name('landing.sukses')->middleware('auth');
 
 // ===== MAINTENANCE PAGE (public) =====
-Route::get('/maintenance', [\App\Http\Controllers\MaintenanceController::class, 'index'])->name('maintenance');
+Route::get('/maintenance', [MaintenanceController::class, 'index'])->name('maintenance');
 
 // Home route - Jetstream redirects here after login/register
 Route::get('/home', function () {
     $user = Auth::user();
-    if (!$user) return redirect('/login');
+    if (! $user) {
+        return redirect('/login');
+    }
 
     // Jika baru registrasi, arahkan ke halaman sukses
     if (session()->pull('new_registration', false)) {
@@ -105,31 +113,32 @@ Route::get('/home', function () {
 })->name('home');
 
 // ===== API Routes untuk dependent dropdown =====
-Route::get('/api/kelurahan', function (Illuminate\Http\Request $request) {
+Route::get('/api/kelurahan', function (Request $request) {
     $kecamatanId = $request->get('kecamatan_id');
-    if (!$kecamatanId) {
+    if (! $kecamatanId) {
         return response()->json([]);
     }
-    $kelurahans = App\Models\Kelurahan::where('kecamatan_id', $kecamatanId)
+    $kelurahans = Kelurahan::where('kecamatan_id', $kecamatanId)
         ->where('is_active', true)
         ->orderBy('name')
         ->get(['id', 'name', 'kodepos']);
+
     return response()->json($kelurahans);
 })->name('api.kelurahan');
 
 // Public API: Daftar Koordinator untuk autocomplete registrasi
-Route::get('/api/koordinator', function (Illuminate\Http\Request $request) {
+Route::get('/api/koordinator', function (Request $request) {
     $query = $request->get('q');
-    $koordinator = App\Models\User::where('role', 'koordinator')
+    $koordinator = User::where('role', 'koordinator')
         ->where('is_active', true);
-    
+
     if ($query && strlen($query) >= 3) {
         $koordinator->where(function ($q) use ($query) {
-            $q->where('name', 'like', '%' . $query . '%')
-              ->orWhere('nik', 'like', '%' . $query . '%');
+            $q->where('name', 'like', '%'.$query.'%')
+                ->orWhere('nik', 'like', '%'.$query.'%');
         });
     }
-    
+
     return response()->json(
         $koordinator->orderBy('name')
             ->limit(20)
@@ -140,7 +149,7 @@ Route::get('/api/koordinator', function (Illuminate\Http\Request $request) {
 // ===== DASHBOARD (Protected - via Jetstream Fortify) =====
 Route::middleware(['auth:sanctum', 'verified'])->group(function () {
     // Impersonate Leave
-    Route::post('/impersonate/leave', [\App\Http\Controllers\Admin\ImpersonateController::class, 'leave'])
+    Route::post('/impersonate/leave', [ImpersonateController::class, 'leave'])
         ->name('impersonate.leave');
 
     // Admin only
@@ -199,7 +208,7 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
             Route::get('/profil', [PesertaFormController::class, 'profil'])->name('profil');
 
             // Halaman Notifikasi Peserta
-            Route::get('/notifikasi', [\App\Http\Controllers\NotificationController::class, 'index'])->name('notifikasi');
+            Route::get('/notifikasi', [NotificationController::class, 'index'])->name('notifikasi');
 
             // Halaman Upload Foto
             Route::get('/upload-foto', function () {
@@ -209,17 +218,17 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
     });
 
     // ===== NOTIFIKASI ROUTES =====
-    Route::get('/notifications/unread', [App\Http\Controllers\NotificationController::class, 'unread'])->name('notifications.unread');
-    Route::post('/notifications/{notification}/read', [App\Http\Controllers\NotificationController::class, 'markAsRead'])->name('notifications.read');
-    Route::post('/notifications/read-all', [App\Http\Controllers\NotificationController::class, 'markAllAsRead'])->name('notifications.read-all');
-    Route::get('/notifications', [App\Http\Controllers\NotificationController::class, 'index'])->name('notifications.index');
-    Route::get('/notifications/preferences', [App\Http\Controllers\NotificationController::class, 'preferences'])->name('notifications.preferences');
-    Route::post('/notifications/preferences', [App\Http\Controllers\NotificationController::class, 'updatePreferences'])->name('notifications.preferences.update');
+    Route::get('/notifications/unread', [NotificationController::class, 'unread'])->name('notifications.unread');
+    Route::post('/notifications/{notification}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
+    Route::post('/notifications/read-all', [NotificationController::class, 'markAllAsRead'])->name('notifications.read-all');
+    Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
+    Route::get('/notifications/preferences', [NotificationController::class, 'preferences'])->name('notifications.preferences');
+    Route::post('/notifications/preferences', [NotificationController::class, 'updatePreferences'])->name('notifications.preferences.update');
 
     // ===== ADMIN MANAGEMENT (Admin only) =====
     Route::middleware(['role:admin'])->prefix('admin')->name('admin.')->group(function () {
         // Impersonate Take
-        Route::post('users/{user}/impersonate', [\App\Http\Controllers\Admin\ImpersonateController::class, 'take'])
+        Route::post('users/{user}/impersonate', [ImpersonateController::class, 'take'])
             ->middleware('can.impersonate')
             ->name('users.impersonate');
 
@@ -231,7 +240,7 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
         Route::delete('users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
 
         // KTA Members Management
-        Route::resource('kta-members', \App\Http\Controllers\KtaMemberController::class);
+        Route::resource('kta-members', KtaMemberController::class);
 
         // Kecamatan
         Route::resource('kecamatan', KecamatanController::class);
@@ -402,7 +411,13 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
         Route::post('whatsapp-numbers/reorder', [WhatsAppSupportController::class, 'reorder'])->name('whatsapp-numbers.reorder');
         Route::post('whatsapp-numbers/{id}/toggle-active', [WhatsAppSupportController::class, 'toggleActive'])->name('whatsapp-numbers.toggle-active');
 
-        // ===== CLEAR CACHE =====
+        // ===== PUSH NOTIFICATIONS =====
+        Route::get('push-notifications/estimate-count', [PushNotificationController::class, 'estimateCount'])
+            ->name('push-notifications.estimate-count');
+        Route::resource('push-notifications', PushNotificationController::class);
+        Route::post('push-notifications/{notification}/send', [PushNotificationController::class, 'send'])
+            ->name('push-notifications.send');
+// ===== CLEAR CACHE =====
         Route::get('cache', [CacheController::class, 'index'])->name('cache.index');
         Route::post('cache/clear', [CacheController::class, 'clear'])->name('cache.clear');
     });
@@ -437,7 +452,7 @@ Route::get('/offline', function () {
 })->name('offline');
 
 // ===== PUBLIC: Verifikasi Sertifikat =====
-Route::get('/verifikasi-sertifikat', [\App\Http\Controllers\Admin\CertificateController::class, 'verify'])->name('certificates.verify');
+Route::get('/verifikasi-sertifikat', [CertificateController::class, 'verify'])->name('certificates.verify');
 
 // ===== FOTO CAPTURE TEST (Livewire Component) =====
 Route::get('/coba-foto-capture', function () {

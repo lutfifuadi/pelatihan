@@ -258,6 +258,24 @@ $configData = Helper::appClasses();
     color: rgba(255, 255, 255, 0.5);
   }
 
+  /* Custom Switch Styling — konsisten dengan halaman users */
+  .form-switch .form-check-input {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+    border-color: rgba(255, 255, 255, 0.2) !important;
+    height: 1.5em;
+    width: 2.75em;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3e%3cpath fill='none' stroke='rgba%28255, 255, 255, 0.6%29' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M8 5l5 5-5 5'/%3e%3c/svg%3e") !important;
+    transition: background-position 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out !important;
+  }
+  .form-switch .form-check-input:checked {
+    background-color: #6366f1 !important;
+    border-color: #6366f1 !important;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3e%3cpath fill='%23fff' d='M13.293 6.293a1 1 0 011.414 0l.001.001a1 1 0 010 1.414l-7 7a1 1 0 01-1.414 0l-3-3a1 1 0 011.414-1.414L7 12.586l6.293-6.293z'/%3e%3c/svg%3e") !important;
+  }
+  .form-switch .form-check-input:focus {
+    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.25) !important;
+  }
+
   .warning-badge-maintenance {
     display: inline-flex;
     align-items: center;
@@ -318,7 +336,6 @@ $configData = Helper::appClasses();
     </div>
     @endif
 
-    <div class="col-12">
       <div class="glass-card-premium px-4 px-xl-5 py-5">
         <form action="{{ route('admin.settings.maintenance.update') }}" method="POST">
           @csrf
@@ -326,10 +343,9 @@ $configData = Helper::appClasses();
           <div class="maintenance-toggle-wrapper mb-4">
             <div class="form-check form-switch mb-0" style="padding-left: 3.5em;">
               <input type="hidden" name="maintenance_mode" value="0">
-              <input class="form-check-input" type="checkbox" role="switch"
+              <input class="form-check-input maintenance-toggle" type="checkbox" role="switch"
                 id="maintenance_mode" name="maintenance_mode" value="1"
-                {{ $maintenanceActive ? 'checked' : '' }}
-                style="width: 3em; height: 1.5em; cursor: pointer; background-color: {{ $maintenanceActive ? '#f59e0b' : 'rgba(255,255,255,0.15)' }}; border-color: {{ $maintenanceActive ? '#f59e0b' : 'rgba(255,255,255,0.2)' }};">
+                {{ $maintenanceActive ? 'checked' : '' }}>
             </div>
             <div>
               <div class="toggle-label">
@@ -387,7 +403,7 @@ $configData = Helper::appClasses();
           </div>
 
           <div class="d-flex justify-content-between align-items-center gap-3 mt-5">
-            <a href="{{ route('admin.settings.branding') }}" class="btn btn-secondary-custom px-4 py-2 d-flex align-items-center gap-2">
+            <a href="{{ route('admin.dashboard') }}" class="btn btn-secondary-custom px-4 py-2 d-flex align-items-center gap-2">
               <i class="icon-base ti tabler-arrow-left"></i> Kembali
             </a>
             <button type="submit" class="btn btn-glow-premium px-4 py-2 d-flex align-items-center gap-2">
@@ -396,7 +412,6 @@ $configData = Helper::appClasses();
           </div>
         </form>
       </div>
-    </div>
 
   </div>
 @endsection

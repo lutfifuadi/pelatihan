@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\Enrollment;
 use App\Models\Pelatihan;
 use App\Models\User;
+use App\Enums\EnrollmentStatus;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
@@ -93,7 +94,7 @@ class EnrollmentKuotaBlokadeTest extends TestCase
         $response->assertSessionHas('error', 'Gagal meng-approve. Kuota pelatihan "Pelatihan Terbatas" sudah penuh.');
 
         $enrollment->refresh();
-        $this->assertEquals('pending', $enrollment->status);
+        $this->assertEquals(EnrollmentStatus::Pending, $enrollment->status);
     }
 
     public function test_approve_berjalan_normal_ketika_kuota_tersedia(): void
@@ -106,7 +107,7 @@ class EnrollmentKuotaBlokadeTest extends TestCase
         $response->assertSessionHas('success');
 
         $enrollment->refresh();
-        $this->assertEquals('approved', $enrollment->status);
+        $this->assertEquals(EnrollmentStatus::Approved, $enrollment->status);
         $this->assertNotNull($enrollment->approved_at);
     }
 
@@ -120,7 +121,7 @@ class EnrollmentKuotaBlokadeTest extends TestCase
         $response->assertSessionHas('success');
 
         $enrollment->refresh();
-        $this->assertEquals('approved', $enrollment->status);
+        $this->assertEquals(EnrollmentStatus::Approved, $enrollment->status);
     }
 
     // ===================== AC-002: Approve massal =====================
@@ -144,9 +145,9 @@ class EnrollmentKuotaBlokadeTest extends TestCase
                 && str_contains($message, '1 pendaftaran tidak bisa di-approve karena kuota penuh.');
         });
 
-        $this->assertEquals('approved', $e1->fresh()->status);
-        $this->assertEquals('approved', $e2->fresh()->status);
-        $this->assertEquals('pending', $e3->fresh()->status);
+        $this->assertEquals(EnrollmentStatus::Approved, $e1->fresh()->status);
+        $this->assertEquals(EnrollmentStatus::Approved, $e2->fresh()->status);
+        $this->assertEquals(EnrollmentStatus::Pending, $e3->fresh()->status);
     }
 
     public function test_approve_all_kembalikan_error_ketika_kuota_sudah_penuh(): void
@@ -176,9 +177,9 @@ class EnrollmentKuotaBlokadeTest extends TestCase
 
         $response->assertSessionHas('success');
 
-        $this->assertEquals('approved', $e1->fresh()->status);
-        $this->assertEquals('approved', $e2->fresh()->status);
-        $this->assertEquals('approved', $e3->fresh()->status);
+        $this->assertEquals(EnrollmentStatus::Approved, $e1->fresh()->status);
+        $this->assertEquals(EnrollmentStatus::Approved, $e2->fresh()->status);
+        $this->assertEquals(EnrollmentStatus::Approved, $e3->fresh()->status);
     }
 
     // ===================== AC-003: Change status ke approved diblokade =====================
@@ -199,7 +200,7 @@ class EnrollmentKuotaBlokadeTest extends TestCase
         $response->assertSessionHas('error', 'Tidak dapat mengubah status ke approved. Kuota pelatihan "Pelatihan Terbatas" sudah penuh.');
 
         $enrollment->refresh();
-        $this->assertEquals('pending', $enrollment->status);
+        $this->assertEquals(EnrollmentStatus::Pending, $enrollment->status);
     }
 
     public function test_change_status_to_approved_berjalan_normal_ketika_kuota_tersedia(): void
@@ -215,7 +216,7 @@ class EnrollmentKuotaBlokadeTest extends TestCase
         $response->assertSessionHas('success');
 
         $enrollment->refresh();
-        $this->assertEquals('approved', $enrollment->status);
+        $this->assertEquals(EnrollmentStatus::Approved, $enrollment->status);
         $this->assertNotNull($enrollment->approved_at);
     }
 
@@ -232,7 +233,7 @@ class EnrollmentKuotaBlokadeTest extends TestCase
         $response->assertSessionHas('success');
 
         $enrollment->refresh();
-        $this->assertEquals('approved', $enrollment->status);
+        $this->assertEquals(EnrollmentStatus::Approved, $enrollment->status);
     }
 
     // ===================== AC-004: Promote waitlist diblokade =====================
@@ -250,7 +251,7 @@ class EnrollmentKuotaBlokadeTest extends TestCase
         $response->assertSessionHas('error', 'Tidak dapat mempromosikan peserta. Kuota pelatihan "Pelatihan Terbatas" sudah penuh.');
 
         $enrollment->refresh();
-        $this->assertEquals('waitlist', $enrollment->status);
+        $this->assertEquals(EnrollmentStatus::Waitlist, $enrollment->status);
     }
 
     public function test_promote_berjalan_normal_ketika_kuota_tersedia(): void
@@ -263,7 +264,7 @@ class EnrollmentKuotaBlokadeTest extends TestCase
         $response->assertSessionHas('success');
 
         $enrollment->refresh();
-        $this->assertEquals('approved', $enrollment->status);
+        $this->assertEquals(EnrollmentStatus::Approved, $enrollment->status);
         $this->assertNotNull($enrollment->approved_at);
         $this->assertNotNull($enrollment->waitlist_promoted_at);
     }
@@ -278,7 +279,7 @@ class EnrollmentKuotaBlokadeTest extends TestCase
         $response->assertSessionHas('success');
 
         $enrollment->refresh();
-        $this->assertEquals('approved', $enrollment->status);
+        $this->assertEquals(EnrollmentStatus::Approved, $enrollment->status);
     }
 
     // ===================== AC-006: Kuota null tidak diblokade =====================
@@ -299,7 +300,7 @@ class EnrollmentKuotaBlokadeTest extends TestCase
         $resp2 = $this->post(route('admin.enrollments.promote', $e2));
         $resp2->assertSessionHas('success');
 
-        $this->assertEquals('approved', $e1->fresh()->status);
-        $this->assertEquals('approved', $e2->fresh()->status);
+        $this->assertEquals(EnrollmentStatus::Approved, $e1->fresh()->status);
+        $this->assertEquals(EnrollmentStatus::Approved, $e2->fresh()->status);
     }
 }

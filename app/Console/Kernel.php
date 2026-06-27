@@ -22,6 +22,10 @@ class Kernel extends ConsoleKernel
         $schedule->command('notifications:cleanup 30 --force')
             ->dailyAt('02:00')
             ->appendOutputTo(storage_path('logs/notification-cleanup.log'));
+
+        $schedule->command('push:cleanup-expired')
+            ->daily()
+            ->appendOutputTo(storage_path('logs/push-cleanup-expired.log'));
     }
 
     protected function commands(): void

@@ -91,11 +91,11 @@
             @forelse($enrollments as $index => $enrollment)
             @php
                 $tanggalApproveReject = '-';
-                if ($enrollment->status === 'approved' && $enrollment->approved_at) {
+                if ($enrollment->status?->value === 'approved' && $enrollment->approved_at) {
                     $tanggalApproveReject = $enrollment->approved_at->format('d-m-Y H:i');
-                } elseif ($enrollment->status === 'rejected' && $enrollment->rejected_at) {
+                } elseif ($enrollment->status?->value === 'rejected' && $enrollment->rejected_at) {
                     $tanggalApproveReject = $enrollment->rejected_at->format('d-m-Y H:i');
-                } elseif ($enrollment->status === 'waitlist' && $enrollment->waitlist_promoted_at) {
+                } elseif ($enrollment->status?->value === 'waitlist' && $enrollment->waitlist_promoted_at) {
                     $tanggalApproveReject = $enrollment->waitlist_promoted_at->format('d-m-Y H:i');
                 }
             @endphp

@@ -754,7 +754,7 @@ $configData = Helper::appClasses();
 
                 {{-- Actions --}}
                 <div class="d-flex gap-2 flex-wrap mt-2">
-                  @if($enrollment->status === 'pending')
+                  @if($enrollment->status?->value === 'pending')
                     <form action="{{ route('admin.enrollments.approve', $enrollment) }}" method="POST" class="d-inline">
                       @csrf
                       <button type="submit" class="btn btn-success btn-action d-inline-flex align-items-center gap-1" style="border-radius: 5px;">
@@ -771,7 +771,7 @@ $configData = Helper::appClasses();
                       <i class="icon-base ti tabler-x fs-6"></i> Tolak
                     </button>
 
-                  @elseif($enrollment->status === 'waitlist')
+                  @elseif($enrollment->status?->value === 'waitlist')
                     <form action="{{ route('admin.enrollments.promote', $enrollment) }}" method="POST" class="d-inline">
                       @csrf
                       <button type="submit" class="btn btn-success btn-action d-inline-flex align-items-center gap-1" style="border-radius: 5px;">
@@ -782,7 +782,7 @@ $configData = Helper::appClasses();
                       <i class="icon-base ti tabler-x fs-6"></i> Tolak
                     </button>
 
-                  @elseif($enrollment->status === 'approved')
+                  @elseif($enrollment->status?->value === 'approved')
                     <form action="{{ route('admin.enrollments.reset', $enrollment) }}" method="POST" class="d-inline reset-enrollment-form" data-name="{{ $peserta->name }}" data-pelatihan="{{ $enrollment->pelatihan->nama }}">
                       @csrf
                       <button type="submit" class="btn btn-warning btn-action d-inline-flex align-items-center gap-1" style="border-radius: 5px; background: linear-gradient(135deg, #f59e0b, #d97706); border: none;">
@@ -790,7 +790,7 @@ $configData = Helper::appClasses();
                       </button>
                     </form>
 
-                  @elseif($enrollment->status === 'rejected')
+                  @elseif($enrollment->status?->value === 'rejected')
                     <span class="text-body-premium" style="font-size: 0.8rem;">Tidak ada aksi</span>
                   @endif
                 </div>

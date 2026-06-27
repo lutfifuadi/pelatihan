@@ -268,22 +268,22 @@ $configData = Helper::appClasses();
             <i class="icon-base ti tabler-file-search"></i>
             Belum Mendaftar
           </span>
-        @elseif($enrollment->status === 'pending')
+        @elseif($enrollment->status?->value === 'pending')
           <span class="badge-status pending">
             <span class="spinner-grow spinner-grow-sm me-1" style="width: 8px; height: 8px;"></span>
             Menunggu Verifikasi
           </span>
-        @elseif($enrollment->status === 'approved')
+        @elseif($enrollment->status?->value === 'approved')
           <span class="badge-status approved">
             <i class="icon-base ti tabler-circle-check"></i>
             Disetujui
           </span>
-        @elseif($enrollment->status === 'rejected')
+        @elseif($enrollment->status?->value === 'rejected')
           <span class="badge-status rejected">
             <i class="icon-base ti tabler-circle-x"></i>
             Ditolak
           </span>
-        @elseif($enrollment->status === 'waitlist')
+        @elseif($enrollment->status?->value === 'waitlist')
           <span class="badge-status waitlist">
             <i class="icon-base ti tabler-clock"></i>
             Cadangan (Waitlist)
@@ -635,7 +635,7 @@ $configData = Helper::appClasses();
     </div>
 
     {{-- Info tambahan untuk rejected --}}
-    @if($enrollment && $enrollment->status === 'rejected')
+    @if($enrollment && $enrollment->status?->value === 'rejected')
     <hr class="dark-premium my-3">
     <div class="d-flex align-items-center gap-3 justify-content-between flex-wrap">
       <div class="d-flex align-items-center gap-2">
@@ -650,7 +650,7 @@ $configData = Helper::appClasses();
     @endif
 
     {{-- Info tambahan untuk waitlist --}}
-    @if($enrollment && $enrollment->status === 'waitlist')
+    @if($enrollment && $enrollment->status?->value === 'waitlist')
     <hr class="dark-premium my-3">
     <div class="d-flex align-items-start gap-2">
       <i class="icon-base ti tabler-info-circle text-warning mt-1 flex-shrink-0"></i>

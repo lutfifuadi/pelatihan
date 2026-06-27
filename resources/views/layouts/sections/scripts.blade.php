@@ -19,6 +19,11 @@
 @stack('pricing-script')
 <!-- END: Pricing Modal JS-->
 
+<!-- BEGIN: SweetAlert2 Global Config -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+@vite(['resources/js/sweetalert2-global.js'])
+<!-- END: SweetAlert2 Global Config -->
+
 <!-- BEGIN: Page JS-->
 @yield('page-script')
 <!-- END: Page JS-->

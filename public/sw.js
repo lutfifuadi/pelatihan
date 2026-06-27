@@ -3,12 +3,15 @@
  * Version 1.0.0
  */
 
-const CACHE_NAME = 'pelatihan-cache-v1';
+const CACHE_NAME = 'pelatihanku-pwa-v2';
 const STATIC_ASSETS = [
   '/',
   '/offline',
   '/manifest.json',
   '/icons/icon.svg',
+  '/icons/icon-192x192.png',
+  '/icons/icon-512x512.png',
+  '/icons/badge-72x72.png',
 ];
 
 // Install event - cache static assets
@@ -200,7 +203,78 @@ async function syncPendingNotifications() {
   }
 }
 
-// Listen for messages from the client
+// ============================================================
+// Push Notification Handlers (Web Push API)
+// ============================================================
+
+self.addEventListener('push', (event) => {
+  let payload = {};
+
+  if (event.data) {
+    try {
+      payload = event.data.json();
+    } catch (e) {
+      payload = {
+        title: 'Pelatihanku',
+        body: event.data.text(),
+      };
+    }
+  }
+
+  // Support both direct payload and nested "notification" payload
+  const title = payload.title || payload.notification?.title || 'Pelatihanku';
+  const body = payload.body || payload.notification?.body || 'Ada notifikasi baru untukmu.';
+  const icon = payload.icon || payload.notification?.icon || '/icons/icon-192x192.png';
+  const badge = payload.badge || '/icons/badge-72x72.png';
+  const image = payload.image || payload.notification?.image || null;
+  const tag = payload.tag || 'pelatihanku-push';
+  const url = payload.url || payload.link_url || payload.data?.url || '/';
+
+  const notificationOptions = {
+    body,
+    icon,
+    badge,
+    tag,
+    requireInteraction: false,
+    renotify: false,
+    data: { url },
+  };
+
+  if (image) {
+    notificationOptions.image = image;
+  }
+
+  event.waitUntil(
+    self.registration.showNotification(title, notificationOptions)
+  );
+});
+
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+
+  const urlToOpen = event.notification.data?.url || '/';
+
+  event.waitUntil(
+    clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
+      // If a matching client already exists, focus it
+      for (const client of clientList) {
+        if (client.url === urlToOpen && 'focus' in client) {
+          return client.focus();
+        }
+      }
+
+      // Otherwise open a new window/tab
+      if (clients.openWindow) {
+        return clients.openWindow(urlToOpen);
+      }
+    })
+  );
+});
+
+// ============================================================
+// Message handling from client
+// ============================================================
+
 self.addEventListener('message', (event) => {
   if (event.data && event.data.type === 'SKIP_WAITING') {
     self.skipWaiting();

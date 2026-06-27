@@ -36,4 +36,8 @@
 @vite(['resources/css/app.css'])
 <!-- END: app CSS-->
 
+<!-- Admin Premium Theme -->
+@vite(['resources/css/admin-theme.css'])
+<!-- END: Admin Premium Theme -->
+
 @livewireStyles

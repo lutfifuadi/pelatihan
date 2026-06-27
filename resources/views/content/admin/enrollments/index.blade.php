@@ -6,214 +6,6 @@ $configData = Helper::appClasses();
 
 @section('title', 'Pendaftaran Pelatihan')
 
-@section('page-style')
-<style>
-  @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Sora:wght@400;500;600;700;800&display=swap');
-
-  .content-wrapper {
-    font-family: 'Outfit', sans-serif;
-    color: #f8fafc;
-    position: relative !important;
-    overflow: hidden !important;
-  }
-  .content-wrapper h1,
-  .content-wrapper h2,
-  .content-wrapper h3,
-  .content-wrapper h4,
-  .content-wrapper h5,
-  .content-wrapper h6 {
-    font-family: 'Sora', sans-serif;
-  }
-
-  html, body, .layout-page, .content-wrapper, .layout-wrapper, .layout-container {
-    background-color: #0b0f19 !important;
-    background-image:
-      radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.15) 0px, transparent 55%),
-      radial-gradient(at 100% 0%, rgba(139, 92, 246, 0.15) 0px, transparent 55%),
-      radial-gradient(at 50% 50%, rgba(236, 72, 153, 0.08) 0px, transparent 50%) !important;
-    color: #f8fafc !important;
-  }
-
-  .layout-navbar-fixed .layout-page::before {
-    display: none !important;
-  }
-
-  .content-wrapper > .container-xxl {
-    max-width: 100% !important;
-    padding: 0 !important;
-  }
-
-  .glass-card-premium {
-    background: rgba(15, 23, 42, 0.25) !important;
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border: 1px solid rgba(255, 255, 255, 0.08) !important;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
-    border-radius: 5px !important;
-    position: relative;
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    z-index: 1;
-  }
-
-  .text-body-premium {
-    color: rgba(255, 255, 255, 0.65) !important;
-  }
-
-  .stat-icon-box {
-    width: 52px;
-    height: 52px;
-    border-radius: 5px !important;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.6rem;
-    flex-shrink: 0;
-  }
-
-  .stat-icon-box-sm {
-    width: 32px;
-    height: 32px;
-    border-radius: 5px !important;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-  }
-
-  .badge-premium {
-    background: rgba(255, 255, 255, 0.04);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    color: rgba(255, 255, 255, 0.8);
-    border-radius: 5px;
-    padding: 4px 12px;
-    font-weight: 500;
-    font-size: 0.75rem;
-  }
-  .badge-premium-success {
-    background: rgba(16, 185, 129, 0.15);
-    border-color: rgba(16, 185, 129, 0.3);
-    color: #34d399;
-  }
-  .badge-premium-warning {
-    background: rgba(245, 158, 11, 0.15);
-    border-color: rgba(245, 158, 11, 0.3);
-    color: #fbbf24;
-  }
-  .badge-premium-danger {
-    background: rgba(239, 68, 68, 0.15);
-    border-color: rgba(239, 68, 68, 0.3);
-    color: #f87171;
-  }
-  .badge-premium-info {
-    background: rgba(96, 165, 250, 0.15);
-    border-color: rgba(96, 165, 250, 0.3);
-    color: #93c5fd;
-  }
-
-  .pagination .page-item .page-link {
-    background: rgba(255, 255, 255, 0.04) !important;
-    border: 1px solid rgba(255, 255, 255, 0.08) !important;
-    color: rgba(255, 255, 255, 0.7) !important;
-    font-size: 13px !important;
-    padding: 6px 12px !important;
-    transition: all 0.3s ease !important;
-    border-radius: 5px !important;
-    margin: 0 2px !important;
-  }
-  .pagination .page-item.active .page-link {
-    background: linear-gradient(135deg, #6366f1, #d946ef) !important;
-    border-color: transparent !important;
-    color: #ffffff !important;
-    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3) !important;
-  }
-
-  .glow-orb {
-    position: absolute;
-    border-radius: 50%;
-    filter: blur(120px);
-    opacity: 0.4;
-    mix-blend-mode: screen;
-    pointer-events: none;
-    animation: orbFloat 25s infinite alternate ease-in-out;
-    z-index: 0;
-  }
-  .orb-1 { width: 450px; height: 450px; background: radial-gradient(circle, #6366f1 0%, transparent 70%); top: -10%; left: -10%; animation-duration: 20s; }
-  .orb-2 { width: 550px; height: 550px; background: radial-gradient(circle, #ec4899 0%, transparent 70%); bottom: 5%; right: -10%; animation-duration: 28s; }
-  @keyframes orbFloat {
-    0% { transform: translate(0, 0) scale(1) rotate(0deg); }
-    50% { transform: translate(60px, 40px) scale(1.08) rotate(180deg); }
-    100% { transform: translate(-30px, -50px) scale(0.92) rotate(360deg); }
-  }
-
-  .btn-action {
-    border-radius: 5px !important;
-    padding: 4px 12px !important;
-    font-size: 0.75rem !important;
-    font-weight: 600 !important;
-    transition: all 0.3s ease !important;
-  }
-  .btn-action:hover {
-    transform: translateY(-1px);
-  }
-  .btn-danger {
-    background: linear-gradient(135deg, #ef4444, #dc2626) !important;
-    border: none !important;
-    color: #ffffff !important;
-  }
-  .btn-danger:hover {
-    background: linear-gradient(135deg, #f87171, #ef4444) !important;
-    transform: translateY(-1px);
-    color: #ffffff !important;
-  }
-  .btn-danger:focus {
-    box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.4) !important;
-  }
-  select.form-select {
-    background-color: rgba(255,255,255,0.04) !important;
-    border: 1px solid rgba(255,255,255,0.08) !important;
-    color: rgba(255,255,255,0.8) !important;
-    border-radius: 5px !important;
-    padding: 6px 12px !important;
-    font-size: 0.85rem !important;
-  }
-  select.form-select option {
-    background-color: #0b0f19 !important;
-    color: #f8fafc !important;
-  }
-
-  /* SweetAlert2 Custom Styling */
-  .swal2-popup.swal2-custom-popup {
-    background: #0f172a !important;
-    border: 1px solid rgba(255, 255, 255, 0.08) !important;
-    border-radius: 8px !important;
-    padding: 1.75rem !important;
-  }
-  .swal2-title.swal2-custom-title {
-    font-size: 1.15rem !important;
-    font-family: 'Sora', sans-serif !important;
-    font-weight: 600 !important;
-    color: #ffffff !important;
-    margin-top: 1rem !important;
-    margin-bottom: 0.75rem !important;
-  }
-  .swal2-html-container.swal2-custom-text {
-    font-size: 0.85rem !important;
-    line-height: 1.6 !important;
-    color: rgba(255, 255, 255, 0.75) !important;
-    margin-bottom: 1.5rem !important;
-    padding: 0 !important;
-  }
-  .swal2-custom-popup .swal2-icon {
-    transform: scale(0.85) !important;
-    margin-top: 0.5rem !important;
-    margin-bottom: 0.25rem !important;
-  }
-  .swal2-actions.swal2-custom-actions {
-    margin-top: 0.5rem !important;
-  }
-</style>
-@endsection
-
 @section('content')
   <div class="glow-orb orb-1"></div>
   <div class="glow-orb orb-2"></div>
@@ -377,22 +169,24 @@ $configData = Helper::appClasses();
           </select>
         </div>
         <div class="col-md-3">
+          @php
+            // Mapping untuk filter — gunakan short code yg compatible dengan controller
+            $filterStatuses = [
+              '' => 'Semua Status',
+              'pending' => 'Pending',
+              'approved' => 'Disetujui',
+              'waiting_wa' => 'Menunggu Chat WA',
+              'waiting_newbimma' => 'Cek Newbimma',
+              'confirmed' => 'Terkonfirmasi',
+              'rejected' => 'Ditolak',
+              'waitlist' => 'Cadangan',
+            ];
+          @endphp
           <label class="text-body-premium small fw-semibold mb-1">Filter Status</label>
           <select id="filter-status" class="form-select">
-            <option value="">Semua Status</option>
-            <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Pending</option>
-            <option value="approved" {{ request('status') == 'approved' ? 'selected' : '' }}>Approved</option>
-            <option value="waiting_wa" {{ request('status') == 'waiting_wa' ? 'selected' : '' }}>
-              ⏳ Menunggu Chat WA
-            </option>
-            <option value="waiting_newbimma" {{ request('status') == 'waiting_newbimma' ? 'selected' : '' }}>
-              🔄 Cek Newbimma
-            </option>
-            <option value="confirmed" {{ request('status') == 'confirmed' ? 'selected' : '' }}>
-              ✅ Terkonfirmasi
-            </option>
-            <option value="rejected" {{ request('status') == 'rejected' ? 'selected' : '' }}>Ditolak</option>
-            <option value="waitlist" {{ request('status') == 'waitlist' ? 'selected' : '' }}>Cadangan</option>
+            @foreach($filterStatuses as $value => $label)
+              <option value="{{ $value }}" {{ request('status') == $value ? 'selected' : '' }}>{{ $label }}</option>
+            @endforeach
           </select>
         </div>
         <div class="col-md-3">
@@ -489,10 +283,6 @@ $configData = Helper::appClasses();
   </div>
 @endsection
 
-@section('vendor-script')
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-@endsection
-
 @section('page-script')
 <script>
   // Approve All & Reject All button handlers
@@ -512,17 +302,6 @@ $configData = Helper::appClasses();
           cancelButtonText: 'Batal',
           confirmButtonColor: '#10b981',
           cancelButtonColor: '#6b7280',
-          reverseButtons: true,
-          background: '#0f172a',
-          color: '#f8fafc',
-          customClass: {
-            popup: 'rounded-3 shadow-lg',
-            title: 'fw-bold text-white',
-            htmlContainer: 'text-body-premium',
-            confirmButton: 'btn btn-success px-4 py-2 border-0 me-2',
-            cancelButton: 'btn btn-secondary-custom px-4 py-2 border-0',
-          },
-          buttonsStyling: false,
         }).then((result) => {
           if (result.isConfirmed) {
             // Show loading
@@ -566,17 +345,6 @@ $configData = Helper::appClasses();
           cancelButtonText: 'Batal',
           confirmButtonColor: '#ef4444',
           cancelButtonColor: '#6b7280',
-          reverseButtons: true,
-          background: '#0f172a',
-          color: '#f8fafc',
-          customClass: {
-            popup: 'rounded-3 shadow-lg',
-            title: 'fw-bold text-white',
-            htmlContainer: 'text-body-premium',
-            confirmButton: 'btn btn-danger px-4 py-2 border-0 me-2',
-            cancelButton: 'btn btn-secondary-custom px-4 py-2 border-0',
-          },
-          buttonsStyling: false,
         }).then((result) => {
           if (result.isConfirmed) {
             // Show loading
@@ -846,18 +614,6 @@ $configData = Helper::appClasses();
       showCancelButton: true,
       confirmButtonText: 'Ya, Reset!',
       cancelButtonText: 'Batal',
-      reverseButtons: true,
-      background: '#0f172a',
-      color: '#f8fafc',
-      customClass: {
-        popup: 'swal2-custom-popup shadow-lg',
-        title: 'swal2-custom-title',
-        htmlContainer: 'swal2-custom-text',
-        actions: 'swal2-custom-actions gap-3',
-        confirmButton: 'btn btn-warning px-4 py-2 border-0 fw-semibold',
-        cancelButton: 'btn btn-secondary-custom px-4 py-2 border-0',
-      },
-      buttonsStyling: false,
     }).then((result) => {
       if (result.isConfirmed) {
         form.submit();
@@ -865,36 +621,27 @@ $configData = Helper::appClasses();
     });
   });
 
-  // Konfirmasi ganti status dari dropdown tabel
-  document.querySelectorAll('.change-status-form').forEach(form => {
-    form.addEventListener('submit', function(e) {
-      e.preventDefault();
-      const status = this.querySelector('input[name="status"]').value;
-      const labels = {'pending': 'Pending', 'approved': 'Approved', 'rejected': 'Rejected', 'waitlist': 'Waitlist'};
-      const colors = {'pending': '#fbbf24', 'approved': '#34d399', 'rejected': '#f87171', 'waitlist': '#93c5fd'};
+  // Konfirmasi ganti status dari dropdown tabel (event delegation — support AJAX loaded rows)
+  document.addEventListener('submit', function(e) {
+    const form = e.target.closest('.change-status-form');
+    if (!form) return;
 
-      Swal.fire({
-        title: 'Ubah Status?',
-        html: `<div>Ubah status peserta menjadi <strong style="color: ${colors[status]}">${labels[status]}</strong>?</div>
-               <div class="mt-2" style="font-size: 0.8rem; color: rgba(255,255,255,0.5);">Konfirmasi untuk melanjutkan.</div>`,
-        icon: 'question',
-        showCancelButton: true,
-        confirmButtonText: 'Ya, Ubah!',
-        cancelButtonText: 'Batal',
-        reverseButtons: true,
-        background: '#0f172a',
-        color: '#f8fafc',
-        customClass: {
-          popup: 'swal2-custom-popup shadow-lg',
-          confirmButton: 'btn btn-primary px-4 py-2 border-0 fw-semibold',
-          cancelButton: 'btn btn-secondary-custom px-4 py-2 border-0',
-        },
-        buttonsStyling: false,
-      }).then((result) => {
-        if (result.isConfirmed) {
-          form.submit();
-        }
-      });
+    e.preventDefault();
+    const btn = form.querySelector('button[type="submit"]');
+    const statusLabel = btn?.textContent?.trim() || form.querySelector('input[name="status"]').value;
+
+    Swal.fire({
+      title: 'Ubah Status?',
+      html: `<div>Ubah status peserta menjadi <strong style="color: #818cf8">${statusLabel}</strong>?</div>
+             <div class="mt-2" style="font-size: 0.8rem; color: rgba(255,255,255,0.5);">Konfirmasi untuk melanjutkan.</div>`,
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: 'Ya, Ubah!',
+      cancelButtonText: 'Batal',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        form.submit();
+      }
     });
   });
 
@@ -913,17 +660,6 @@ $configData = Helper::appClasses();
       cancelButtonText: 'Batal',
       confirmButtonColor: '#6366f1',
       cancelButtonColor: '#6b7280',
-      reverseButtons: true,
-      background: '#0f172a',
-      color: '#f8fafc',
-      customClass: {
-        popup: 'rounded-3 shadow-lg',
-        title: 'fw-bold text-white',
-        htmlContainer: 'text-body-premium',
-        confirmButton: 'btn btn-primary px-4 py-2 border-0 me-2',
-        cancelButton: 'btn btn-secondary-custom px-4 py-2 border-0',
-      },
-      buttonsStyling: false,
     }).then((result) => {
       if (result.isConfirmed) {
         form.submit();

@@ -75,25 +75,32 @@ html, body, .layout-page, .content-wrapper,
 
 // --- SIDEBAR ---
 .layout-menu, #layout-menu {
-  background-color: var(--dash-bg-deep);
+  background-color: rgba(15, 23, 42, 0.9) !important;
+  backdrop-filter: blur(10px) !important;
   border-right: 1px solid var(--dash-glass-border);
+  font-family: var(--dash-font-body);
 }
-.layout-menu .app-brand { background-color: var(--dash-bg-deep); }
-.layout-menu .menu-inner { background-color: var(--dash-bg-deep); }
-.layout-menu .menu-link { color: var(--dash-text-body) !important; }
+.layout-menu .app-brand { background-color: transparent !important; }
+.layout-menu .menu-inner { background-color: transparent !important; }
+.layout-menu .menu-link { 
+  color: var(--dash-text-body) !important; 
+  padding: 0.625rem 1.5rem !important;
+  transition: var(--dash-transition-fast);
+}
 .layout-menu .menu-item.active > .menu-link {
-  color: var(--dash-text-heading) !important;
+  color: #fff !important;
   background: var(--dash-primary-gradient) !important;
   box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3) !important;
 }
-.layout-menu .menu-item.active > .menu-link i { color: var(--dash-text-heading) !important; }
+.layout-menu .menu-item.active > .menu-link i { color: #fff !important; }
 .layout-menu .menu-header-text { color: var(--dash-text-muted) !important; }
 .layout-menu .menu-link:hover {
-  background-color: var(--dash-bg-hover) !important;
+  background-color: rgba(255, 255, 255, 0.05) !important;
   color: var(--dash-text-heading) !important;
+  border-left: 3px solid var(--dash-primary) !important;
 }
 .layout-menu .menu-inner-shadow {
-  background: linear-gradient(var(--dash-bg-deep) 5%, rgba(11, 15, 25, 0) 95%) !important;
+  background: linear-gradient(rgba(15, 23, 42, 0.9) 5%, rgba(11, 15, 25, 0) 95%) !important;
 }
 .layout-menu .app-brand .app-brand-text { color: var(--dash-text-heading) !important; }
 .layout-menu .layout-menu-toggle i { color: var(--dash-text-body) !important; }

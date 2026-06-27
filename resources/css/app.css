@@ -1,4 +1,31 @@
+/* ============================================================
+   All @import statements must come first
+   ============================================================ */
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Sora:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+
+/* ============================================================
+   Tailwind CSS v4 — Utility Layer Only (no preflight conflict)
+   ============================================================ */
+@import "tailwindcss" layer(utilities);
+
+/* ============================================================
+   Custom Theme Extensions for Tailwind v4
+   ============================================================ */
+@theme {
+  --color-brand-50: #f0edff;
+  --color-brand-100: #e0dbff;
+  --color-brand-200: #c2b7ff;
+  --color-brand-300: #a392ff;
+  --color-brand-400: #856ef5;
+  --color-brand-500: #7367f0;
+  --color-brand-600: #5e50ee;
+  --color-brand-700: #4a3fd6;
+  --color-brand-800: #3b2fb3;
+  --color-brand-900: #2c2290;
+
+  --color-bg-overlay: rgba(0, 0, 0, 0.3);
+  --color-bg-overlay-dark: rgba(0, 0, 0, 0.6);
+}
 
 /* ============================================================
    Custom Fonts — Design System
