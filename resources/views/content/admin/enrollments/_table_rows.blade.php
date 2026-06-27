@@ -2,8 +2,8 @@
   <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.04);">
     <td class="px-0 py-3 text-body-premium">{{ $enrollments->firstItem() + $index }}</td>
     <td class="py-3">
-      <div class="fw-semibold text-white">{{ $enrollment->user?->name ?? 'User tidak ditemukan' }}</div>
-      <div class="text-body-premium" style="font-size: 0.75rem;">{{ $enrollment->user?->email ?? '-' }}</div>
+      <div class="fw-semibold text-white">{{ $enrollment->user?->pesertaProfile?->nama_lengkap ?: $enrollment->user?->name ?? 'User tidak ditemukan' }}</div>
+      <div class="text-body-premium" style="font-size: 0.75rem;">{{ $enrollment->user?->whatsapp ?: $enrollment->user?->phone ?? '-' }}</div>
     </td>
     <td class="py-3">
       <div class="fw-semibold text-white" style="font-size: 0.85rem;">{{ $enrollment->pelatihan->nama }}</div>
@@ -104,6 +104,16 @@
       <a href="{{ route('admin.enrollments.show', $enrollment) }}" class="btn btn-outline-info btn-sm d-inline-flex align-items-center justify-content-center ms-1" style="border-radius: 5px; width: 32px; height: 32px; padding: 0; border-color: rgba(96,165,250,0.3); color: #93c5fd;" title="Detail">
         <i class="icon-base ti tabler-eye fs-5"></i>
       </a>
+
+      {{-- Tombol Chat WhatsApp --}}
+      @if($enrollment->user?->whatsapp)
+        <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $enrollment->user->whatsapp) }}"
+           class="btn btn-outline-success btn-sm d-inline-flex align-items-center justify-content-center ms-1"
+           style="border-radius: 5px; width: 32px; height: 32px; padding: 0; border-color: rgba(37,211,102,0.3); color: #25D366;"
+           target="_blank" title="Chat WhatsApp">
+          <i class="icon-base ti tabler-brand-whatsapp fs-5"></i>
+        </a>
+      @endif
 
       {{-- Tombol Reset --}}
       <form action="{{ route('admin.enrollments.reset', $enrollment) }}" method="POST" class="d-inline reset-enrollment-form" data-name="{{ $enrollment->user?->name ?? 'Unknown' }}" data-pelatihan="{{ $enrollment->pelatihan->nama }}">

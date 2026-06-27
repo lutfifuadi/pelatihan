@@ -101,7 +101,7 @@
             @endphp
             <tr>
                 <td>{{ $loop->iteration }}</td>
-                <td>{{ $enrollment->user?->name ?? '-' }}</td>
+                <td>{{ $enrollment->user?->pesertaProfile?->nama_lengkap ?: $enrollment->user?->name ?? '-' }}</td>
                 <td>{{ $enrollment->user?->nik ?? '-' }}</td>
                 <td>{{ $enrollment->user?->whatsapp ?? '-' }}</td>
                 <td>{{ $enrollment->pelatihan?->nama ?? '-' }}</td>

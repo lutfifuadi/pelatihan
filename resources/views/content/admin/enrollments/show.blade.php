@@ -468,6 +468,14 @@ $pelatihans = \App\Models\Pelatihan::where('is_active', true)->orderBy('nama')->
                 <div class="col-md-4">
                   <div class="detail-label">WhatsApp</div>
                   <div class="detail-value">{{ $enrollment->user?->whatsapp ?? '-' }}</div>
+                  @if($enrollment->user?->whatsapp)
+                    <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $enrollment->user->whatsapp) }}"
+                       target="_blank"
+                       class="btn btn-sm d-inline-flex align-items-center gap-1 mt-1"
+                       style="background: #25D366; color: white; border: none; border-radius: 5px; padding: 4px 12px; font-size: 0.8rem;">
+                      <i class="icon-base ti tabler-brand-whatsapp"></i> Chat WhatsApp
+                    </a>
+                  @endif
                 </div>
                 <div class="col-md-4">
                   <div class="detail-label">Email</div>
