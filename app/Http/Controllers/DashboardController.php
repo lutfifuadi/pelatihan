@@ -145,7 +145,9 @@ class DashboardController extends Controller
     {
         $user = auth()->user();
         $profile = \App\Models\PesertaProfile::where('user_id', $user->id)
-            ->with(['pelatihan.dinas'])
+            ->with(['pelatihan' => function($query) {
+                $query->with('dinas');
+            }])
             ->first();
 
         $enrollment = \App\Models\Enrollment::where('user_id', $user->id)

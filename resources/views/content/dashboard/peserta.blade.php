@@ -1105,16 +1105,16 @@ $configData = Helper::appClasses();
                 <i class="icon-base ti tabler-trending-up text-primary"></i>
                 Progress &amp; Kehadiran Pelatihan
               </h5>
-              <span class="badge-premium {{ $data['pelatihan']->tanggal_selesai && now()->gt($data['pelatihan']->tanggal_selesai) ? 'badge-premium-info' : 'badge-premium-success' }}">
-                {{ $data['pelatihan']->tanggal_selesai && now()->gt($data['pelatihan']->tanggal_selesai) ? 'Selesai' : 'Aktif' }}
+              <span class="badge-premium {{ ($data['pelatihan'] && $data['pelatihan']->tanggal_selesai && now()->gt($data['pelatihan']->tanggal_selesai)) ? 'badge-premium-info' : 'badge-premium-success' }}">
+                {{ ($data['pelatihan'] && $data['pelatihan']->tanggal_selesai && now()->gt($data['pelatihan']->tanggal_selesai)) ? 'Selesai' : 'Aktif' }}
               </span>
             </div>
 
             <div class="mb-4">
               <div class="d-flex justify-content-between align-items-center mb-2">
                 <div>
-                  <h6 class="text-white fw-semibold mb-0" style="font-size: 0.95rem;">{{ $data['pelatihan']->nama }}</h6>
-                  <small class="text-body-premium">Penyelenggara: {{ $data['pelatihan']->dinas->nama_dinas ?? '-' }}</small>
+                  <h6 class="text-white fw-semibold mb-0" style="font-size: 0.95rem;">{{ $data['pelatihan'] ? $data['pelatihan']->nama : 'Data pelatihan tidak tersedia' }}</h6>
+                  <small class="text-body-premium">Penyelenggara: {{ $data['pelatihan'] ? ($data['pelatihan']->dinas->nama_dinas ?? '-') : '-' }}</small>
                 </div>
                 <span class="text-white fw-bold small">{{ $data['attendanceRate'] }}% Kehadiran</span>
               </div>
