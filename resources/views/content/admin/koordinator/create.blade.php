@@ -288,68 +288,29 @@ $configData = Helper::appClasses();
         <form action="{{ route('admin.koordinator.store') }}" method="POST">
           @csrf
 
-          <!-- Nama Lengkap -->
-          <div class="mb-4">
-            <label for="name" class="form-label">Nama Lengkap <span class="text-danger">*</span></label>
-            <input type="text" class="form-control @error('name') is-invalid @enderror"
-              id="name" name="name" value="{{ old('name') }}" placeholder="Masukkan nama lengkap" required>
-            @error('name')
-              <div class="invalid-feedback mt-1">{{ $message }}</div>
-            @enderror
-          </div>
-
-          <!-- Email -->
-          <div class="mb-4">
-            <label for="email" class="form-label">Email <span class="text-danger">*</span></label>
-            <input type="email" class="form-control @error('email') is-invalid @enderror"
-              id="email" name="email" value="{{ old('email') }}" placeholder="Masukkan email" required>
-            @error('email')
-              <div class="invalid-feedback mt-1">{{ $message }}</div>
-            @enderror
-          </div>
-
-          <!-- Password -->
-          <div class="mb-4">
-            <label for="password" class="form-label">Password <span class="text-danger">*</span></label>
-            <input type="password" class="form-control @error('password') is-invalid @enderror"
-              id="password" name="password" placeholder="Minimal 8 karakter" required>
-            @error('password')
-              <div class="invalid-feedback mt-1">{{ $message }}</div>
-            @enderror
-          </div>
-
-          <!-- Wilayah Kecamatan -->
-          <div class="mb-4">
-            <label for="kecamatan_id" class="form-label">Wilayah Kecamatan <span class="text-danger">*</span></label>
-            <select class="form-select @error('kecamatan_id') is-invalid @enderror"
-              id="kecamatan_id" name="kecamatan_id" required>
-              <option value="">-- Pilih Kecamatan --</option>
-              @foreach($kecamatans as $kec)
-                <option value="{{ $kec->id }}" {{ old('kecamatan_id') == $kec->id ? 'selected' : '' }}>
-                  {{ $kec->name }}
-                </option>
-              @endforeach
-            </select>
-            @error('kecamatan_id')
-              <div class="invalid-feedback mt-1">{{ $message }}</div>
-            @enderror
-          </div>
-
-          <!-- Kelurahan -->
-          <div class="mb-4">
-            <label for="kelurahan_id" class="form-label">Kelurahan <span class="text-danger">*</span></label>
-            <select class="form-select @error('kelurahan_id') is-invalid @enderror"
-              id="kelurahan_id" name="kelurahan_id" disabled required>
-              <option value="">-- Pilih Kecamatan Dahulu --</option>
-            </select>
-            @error('kelurahan_id')
-              <div class="invalid-feedback mt-1">{{ $message }}</div>
-            @enderror
-          </div>
-
-          <!-- NIK & No. Telepon -->
+          <!-- Row 1: Nama Lengkap + Email -->
           <div class="row mb-4">
             <div class="col-md-6 mb-3 mb-md-0">
+              <label for="name" class="form-label">Nama Lengkap <span class="text-danger">*</span></label>
+              <input type="text" class="form-control @error('name') is-invalid @enderror"
+                id="name" name="name" value="{{ old('name') }}" placeholder="Masukkan nama lengkap" required>
+              @error('name')
+                <div class="invalid-feedback mt-1">{{ $message }}</div>
+              @enderror
+            </div>
+            <div class="col-md-6">
+              <label for="email" class="form-label">Email <span class="text-danger">*</span></label>
+              <input type="email" class="form-control @error('email') is-invalid @enderror"
+                id="email" name="email" value="{{ old('email') }}" placeholder="Masukkan email" required>
+              @error('email')
+                <div class="invalid-feedback mt-1">{{ $message }}</div>
+              @enderror
+            </div>
+          </div>
+
+          <!-- Row 2: NIK + No. Telepon + No. WhatsApp -->
+          <div class="row mb-4">
+            <div class="col-md-4 mb-3 mb-md-0">
               <label for="nik" class="form-label">NIK (Username Login)</label>
               <input type="text" class="form-control @error('nik') is-invalid @enderror"
                 id="nik" name="nik" value="{{ old('nik') }}" placeholder="15-16 digit NIK" maxlength="16" inputmode="numeric">
@@ -357,7 +318,7 @@ $configData = Helper::appClasses();
                 <div class="invalid-feedback mt-1">{{ $message }}</div>
               @enderror
             </div>
-            <div class="col-md-6">
+            <div class="col-md-4 mb-3 mb-md-0">
               <label for="phone" class="form-label">No. Telepon</label>
               <input type="text" class="form-control @error('phone') is-invalid @enderror"
                 id="phone" name="phone" value="{{ old('phone') }}" placeholder="Contoh: 022xxxxxx">
@@ -365,14 +326,51 @@ $configData = Helper::appClasses();
                 <div class="invalid-feedback mt-1">{{ $message }}</div>
               @enderror
             </div>
+            <div class="col-md-4">
+              <label for="whatsapp" class="form-label">No. WhatsApp</label>
+              <input type="text" class="form-control @error('whatsapp') is-invalid @enderror"
+                id="whatsapp" name="whatsapp" value="{{ old('whatsapp') }}" placeholder="Contoh: 081234567890">
+              @error('whatsapp')
+                <div class="invalid-feedback mt-1">{{ $message }}</div>
+              @enderror
+            </div>
           </div>
 
-          <!-- No. WhatsApp -->
+          <!-- Row 3: Password + Wilayah Kecamatan -->
+          <div class="row mb-4">
+            <div class="col-md-6 mb-3 mb-md-0">
+              <label for="password" class="form-label">Password <span class="text-danger">*</span></label>
+              <input type="password" class="form-control @error('password') is-invalid @enderror"
+                id="password" name="password" placeholder="Minimal 8 karakter" required>
+              @error('password')
+                <div class="invalid-feedback mt-1">{{ $message }}</div>
+              @enderror
+            </div>
+            <div class="col-md-6">
+              <label for="kecamatan_id" class="form-label">Wilayah Kecamatan <span class="text-danger">*</span></label>
+              <select class="form-select @error('kecamatan_id') is-invalid @enderror"
+                id="kecamatan_id" name="kecamatan_id" required>
+                <option value="">-- Pilih Kecamatan --</option>
+                @foreach($kecamatans as $kec)
+                  <option value="{{ $kec->id }}" {{ old('kecamatan_id') == $kec->id ? 'selected' : '' }}>
+                    {{ $kec->name }}
+                  </option>
+                @endforeach
+              </select>
+              @error('kecamatan_id')
+                <div class="invalid-feedback mt-1">{{ $message }}</div>
+              @enderror
+            </div>
+          </div>
+
+          <!-- Row 4: Kelurahan (full width) -->
           <div class="mb-4">
-            <label for="whatsapp" class="form-label">No. WhatsApp</label>
-            <input type="text" class="form-control @error('whatsapp') is-invalid @enderror"
-              id="whatsapp" name="whatsapp" value="{{ old('whatsapp') }}" placeholder="Contoh: 081234567890">
-            @error('whatsapp')
+            <label for="kelurahan_id" class="form-label">Kelurahan <span class="text-danger">*</span></label>
+            <select class="form-select @error('kelurahan_id') is-invalid @enderror"
+              id="kelurahan_id" name="kelurahan_id" disabled required>
+              <option value="">-- Pilih Kecamatan Dahulu --</option>
+            </select>
+            @error('kelurahan_id')
               <div class="invalid-feedback mt-1">{{ $message }}</div>
             @enderror
           </div>
