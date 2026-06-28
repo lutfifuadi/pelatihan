@@ -294,6 +294,7 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
         Route::post('enrollments/{enrollment}/promote', [EnrollmentController::class, 'promote'])->name('enrollments.promote');
         Route::post('enrollments/pelatihan/{pelatihan}/approve-all', [EnrollmentController::class, 'approveAll'])->name('enrollments.approve-all');
         Route::post('enrollments/pelatihan/{pelatihan}/reject-all', [EnrollmentController::class, 'rejectAll'])->name('enrollments.reject-all');
+        Route::post('enrollments/pelatihan/{pelatihan}/waitlist-all', [EnrollmentController::class, 'waitlistAll'])->name('enrollments.waitlist-all');
         Route::post('enrollments/{enrollment}/reset', [EnrollmentController::class, 'reset'])->name('enrollments.reset');
         Route::post('enrollments/{enrollment}/change-status', [EnrollmentController::class, 'changeStatus'])->name('enrollments.change-status');
         Route::post('enrollments/{enrollment}/transfer', [EnrollmentController::class, 'transfer'])->name('enrollments.transfer');

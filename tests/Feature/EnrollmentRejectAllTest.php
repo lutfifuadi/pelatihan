@@ -248,4 +248,55 @@ class EnrollmentRejectAllTest extends TestCase
             ->where('status', 'pending')
             ->count());
     }
+
+    public function test_waitlist_all_moves_all_pending_enrollments_to_waitlist(): void
+    {
+        // Mock notification service
+        $notificationMock = $this->createMock(\App\Services\NotificationService::class);
+        $notificationMock->expects($this->exactly(3))
+            ->method('sendByTemplate');
+        $this->app->instance(\App\Services\NotificationService::class, $notificationMock);
+
+        $users = User::factory()->count(3)->create(['role' => 'peserta']);
+        foreach ($users as $user) {
+            $this->createEnrollment($user, 'pending');
+        }
+
+        $response = $this->post(route('admin.enrollments.waitlist-all', [
+            'pelatihan' => $this->pelatihan->id,
+        ]));
+
+        $response->assertSessionHas('success');
+        $response->assertRedirect();
+
+        $this->assertEquals(0, Enrollment::where('pelatihan_id', $this->pelatihan->id)
+            ->where('status', 'pending')
+            ->count());
+
+        $waitlisted = Enrollment::where('pelatihan_id', $this->pelatihan->id)
+            ->where('status', 'waitlist')
+            ->get();
+
+        $this->assertCount(3, $waitlisted);
+
+        foreach ($waitlisted as $enrollment) {
+            $this->assertStringContainsString('[Waitlist All:', $enrollment->notes);
+        }
+
+        $this->assertDatabaseHas('activity_logs', [
+            'action' => 'updated',
+            'subject_type' => 'Enrollment',
+            'subject_id' => $this->pelatihan->id,
+        ]);
+    }
+
+    public function test_waitlist_all_returns_error_when_no_pending(): void
+    {
+        $response = $this->post(route('admin.enrollments.waitlist-all', [
+            'pelatihan' => $this->pelatihan->id,
+        ]));
+
+        $response->assertSessionHas('error');
+        $this->assertStringContainsString('Tidak ada pendaftaran pending', session('error'));
+    }
 }

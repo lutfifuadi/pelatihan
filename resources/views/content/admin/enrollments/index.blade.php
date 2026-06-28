@@ -217,8 +217,16 @@ $configData = Helper::appClasses();
               <i class="icon-base ti tabler-x me-1"></i>
               Reject All Pending <span class="badge bg-white text-dark ms-1">{{ $counts['pending'] }}</span>
             </button>
+
+            {{-- Waitlist All --}}
+            <button type="button" id="btn-waitlist-all" class="btn btn-warning btn-action px-4"
+              data-url="{{ request('pelatihan_id') ? route('admin.enrollments.waitlist-all', ['pelatihan' => request('pelatihan_id')]) : '' }}"
+              data-pending="{{ $counts['pending'] }}">
+              <i class="icon-base ti tabler-clock me-1"></i>
+              Cadangkan Semua <span class="badge bg-white text-dark ms-1">{{ $counts['pending'] }}</span>
+            </button>
           </div>
-          <small class="text-body-premium mt-1 d-block">Approve atau tolak semua pendaftaran pending untuk pelatihan ini</small>
+          <small class="text-body-premium mt-1 d-block">Approve, tolak, atau cadangkan semua pendaftaran pending untuk pelatihan ini</small>
         </div>
       </div>
     </div>
@@ -370,6 +378,48 @@ $configData = Helper::appClasses();
         });
       });
     }
+
+    // Waitlist All button handler
+    const waitlistAllBtn = document.getElementById('btn-waitlist-all');
+    if (waitlistAllBtn) {
+      waitlistAllBtn.addEventListener('click', function() {
+        const url = this.getAttribute('data-url');
+        const pending = this.getAttribute('data-pending');
+
+        Swal.fire({
+          title: 'Cadangkan Semua?',
+          html: `<div>Anda akan memindahkan semua pendaftaran pending (<strong style="color: #ff9f43;">${pending}</strong> peserta) ke daftar cadangan untuk pelatihan ini. Apakah Anda yakin?</div>`,
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonText: 'Ya, Cadangkan Semua!',
+          cancelButtonText: 'Batal',
+          confirmButtonColor: '#ff9f43',
+          cancelButtonColor: '#6b7280',
+        }).then((result) => {
+          if (result.isConfirmed) {
+            // Show loading
+            waitlistAllBtn.disabled = true;
+            waitlistAllBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Processing...';
+
+            fetch(url, {
+              method: 'POST',
+              headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '{{ csrf_token() }}',
+                'X-Requested-With': 'XMLHttpRequest',
+              }
+            }).then(res => {
+              if (res.ok) {
+                window.location.reload();
+              } else {
+                throw new Error('Gagal');
+              }
+            }).catch(() => {
+              window.location.reload();
+            });
+          }
+        });
+      });
+    }
   });
 
 (function() {
@@ -461,6 +511,7 @@ $configData = Helper::appClasses();
         const actionContainer = document.getElementById('action-buttons-container');
         const approveAllBtn = document.getElementById('btn-approve-all');
         const rejectAllBtn = document.getElementById('btn-reject-all');
+        const waitlistAllBtn = document.getElementById('btn-waitlist-all');
         const pelatihanId = dropdownFilters.pelatihan_id;
 
         if (actionContainer) {
@@ -476,6 +527,9 @@ $configData = Helper::appClasses();
         }
         if (rejectAllBtn && pelatihanId) {
           rejectAllBtn.setAttribute('data-url', `/admin/enrollments/pelatihan/${pelatihanId}/reject-all`);
+        }
+        if (waitlistAllBtn && pelatihanId) {
+          waitlistAllBtn.setAttribute('data-url', `/admin/enrollments/pelatihan/${pelatihanId}/waitlist-all`);
         }
 
         // Update stat cards dari response
@@ -507,6 +561,13 @@ $configData = Helper::appClasses();
             const badge = rejectAllBtn.querySelector('.badge');
             if (badge) badge.textContent = data.counts.pending || 0;
             rejectAllBtn.setAttribute('data-pending', data.counts.pending || 0);
+          }
+
+          const waitlistAllBtn = document.getElementById('btn-waitlist-all');
+          if (waitlistAllBtn) {
+            const badge = waitlistAllBtn.querySelector('.badge');
+            if (badge) badge.textContent = data.counts.pending || 0;
+            waitlistAllBtn.setAttribute('data-pending', data.counts.pending || 0);
           }
         }
 

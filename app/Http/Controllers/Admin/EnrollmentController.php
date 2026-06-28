@@ -356,6 +356,61 @@ class EnrollmentController extends Controller
     }
 
     /**
+     * Cadangkan semua pending enrollment untuk pelatihan tertentu secara massal.
+     */
+    public function waitlistAll(Request $request, Pelatihan $pelatihan)
+    {
+        $pendingEnrollments = Enrollment::where('pelatihan_id', $pelatihan->id)
+            ->where('status', EnrollmentStatus::Pending)
+            ->get();
+
+        if ($pendingEnrollments->isEmpty()) {
+            return redirect()->back()->with('error', 'Tidak ada pendaftaran pending untuk pelatihan ini.');
+        }
+
+        $count = $pendingEnrollments->count();
+
+        DB::transaction(function () use ($pendingEnrollments) {
+            foreach ($pendingEnrollments as $enrollment) {
+                $enrollment->update([
+                    'status' => EnrollmentStatus::Waitlist,
+                    'notes' => '[Waitlist All: ' . now()->format('d/m/Y H:i') . '] Dimasukkan ke daftar cadangan massal oleh admin',
+                ]);
+            }
+        });
+
+        // Kirim notifikasi WA di luar transaction block menggunakan loop
+        foreach ($pendingEnrollments as $enrollment) {
+            if ($enrollment->user && $enrollment->pelatihan) {
+                try {
+                    $this->notificationService->sendByTemplate(
+                        $enrollment->user,
+                        'masuk_cadangan',
+                        [
+                            'nama' => $enrollment->user->name,
+                            'pelatihan' => $enrollment->pelatihan->nama,
+                        ]
+                    );
+                } catch (\Throwable $e) {
+                    \Illuminate\Support\Facades\Log::warning('Notifikasi waitlist-all gagal dikirim: ' . $e->getMessage());
+                }
+            }
+        }
+
+        ActivityLogger::action(
+            'updated',
+            'Enrollment',
+            "{$count} pendaftaran untuk pelatihan {$pelatihan->nama} ({$pelatihan->batch}) dipindahkan ke daftar cadangan massal oleh admin",
+            $pelatihan->id,
+            $pelatihan->nama
+        );
+
+        $this->broadcastDashboardUpdate();
+
+        return redirect()->back()->with('success', "{$count} pendaftaran berhasil dipindahkan ke daftar cadangan.");
+    }
+
+    /**
      * Reset enrollment — hapus pendaftaran agar peserta bisa daftar ulang.
      */
     public function reset(Request $request, Enrollment $enrollment)
