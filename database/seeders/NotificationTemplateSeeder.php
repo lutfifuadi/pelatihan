@@ -41,7 +41,7 @@ class NotificationTemplateSeeder extends Seeder
                 'key' => 'masuk_cadangan',
                 'name' => 'Masuk Daftar Cadangan',
                 'title' => 'Masuk Daftar Cadangan',
-                'body' => 'Halo {nama}, kuota utama {pelatihan} sudah terpenuhi. Anda masuk daftar cadangan dan akan dipromosikan jika ada peserta yang mengundurkan diri.',
+                'body' => 'Halo {nama}, pendaftaran Anda saat ini berada dalam antrean daftar tunggu (waitlist) pelatihan {pelatihan}. Kami akan segera mengabari Anda jika terdapat kuota yang tersedia.',
                 'variables' => ['nama', 'pelatihan'],
                 'channel' => 'in_app',
                 'is_active' => true,

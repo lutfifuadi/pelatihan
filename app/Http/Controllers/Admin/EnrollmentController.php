@@ -184,7 +184,7 @@ class EnrollmentController extends Controller
     {
         $enrollment->update([
             'status' => EnrollmentStatus::Waitlist,
-            'notes' => request('notes', 'Dimasukkan ke daftar cadangan'),
+            'notes' => request('notes', 'Dimasukkan ke daftar tunggu'),
         ]);
 
         // Dispatch notif masuk_cadangan
@@ -203,11 +203,11 @@ class EnrollmentController extends Controller
             }
         }
 
-        ActivityLogger::action('updated', 'Enrollment', "Pendaftaran {$enrollment->user?->name} untuk pelatihan {$enrollment->pelatihan?->nama} dipindahkan ke daftar cadangan", $enrollment->id, $enrollment->user?->name);
+        ActivityLogger::action('updated', 'Enrollment', "Pendaftaran {$enrollment->user?->name} untuk pelatihan {$enrollment->pelatihan?->nama} dipindahkan ke daftar tunggu", $enrollment->id, $enrollment->user?->name);
 
         $this->broadcastDashboardUpdate();
 
-        return redirect()->back()->with('success', 'Peserta dipindahkan ke daftar cadangan.');
+        return redirect()->back()->with('success', 'Peserta dipindahkan ke daftar tunggu.');
     }
 
     /**
@@ -223,7 +223,7 @@ class EnrollmentController extends Controller
             'status' => EnrollmentStatus::Approved,
             'approved_at' => now(),
             'waitlist_promoted_at' => now(),
-            'notes' => request('notes', 'Dipromosikan dari daftar cadangan'),
+            'notes' => request('notes', 'Dipromosikan dari daftar tunggu'),
         ]);
 
         // Dispatch notif dipromosikan
@@ -238,11 +238,11 @@ class EnrollmentController extends Controller
             );
         }
 
-        ActivityLogger::action('approved', 'Enrollment', "Pendaftaran {$enrollment->user?->name} untuk pelatihan {$enrollment->pelatihan?->nama} dipromosikan dari daftar cadangan", $enrollment->id, $enrollment->user?->name);
+        ActivityLogger::action('approved', 'Enrollment', "Pendaftaran {$enrollment->user?->name} untuk pelatihan {$enrollment->pelatihan?->nama} dipromosikan dari daftar tunggu", $enrollment->id, $enrollment->user?->name);
 
         $this->broadcastDashboardUpdate();
 
-        return redirect()->back()->with('success', 'Peserta dipromosikan dari cadangan ke approved.');
+        return redirect()->back()->with('success', 'Peserta dipromosikan dari daftar tunggu ke approved.');
     }
 
     /**
@@ -374,7 +374,7 @@ class EnrollmentController extends Controller
             foreach ($pendingEnrollments as $enrollment) {
                 $enrollment->update([
                     'status' => EnrollmentStatus::Waitlist,
-                    'notes' => '[Waitlist All: ' . now()->format('d/m/Y H:i') . '] Dimasukkan ke daftar cadangan massal oleh admin',
+                    'notes' => '[Waitlist All: ' . now()->format('d/m/Y H:i') . '] Dimasukkan ke daftar tunggu',
                 ]);
             }
         });
@@ -400,14 +400,14 @@ class EnrollmentController extends Controller
         ActivityLogger::action(
             'updated',
             'Enrollment',
-            "{$count} pendaftaran untuk pelatihan {$pelatihan->nama} ({$pelatihan->batch}) dipindahkan ke daftar cadangan massal oleh admin",
+            "{$count} pendaftaran untuk pelatihan {$pelatihan->nama} ({$pelatihan->batch}) dipindahkan ke daftar tunggu",
             $pelatihan->id,
             $pelatihan->nama
         );
 
         $this->broadcastDashboardUpdate();
 
-        return redirect()->back()->with('success', "{$count} pendaftaran berhasil dipindahkan ke daftar cadangan.");
+        return redirect()->back()->with('success', "{$count} pendaftaran berhasil dipindahkan ke daftar tunggu.");
     }
 
     /**
