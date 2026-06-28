@@ -261,7 +261,7 @@ $configData = Helper::appClasses();
     </div>
 
     {{-- Bulk Action Bar --}}
-    <div class="glass-card-premium px-4 py-3 mb-4 d-none" id="bulk-action-container">
+    <div class="glass-card-premium px-4 py-3 mb-4 d-none" id="bulk-action-container" style="position: relative; z-index: 10 !important;">
       <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
         <div class="d-flex align-items-center">
           <span class="text-white fw-bold me-2 fs-5" id="bulk-select-count">0</span>
