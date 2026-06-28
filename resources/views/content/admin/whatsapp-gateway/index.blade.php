@@ -335,7 +335,7 @@ $allFilled = !empty($settings['whatsapp_send_url']->value ?? '') &&
             </p>
           </div>
         </div>
-        <div>
+        <div class="d-flex align-items-center gap-2">
           @if($allFilled)
             <span class="badge-premium badge-premium-success d-flex align-items-center gap-2 px-3 py-2">
               <i class="icon-base ti tabler-check-circle fs-6"></i> Terkonfigurasi
@@ -345,6 +345,19 @@ $allFilled = !empty($settings['whatsapp_send_url']->value ?? '') &&
               <i class="icon-base ti tabler-alert-circle fs-6"></i> Belum dikonfigurasi
             </span>
           @endif
+
+          <div id="wa-status-container" class="d-inline-flex align-items-center gap-3">
+            <div id="wa-sender-status-container" class="d-inline-flex align-items-center gap-2">
+              <span class="badge bg-secondary text-white-50 px-3 py-2 d-flex align-items-center gap-2" style="border-radius: 4px; font-size: 0.8rem;">
+                <i class="icon-base ti tabler-refresh spin-icon me-1"></i> Kirim: ...
+              </span>
+            </div>
+            <div id="wa-check-sender-status-container" class="d-inline-flex align-items-center gap-2">
+              <span class="badge bg-secondary text-white-50 px-3 py-2 d-flex align-items-center gap-2" style="border-radius: 4px; font-size: 0.8rem;">
+                <i class="icon-base ti tabler-refresh spin-icon me-1"></i> Cek: ...
+              </span>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -503,5 +516,124 @@ function togglePassword(inputId, iconId) {
     icon.className = 'icon-base ti tabler-eye fs-5';
   }
 }
+
+let waStatusInterval = null;
+
+document.addEventListener('DOMContentLoaded', function() {
+  checkWaConnectionStatus();
+
+  // Setup real-time polling every 10 seconds (silent check)
+  waStatusInterval = setInterval(function() {
+    checkWaConnectionStatus(true);
+  }, 10000);
+});
+
+window.addEventListener('beforeunload', function() {
+  if (waStatusInterval) {
+    clearInterval(waStatusInterval);
+  }
+});
+
+function checkWaConnectionStatus(isSilent = false) {
+  const senderContainer = document.getElementById('wa-sender-status-container');
+  const checkSenderContainer = document.getElementById('wa-check-sender-status-container');
+
+  if (!isSilent) {
+    if (senderContainer) {
+      senderContainer.innerHTML = `
+        <span class="badge bg-secondary text-white-50 px-3 py-2 d-flex align-items-center gap-2" style="border-radius: 4px; font-size: 0.8rem;">
+          <i class="icon-base ti tabler-refresh spin-icon me-1"></i> Kirim: ...
+        </span>
+      `;
+      const spinIcon = senderContainer.querySelector('.spin-icon');
+      if (spinIcon) spinIcon.style.animation = 'spin 1.5s linear infinite';
+    }
+
+    if (checkSenderContainer) {
+      checkSenderContainer.innerHTML = `
+        <span class="badge bg-secondary text-white-50 px-3 py-2 d-flex align-items-center gap-2" style="border-radius: 4px; font-size: 0.8rem;">
+          <i class="icon-base ti tabler-refresh spin-icon me-1"></i> Cek: ...
+        </span>
+      `;
+      const spinIcon = checkSenderContainer.querySelector('.spin-icon');
+      if (spinIcon) spinIcon.style.animation = 'spin 1.5s linear infinite';
+    }
+  }
+
+  fetch('{{ route("admin.whatsapp-gateway.status") }}')
+    .then(response => response.json())
+    .then(data => {
+      // 1. Update status Kirim (sender)
+      if (senderContainer) {
+        if (data.sender && data.sender.connected === true) {
+          senderContainer.innerHTML = `
+            <span class="badge-premium badge-premium-success d-flex align-items-center gap-2 px-3 py-2">
+              <span class="pulse-green" style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background-color: #34d399; box-shadow: 0 0 8px #34d399; margin-right: 4px;"></span> Kirim: Connected
+            </span>
+            <button type="button" class="btn btn-sm btn-icon btn-secondary-custom" onclick="checkWaConnectionStatus(false)" title="Refresh Status" style="width: 32px; height: 32px; padding: 0;">
+              <i class="icon-base ti tabler-refresh"></i>
+            </button>
+          `;
+        } else {
+          const displayStatus = (data.sender && data.sender.status) || 'Disconnected';
+          senderContainer.innerHTML = `
+            <span class="badge-premium badge-premium-danger d-flex align-items-center gap-2 px-3 py-2">
+              <span class="pulse-red" style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background-color: #f87171; box-shadow: 0 0 8px #f87171; margin-right: 4px;"></span> Kirim: Disconnected (${displayStatus})
+            </span>
+            <button type="button" class="btn btn-sm btn-icon btn-secondary-custom" onclick="checkWaConnectionStatus(false)" title="Refresh Status" style="width: 32px; height: 32px; padding: 0;">
+              <i class="icon-base ti tabler-refresh"></i>
+            </button>
+          `;
+        }
+      }
+
+      // 2. Update status Cek WA (check_sender)
+      if (checkSenderContainer) {
+        if (data.check_sender && data.check_sender.connected === true) {
+          checkSenderContainer.innerHTML = `
+            <span class="badge-premium badge-premium-success d-flex align-items-center gap-2 px-3 py-2">
+              <span class="pulse-green" style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background-color: #34d399; box-shadow: 0 0 8px #34d399; margin-right: 4px;"></span> Cek: Connected
+            </span>
+            <button type="button" class="btn btn-sm btn-icon btn-secondary-custom" onclick="checkWaConnectionStatus(false)" title="Refresh Status" style="width: 32px; height: 32px; padding: 0;">
+              <i class="icon-base ti tabler-refresh"></i>
+            </button>
+          `;
+        } else {
+          const displayStatus = (data.check_sender && data.check_sender.status) || 'Disconnected';
+          checkSenderContainer.innerHTML = `
+            <span class="badge-premium badge-premium-danger d-flex align-items-center gap-2 px-3 py-2">
+              <span class="pulse-red" style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background-color: #f87171; box-shadow: 0 0 8px #f87171; margin-right: 4px;"></span> Cek: Disconnected (${displayStatus})
+            </span>
+            <button type="button" class="btn btn-sm btn-icon btn-secondary-custom" onclick="checkWaConnectionStatus(false)" title="Refresh Status" style="width: 32px; height: 32px; padding: 0;">
+              <i class="icon-base ti tabler-refresh"></i>
+            </button>
+          `;
+        }
+      }
+    })
+    .catch(error => {
+      console.error('Error fetching WA gateway status:', error);
+      const fallbackHtml = `
+        <span class="badge-premium d-flex align-items-center gap-2 px-3 py-2" style="background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.6); border-color: rgba(255,255,255,0.1);">
+          <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background-color: #a1a1aa; margin-right: 4px;"></span> Offline / Error
+        </span>
+        <button type="button" class="btn btn-sm btn-icon btn-secondary-custom" onclick="checkWaConnectionStatus(false)" title="Refresh Status" style="width: 32px; height: 32px; padding: 0;">
+          <i class="icon-base ti tabler-refresh"></i>
+        </button>
+      `;
+      if (senderContainer) senderContainer.innerHTML = 'Kirim: ' + fallbackHtml;
+      if (checkSenderContainer) checkSenderContainer.innerHTML = 'Cek: ' + fallbackHtml;
+    });
+}
 </script>
+
+<style>
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+.spin-icon {
+  display: inline-block;
+}
+</style>
 @endsection

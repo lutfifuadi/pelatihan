@@ -24,6 +24,9 @@ class Pelatihan extends Model
         'auto_approve',
         'is_active',
         'dinas_id',
+        'latitude',
+        'longitude',
+        'radius_toleransi',
     ];
 
     protected function casts(): array
@@ -34,6 +37,9 @@ class Pelatihan extends Model
             'batas_pendaftaran' => 'date',
             'tanggal_mulai' => 'date',
             'tanggal_selesai' => 'date',
+            'latitude' => 'decimal:8',
+            'longitude' => 'decimal:8',
+            'radius_toleransi' => 'integer',
         ];
     }
 

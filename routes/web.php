@@ -21,6 +21,7 @@ Route::get('/sitemap.xml', [SeoController::class, 'sitemap'])->name('sitemap');
 Route::get('/robots.txt', [SeoController::class, 'robots'])->name('robots');
 use App\Http\Controllers\Admin\ActivityLogController;
 use App\Http\Controllers\Admin\AttendanceController;
+use App\Http\Controllers\Admin\LaporanController;
 use App\Http\Controllers\Admin\Auth\AdminLoginController;
 use App\Http\Controllers\Admin\CacheController;
 use App\Http\Controllers\Admin\CertificateController;
@@ -160,6 +161,19 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
     // Instruktur only
     Route::middleware(['role:instruktur'])->group(function () {
         Route::get('/dashboard/instruktur', [DashboardController::class, 'instruktur'])->name('dashboard.instruktur');
+        Route::get('/instruktur/pelatihan/{pelatihan}/monitoring', function ($pelatihanId) {
+            $pelatihan = \App\Models\Pelatihan::findOrFail($pelatihanId);
+            return view('content.instruktur.monitoring', compact('pelatihan'));
+        })->name('instruktur.monitoring');
+    });
+
+    // Scanner Panitia & Admin accessible routes
+    Route::middleware(['role:admin,panitia'])->group(function () {
+        Route::get('/panitia/pelatihan/{pelatihan}/scanner', function ($pelatihanId) {
+            $pelatihan = \App\Models\Pelatihan::findOrFail($pelatihanId);
+            return view('content.panitia.scanner', compact('pelatihan'));
+        })->name('panitia.scanner');
+        Route::get('/panitia/operasional', [\App\Http\Controllers\DashboardController::class, 'panitiaOperasional'])->name('panitia.operasional');
     });
 
     // Koordinator only
@@ -254,6 +268,11 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
         Route::resource('pelatihan', PelatihanController::class);
         Route::get('pelatihan/{pelatihan}/peserta', [PelatihanController::class, 'show'])->name('pelatihan.peserta');
 
+        // Presensi Baru
+        Route::get('presensi', [\App\Http\Controllers\Admin\PresensiController::class, 'index'])->name('presensi.index');
+        Route::get('presensi/pelatihan/{pelatihan}', [\App\Http\Controllers\Admin\PresensiController::class, 'show'])->name('presensi.show');
+        Route::post('presensi/koreksi', [\App\Http\Controllers\Admin\PresensiController::class, 'koreksi'])->name('presensi.koreksi');
+
         // Dinas
         Route::resource('dinas', DinasController::class)->parameter('dinas', 'dinas');
 
@@ -266,6 +285,7 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
         Route::delete('peserta/{peserta}', [PesertaController::class, 'destroy'])->name('peserta.destroy');
 
         // WhatsApp Gateway
+        Route::get('whatsapp-gateway/status', [WhatsAppGatewayController::class, 'status'])->name('whatsapp-gateway.status');
         Route::get('whatsapp-gateway', [WhatsAppGatewayController::class, 'index'])->name('whatsapp-gateway.index');
         Route::post('whatsapp-gateway', [WhatsAppGatewayController::class, 'update'])->name('whatsapp-gateway.update');
         Route::post('whatsapp-gateway/test', [WhatsAppGatewayController::class, 'test'])->name('whatsapp-gateway.test');
@@ -363,6 +383,9 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
         // ===== ACTIVITY LOGS =====
         Route::get('/activity-logs', [ActivityLogController::class, 'index'])->name('activity-logs.index');
 
+        // ===== AUDIT LOGS =====
+        Route::get('/audit-logs', [\App\Http\Controllers\Admin\AuditLogController::class, 'index'])->name('audit-logs.index');
+
         // ===== ACTIVITY LOGS - DELETE =====
         Route::delete('/activity-logs/bulk/delete', [ActivityLogController::class, 'bulkDestroy'])->name('activity-logs.bulk-destroy');
         Route::delete('/activity-logs/{id}', [ActivityLogController::class, 'destroy'])->name('activity-logs.destroy');
@@ -378,6 +401,7 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
 
         // ===== EXPORT ROUTES =====
         Route::prefix('exports')->name('exports.')->group(function () {
+            Route::get('/', [ExportController::class, 'index'])->name('index');
             Route::get('peserta/pdf', [ExportController::class, 'exportPesertaPdf'])->name('peserta.pdf');
             Route::get('peserta/excel', [ExportController::class, 'exportPesertaExcel'])->name('peserta.excel');
             Route::get('enrollments/pdf/{pelatihan?}', [ExportController::class, 'exportEnrollmentsPdf'])->name('enrollments.pdf');
@@ -431,6 +455,9 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
 // ===== CLEAR CACHE =====
         Route::get('cache', [CacheController::class, 'index'])->name('cache.index');
         Route::post('cache/clear', [CacheController::class, 'clear'])->name('cache.clear');
+
+        // ===== LAPORAN & STATISTIK =====
+        Route::get('laporan', [LaporanController::class, 'index'])->name('laporan.index');
     });
 });
 

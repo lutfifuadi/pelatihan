@@ -18,7 +18,7 @@ class PelatihanController extends Controller
 
         // Whitelist kolom yang diizinkan untuk sorting (cegah SQL injection)
         $allowedSort = [
-            'batch', 'nama', 'dinas', 'kuota', 'is_active', 'created_at'
+            'tanggal_mulai', 'nama', 'dinas', 'kuota', 'is_active', 'created_at'
         ];
 
         if (!in_array($sortBy, $allowedSort)) {

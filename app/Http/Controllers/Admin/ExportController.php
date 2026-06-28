@@ -19,6 +19,18 @@ use Maatwebsite\Excel\Facades\Excel;
 class ExportController extends Controller
 {
     /**
+     * Menampilkan halaman indeks export dengan semua opsi.
+     */
+    public function index()
+    {
+        $pelatihans = Pelatihan::where('is_active', true)
+            ->orderBy('nama')
+            ->get(['id', 'nama']);
+
+        return view('content.admin.exports.index', compact('pelatihans'));
+    }
+
+    /**
      * Export PDF daftar peserta.
      */
     public function exportPesertaPdf(Request $request)
@@ -76,7 +88,7 @@ class ExportController extends Controller
 
         $filename = 'data-pendaftaran';
         if ($pelatihan && $pelatihan->exists) {
-            $filename .= '-' . Str::slug($pelatihan->nama);
+            $filename .= '-' . \Illuminate\Support\Str::slug($pelatihan->nama);
         }
         $filename .= '-' . now()->format('Y-m-d') . '.pdf';
 
@@ -116,7 +128,7 @@ class ExportController extends Controller
 
         $enrollments = Enrollment::with(['user', 'attendances'])
             ->where('pelatihan_id', $pelatihan->id)
-            ->where('status', 'approved')
+            ->where('status', 'confirmed')
             ->orderBy('created_at', 'asc')
             ->get();
 

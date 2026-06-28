@@ -16,6 +16,12 @@
       "slug": "dashboard.instruktur"
     },
     {
+      "url": "/panitia/operasional",
+      "name": "Scanner & Proyektor",
+      "icon": "menu-icon icon-base ti tabler-scan",
+      "slug": "panitia.operasional"
+    },
+    {
       "menuHeader": "Notifikasi"
     },
     {

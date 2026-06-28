@@ -268,4 +268,148 @@ class WhatsAppService
     {
         return self::checkNumber($number);
     }
+
+    public static function checkDeviceStatus(): array
+    {
+        $apiKey = self::getConfig('api_key');
+        $sender = self::getConfig('sender');
+
+        if (!$apiKey || !$sender) {
+            return [
+                'connected' => false,
+                'status' => 'Not Configured',
+                'message' => 'API Key atau Nomor Pengirim belum dikonfigurasi.'
+            ];
+        }
+
+        try {
+            $response = Http::timeout(10)->get('https://wa.lutfifuadi.my.id/info-devices', [
+                'api_key' => $apiKey,
+                'number'  => $sender,
+            ]);
+
+            if ($response->successful()) {
+                $body = $response->json();
+                if (isset($body['status']) && $body['status'] === true) {
+                    $info = $body['info'] ?? [];
+                    if (!empty($info) && is_array($info)) {
+                        $deviceInfo = $info[0] ?? [];
+                        $status = $deviceInfo['status'] ?? '';
+                        
+                        if (strcasecmp($status, 'Connected') === 0) {
+                            return [
+                                'connected' => true,
+                                'status' => 'Connected',
+                                'message' => 'Perangkat terhubung.'
+                            ];
+                        } elseif (strcasecmp($status, 'Disconnect') === 0) {
+                            return [
+                                'connected' => false,
+                                'status' => 'Disconnected',
+                                'message' => 'Perangkat terputus.'
+                            ];
+                        } else {
+                            return [
+                                'connected' => false,
+                                'status' => $status ?: 'Unknown',
+                                'message' => 'Status perangkat: ' . ($status ?: 'Tidak diketahui')
+                            ];
+                        }
+                    }
+                }
+                
+                $message = $body['message'] ?? 'Respon API tidak sesuai format.';
+                return [
+                    'connected' => false,
+                    'status' => 'Error',
+                    'message' => $message
+                ];
+            }
+
+            return [
+                'connected' => false,
+                'status' => 'Error',
+                'message' => 'Koneksi ke gateway gagal dengan status ' . $response->status()
+            ];
+        } catch (\Exception $e) {
+            Log::error('WhatsAppService checkDeviceStatus error: ' . $e->getMessage());
+            return [
+                'connected' => false,
+                'status' => 'Offline',
+                'message' => 'Tidak dapat terhubung ke server gateway: ' . $e->getMessage()
+            ];
+        }
+    }
+
+    public static function checkCheckDeviceStatus(): array
+    {
+        $apiKey = self::getConfig('check_api_key') ?: self::getConfig('api_key');
+        $sender = self::getConfig('check_sender') ?: self::getConfig('sender');
+
+        if (!$apiKey || !$sender) {
+            return [
+                'connected' => false,
+                'status' => 'Not Configured',
+                'message' => 'API Key atau Nomor Pengirim Cek Nomor belum dikonfigurasi.'
+            ];
+        }
+
+        try {
+            $response = Http::timeout(10)->get('https://wa.lutfifuadi.my.id/info-devices', [
+                'api_key' => $apiKey,
+                'number'  => $sender,
+            ]);
+
+            if ($response->successful()) {
+                $body = $response->json();
+                if (isset($body['status']) && $body['status'] === true) {
+                    $info = $body['info'] ?? [];
+                    if (!empty($info) && is_array($info)) {
+                        $deviceInfo = $info[0] ?? [];
+                        $status = $deviceInfo['status'] ?? '';
+                        
+                        if (strcasecmp($status, 'Connected') === 0) {
+                            return [
+                                'connected' => true,
+                                'status' => 'Connected',
+                                'message' => 'Perangkat terhubung.'
+                            ];
+                        } elseif (strcasecmp($status, 'Disconnect') === 0) {
+                            return [
+                                'connected' => false,
+                                'status' => 'Disconnected',
+                                'message' => 'Perangkat terputus.'
+                            ];
+                        } else {
+                            return [
+                                'connected' => false,
+                                'status' => $status ?: 'Unknown',
+                                'message' => 'Status perangkat: ' . ($status ?: 'Tidak diketahui')
+                            ];
+                        }
+                    }
+                }
+                
+                $message = $body['message'] ?? 'Respon API tidak sesuai format.';
+                return [
+                    'connected' => false,
+                    'status' => 'Error',
+                    'message' => $message
+                ];
+            }
+
+            return [
+                'connected' => false,
+                'status' => 'Error',
+                'message' => 'Koneksi ke gateway gagal dengan status ' . $response->status()
+            ];
+        } catch (\Exception $e) {
+            Log::error('WhatsAppService checkCheckDeviceStatus error: ' . $e->getMessage());
+            return [
+                'connected' => false,
+                'status' => 'Offline',
+                'message' => 'Tidak dapat terhubung ke server gateway: ' . $e->getMessage()
+            ];
+        }
+    }
 }

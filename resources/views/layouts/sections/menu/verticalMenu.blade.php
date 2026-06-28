@@ -31,8 +31,14 @@ $configData = Helper::appClasses();
     // Pilih menu berdasarkan role
     $roleMenu = ($user && isset($menuByRole[$user->role])) ? $menuByRole[$user->role] : null;
     $activeMenu = $roleMenu ? $roleMenu->menu : $menuData[0]->menu;
+    $profileCompleted = $user && $user->role === 'peserta' && optional($user->pesertaProfile)->is_completed;
     @endphp
     @foreach ($activeMenu as $menu)
+    @php
+    if ($profileCompleted && (str_contains($menu->slug ?? '', 'form-') || str_contains($menu->slug ?? '', 'upload-foto'))) {
+        continue;
+    }
+    @endphp
     {{-- adding active and open class if child is active --}}
 
     {{-- menu headers --}}

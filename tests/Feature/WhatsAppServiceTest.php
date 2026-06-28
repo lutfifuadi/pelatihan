@@ -137,4 +137,78 @@ class WhatsAppServiceTest extends TestCase
         $this->assertEquals('628123456789', $results['08123456789']['normalized']);
         $this->assertEquals('6281234567890', $results['6281234567890']['normalized']);
     }
+
+    public function test_check_device_status_returns_not_configured_when_empty(): void
+    {
+        Setting::whereIn('key', ['whatsapp_api_key', 'whatsapp_sender'])->delete();
+        config(['whatsapp.api_key' => '']);
+        config(['whatsapp.sender' => '']);
+
+        $result = WhatsAppService::checkDeviceStatus();
+
+        $this->assertFalse($result['connected']);
+        $this->assertEquals('Not Configured', $result['status']);
+    }
+
+    public function test_check_device_status_returns_connected(): void
+    {
+        Setting::updateOrCreate(['key' => 'whatsapp_api_key'], ['value' => 'test-key', 'group' => 'whatsapp']);
+        Setting::updateOrCreate(['key' => 'whatsapp_sender'], ['value' => '6281234567890', 'group' => 'whatsapp']);
+
+        Http::fake([
+            'wa.lutfifuadi.my.id/info-devices*' => Http::response([
+                'status' => true,
+                'info' => [
+                    [
+                        'status' => 'Connected'
+                    ]
+                ]
+            ], 200)
+        ]);
+
+        $result = WhatsAppService::checkDeviceStatus();
+
+        $this->assertTrue($result['connected']);
+        $this->assertEquals('Connected', $result['status']);
+    }
+
+    public function test_check_device_status_returns_disconnected(): void
+    {
+        Setting::updateOrCreate(['key' => 'whatsapp_api_key'], ['value' => 'test-key', 'group' => 'whatsapp']);
+        Setting::updateOrCreate(['key' => 'whatsapp_sender'], ['value' => '6281234567890', 'group' => 'whatsapp']);
+
+        Http::fake([
+            'wa.lutfifuadi.my.id/info-devices*' => Http::response([
+                'status' => true,
+                'info' => [
+                    [
+                        'status' => 'Disconnect'
+                    ]
+                ]
+            ], 200)
+        ]);
+
+        $result = WhatsAppService::checkDeviceStatus();
+
+        $this->assertFalse($result['connected']);
+        $this->assertEquals('Disconnected', $result['status']);
+    }
+
+    public function test_check_device_status_handles_failure(): void
+    {
+        Setting::updateOrCreate(['key' => 'whatsapp_api_key'], ['value' => 'test-key', 'group' => 'whatsapp']);
+        Setting::updateOrCreate(['key' => 'whatsapp_sender'], ['value' => '6281234567890', 'group' => 'whatsapp']);
+
+        Http::fake([
+            'wa.lutfifuadi.my.id/info-devices*' => Http::response([
+                'status' => false,
+                'message' => 'Invalid API key'
+            ], 400)
+        ]);
+
+        $result = WhatsAppService::checkDeviceStatus();
+
+        $this->assertFalse($result['connected']);
+        $this->assertEquals('Error', $result['status']);
+    }
 }

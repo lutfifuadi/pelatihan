@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Setting;
+use App\Services\WhatsAppService;
 use Illuminate\Http\Request;
 
 class WhatsAppGatewayController extends Controller
@@ -48,5 +49,13 @@ class WhatsAppGatewayController extends Controller
     {
         return redirect()->route('admin.whatsapp-gateway.index')
             ->with('info', 'Fitur test kirim akan segera tersedia.');
+    }
+
+    public function status()
+    {
+        return response()->json([
+            'sender' => WhatsAppService::checkDeviceStatus(),
+            'check_sender' => WhatsAppService::checkCheckDeviceStatus()
+        ]);
     }
 }

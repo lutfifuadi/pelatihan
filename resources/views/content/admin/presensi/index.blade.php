@@ -1,12 +1,10 @@
 @php
 $configData = Helper::appClasses();
-$sortBy = $sortBy ?? 'created_at';
-$sortOrder = $sortOrder ?? 'desc';
 @endphp
 
 @extends('layouts/layoutMaster')
 
-@section('title', 'Kelola Pelatihan')
+@section('title', 'Presensi Pelatihan')
 
 @section('page-style')
 <style>
@@ -223,7 +221,6 @@ $sortOrder = $sortOrder ?? 'desc';
     color: #0b0f19 !important;
   }
 
-  /* --- Pagination styling --- */
   .pagination .page-item .page-link {
     background: rgba(255, 255, 255, 0.04) !important;
     border: 1px solid rgba(255, 255, 255, 0.08) !important;
@@ -249,15 +246,6 @@ $sortOrder = $sortOrder ?? 'desc';
     background: rgba(255, 255, 255, 0.08) !important;
     color: #ffffff !important;
   }
-
-  /* Sort Icon Styles */
-  th a {
-    white-space: nowrap;
-  }
-  th a:hover i {
-    color: #ffffff !important;
-    transition: color 0.2s ease;
-  }
 </style>
 @endsection
 
@@ -275,18 +263,15 @@ $sortOrder = $sortOrder ?? 'desc';
       <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
         <div class="d-flex align-items-center gap-3">
           <div class="stat-icon-box stat-icon-primary">
-            <i class="icon-base ti tabler-book-2 fs-4"></i>
+            <i class="icon-base ti tabler-user-check fs-4"></i>
           </div>
           <div>
-            <h4 class="fw-bold text-white mb-0">Kelola Pelatihan</h4>
+            <h4 class="fw-bold text-white mb-0">Presensi Pelatihan</h4>
             <p class="text-body-premium mb-0 mt-1" style="font-size: 0.95rem;">
-              Daftar dan konfigurasi program pelatihan ekonomi kreatif
+              Daftar rekapitulasi kehadiran dan koreksi presensi peserta
             </p>
           </div>
         </div>
-        <a href="{{ route('admin.pelatihan.create') }}" class="btn btn-glow-premium px-4 py-2 d-flex align-items-center gap-2">
-          <i class="icon-base ti tabler-plus"></i> Tambah Pelatihan
-        </a>
       </div>
     </div>
 
@@ -301,15 +286,26 @@ $sortOrder = $sortOrder ?? 'desc';
       </div>
     @endif
 
-    @if(session('error'))
-      <div class="alert alert-danger alert-dismissible border-0 mb-4" role="alert" style="background: linear-gradient(135deg, #ef4444, #b91c1c); color: white; border-radius: 5px;">
-        <div class="d-flex align-items-center">
-          <i class="icon-base ti tabler-alert-circle fs-5 me-2"></i>
-          <span>{{ session('error') }}</span>
+    <!-- Search Form -->
+    <div class="glass-card-premium px-4 py-3 mb-4">
+      <form action="{{ route('admin.presensi.index') }}" method="GET" class="row g-3 align-items-center">
+        <div class="col-12 col-md-8">
+          <div class="input-group">
+            <span class="input-group-text bg-transparent border-white border-opacity-10 text-body-premium">
+              <i class="icon-base ti tabler-search fs-5"></i>
+            </span>
+            <input type="text" name="search" class="form-control bg-transparent border-white border-opacity-10 text-white placeholder-light" 
+                   placeholder="Cari nama pelatihan..." value="{{ request('search') }}" style="box-shadow: none;">
+          </div>
         </div>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Close"></button>
-      </div>
-    @endif
+        <div class="col-12 col-md-4 d-flex gap-2">
+          <button type="submit" class="btn btn-primary w-100" style="border-radius: 5px;">Cari</button>
+          @if(request('search'))
+            <a href="{{ route('admin.presensi.index') }}" class="btn btn-secondary w-100" style="border-radius: 5px;">Reset</a>
+          @endif
+        </div>
+      </form>
+    </div>
 
     <!-- Data Table Card -->
     <div class="col-12">
@@ -319,57 +315,11 @@ $sortOrder = $sortOrder ?? 'desc';
             <thead>
               <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.08);">
                 <th class="text-body-premium small fw-semibold px-0" style="width: 60px;">No</th>
-                <th class="text-body-premium small fw-semibold">
-                  <a href="{{ route('admin.pelatihan.index', ['sort_by' => 'tanggal_mulai', 'sort_order' => $sortBy === 'tanggal_mulai' && $sortOrder === 'asc' ? 'desc' : 'asc']) }}" class="text-decoration-none text-body-premium d-flex align-items-center gap-1">
-                    Tanggal Pelatihan
-                    @if($sortBy === 'tanggal_mulai')
-                      <i class="icon-base ti {{ $sortOrder === 'asc' ? 'tabler-arrow-up' : 'tabler-arrow-down' }} fs-6" style="color: #6366f1;"></i>
-                    @else
-                      <i class="icon-base ti tabler-arrows-sort fs-6" style="color: rgba(255,255,255,0.3);"></i>
-                    @endif
-                  </a>
-                </th>
-                <th class="text-body-premium small fw-semibold">
-                  <a href="{{ route('admin.pelatihan.index', ['sort_by' => 'nama', 'sort_order' => $sortBy === 'nama' && $sortOrder === 'asc' ? 'desc' : 'asc']) }}" class="text-decoration-none text-body-premium d-flex align-items-center gap-1">
-                    Nama Pelatihan
-                    @if($sortBy === 'nama')
-                      <i class="icon-base ti {{ $sortOrder === 'asc' ? 'tabler-arrow-up' : 'tabler-arrow-down' }} fs-6" style="color: #6366f1;"></i>
-                    @else
-                      <i class="icon-base ti tabler-arrows-sort fs-6" style="color: rgba(255,255,255,0.3);"></i>
-                    @endif
-                  </a>
-                </th>
-                <th class="text-body-premium small fw-semibold">
-                  <a href="{{ route('admin.pelatihan.index', ['sort_by' => 'dinas_id', 'sort_order' => $sortBy === 'dinas_id' && $sortOrder === 'asc' ? 'desc' : 'asc']) }}" class="text-decoration-none text-body-premium d-flex align-items-center gap-1">
-                    Dinas
-                    @if($sortBy === 'dinas_id')
-                      <i class="icon-base ti {{ $sortOrder === 'asc' ? 'tabler-arrow-up' : 'tabler-arrow-down' }} fs-6" style="color: #6366f1;"></i>
-                    @else
-                      <i class="icon-base ti tabler-arrows-sort fs-6" style="color: rgba(255,255,255,0.3);"></i>
-                    @endif
-                  </a>
-                </th>
-                <th class="text-body-premium small fw-semibold">
-                  <a href="{{ route('admin.pelatihan.index', ['sort_by' => 'kuota', 'sort_order' => $sortBy === 'kuota' && $sortOrder === 'asc' ? 'desc' : 'asc']) }}" class="text-decoration-none text-body-premium d-flex align-items-center gap-1">
-                    Kuota
-                    @if($sortBy === 'kuota')
-                      <i class="icon-base ti {{ $sortOrder === 'asc' ? 'tabler-arrow-up' : 'tabler-arrow-down' }} fs-6" style="color: #6366f1;"></i>
-                    @else
-                      <i class="icon-base ti tabler-arrows-sort fs-6" style="color: rgba(255,255,255,0.3);"></i>
-                    @endif
-                  </a>
-                </th>
-                <th class="text-body-premium small fw-semibold">
-                  <a href="{{ route('admin.pelatihan.index', ['sort_by' => 'is_active', 'sort_order' => $sortBy === 'is_active' && $sortOrder === 'asc' ? 'desc' : 'asc']) }}" class="text-decoration-none text-body-premium d-flex align-items-center gap-1">
-                    Status
-                    @if($sortBy === 'is_active')
-                      <i class="icon-base ti {{ $sortOrder === 'asc' ? 'tabler-arrow-up' : 'tabler-arrow-down' }} fs-6" style="color: #6366f1;"></i>
-                    @else
-                      <i class="icon-base ti tabler-arrows-sort fs-6" style="color: rgba(255,255,255,0.3);"></i>
-                    @endif
-                  </a>
-                </th>
-                <th class="text-body-premium small fw-semibold text-end px-0" style="width: 140px;">Aksi</th>
+                <th class="text-body-premium small fw-semibold">Tanggal Pelatihan</th>
+                <th class="text-body-premium small fw-semibold">Nama Pelatihan</th>
+                <th class="text-body-premium small fw-semibold">Dinas</th>
+                <th class="text-body-premium small fw-semibold">Kuota</th>
+                <th class="text-body-premium small fw-semibold text-end px-0" style="width: 160px;">Aksi</th>
               </tr>
             </thead>
             <tbody>
@@ -385,38 +335,17 @@ $sortOrder = $sortOrder ?? 'desc';
                       {{ $pelatihan->dinas->nama_dinas ?? '-' }}
                     </span>
                   </td>
-                  <td class="py-3 text-body-premium text-center fw-semibold">{{ $pelatihan->kuota ?? '-' }}</td>
-                  <td class="py-3">
-                    @if($pelatihan->is_active)
-                      <span class="badge-premium badge-premium-success">Aktif</span>
-                    @else
-                      <span class="badge-premium badge-premium-warning">Nonaktif</span>
-                    @endif
-                  </td>
+                  <td class="py-3 text-body-premium fw-semibold">{{ $pelatihan->kuota ?? '-' }}</td>
                   <td class="text-end px-0 py-3">
-                    <div class="d-inline-flex gap-2">
-                      <a href="{{ route('admin.pelatihan.peserta', $pelatihan) }}" class="btn btn-info btn-sm d-flex align-items-center justify-content-center" style="border-radius: 5px; width: 32px; height: 32px; padding: 0;" title="Lihat Peserta">
-                        <i class="icon-base ti tabler-eye fs-5"></i>
-                      </a>
-
-                      <a href="{{ route('admin.pelatihan.edit', $pelatihan) }}" class="btn btn-warning btn-sm d-flex align-items-center justify-content-center" style="border-radius: 5px; width: 32px; height: 32px; padding: 0;">
-                        <i class="icon-base ti tabler-edit fs-5 text-dark"></i>
-                      </a>
-                      <form action="{{ route('admin.pelatihan.destroy', $pelatihan) }}" method="POST" class="d-inline"
-                        onsubmit="return confirm('Yakin ingin menghapus pelatihan {{ $pelatihan->nama }}?')">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" class="btn btn-danger btn-sm d-flex align-items-center justify-content-center" style="border-radius: 5px; width: 32px; height: 32px; padding: 0;">
-                           <i class="icon-base ti tabler-trash fs-5"></i>
-                        </button>
-                      </form>
-                    </div>
+                    <a href="{{ route('admin.presensi.show', $pelatihan) }}" class="btn btn-glow-premium btn-sm px-3 py-2">
+                      Rekap Absensi
+                    </a>
                   </td>
                 </tr>
               @empty
                 <tr>
                   <td colspan="6" class="text-center text-body-premium py-5">
-                    <i class="icon-base ti tabler-book-off fs-1 mb-2 d-block text-warning"></i>
+                    <i class="icon-base ti tabler-user-off fs-1 mb-2 d-block text-warning"></i>
                     Belum ada data pelatihan.
                   </td>
                 </tr>

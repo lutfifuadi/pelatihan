@@ -20,7 +20,7 @@ class AttendanceExport implements FromCollection, WithHeadings, WithMapping, Sho
     {
         $this->pelatihan = $pelatihan;
 
-        $this->totalPertemuan = Attendance::whereHas('enrollment', function ($q) {
+        $this->totalPertemuan = Attendance::whereHas('enrollment', function ($q) use ($pelatihan) {
             $q->where('pelatihan_id', $pelatihan->id);
         })->max('pertemuan_ke') ?? 0;
 
@@ -34,7 +34,7 @@ class AttendanceExport implements FromCollection, WithHeadings, WithMapping, Sho
     {
         return Enrollment::with(['user', 'attendances'])
             ->where('pelatihan_id', $this->pelatihan->id)
-            ->where('status', 'approved')
+            ->where('status', 'confirmed')
             ->orderBy('created_at', 'asc')
             ->get();
     }

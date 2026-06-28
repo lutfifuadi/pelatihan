@@ -277,7 +277,22 @@
       ]
     },
     {
+      "menuHeader": "Operasional Presensi"
+    },
+    {
+      "url": "/panitia/operasional",
+      "name": "Scanner & Proyektor",
+      "icon": "menu-icon icon-base ti tabler-scan",
+      "slug": "panitia.operasional"
+    },
+    {
       "menuHeader": "Laporan & Log"
+    },
+    {
+      "url": "/admin/presensi",
+      "name": "Rekap Presensi & Laporan",
+      "icon": "menu-icon icon-base ti tabler-clipboard-check",
+      "slug": "admin.presensi.index"
     },
     {
       "url": "#",
@@ -310,6 +325,12 @@
       "name": "Log Aktivitas",
       "icon": "menu-icon icon-base ti tabler-activity",
       "slug": "admin.activity-logs.index"
+    },
+    {
+      "url": "/admin/audit-logs",
+      "name": "Audit Log Presensi",
+      "icon": "menu-icon icon-base ti tabler-shield-lock",
+      "slug": "admin.audit-logs.index"
     },
     {
       "url": "/admin/system/logs",

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Schedule extends Model
 {
@@ -46,5 +47,23 @@ class Schedule extends Model
     public function scopeActive($query)
     {
         return $query->where('is_active', true);
+    }
+
+    /**
+     * Relasi many-to-many ke instruktur (User) melalui pivot schedule_instruktur.
+     */
+    public function instrukturs(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'schedule_instruktur')
+                    ->withPivot('is_utama')
+                    ->withTimestamps();
+    }
+
+    /**
+     * Ambil instruktur utama dari jadwal ini.
+     */
+    public function instrukturUtama(): BelongsToMany
+    {
+        return $this->instrukturs()->wherePivot('is_utama', true);
     }
 }

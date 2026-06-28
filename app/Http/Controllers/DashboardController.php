@@ -7,10 +7,15 @@ use App\Models\Notification;
 use App\Models\NotificationTemplate;
 use App\Models\Pelatihan;
 use App\Models\User;
+use App\Services\DashboardService;
 use Illuminate\Http\Request;
 
 class DashboardController extends Controller
 {
+    public function __construct(
+        private DashboardService $dashboardService
+    ) {}
+
     /**
      * Dashboard Admin — Real-time (no cache).
      */
@@ -20,8 +25,7 @@ class DashboardController extends Controller
         $userCounts = User::selectRaw("
                 COUNT(*) as total,
                 SUM(CASE WHEN role = 'peserta' THEN 1 ELSE 0 END) as total_peserta,
-                SUM(CASE WHEN role = 'instruktur' THEN 1 ELSE 0 END) as total_instruktur,
-                SUM(CASE WHEN role = 'koordinator' THEN 1 ELSE 0 END) as total_koordinator
+                SUM(CASE WHEN role = 'instruktur' THEN 1 ELSE 0 END) as total_instruktur
             ")->first();
 
         // --- Notifikasi stats dalam 2 query ---
@@ -38,37 +42,94 @@ class DashboardController extends Controller
 
         $activeTemplates = NotificationTemplate::where('is_active', true)->count();
 
-        // --- Koordinator pending (aktif & tidak aktif) ---
-        $pendingKoordinators = User::where('role', 'koordinator')
-            ->where('is_active', false)
-            ->with('kecamatan:id,name')
-            ->orderBy('created_at', 'desc')
-            ->take(5)
-            ->get();
-
-        $pendingKoordinatorCount = User::where('role', 'koordinator')
-            ->where('is_active', false)
-            ->count();
-
-        // --- Koordinator aktif ---
-        $activeKoors = User::where('role', 'koordinator')
-            ->where('is_active', true)
-            ->with('kecamatan:id,name')
-            ->orderBy('created_at', 'desc')
-            ->take(4)
-            ->get();
-
-        $koorActiveCount = User::where('role', 'koordinator')
-            ->where('is_active', true)
-            ->count();
-
-        // --- Pelatihan ---
+        // --- Pelatihan (via DashboardService) ---
         $totalPelatihan = Pelatihan::count();
         $activePelatihanCount = Pelatihan::where('is_active', true)->count();
 
-        $latestPelatihan = Pelatihan::select('id', 'nama', 'batch', 'kuota', 'is_active', 'created_at')
+        $pelatihanList = $this->dashboardService->getPelatihanList();
+        $trendPendaftaran = $this->dashboardService->getRegistrationTrend();
+        $topInstruktur = $this->dashboardService->getTopInstruktur();
+
+        // --- Presensi Hari Ini ---
+        $today = now()->toDateString();
+        $pelatihanHariIni = Pelatihan::where('is_active', true)
+            ->where('tanggal_mulai', '<=', $today)
+            ->where('tanggal_selesai', '>=', $today)
+            ->with(['dinas'])
+            ->get();
+
+        $pelatihanHariIniCount = $pelatihanHariIni->count();
+        $activePelatihanIds = $pelatihanHariIni->pluck('id');
+
+        // Total Enrollment dengan status confirmed pada pelatihan-pelatihan aktif hari ini
+        $totalConfirmedHariIni = \App\Models\Enrollment::whereIn('pelatihan_id', $activePelatihanIds)
+            ->where('status', \App\Enums\EnrollmentStatus::Confirmed)
+            ->count();
+
+        // Total Attendance dengan status hadir pada tanggal hari ini untuk pelatihan-pelatihan tersebut
+        $totalHadirHariIni = \App\Models\Attendance::whereDate('date', $today)
+            ->where('status', 'hadir')
+            ->whereIn('enrollment_id', function ($query) use ($activePelatihanIds) {
+                $query->select('id')
+                    ->from('enrollments')
+                    ->whereIn('pelatihan_id', $activePelatihanIds);
+            })
+            ->count();
+
+        // Total kuota dari pelatihan-pelatihan aktif hari ini
+        $totalKuotaHariIni = $pelatihanHariIni->sum('kuota');
+
+        // Rata-rata kehadiran hari ini (persentase)
+        $persentaseKehadiranHariIni = $totalConfirmedHariIni > 0
+            ? round(($totalHadirHariIni / $totalConfirmedHariIni) * 100)
+            : 0;
+
+        // --- Corong Verifikasi Pendaftaran (Registration Funnel) ---
+        $funnelCounts = \App\Models\Enrollment::selectRaw("
+            COUNT(*) as total,
+            SUM(CASE WHEN status = 'pending' THEN 1 ELSE 0 END) as pending,
+            SUM(CASE WHEN status = 'approved' THEN 1 ELSE 0 END) as approved,
+            SUM(CASE WHEN status = 'waiting_wa_confirmation' THEN 1 ELSE 0 END) as waiting_wa,
+            SUM(CASE WHEN status = 'waiting_newbimma_check' THEN 1 ELSE 0 END) as waiting_newbimma,
+            SUM(CASE WHEN status = 'confirmed' THEN 1 ELSE 0 END) as confirmed,
+            SUM(CASE WHEN status = 'rejected' THEN 1 ELSE 0 END) as rejected,
+            SUM(CASE WHEN status = 'waitlist' THEN 1 ELSE 0 END) as waitlist
+        ")->first();
+
+        // --- Live Monitoring Pelatihan Hari Ini ---
+        $livePelatihans = $pelatihanHariIni->map(function ($pelatihan) use ($today) {
+            $confirmedCount = \App\Models\Enrollment::where('pelatihan_id', $pelatihan->id)
+                ->where('status', \App\Enums\EnrollmentStatus::Confirmed)
+                ->count();
+
+            $hadirCount = \App\Models\Attendance::whereDate('date', $today)
+                ->where('status', 'hadir')
+                ->whereIn('enrollment_id', function ($query) use ($pelatihan) {
+                    $query->select('id')
+                        ->from('enrollments')
+                        ->where('pelatihan_id', $pelatihan->id);
+                })
+                ->count();
+
+            // instuktur default value / fallback
+            $instrukturName = "Belum Ditugaskan";
+
+            return [
+                'id' => $pelatihan->id,
+                'nama' => $pelatihan->nama,
+                'batch' => $pelatihan->batch,
+                'instruktur' => $instrukturName,
+                'dinas' => $pelatihan->dinas,
+                'hadir' => $hadirCount,
+                'total' => $confirmedCount,
+                'persentase' => $confirmedCount > 0 ? round(($hadirCount / $confirmedCount) * 100) : 0
+            ];
+        });
+
+        // --- Log Audit Presensi Terbaru ---
+        $latestAuditLogs = \App\Models\AuditLog::with('actor:id,name')
             ->orderBy('created_at', 'desc')
-            ->take(4)
+            ->take(5)
             ->get();
 
         // --- Kecamatan ---
@@ -107,18 +168,25 @@ class DashboardController extends Controller
             'waFailed',
             'notifPending',
             'activeTemplates',
-            'pendingKoordinators',
-            'pendingKoordinatorCount',
-            'activeKoors',
-            'koorActiveCount',
             'totalPelatihan',
             'activePelatihanCount',
-            'latestPelatihan',
+            'pelatihanList',
+            'trendPendaftaran',
+            'topInstruktur',
             'totalKecamatan',
             'sebaranKecamatan',
             'pesertaCount',
             'latestPeserta',
             'latestActivities',
+            'pelatihanHariIni',
+            'pelatihanHariIniCount',
+            'totalConfirmedHariIni',
+            'totalHadirHariIni',
+            'totalKuotaHariIni',
+            'persentaseKehadiranHariIni',
+            'funnelCounts',
+            'livePelatihans',
+            'latestAuditLogs',
         ));
     }
 
@@ -214,5 +282,19 @@ class DashboardController extends Controller
         $data['approvedAt'] = $enrollment?->approved_at;
 
         return view('content.dashboard.peserta', compact('profile', 'data'));
+    }
+
+    /**
+     * Halaman Operasional Panitia — Pelatihan Aktif Hari Ini
+     */
+    public function panitiaOperasional()
+    {
+        $today = now()->toDateString();
+        $pelatihans = Pelatihan::where('is_active', true)
+            ->where('tanggal_mulai', '<=', $today)
+            ->where('tanggal_selesai', '>=', $today)
+            ->get();
+
+        return view('content.panitia.operasional', compact('pelatihans'));
     }
 }

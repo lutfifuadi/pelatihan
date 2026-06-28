@@ -4,9 +4,17 @@ use App\Http\Controllers\Api\PushSubscriptionController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/user', function (Request $request) {
-    return $request->user();
-})->middleware('auth:sanctum');
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/user', function (Request $request) {
+        return $request->user();
+    });
+
+    Route::get('/peserta/attendance-token/{pelatihan_id}', [App\Http\Controllers\Api\AttendanceApiController::class, 'generatePesertaToken']);
+    Route::post('/panitia/check-in', [App\Http\Controllers\Api\AttendanceApiController::class, 'panitiaCheckIn']);
+    Route::post('/panitia/bypass-attendance', [App\Http\Controllers\Api\AttendanceApiController::class, 'panitiaBypass']);
+    Route::get('/pelatihan/{pelatihan_id}/realtime-attendance', [App\Http\Controllers\Api\AttendanceApiController::class, 'getRealtimeAttendance']);
+    Route::get('/panitia/pelatihan/{pelatihan_id}/search-peserta', [App\Http\Controllers\Api\AttendanceApiController::class, 'searchPeserta']);
+});
 
 // Public Web Push API
 Route::prefix('push')->group(function () {

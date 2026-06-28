@@ -7,6 +7,7 @@ use App\Models\ActivityLog;
 use App\Models\Kelurahan;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -126,6 +127,16 @@ class User extends Authenticatable
     public function pushNotifications(): HasMany
     {
         return $this->hasMany(PushNotification::class, 'admin_id');
+    }
+
+    /**
+     * Relasi many-to-many ke schedules (sebagai instruktur).
+     */
+    public function schedulesAsInstruktur(): BelongsToMany
+    {
+        return $this->belongsToMany(Schedule::class, 'schedule_instruktur')
+                    ->withPivot('is_utama')
+                    ->withTimestamps();
     }
 
     /**

@@ -1102,6 +1102,53 @@ $configData = Helper::appClasses();
       <div class="row g-4 mb-4">
         {{-- Left: Progress & Absensi --}}
         <div class="col-12 col-xl-8">
+          {{-- KARTU QR CODE PRESENSI DINAMIS --}}
+          <div class="glass-card-premium px-4 px-xl-5 py-4 mb-4">
+            <div class="d-flex align-items-center justify-content-between mb-4">
+              <h5 class="fw-bold text-white mb-0 d-flex align-items-center gap-2">
+                <i class="icon-base ti tabler-qrcode text-primary"></i>
+                Presensi QR Code
+              </h5>
+              @if($data['enrollment']->status?->value === 'confirmed')
+                <span class="badge-premium badge-premium-success">Terverifikasi</span>
+              @else
+                <span class="badge-premium badge-premium-warning">Menunggu</span>
+              @endif
+            </div>
+
+            @if($data['enrollment']->status?->value === 'confirmed')
+              <div class="text-center py-3">
+                <p class="text-body-premium mb-4" style="font-size: 0.9rem; line-height: 1.5;">
+                  Tunjukkan QR Code dinamis ini kepada Panitia di lokasi pelatihan untuk melakukan check-in kehadiran.
+                </p>
+                <div id="qr-display-section" class="d-none">
+                  <div class="d-inline-block p-3 rounded mb-3 bg-white" style="box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
+                    <div id="qrcode-canvas" style="width: 200px; height: 200px; margin: 0 auto;"></div>
+                  </div>
+                  <div class="mx-auto" style="max-width: 250px;">
+                    <div class="progress progress-dark-premium mb-2" style="height: 6px;">
+                      <div id="qr-countdown-bar" class="progress-bar" style="width: 100%; transition: width 0.1s linear;"></div>
+                    </div>
+                    <small class="text-body-premium d-block mb-3" style="font-size: 0.75rem;">
+                      QR Code diperbarui dalam <span id="qr-countdown-text" class="text-white fw-semibold">20</span> detik
+                    </small>
+                  </div>
+                </div>
+                <button type="button" id="btn-toggle-qr" class="btn btn-glow-premium px-4 py-2">
+                  <i class="icon-base ti tabler-qrcode me-2"></i>Tampilkan QR Presensi
+                </button>
+              </div>
+            @else
+              <div class="text-center py-4 rounded border border-white border-opacity-5" style="background: rgba(255, 255, 255, 0.05);">
+                <i class="icon-base ti tabler-alert-triangle fs-2 text-warning mb-2 d-block"></i>
+                <span class="text-white fw-semibold d-block mb-1">Pendaftaran Sedang Diverifikasi</span>
+                <p class="text-body-premium mb-0 small px-3" style="font-size: 0.8rem; line-height: 1.4;">
+                  Status pendaftaran Anda saat ini adalah <strong class="text-white">{{ $data['enrollment']->status?->value }}</strong>. QR Code presensi hanya tersedia jika pendaftaran telah dikonfirmasi dan diverifikasi WhatsApp/NewBimma.
+                </p>
+              </div>
+            @endif
+          </div>
+
           <div class="glass-card-premium px-4 px-xl-5 py-4 h-100">
             <div class="d-flex align-items-center justify-content-between mb-4">
               <h5 class="fw-bold text-white mb-0 d-flex align-items-center gap-2">
@@ -1439,6 +1486,110 @@ $configData = Helper::appClasses();
           const notification = e.notification || e;
           showNotificationToast(notification.title, notification.body, notification.wa_data || notification.data?.wa_data);
         });
+    }
+
+    // ===== QR CODE ATTENDANCE LOGIC =====
+    const btnToggleQr = document.getElementById('btn-toggle-qr');
+    const qrDisplaySection = document.getElementById('qr-display-section');
+    const qrcodeCanvas = document.getElementById('qrcode-canvas');
+    const countdownBar = document.getElementById('qr-countdown-bar');
+    const countdownText = document.getElementById('qr-countdown-text');
+
+    if (btnToggleQr && qrDisplaySection) {
+      let qrInterval = null;
+      let countdownInterval = null;
+      let isQrVisible = false;
+      const duration = 20; // 20 seconds
+      let timeLeft = duration;
+
+      // Load qrcode library dynamically if not loaded
+      if (typeof QRCode === 'undefined') {
+        const script = document.createElement('script');
+        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js';
+        script.onload = () => {
+          // script loaded successfully
+        };
+        document.head.appendChild(script);
+      }
+
+      btnToggleQr.addEventListener('click', function() {
+        if (!isQrVisible) {
+          // Show QR Code display
+          qrDisplaySection.classList.remove('d-none');
+          btnToggleQr.innerHTML = '<i class="icon-base ti tabler-eye-off me-2"></i>Sembunyikan QR Code';
+          isQrVisible = true;
+
+          // Try to request screen wake lock and maximize screen brightness if possible
+          if (navigator.wakeLock) {
+            navigator.wakeLock.request('screen').catch(err => console.log('Wake Lock request failed:', err));
+          }
+
+          // Start generation
+          fetchAndRenderQr();
+          qrInterval = setInterval(fetchAndRenderQr, duration * 1000);
+          startCountdown();
+        } else {
+          // Hide QR Code display
+          qrDisplaySection.classList.add('d-none');
+          btnToggleQr.innerHTML = '<i class="icon-base ti tabler-qrcode me-2"></i>Tampilkan QR Presensi';
+          isQrVisible = false;
+
+          clearInterval(qrInterval);
+          clearInterval(countdownInterval);
+        }
+      });
+
+      function startCountdown() {
+        clearInterval(countdownInterval);
+        timeLeft = duration;
+        countdownText.textContent = timeLeft;
+        countdownBar.style.width = '100%';
+
+        countdownInterval = setInterval(() => {
+          timeLeft--;
+          if (timeLeft < 0) {
+            timeLeft = duration;
+          }
+          countdownText.textContent = timeLeft;
+          const percentage = (timeLeft / duration) * 100;
+          countdownBar.style.width = percentage + '%';
+        }, 1000);
+      }
+
+      function fetchAndRenderQr() {
+        const pelatihanId = "{{ $data['pelatihan']->id ?? '' }}";
+        if (!pelatihanId) return;
+
+        fetch(`/api/peserta/attendance-token/${pelatihanId}`, {
+          headers: {
+            'Accept': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+          }
+        })
+        .then(response => {
+          if (!response.ok) throw new Error('Failed to fetch token');
+          return response.json();
+        })
+        .then(res => {
+          if (res.qr_token) {
+            // Render QR Code
+            qrcodeCanvas.innerHTML = '';
+            new QRCode(qrcodeCanvas, {
+              text: res.qr_token,
+              width: 200,
+              height: 200,
+              colorDark: "#0b0f19",
+              colorLight: "#ffffff",
+              correctLevel: QRCode.CorrectLevel.H
+            });
+            startCountdown();
+          }
+        })
+        .catch(err => {
+          console.error('Error generating QR Token:', err);
+        });
+      }
     }
   });
 
