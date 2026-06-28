@@ -672,17 +672,20 @@ $configData = Helper::appClasses();
               </div>
 
               {{-- Tahap 6: Review & Kirim --}}
+              @php
+                $step6Done = $profile && $profile->is_completed;
+              @endphp
               <div class="col-12 col-md-6">
                 <div class="d-flex align-items-center gap-3 p-3 rounded" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255,255,255,0.04);">
-                  <div class="stat-icon-box stat-icon-{{ $step5Done ? 'success' : 'secondary' }}" style="width: 38px; height: 38px; font-size: 1.1rem;">
-                    <i class="icon-base ti tabler-{{ $step5Done ? 'check' : 'send' }}"></i>
+                  <div class="stat-icon-box stat-icon-{{ $step6Done ? 'success' : ($step5Done ? 'warning' : 'secondary') }}" style="width: 38px; height: 38px; font-size: 1.1rem;">
+                    <i class="icon-base ti tabler-{{ $step6Done ? 'check' : 'send' }}"></i>
                   </div>
                   <div>
                     <a href="{{ $step5Done ? route('dashboard.peserta.form-review') : 'javascript:void(0);' }}" 
                        class="text-white fw-semibold text-decoration-none {{ !$step5Done ? 'text-muted' : 'hover-text-primary' }}" 
                        style="font-size: 0.9rem; @if(!$step5Done) cursor: not-allowed; opacity: 0.5; @endif">6. Review &amp; Kirim</a>
                     <p class="text-body-premium mb-0 small" style="font-size: 0.75rem;">
-                      {{ $step5Done ? 'Siap Dikirim' : 'Belum Lengkap' }}
+                      {{ $step6Done ? 'Sudah Dikirim' : ($step5Done ? 'Siap Dikirim' : 'Belum Lengkap') }}
                     </p>
                   </div>
                 </div>

@@ -16,6 +16,7 @@ if ($profile) {
     }
 }
 $isComplete = $profile && $filledCount >= $totalImportant;
+$isCompleted = $profile && $profile->is_completed;
 
 // Inisial avatar
 $initialName = $user->name ?? 'U';
@@ -32,7 +33,26 @@ if (str_contains($initialName, ' ')) {
 
 @section('title', 'Profil Saya')
 
-@section('page-style')
+@section('page-script')
+<script>
+  document.addEventListener('alpine:init', function() {
+    Alpine.data('profileEdit', function() {
+      return {
+        editKontak: false,
+        whatsapp: '{{ $profile->whatsapp ?? "" }}',
+        email: '{{ $profile->email ?? $user->email ?? "" }}',
+        medsos: @json($profile->link_medsos ?? []),
+        
+        addMedsos() {
+          this.medsos.push({ platform: 'Instagram', url: '' });
+        },
+        removeMedsos(index) {
+          this.medsos.splice(index, 1);
+        }
+      };
+    });
+  });
+</script>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Sora:wght@400;500;600;700;800&display=swap');
 
@@ -216,6 +236,7 @@ if (str_contains($initialName, ' ')) {
 @endsection
 
 @section('content')
+<div x-data="profileEdit()" x-cloak>
 <div class="glow-orb orb-1"></div>
 <div class="glow-orb orb-2"></div>
 <div class="glow-orb orb-3"></div>
@@ -261,6 +282,12 @@ if (str_contains($initialName, ' ')) {
         </div>
       </div>
       <div class="col-12 col-lg-4 mt-3 mt-lg-0 text-lg-end">
+        @if($isCompleted)
+          <a href="https://wa.me/{{ \App\Models\Setting::where('key', 'whatsapp_sender')->value('value') ?? '62888888888' }}?text={{ urlencode("Halo Admin, saya ingin mengajukan perubahan data pendaftaran yang dikunci. Nama: " . ($profile->nama_lengkap ?? $user->name) . ", NIK: " . ($profile->nik ?? '-') . ".") }}" 
+             target="_blank" class="btn btn-sm btn-warning fw-semibold px-3 py-1.5 me-2" style="border-radius: 5px;">
+            <i class="icon-base ti tabler-edit me-1"></i> Ajukan Perubahan Data Penting
+          </a>
+        @endif
         @if($isComplete)
           <span class="badge-status complete">
             <i class="icon-base ti tabler-circle-check"></i>
@@ -336,9 +363,15 @@ if (str_contains($initialName, ' ')) {
             </div>
             <h5 class="fw-bold text-white mb-0">Data Pribadi</h5>
           </div>
-          <a href="{{ route('dashboard.peserta.form-pendaftaran') }}" class="btn btn-sm btn-outline-glass">
-            <i class="icon-base ti tabler-pencil me-1"></i> Ubah
-          </a>
+          @if($isCompleted)
+            <span class="badge bg-secondary bg-opacity-15 text-white-50 border border-white border-opacity-10 px-2.5 py-1 small" style="border-radius: 4px;">
+              <i class="icon-base ti tabler-lock me-1 fs-6"></i> Terkunci
+            </span>
+          @else
+            <a href="{{ route('dashboard.peserta.form-pendaftaran') }}" class="btn btn-sm btn-outline-glass">
+              <i class="icon-base ti tabler-pencil me-1"></i> Ubah
+            </a>
+          @endif
         </div>
         <hr class="dark-premium">
         <div class="row g-3">
@@ -375,78 +408,163 @@ if (str_contains($initialName, ' ')) {
     {{-- SEKSI 2: Alamat & Kontak --}}
     <div class="col-12">
       <div class="glass-card-premium p-4">
-        <div class="d-flex justify-content-between align-items-start mb-3">
-          <div class="d-flex align-items-center gap-2">
-            <div class="stat-icon-box" style="background: rgba(16,185,129,0.12); color: #34d399;">
-              <i class="icon-base ti tabler-map-pin"></i>
+        {{-- VIEW MODE --}}
+        <div x-show="!editKontak">
+          <div class="d-flex justify-content-between align-items-start mb-3">
+            <div class="d-flex align-items-center gap-2">
+              <div class="stat-icon-box" style="background: rgba(16,185,129,0.12); color: #34d399;">
+                <i class="icon-base ti tabler-map-pin"></i>
+              </div>
+              <h5 class="fw-bold text-white mb-0">Alamat & Kontak</h5>
             </div>
-            <h5 class="fw-bold text-white mb-0">Alamat & Kontak</h5>
+            @if($isCompleted)
+              <button type="button" @click="editKontak = true" class="btn btn-sm btn-outline-glass">
+                <i class="icon-base ti tabler-pencil me-1"></i> Ubah Kontak
+              </button>
+            @else
+              <a href="{{ route('dashboard.peserta.form-alamat') }}" class="btn btn-sm btn-outline-glass">
+                <i class="icon-base ti tabler-pencil me-1"></i> Ubah
+              </a>
+            @endif
           </div>
-          <a href="{{ route('dashboard.peserta.form-alamat') }}" class="btn btn-sm btn-outline-glass">
-            <i class="icon-base ti tabler-pencil me-1"></i> Ubah
-          </a>
-        </div>
-        <hr class="dark-premium">
-        <div class="row g-3">
-          <div class="col-12">
-            <span class="info-label d-block">Alamat KTP</span>
-            <span class="info-value">{{ $profile->alamat_ktp ?? '—' }}</span>
-          </div>
-          <div class="col-6 col-md-3">
-            <span class="info-label d-block">RT</span>
-            <span class="info-value">{{ $profile->rt ?? '—' }}</span>
-          </div>
-          <div class="col-6 col-md-3">
-            <span class="info-label d-block">RW</span>
-            <span class="info-value">{{ $profile->rw ?? '—' }}</span>
-          </div>
-          <div class="col-6 col-md-3">
-            <span class="info-label d-block">Kelurahan</span>
-            <span class="info-value">{{ $profile->kelurahan ?? '—' }}</span>
-          </div>
-          <div class="col-6 col-md-3">
-            <span class="info-label d-block">Kecamatan</span>
-            <span class="info-value">{{ $profile->kecamatan ?? '—' }}</span>
-          </div>
-          <div class="col-6 col-md-3">
-            <span class="info-label d-block">Kota</span>
-            <span class="info-value">{{ $profile->kota ?? '—' }}</span>
-          </div>
-          <div class="col-6 col-md-3">
-            <span class="info-label d-block">Provinsi</span>
-            <span class="info-value">{{ $profile->provinsi ?? '—' }}</span>
-          </div>
-          <div class="col-6 col-md-3">
-            <span class="info-label d-block">Kodepos</span>
-            <span class="info-value">{{ $profile->kodepos ?? '—' }}</span>
-          </div>
-          <div class="col-6 col-md-3">
-            <span class="info-label d-block">WhatsApp</span>
-            <span class="info-value">{{ $profile->whatsapp ?? '—' }}</span>
-          </div>
-          <div class="col-12 col-md-6">
-            <span class="info-label d-block">Email</span>
-            <span class="info-value">{{ $profile->email ?? $user->email ?? '—' }}</span>
-          </div>
-          <div class="col-12">
-            <span class="info-label d-block">Link Medsos</span>
-            <div>
-              @if(!empty($profile->link_medsos) && is_array($profile->link_medsos))
-                @foreach($profile->link_medsos as $medsos)
-                  @if(is_string($medsos))
-                    <span class="chip-badge">{{ $medsos }}</span>
-                  @elseif(is_array($medsos))
-                    <span class="chip-badge">
-                      {{ $medsos['platform'] ?? '' }}@isset($medsos['url']): {{ $medsos['url'] }}@endisset
-                    </span>
-                  @endif
-                @endforeach
-              @else
-                <span class="text-body-premium small">—</span>
-              @endif
+          <hr class="dark-premium">
+          <div class="row g-3">
+            <div class="col-12">
+              <span class="info-label d-block">Alamat KTP</span>
+              <span class="info-value">{{ $profile->alamat_ktp ?? '—' }}</span>
+            </div>
+            <div class="col-6 col-md-3">
+              <span class="info-label d-block">RT</span>
+              <span class="info-value">{{ $profile->rt ?? '—' }}</span>
+            </div>
+            <div class="col-6 col-md-3">
+              <span class="info-label d-block">RW</span>
+              <span class="info-value">{{ $profile->rw ?? '—' }}</span>
+            </div>
+            <div class="col-6 col-md-3">
+              <span class="info-label d-block">Kelurahan</span>
+              <span class="info-value">{{ $profile->kelurahan ?? '—' }}</span>
+            </div>
+            <div class="col-6 col-md-3">
+              <span class="info-label d-block">Kecamatan</span>
+              <span class="info-value">{{ $profile->kecamatan ?? '—' }}</span>
+            </div>
+            <div class="col-6 col-md-3">
+              <span class="info-label d-block">Kota</span>
+              <span class="info-value">{{ $profile->kota ?? '—' }}</span>
+            </div>
+            <div class="col-6 col-md-3">
+              <span class="info-label d-block">Provinsi</span>
+              <span class="info-value">{{ $profile->provinsi ?? '—' }}</span>
+            </div>
+            <div class="col-6 col-md-3">
+              <span class="info-label d-block">Kodepos</span>
+              <span class="info-value">{{ $profile->kodepos ?? '—' }}</span>
+            </div>
+            <div class="col-6 col-md-3">
+              <span class="info-label d-block">WhatsApp</span>
+              <span class="info-value" x-text="whatsapp || '—'"></span>
+            </div>
+            <div class="col-12 col-md-6">
+              <span class="info-label d-block">Email</span>
+              <span class="info-value" x-text="email || '—'"></span>
+            </div>
+            <div class="col-12">
+              <span class="info-label d-block">Link Medsos</span>
+              <div>
+                <template x-if="medsos.length > 0">
+                  <div class="d-flex flex-wrap gap-2">
+                    <template x-for="(item, index) in medsos" :key="index">
+                      <span class="chip-badge">
+                        <span x-text="item.platform"></span>: <span x-text="item.url || '—'"></span>
+                      </span>
+                    </template>
+                  </div>
+                </template>
+                <template x-if="medsos.length === 0">
+                  <span class="text-body-premium small">—</span>
+                </template>
+              </div>
             </div>
           </div>
         </div>
+
+        {{-- EDIT MODE (Hanya untuk Kontak jika Terkunci/isCompleted) --}}
+        <div x-show="editKontak" style="display: none;">
+          <form action="{{ route('dashboard.peserta.profil.update-kontak') }}" method="POST">
+            @csrf
+            <div class="d-flex justify-content-between align-items-start mb-3">
+              <div class="d-flex align-items-center gap-2">
+                <div class="stat-icon-box" style="background: rgba(99, 102, 241, 0.12); color: #818cf8;">
+                  <i class="icon-base ti tabler-pencil"></i>
+                </div>
+                <div>
+                  <h5 class="fw-bold text-white mb-0">Ubah Kontak</h5>
+                  <small class="text-warning">Hanya data kontak yang dapat diubah secara mandiri setelah pendaftaran selesai.</small>
+                </div>
+              </div>
+            </div>
+            <hr class="dark-premium">
+            
+            <div class="row g-3">
+              {{-- Alamat-alamat tetap dikunci (read-only / info saja) --}}
+              <div class="col-12">
+                <div class="alert alert-secondary border-secondary border-opacity-20 bg-secondary bg-opacity-10 text-white-50 p-2 small mb-0" style="border-radius: 5px;">
+                  <i class="icon-base ti tabler-lock me-1"></i> Data Alamat KTP dikunci dan tidak dapat diubah.
+                </div>
+              </div>
+
+              <div class="col-12 col-md-6">
+                <label class="info-label d-block mb-1">WhatsApp</label>
+                <input type="text" name="whatsapp" x-model="whatsapp" class="form-control bg-dark text-white border-secondary" style="border-radius: 5px;" required>
+              </div>
+              <div class="col-12 col-md-6">
+                <label class="info-label d-block mb-1">Email</label>
+                <input type="email" name="email" x-model="email" class="form-control bg-dark text-white border-secondary" style="border-radius: 5px;" required>
+              </div>
+
+              <div class="col-12">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                  <label class="info-label mb-0">Link Media Sosial</label>
+                  <button type="button" @click="addMedsos()" class="btn btn-sm btn-outline-glass px-2 py-1" style="font-size: 11px;">
+                    <i class="icon-base ti tabler-plus me-1"></i> Tambah Medsos
+                  </button>
+                </div>
+
+                <div class="d-flex flex-col gap-2">
+                  <template x-for="(item, index) in medsos" :key="index">
+                    <div class="d-flex gap-2 align-items-center mb-2">
+                      <select :name="'link_medsos[' + index + '][platform]'" x-model="item.platform" class="form-select bg-dark text-white border-secondary w-auto" style="border-radius: 5px;">
+                        <option value="Instagram">Instagram</option>
+                        <option value="Facebook">Facebook</option>
+                        <option value="Twitter">Twitter</option>
+                        <option value="LinkedIn">LinkedIn</option>
+                        <option value="TikTok">TikTok</option>
+                        <option value="Youtube">Youtube</option>
+                        <option value="Website">Website / Portofolio</option>
+                      </select>
+                      <input type="text" :name="'link_medsos[' + index + '][url]'" x-model="item.url" placeholder="https://..." class="form-control bg-dark text-white border-secondary flex-grow-1" style="border-radius: 5px;">
+                      <button type="button" @click="removeMedsos(index)" class="btn btn-sm btn-danger px-2" style="border-radius: 5px;">
+                        <i class="icon-base ti tabler-trash"></i>
+                      </button>
+                    </div>
+                  </template>
+                </div>
+              </div>
+
+              <div class="col-12 mt-4 text-end">
+                <button type="button" @click="editKontak = false" class="btn btn-sm btn-outline-glass me-2 px-3 py-2">
+                  Batal
+                </button>
+                <button type="submit" class="btn btn-sm btn-glow-premium px-4 py-2">
+                  Simpan Perubahan
+                </button>
+              </div>
+
+            </div>
+          </form>
+        </div>
+
       </div>
     </div>
 
@@ -460,9 +578,15 @@ if (str_contains($initialName, ' ')) {
             </div>
             <h5 class="fw-bold text-white mb-0">Pendidikan & Pekerjaan</h5>
           </div>
-          <a href="{{ route('dashboard.peserta.form-pendidikan') }}" class="btn btn-sm btn-outline-glass">
-            <i class="icon-base ti tabler-pencil me-1"></i> Ubah
-          </a>
+          @if($isCompleted)
+            <span class="badge bg-secondary bg-opacity-15 text-white-50 border border-white border-opacity-10 px-2.5 py-1 small" style="border-radius: 4px;">
+              <i class="icon-base ti tabler-lock me-1 fs-6"></i> Terkunci
+            </span>
+          @else
+            <a href="{{ route('dashboard.peserta.form-pendidikan') }}" class="btn btn-sm btn-outline-glass">
+              <i class="icon-base ti tabler-pencil me-1"></i> Ubah
+            </a>
+          @endif
         </div>
         <hr class="dark-premium">
         <div class="row g-3">
@@ -504,9 +628,15 @@ if (str_contains($initialName, ' ')) {
             </div>
             <h5 class="fw-bold text-white mb-0">Minat Pelatihan</h5>
           </div>
-          <a href="{{ route('dashboard.peserta.form-minat') }}" class="btn btn-sm btn-outline-glass">
-            <i class="icon-base ti tabler-pencil me-1"></i> Ubah
-          </a>
+          @if($isCompleted)
+            <span class="badge bg-secondary bg-opacity-15 text-white-50 border border-white border-opacity-10 px-2.5 py-1 small" style="border-radius: 4px;">
+              <i class="icon-base ti tabler-lock me-1 fs-6"></i> Terkunci
+            </span>
+          @else
+            <a href="{{ route('dashboard.peserta.form-minat') }}" class="btn btn-sm btn-outline-glass">
+              <i class="icon-base ti tabler-pencil me-1"></i> Ubah
+            </a>
+          @endif
         </div>
         <hr class="dark-premium">
         <div class="row g-3">
@@ -554,9 +684,15 @@ if (str_contains($initialName, ' ')) {
             </div>
             <h5 class="fw-bold text-white mb-0">Dokumen</h5>
           </div>
-          <a href="{{ route('dashboard.peserta.form-dokumen') }}" class="btn btn-sm btn-outline-glass">
-            <i class="icon-base ti tabler-pencil me-1"></i> Ubah
-          </a>
+          @if($isCompleted)
+            <span class="badge bg-secondary bg-opacity-15 text-white-50 border border-white border-opacity-10 px-2.5 py-1 small" style="border-radius: 4px;">
+              <i class="icon-base ti tabler-lock me-1 fs-6"></i> Terkunci
+            </span>
+          @else
+            <a href="{{ route('dashboard.peserta.form-dokumen') }}" class="btn btn-sm btn-outline-glass">
+              <i class="icon-base ti tabler-pencil me-1"></i> Ubah
+            </a>
+          @endif
         </div>
         <hr class="dark-premium">
         <div class="row g-3">
@@ -594,9 +730,15 @@ if (str_contains($initialName, ' ')) {
             </div>
             <h5 class="fw-bold text-white mb-0">Foto</h5>
           </div>
-          <a href="{{ route('dashboard.peserta.upload-foto') }}" class="btn btn-sm btn-outline-glass">
-            <i class="icon-base ti tabler-pencil me-1"></i> Ubah
-          </a>
+          @if($isCompleted)
+            <span class="badge bg-secondary bg-opacity-15 text-white-50 border border-white border-opacity-10 px-2.5 py-1 small" style="border-radius: 4px;">
+              <i class="icon-base ti tabler-lock me-1 fs-6"></i> Terkunci
+            </span>
+          @else
+            <a href="{{ route('dashboard.peserta.upload-foto') }}" class="btn btn-sm btn-outline-glass">
+              <i class="icon-base ti tabler-pencil me-1"></i> Ubah
+            </a>
+          @endif
         </div>
         <hr class="dark-premium">
         <div class="row g-4">
@@ -647,5 +789,6 @@ if (str_contains($initialName, ' ')) {
   </div>
   @endif
 
+</div>
 </div>
 @endsection

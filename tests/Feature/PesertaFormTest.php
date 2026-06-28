@@ -239,6 +239,18 @@ class PesertaFormTest extends TestCase
         $response->assertStatus(200);
     }
 
+    public function test_form_review_redirects_when_profile_already_completed(): void
+    {
+        // Set is_completed = true on the profile
+        PesertaProfile::where('user_id', $this->peserta->id)->update([
+            'is_completed' => true,
+        ]);
+
+        $response = $this->get('/dashboard/peserta/form-review');
+
+        $response->assertRedirect(route('dashboard.peserta.pendaftaran-sukses'));
+    }
+
     public function test_submit_final_redirects_and_marks_completed(): void
     {
         // Setup: save dokumen first
@@ -445,7 +457,7 @@ class PesertaFormTest extends TestCase
             'tahun_lahir' => '2000',
             'nik' => '3273010101000002',
             'pelatihan_id' => $pelatihan->id,
-            'is_completed' => true,
+            'is_completed' => false,
         ]);
 
         $response = $this->post('/dashboard/peserta/form-review', [
@@ -499,7 +511,7 @@ class PesertaFormTest extends TestCase
             'tahun_lahir' => '1999',
             'nik' => '3273010101000003',
             'pelatihan_id' => $pelatihan->id,
-            'is_completed' => true,
+            'is_completed' => false,
         ]);
 
         $response = $this->post('/dashboard/peserta/form-review', [
@@ -564,7 +576,7 @@ class PesertaFormTest extends TestCase
             'tahun_lahir' => '1998',
             'nik' => '3273010101000004',
             'pelatihan_id' => $pelatihan->id,
-            'is_completed' => true,
+            'is_completed' => false,
         ]);
 
         $response = $this->post('/dashboard/peserta/form-review', [
@@ -625,7 +637,7 @@ class PesertaFormTest extends TestCase
             'tahun_lahir' => '2001',
             'nik' => '3273010101000005',
             'pelatihan_id' => $pelatihan->id,
-            'is_completed' => true,
+            'is_completed' => false,
         ]);
 
         $response = $this->post('/dashboard/peserta/form-review', [
@@ -640,5 +652,57 @@ class PesertaFormTest extends TestCase
 
         $this->assertNotNull($enrollment);
         $this->assertEquals(EnrollmentStatus::Waitlist, $enrollment->status);
+    }
+
+    public function test_peserta_can_update_contact_info(): void
+    {
+        $user = User::factory()->create([
+            'role' => 'peserta',
+            'email' => 'old@test.com',
+            'whatsapp' => '6281234567890',
+        ]);
+        
+        $profile = PesertaProfile::create([
+            'user_id' => $user->id,
+            'nama_lengkap' => 'Nama Peserta',
+            'email' => 'old@test.com',
+            'whatsapp' => '6281234567890',
+            'link_medsos' => [],
+            'is_completed' => true,
+        ]);
+
+        Sanctum::actingAs($user);
+
+        $response = $this->post(route('dashboard.peserta.profil.update-kontak'), [
+            'email' => 'new@test.com',
+            'whatsapp' => '6289999999999',
+            'link_medsos' => [
+                [
+                    'platform' => 'Instagram',
+                    'url' => 'https://instagram.com/newuser',
+                ],
+                [
+                    'platform' => 'Website',
+                    'url' => 'https://newuser.com',
+                ]
+            ]
+        ]);
+
+        $response->assertRedirect(route('dashboard.peserta.profil'));
+        
+        // Cek database user terupdate
+        $this->assertDatabaseHas('users', [
+            'id' => $user->id,
+            'email' => 'new@test.com',
+            'whatsapp' => '6289999999999',
+        ]);
+
+        // Cek database profile terupdate
+        $profile->refresh();
+        $this->assertEquals('new@test.com', $profile->email);
+        $this->assertEquals('6289999999999', $profile->whatsapp);
+        $this->assertCount(2, $profile->link_medsos);
+        $this->assertEquals('Instagram', $profile->link_medsos[0]['platform']);
+        $this->assertEquals('https://instagram.com/newuser', $profile->link_medsos[0]['url']);
     }
 }

@@ -711,6 +711,11 @@ class PesertaFormController extends Controller
         // 2. Ambil dari database jika session kosong
         $profile = PesertaProfile::where('user_id', auth()->id())->first();
 
+        // 3. Jika pendaftaran sudah selesai, redirect ke halaman sukses
+        if ($profile && $profile->is_completed) {
+            return redirect()->route('dashboard.peserta.pendaftaran-sukses');
+        }
+
         return view('content.dashboard.peserta.form-review', compact('allData', 'profile'));
     }
 
@@ -912,6 +917,49 @@ class PesertaFormController extends Controller
         $profile = \App\Models\PesertaProfile::where('user_id', $user->id)->first();
 
         return view('content.dashboard.peserta.profil', compact('user', 'profile'));
+    }
+
+    public function updateKontak(Request $request)
+    {
+        $request->validate([
+            'whatsapp' => 'required|string|max:20',
+            'email' => 'required|email',
+            'link_medsos' => 'nullable|array',
+            'link_medsos.*.platform' => 'required|string',
+            'link_medsos.*.url' => 'required|string',
+        ]);
+
+        $user = auth()->user();
+        $profile = \App\Models\PesertaProfile::where('user_id', $user->id)->firstOrFail();
+
+        // Update User Email & WhatsApp jika berbeda
+        $user->email = $request->email;
+        $user->whatsapp = $request->whatsapp;
+        if ($user->isDirty()) {
+            $user->save();
+        }
+
+        // Update Profile
+        $profile->email = $request->email;
+        $profile->whatsapp = $request->whatsapp;
+        
+        // Medsos parsing
+        $linkMedsos = $request->input('link_medsos', []);
+        $profile->link_medsos = $linkMedsos;
+        
+        $profile->save();
+
+        // Log Aktivitas
+        \App\Services\ActivityLogger::log(
+            action: 'updated',
+            subjectType: 'PesertaProfile',
+            subjectId: $user->id,
+            subjectName: $user->name,
+            description: "Peserta {$user->name} memperbarui data kontak profil",
+        );
+
+        return redirect()->route('dashboard.peserta.profil')
+            ->with('success', 'Data kontak berhasil diperbarui!');
     }
 
     /**

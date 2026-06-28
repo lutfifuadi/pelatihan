@@ -30,6 +30,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'user.active' => CheckUserActive::class,
             'redirect.if.installed' => RedirectIfInstalled::class,
             'can.impersonate' => CanImpersonate::class,
+            'pendaftaran.completed' => \App\Http\Middleware\RedirectIfPendaftaranCompleted::class,
         ]);
 
         // Middleware untuk cek user aktif, dijalankan setelah session & auth

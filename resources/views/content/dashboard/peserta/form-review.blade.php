@@ -280,6 +280,7 @@ $configData = Helper::appClasses();
     $step3Done = $profile && !empty($profile->pendidikan_terakhir) && !empty($profile->nama_institusi);
     $step4Done = $profile && !empty($profile->pelatihan_id);
     $step5Done = $profile && !empty($profile->jawaban_pertanyaan);
+    $step6Done = $profile && $profile->is_completed;
   @endphp
 
   <!-- Step Indicator: 6 Steps -->
@@ -346,9 +347,15 @@ $configData = Helper::appClasses();
       <div class="step-label">Dokumen</div>
     </div>
     
-    <!-- Step 6: Review (active) -->
-    <div class="step-item active">
-      <div class="step-circle">6</div>
+    <!-- Step 6: Review -->
+    <div class="step-item {{ $step6Done ? 'completed' : 'active' }}">
+      <div class="step-circle">
+        @if($step6Done)
+          <i class="icon-base ti tabler-check" style="font-size: 16px;"></i>
+        @else
+          6
+        @endif
+      </div>
       <div class="step-label">Review</div>
     </div>
   </div>
@@ -621,6 +628,14 @@ $configData = Helper::appClasses();
 
       {{-- Konfirmasi Checkbox --}}
       <div class="review-card" style="border-color: rgba(99, 102, 241, 0.15);">
+        <div class="alert alert-warning border-warning border-opacity-20 bg-warning bg-opacity-10 text-warning p-3 mb-3 small" style="border-radius: 5px;">
+            <div class="d-flex gap-2">
+                <i class="icon-base ti tabler-alert-triangle mt-1 flex-shrink-0"></i>
+                <div>
+                    <strong>Perhatian:</strong> Setelah pendaftaran dikirim, data penting Anda (Nama, NIK, Alamat KTP, Riwayat Pendidikan, dan Pilihan Pelatihan) akan <strong>DIKUNCI</strong> demi validitas data seleksi. Hanya data kontak (Email, WhatsApp, Media Sosial) yang dapat diubah secara mandiri nantinya.
+                </div>
+            </div>
+        </div>
         <div class="d-flex align-items-start gap-3">
           <div style="width: 32px; height: 32px; border-radius: 5px; background: rgba(99, 102, 241, 0.12); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
             <i class="icon-base ti tabler-shield-check" style="color: #818cf8; font-size: 1rem;"></i>

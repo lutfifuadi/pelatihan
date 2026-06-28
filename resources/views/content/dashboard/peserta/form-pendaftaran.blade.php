@@ -332,6 +332,7 @@ $dpActive = $fieldsDataPribadi->where('is_active', true)->pluck('field_key')->to
     $step3Done = $profile && !empty($profile->pendidikan_terakhir) && !empty($profile->nama_institusi);
     $step4Done = $profile && !empty($profile->pelatihan_id);
     $step5Done = $profile && !empty($profile->jawaban_pertanyaan);
+    $step6Done = $profile && $profile->is_completed;
   @endphp
 
   <!-- Step Indicator: 6 Steps -->
@@ -393,8 +394,14 @@ $dpActive = $fieldsDataPribadi->where('is_active', true)->pluck('field_key')->to
     </div>
     
     <!-- Step 6: Review -->
-    <div class="step-item">
-      <div class="step-circle">6</div>
+    <div class="step-item {{ $step6Done ? 'completed' : '' }}">
+      <div class="step-circle">
+        @if($step6Done)
+          <i class="icon-base ti tabler-check" style="font-size: 16px;"></i>
+        @else
+          6
+        @endif
+      </div>
       <div class="step-label">Review</div>
     </div>
   </div>
