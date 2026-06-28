@@ -643,6 +643,20 @@ $configData = Helper::appClasses();
                 <i class="icon-base ti tabler-info-circle me-1"></i>Masukkan angka bulat &ge; 0. Nilai 0 berarti peserta dapat langsung mendaftar ulang tanpa jeda.
               </small>
             </div>
+            <div class="col-md-6">
+              <label for="cooldown_period_passed_days" class="form-label">Jeda Pendaftaran Ulang Setelah Lulus (Hari) <span class="text-danger">*</span></label>
+              <input type="number" min="0" step="1"
+                class="form-control @error('cooldown_period_passed_days') is-invalid @enderror"
+                id="cooldown_period_passed_days" name="cooldown_period_passed_days"
+                value="{{ old('cooldown_period_passed_days', ($settings['cooldown_period_passed_days'] ?? null)?->value ?? 0) }}"
+                placeholder="365" required>
+              @error('cooldown_period_passed_days')
+                <div class="invalid-feedback mt-1">{{ $message }}</div>
+              @enderror
+              <small class="text-body-premium mt-1 d-block" style="font-size: 0.75rem;">
+                <i class="icon-base ti tabler-info-circle me-1"></i>Jumlah hari jeda sebelum alumni dapat mendaftar kembali pada pelatihan yang sama di dinas yang sama (contoh: 365 untuk 1 tahun).
+              </small>
+            </div>
           </div>
 
           <hr class="my-5" style="border-color: rgba(255,255,255,0.08);">

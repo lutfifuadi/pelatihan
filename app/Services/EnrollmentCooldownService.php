@@ -61,6 +61,20 @@ class EnrollmentCooldownService
     }
 
     /**
+     * Ambil durasi cooldown lulus (hari) dari pengaturan sistem.
+     */
+    public function getCooldownPassedDays(): int
+    {
+        $days = Setting::where('key', 'cooldown_period_passed_days')->value('value');
+
+        if (!is_numeric($days) || (int) $days < 0) {
+            return 365;
+        }
+
+        return (int) $days;
+    }
+
+    /**
      * Cari riwayat enrollment terakhir user pada pelatihan & dinas tertentu.
      */
     public function getLastEnrollment(User $user, Pelatihan $pelatihan): ?Enrollment
@@ -116,17 +130,7 @@ class EnrollmentCooldownService
         }
 
         if (in_array($statusValue, $this->completedStatuses, true)) {
-            return [
-                'status' => 'completed',
-                'enrollment' => $enrollment,
-                'enrollment_status' => $statusValue,
-                'enrollment_status_label' => $enrollment->status?->label() ?? $statusValue,
-                'can_register' => false,
-                'message' => 'Anda telah menyelesaikan pelatihan ini sebelumnya. Anda tidak dapat mendaftar kembali pada pelatihan yang sama.',
-                'can_register_at' => null,
-                'remaining_time' => null,
-                'remaining_text' => null,
-            ];
+            return $this->buildCompletedStatus($enrollment, $statusValue);
         }
 
         if (in_array($statusValue, $this->rejectedStatuses, true)) {
@@ -171,6 +175,46 @@ class EnrollmentCooldownService
         throw ValidationException::withMessages([
             'pelatihan_id' => $status['message'] ?? 'Anda tidak dapat mendaftar pelatihan ini saat ini.',
         ]);
+    }
+
+    /**
+     * Bangun status untuk enrollment yang telah selesai/lulus.
+     *
+     * @return array<string, mixed>
+     */
+    private function buildCompletedStatus(Enrollment $enrollment, string $statusValue): array
+    {
+        $cooldownDays = $this->getCooldownPassedDays();
+        $lastUpdated = $enrollment->updated_at ?? $enrollment->created_at;
+        $canRegisterAt = $lastUpdated ? $lastUpdated->copy()->addDays($cooldownDays) : null;
+
+        if (!$canRegisterAt || now()->greaterThanOrEqualTo($canRegisterAt)) {
+            return [
+                'status' => 'completed_available',
+                'enrollment' => $enrollment,
+                'enrollment_status' => $statusValue,
+                'enrollment_status_label' => $enrollment->status?->label() ?? $statusValue,
+                'can_register' => true,
+                'message' => 'Anda telah menyelesaikan pelatihan ini sebelumnya. Anda kini diperbolehkan untuk mendaftar kembali.',
+                'can_register_at' => $canRegisterAt,
+                'remaining_time' => null,
+                'remaining_text' => null,
+            ];
+        }
+
+        $remaining = $this->calculateRemainingTime($canRegisterAt);
+
+        return [
+            'status' => 'completed_cooldown',
+            'enrollment' => $enrollment,
+            'enrollment_status' => $statusValue,
+            'enrollment_status_label' => $enrollment->status?->label() ?? $statusValue,
+            'can_register' => false,
+            'message' => "Anda telah menyelesaikan pelatihan ini sebelumnya. Sesuai kebijakan, Anda dapat mendaftar kembali dalam {$remaining['text']} (mulai tanggal {$canRegisterAt->format('d-m-Y H:i')}).",
+            'can_register_at' => $canRegisterAt,
+            'remaining_time' => $remaining['parts'],
+            'remaining_text' => $remaining['text'],
+        ];
     }
 
     /**
@@ -223,7 +267,7 @@ class EnrollmentCooldownService
     {
         $diff = now()->diff($canRegisterAt);
 
-        $days = (int) $diff->d;
+        $days = (int) $diff->days;
         $hours = (int) $diff->h;
         $minutes = (int) $diff->i;
 

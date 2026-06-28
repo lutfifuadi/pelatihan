@@ -142,7 +142,7 @@ class EnrollmentCooldownServiceTest extends TestCase
     }
 
     /**
-     * Test get enrollment status: Completed.
+     * Test get enrollment status: Completed Cooldown and Completed Available.
      */
     public function test_get_enrollment_status_completed(): void
     {
@@ -155,25 +155,49 @@ class EnrollmentCooldownServiceTest extends TestCase
             'dinas_id' => $dinas->id,
         ]);
 
-        $completedStatuses = ['confirmed']; // 'completed' & 'passed' are not inside current EnrollmentStatus enum but supported in active/completed lists in service. We can test with 'confirmed' which is in enum.
+        Setting::updateOrCreate(['key' => 'cooldown_period_passed_days'], ['value' => '365']);
 
-        foreach ($completedStatuses as $statusVal) {
-            $enumStatus = EnrollmentStatus::fromValue($statusVal);
-            $enrollment = Enrollment::create([
-                'user_id' => $user->id,
-                'pelatihan_id' => $pelatihan->id,
-                'dinas_id' => $dinas->id,
-                'status' => $enumStatus,
-            ]);
+        $now = Carbon::parse('2026-06-28 10:00:00');
+        Carbon::setTestNow($now);
 
-            $status = $this->service->getEnrollmentStatus($user, $pelatihan);
+        // Case 1: Still in cooldown (e.g. completed 100 days ago, cooldown is 365 days)
+        $enrollment = new Enrollment();
+        $enrollment->user_id = $user->id;
+        $enrollment->pelatihan_id = $pelatihan->id;
+        $enrollment->dinas_id = $dinas->id;
+        $enrollment->status = EnrollmentStatus::Confirmed;
+        $enrollment->created_at = $now->copy()->subDays(100);
+        $enrollment->updated_at = $now->copy()->subDays(100);
+        $enrollment->save();
 
-            $this->assertEquals('completed', $status['status']);
-            $this->assertFalse($status['can_register']);
-            $this->assertEquals('Anda telah menyelesaikan pelatihan ini sebelumnya. Anda tidak dapat mendaftar kembali pada pelatihan yang sama.', $status['message']);
+        $status = $this->service->getEnrollmentStatus($user, $pelatihan);
 
-            $enrollment->delete();
-        }
+        $this->assertEquals('completed_cooldown', $status['status']);
+        $this->assertFalse($status['can_register']);
+        $this->assertNotNull($status['remaining_time']);
+        $this->assertEquals('265 hari 0 jam', $status['remaining_text']);
+        $this->assertEquals($now->copy()->subDays(100)->addDays(365)->format('Y-m-d H:i:s'), $status['can_register_at']->format('Y-m-d H:i:s'));
+
+        $enrollment->delete();
+
+        // Case 2: Cooldown passed (e.g. completed 400 days ago, cooldown is 365 days)
+        $enrollment = new Enrollment();
+        $enrollment->user_id = $user->id;
+        $enrollment->pelatihan_id = $pelatihan->id;
+        $enrollment->dinas_id = $dinas->id;
+        $enrollment->status = EnrollmentStatus::Confirmed;
+        $enrollment->created_at = $now->copy()->subDays(400);
+        $enrollment->updated_at = $now->copy()->subDays(400);
+        $enrollment->save();
+
+        $status = $this->service->getEnrollmentStatus($user, $pelatihan);
+
+        $this->assertEquals('completed_available', $status['status']);
+        $this->assertTrue($status['can_register']);
+        $this->assertEquals('Anda telah menyelesaikan pelatihan ini sebelumnya. Anda kini diperbolehkan untuk mendaftar kembali.', $status['message']);
+
+        $enrollment->delete();
+        Carbon::setTestNow(); // Reset time mock
     }
 
     /**

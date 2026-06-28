@@ -143,16 +143,20 @@ $isDitutup = $is_ditutup ?? false;
       'completed'          => 'completed',
       'rejected_cooldown'  => 'cooldown_active',
       'rejected_available' => 'cooldown_expired',
+      'completed_cooldown' => 'completed_cooldown',
+      'completed_available'=> 'completed_available',
     ];
     $mappedStatus = $statusMap[$enrollmentStatus] ?? 'none';
 
     // Pesan default per status
     $defaultMessages = [
-      'none'             => null,
-      'active'           => 'Anda sudah terdaftar pada pelatihan ini.',
-      'completed'        => 'Anda telah menyelesaikan pelatihan ini.',
-      'cooldown_active'  => null,  // dibangun dinamis dengan countdown
-      'cooldown_expired' => 'Anda dapat mendaftar kembali untuk pelatihan ini.',
+      'none'                => null,
+      'active'              => 'Anda sudah terdaftar pada pelatihan ini.',
+      'completed'           => 'Anda telah menyelesaikan pelatihan ini.',
+      'cooldown_active'     => null,  // dibangun dinamis dengan countdown
+      'cooldown_expired'    => 'Anda dapat mendaftar kembali untuk pelatihan ini.',
+      'completed_cooldown'  => null,
+      'completed_available' => 'Anda diperbolehkan mendaftar kembali pada pelatihan ini.',
     ];
 
     $countdown = $sisaWaktu ?? null;
@@ -161,7 +165,7 @@ $isDitutup = $is_ditutup ?? false;
     $state = (object) [
       'status'          => $mappedStatus,
       'message'         => $defaultMessages[$mappedStatus] ?? null,
-      'button_disabled' => !in_array($mappedStatus, ['none', 'cooldown_expired']),
+      'button_disabled' => !in_array($mappedStatus, ['none', 'cooldown_expired', 'completed_available']),
       'countdown'       => $countdown,
       'end_date'        => $endDate,
     ];
@@ -169,7 +173,22 @@ $isDitutup = $is_ditutup ?? false;
 
   // Mode B: $registrationState (object) — format legacy/full
   if (!$state && isset($registrationState) && is_object($registrationState)) {
-    $state = $registrationState;
+    // Normalisasi status baru di legacy format jika dikirim langsung sebagai completed_cooldown / completed_available
+    $status = $registrationState->status ?? 'none';
+    $buttonDisabled = $registrationState->button_disabled ?? true;
+    if ($status === 'completed_cooldown') {
+      $buttonDisabled = true;
+    } elseif ($status === 'completed_available') {
+      $buttonDisabled = false;
+    }
+    
+    $state = (object) [
+      'status'          => $status,
+      'message'         => $registrationState->message ?? null,
+      'button_disabled' => $buttonDisabled,
+      'countdown'       => $registrationState->countdown ?? null,
+      'end_date'        => $registrationState->end_date ?? null,
+    ];
   }
 
   // Mode C: fallback dari $enrollmentHistory
@@ -275,6 +294,21 @@ $isDitutup = $is_ditutup ?? false;
             <button type="button" class="btn-register btn-register-disabled" disabled aria-disabled="true">
                 <i class="icon-base ti tabler-lock"></i> Daftar Pelatihan
             </button>
+        @elseif($state->status === 'completed_cooldown')
+            <div class="alert-registration alert-registration-warning" role="status" aria-live="polite">
+                <div class="alert-icon">
+                    <i class="icon-base ti tabler-clock-pause"></i>
+                </div>
+                <div>
+                    <h6 class="fw-bold mb-1">Masa tunggu kelulusan aktif</h6>
+                    <p class="mb-0" style="font-size: 0.95rem;">
+                        {{ $state->message ?? 'Anda telah menyelesaikan pelatihan ini sebelumnya. Sesuai kebijakan, Anda dapat mendaftar kembali nanti.' }}
+                    </p>
+                </div>
+            </div>
+            <button type="button" class="btn-register btn-register-disabled" disabled aria-disabled="true">
+                <i class="icon-base ti tabler-lock"></i> Daftar Pelatihan
+            </button>
         @elseif($state->status === 'cooldown_expired')
             <div class="alert-registration alert-registration-info" role="status" aria-live="polite">
                 <div class="alert-icon">
@@ -284,6 +318,27 @@ $isDitutup = $is_ditutup ?? false;
                     <h6 class="fw-bold mb-1">Anda dapat mendaftar kembali</h6>
                     <p class="mb-0" style="font-size: 0.95rem;">
                         {{ $state->message ?? 'Anda dapat mendaftar kembali untuk pelatihan ini.' }}
+                    </p>
+                </div>
+            </div>
+            @if($isGuest)
+                <a href="{{ route('register') }}" class="btn-register btn-register-primary">
+                    <i class="icon-base ti tabler-edit"></i> Daftar Pelatihan
+                </a>
+            @else
+                <a href="{{ route('dashboard.peserta.form-pendaftaran') }}" class="btn-register btn-register-primary">
+                    <i class="icon-base ti tabler-edit"></i> Daftar Pelatihan
+                </a>
+            @endif
+        @elseif($state->status === 'completed_available')
+            <div class="alert-registration alert-registration-success" role="status" aria-live="polite">
+                <div class="alert-icon">
+                    <i class="icon-base ti tabler-circle-check"></i>
+                </div>
+                <div>
+                    <h6 class="fw-bold mb-1">Masa tunggu kelulusan berakhir</h6>
+                    <p class="mb-0" style="font-size: 0.95rem;">
+                        {{ $state->message ?? 'Anda diperbolehkan mendaftar kembali pada pelatihan ini.' }}
                     </p>
                 </div>
             </div>
