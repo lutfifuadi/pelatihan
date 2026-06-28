@@ -9,7 +9,9 @@ use App\Models\Pelatihan;
 use App\Models\PesertaProfile;
 use App\Models\Setting;
 use App\Services\ActivityLogger;
+use App\Services\EnrollmentCooldownService;
 use App\Services\FormConfigService;
+use App\Services\KtaVerificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 
@@ -17,8 +19,11 @@ class PesertaFormController extends Controller
 {
     protected $formConfig;
 
-    public function __construct(FormConfigService $formConfig)
-    {
+    public function __construct(
+        FormConfigService $formConfig,
+        private KtaVerificationService $ktaVerificationService,
+        private EnrollmentCooldownService $enrollmentCooldownService,
+    ) {
         $this->formConfig = $formConfig;
     }
 
@@ -556,6 +561,14 @@ class PesertaFormController extends Controller
             }
         }
 
+        // Cek cooldown / pencegahan pendaftaran ganda
+        $cooldownStatus = $this->enrollmentCooldownService->getEnrollmentStatus($user, $selectedPelatihan);
+        if (!$cooldownStatus['can_register']) {
+            return redirect()->back()
+                ->with('error', $cooldownStatus['message'])
+                ->withInput();
+        }
+
         // 2. Simpan ke SESSION
         $input = $request->except('_token');
         session()->put('peserta.form.step4', $input);
@@ -755,22 +768,16 @@ class PesertaFormController extends Controller
                         ->withInput();
                 }
 
-                // Tentukan status enrollment
-                $status = 'pending';
-                if ($pelatihan->auto_approve) {
-                    if ($pelatihan->isKuotaPenuh()) {
-                        $status = 'waitlist';
-                    } else {
-                        $status = 'approved';
-                    }
-                } elseif ($pelatihan->kuota) {
-                    $approvedCount = \App\Models\Enrollment::where('pelatihan_id', $pelatihan->id)
-                        ->where('status', 'approved')
-                        ->count();
-                    if ($approvedCount >= $pelatihan->kuota) {
-                        $status = 'waitlist';
-                    }
+                // Cek cooldown / pencegahan pendaftaran ganda (backend validation)
+                $cooldownStatus = $this->enrollmentCooldownService->getEnrollmentStatus($user, $pelatihan);
+                if (!$cooldownStatus['can_register']) {
+                    return redirect()->back()
+                        ->with('error', $cooldownStatus['message'])
+                        ->withInput();
                 }
+
+                // Tentukan status default enrollment
+                $status = $this->resolveDefaultEnrollmentStatus($pelatihan);
 
                 $enrollment = \App\Models\Enrollment::firstOrCreate(
                     [
@@ -778,10 +785,23 @@ class PesertaFormController extends Controller
                         'pelatihan_id' => $pelatihan->id,
                     ],
                     [
+                        'dinas_id' => $pelatihan->dinas_id,
                         'status' => $status,
                         'approved_at' => $status === 'approved' ? now() : null,
                     ]
                 );
+
+                // Pastikan dinas_id selalu terisi (jika enrollment sudah ada sebelumnya)
+                if ($enrollment->dinas_id !== $pelatihan->dinas_id) {
+                    $enrollment->dinas_id = $pelatihan->dinas_id;
+                    $enrollment->save();
+                }
+
+                // Terapkan logika verifikasi KTA otomatis
+                $this->ktaVerificationService->applyEnrollmentLogic($enrollment, $user);
+
+                // Refresh untuk memastikan data terbaru digunakan di event/log berikutnya
+                $enrollment->refresh();
             }
         }
 
@@ -892,6 +912,27 @@ class PesertaFormController extends Controller
         $profile = \App\Models\PesertaProfile::where('user_id', $user->id)->first();
 
         return view('content.dashboard.peserta.profil', compact('user', 'profile'));
+    }
+
+    /**
+     * Tentukan status default enrollment berdasarkan konfigurasi pelatihan.
+     */
+    private function resolveDefaultEnrollmentStatus(\App\Models\Pelatihan $pelatihan): string
+    {
+        $status = 'pending';
+
+        if ($pelatihan->auto_approve) {
+            $status = $pelatihan->isKuotaPenuh() ? 'waitlist' : 'approved';
+        } elseif ($pelatihan->kuota) {
+            $approvedCount = \App\Models\Enrollment::where('pelatihan_id', $pelatihan->id)
+                ->where('status', 'approved')
+                ->count();
+            if ($approvedCount >= $pelatihan->kuota) {
+                $status = 'waitlist';
+            }
+        }
+
+        return $status;
     }
 
     // ========================================================================

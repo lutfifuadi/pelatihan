@@ -104,6 +104,8 @@ class MobileViewModeTest extends TestCase
             'broadcast_enabled' => '1',
             'timezone' => 'Asia/Jakarta',
             'minat_mobile_view_mode' => 'horizontal',
+            'kta_verification_mode' => 'off',
+            'cooldown_period_days' => '30',
         ]);
 
         $response->assertSessionHasNoErrors();
@@ -134,6 +136,8 @@ class MobileViewModeTest extends TestCase
             'broadcast_enabled' => '1',
             'timezone' => 'Asia/Jakarta',
             'minat_mobile_view_mode' => 'grid',
+            'kta_verification_mode' => 'off',
+            'cooldown_period_days' => '30',
         ]);
 
         $response->assertSessionHasNoErrors();
@@ -157,6 +161,8 @@ class MobileViewModeTest extends TestCase
             'broadcast_enabled' => '1',
             'timezone' => 'Asia/Jakarta',
             'minat_mobile_view_mode' => 'invalid_mode',
+            'kta_verification_mode' => 'off',
+            'cooldown_period_days' => '30',
         ]);
 
         $response->assertSessionHasErrors(['minat_mobile_view_mode']);

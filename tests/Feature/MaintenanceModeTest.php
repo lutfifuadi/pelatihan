@@ -382,6 +382,8 @@ class MaintenanceModeTest extends TestCase
             'validate_whatsapp' => '1',
             'broadcast_enabled' => '1',
             'timezone' => 'Asia/Jakarta',
+            'kta_verification_mode' => 'off',
+            'cooldown_period_days' => '30',
         ]);
         $response->assertSessionHasNoErrors();
         $response->assertRedirect(route('admin.settings.branding'));

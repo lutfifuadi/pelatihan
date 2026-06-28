@@ -16,10 +16,29 @@ class SettingController extends Controller
             'brand_name', 'brand_logo_size',
             'institution_name', 'institution_address', 'institution_phone', 'institution_email', 'institution_description',
             'footer_copyright', 'lock_kota', 'lock_provinsi', 'validate_whatsapp', 'broadcast_enabled', 'timezone',
-            'minat_mobile_view_mode'
+            'minat_mobile_view_mode', 'kta_verification_mode', 'cooldown_period_days'
         ])
             ->get()
             ->keyBy('key');
+
+        // Pastikan setting baru memiliki default value agar view tidak error
+        if (!isset($settings['kta_verification_mode'])) {
+            $settings['kta_verification_mode'] = new Setting([
+                'key' => 'kta_verification_mode',
+                'value' => 'off',
+                'group' => 'general',
+                'label' => 'Mode Verifikasi KTA Otomatis',
+            ]);
+        }
+
+        if (!isset($settings['cooldown_period_days'])) {
+            $settings['cooldown_period_days'] = new Setting([
+                'key' => 'cooldown_period_days',
+                'value' => '30',
+                'group' => 'general',
+                'label' => 'Jeda Pendaftaran Ulang (Hari)',
+            ]);
+        }
 
         $whatsappNumbers = WhatsappNumber::sorted()->get();
         return view('content.admin.branding.index', compact('settings', 'whatsappNumbers'));
@@ -42,13 +61,15 @@ class SettingController extends Controller
             'broadcast_enabled' => 'required|in:0,1',
             'timezone' => 'required|string|max:100',
             'minat_mobile_view_mode' => 'sometimes|required|in:horizontal,grid',
+            'kta_verification_mode' => 'required|in:off,priority,auto_approve',
+            'cooldown_period_days' => 'required|integer|min:0',
         ]);
 
         $keys = [
             'brand_name', 'brand_logo_size',
             'institution_name', 'institution_address', 'institution_phone', 'institution_email', 'institution_description',
             'footer_copyright', 'lock_kota', 'lock_provinsi', 'validate_whatsapp', 'broadcast_enabled', 'timezone',
-            'minat_mobile_view_mode'
+            'minat_mobile_view_mode', 'kta_verification_mode', 'cooldown_period_days'
         ];
         $labels = [
             'brand_name' => 'Nama Brand Aplikasi',
@@ -65,6 +86,8 @@ class SettingController extends Controller
             'broadcast_enabled' => 'Aktifkan Broadcast Real-time',
             'timezone' => 'Zona Waktu Aplikasi',
             'minat_mobile_view_mode' => 'Mode Tampilan Mobile Form Minat',
+            'kta_verification_mode' => 'Mode Verifikasi KTA Otomatis',
+            'cooldown_period_days' => 'Jeda Pendaftaran Ulang (Hari)',
         ];
 
         foreach ($keys as $key) {

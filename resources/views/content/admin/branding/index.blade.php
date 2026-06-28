@@ -515,6 +515,138 @@ $configData = Helper::appClasses();
 
           <hr class="my-5" style="border-color: rgba(255,255,255,0.08);">
 
+          {{-- ======================== SECTION: VERIFIKASI KTA OTOMATIS ======================== --}}
+          <h5 class="fw-bold text-white mb-4" style="font-family: 'Sora', sans-serif;">
+            <i class="icon-base ti tabler-id-badge me-2"></i>Verifikasi KTA Otomatis
+          </h5>
+          <p class="text-body-premium mb-4" style="font-size: 0.85rem;">
+            Atur perilaku sistem saat peserta yang mendaftar memiliki keanggotaan KTA (Kartu Tanda Anggota) yang valid.
+          </p>
+
+          @php $currentKtaMode = old('kta_verification_mode', $settings['kta_verification_mode']->value ?? 'off'); @endphp
+          @error('kta_verification_mode')
+            <div class="mb-3 px-3 py-2 d-flex align-items-center gap-2" style="background: rgba(248,113,113,0.1); border: 1px solid rgba(248,113,113,0.25); border-radius: 5px; color: #f87171; font-size: 0.85rem;">
+              <i class="icon-base ti tabler-alert-circle"></i> {{ $message }}
+            </div>
+          @enderror
+
+          <div class="row mb-4 g-3">
+            {{-- Option: Nonaktif --}}
+            <div class="col-md-4">
+              <label for="kta_mode_off" class="kta-radio-card {{ $currentKtaMode === 'off' ? 'active' : '' }}" style="cursor: pointer; display: block; padding: 1rem 1.25rem; border: 1px solid rgba(255,255,255,0.08); border-radius: 5px; background: rgba(255,255,255,0.03); transition: all 0.25s ease; position: relative;">
+                <input type="radio" id="kta_mode_off" name="kta_verification_mode" value="off"
+                  {{ $currentKtaMode === 'off' ? 'checked' : '' }}
+                  class="d-none" onchange="document.querySelectorAll('.kta-radio-card').forEach(el => el.classList.remove('active')); this.closest('.kta-radio-card').classList.add('active');">
+                <div class="d-flex align-items-center gap-2 mb-2">
+                  <div style="width: 36px; height: 36px; border-radius: 8px; background: rgba(107,114,128,0.15); color: #9ca3af; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex-shrink: 0;">
+                    <i class="icon-base ti tabler-power-off"></i>
+                  </div>
+                  <span class="fw-bold text-white" style="font-size: 0.9rem;">Nonaktif</span>
+                </div>
+                <p class="text-body-premium mb-0" style="font-size: 0.78rem; line-height: 1.5;">
+                  Verifikasi KTA dinonaktifkan. Semua pendaftar mengikuti alur pendaftaran normal.
+                </p>
+                {{-- Active indicator --}}
+                <div class="kta-check-icon" style="position: absolute; top: 10px; right: 10px; width: 20px; height: 20px; border-radius: 50%; background: #10b981; color: white; display: {{ $currentKtaMode === 'off' ? 'flex' : 'none' }}; align-items: center; justify-content: center; font-size: 0.7rem;">
+                  <i class="icon-base ti tabler-check"></i>
+                </div>
+              </label>
+            </div>
+
+            {{-- Option: Tandai Prioritas --}}
+            <div class="col-md-4">
+              <label for="kta_mode_priority" class="kta-radio-card {{ $currentKtaMode === 'priority' ? 'active' : '' }}" style="cursor: pointer; display: block; padding: 1rem 1.25rem; border: 1px solid rgba(255,255,255,0.08); border-radius: 5px; background: rgba(255,255,255,0.03); transition: all 0.25s ease; position: relative;">
+                <input type="radio" id="kta_mode_priority" name="kta_verification_mode" value="priority"
+                  {{ $currentKtaMode === 'priority' ? 'checked' : '' }}
+                  class="d-none" onchange="document.querySelectorAll('.kta-radio-card').forEach(el => el.classList.remove('active')); this.closest('.kta-radio-card').classList.add('active');">
+                <div class="d-flex align-items-center gap-2 mb-2">
+                  <div style="width: 36px; height: 36px; border-radius: 8px; background: rgba(245,158,11,0.15); color: #fbbf24; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex-shrink: 0;">
+                    <i class="icon-base ti tabler-star"></i>
+                  </div>
+                  <span class="fw-bold text-white" style="font-size: 0.9rem;">Tandai Prioritas</span>
+                </div>
+                <p class="text-body-premium mb-0" style="font-size: 0.78rem; line-height: 1.5;">
+                  Pendaftaran anggota KTA aktif diberi tanda <strong style="color: #fbbf24;">prioritas</strong> agar didahulukan admin saat approval.
+                </p>
+                <div class="kta-check-icon" style="position: absolute; top: 10px; right: 10px; width: 20px; height: 20px; border-radius: 50%; background: #10b981; color: white; display: {{ $currentKtaMode === 'priority' ? 'flex' : 'none' }}; align-items: center; justify-content: center; font-size: 0.7rem;">
+                  <i class="icon-base ti tabler-check"></i>
+                </div>
+              </label>
+            </div>
+
+            {{-- Option: Auto-Approve --}}
+            <div class="col-md-4">
+              <label for="kta_mode_auto_approve" class="kta-radio-card {{ $currentKtaMode === 'auto_approve' ? 'active' : '' }}" style="cursor: pointer; display: block; padding: 1rem 1.25rem; border: 1px solid rgba(255,255,255,0.08); border-radius: 5px; background: rgba(255,255,255,0.03); transition: all 0.25s ease; position: relative;">
+                <input type="radio" id="kta_mode_auto_approve" name="kta_verification_mode" value="auto_approve"
+                  {{ $currentKtaMode === 'auto_approve' ? 'checked' : '' }}
+                  class="d-none" onchange="document.querySelectorAll('.kta-radio-card').forEach(el => el.classList.remove('active')); this.closest('.kta-radio-card').classList.add('active');">
+                <div class="d-flex align-items-center gap-2 mb-2">
+                  <div style="width: 36px; height: 36px; border-radius: 8px; background: rgba(16,185,129,0.15); color: #34d399; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex-shrink: 0;">
+                    <i class="icon-base ti tabler-circle-check"></i>
+                  </div>
+                  <span class="fw-bold text-white" style="font-size: 0.9rem;">Auto-Approve</span>
+                </div>
+                <p class="text-body-premium mb-0" style="font-size: 0.78rem; line-height: 1.5;">
+                  Pendaftaran anggota KTA aktif langsung <strong style="color: #34d399;">disetujui otomatis</strong> tanpa perlu approval admin manual.
+                </p>
+                <div class="kta-check-icon" style="position: absolute; top: 10px; right: 10px; width: 20px; height: 20px; border-radius: 50%; background: #10b981; color: white; display: {{ $currentKtaMode === 'auto_approve' ? 'flex' : 'none' }}; align-items: center; justify-content: center; font-size: 0.7rem;">
+                  <i class="icon-base ti tabler-check"></i>
+                </div>
+              </label>
+            </div>
+          </div>
+
+          <style>
+            .kta-radio-card:hover {
+              border-color: rgba(99,102,241,0.35) !important;
+              background: rgba(99,102,241,0.05) !important;
+            }
+            .kta-radio-card.active {
+              border-color: rgba(16,185,129,0.4) !important;
+              background: rgba(16,185,129,0.06) !important;
+            }
+          </style>
+          <script>
+            document.querySelectorAll('.kta-radio-card input[type="radio"]').forEach(function(radio) {
+              radio.addEventListener('change', function() {
+                document.querySelectorAll('.kta-radio-card .kta-check-icon').forEach(function(icon) {
+                  icon.style.display = 'none';
+                });
+                var checkIcon = this.closest('.kta-radio-card').querySelector('.kta-check-icon');
+                if (checkIcon) checkIcon.style.display = 'flex';
+              });
+            });
+          </script>
+
+          <hr class="my-5" style="border-color: rgba(255,255,255,0.08);">
+
+          {{-- ======================== SECTION: COOLDOWN PENDAFTARAN GANDA ======================== --}}
+          <h5 class="fw-bold text-white mb-4" style="font-family: 'Sora', sans-serif;">
+            <i class="icon-base ti tabler-clock-pause me-2"></i>Pencegahan Pendaftaran Ganda
+          </h5>
+          <p class="text-body-premium mb-4" style="font-size: 0.85rem;">
+            Atur jeda waktu sebelum peserta dapat mendaftar ulang setelah pendaftaran sebelumnya ditolak atau dibatalkan.
+          </p>
+
+          <div class="row mb-4">
+            <div class="col-md-6 mb-3 mb-md-0">
+              <label for="cooldown_period_days" class="form-label">Jeda Pendaftaran Ulang (Hari) <span class="text-danger">*</span></label>
+              <input type="number" min="0" step="1"
+                class="form-control @error('cooldown_period_days') is-invalid @enderror"
+                id="cooldown_period_days" name="cooldown_period_days"
+                value="{{ old('cooldown_period_days', $settings['cooldown_period_days']->value ?? 30) }}"
+                placeholder="30" required>
+              @error('cooldown_period_days')
+                <div class="invalid-feedback mt-1">{{ $message }}</div>
+              @enderror
+              <small class="text-body-premium mt-1 d-block" style="font-size: 0.75rem;">
+                <i class="icon-base ti tabler-info-circle me-1"></i>Masukkan angka bulat &ge; 0. Nilai 0 berarti peserta dapat langsung mendaftar ulang tanpa jeda.
+              </small>
+            </div>
+          </div>
+
+          <hr class="my-5" style="border-color: rgba(255,255,255,0.08);">
+
           {{-- ======================== SECTION 4: PENGUNCIAN WILAYAH ======================== --}}
           <h5 class="fw-bold text-white mb-4" style="font-family: 'Sora', sans-serif;">
             <i class="icon-base ti tabler-lock me-2"></i>Penguncian Wilayah

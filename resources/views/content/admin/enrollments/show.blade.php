@@ -450,6 +450,65 @@ $pelatihans = \App\Models\Pelatihan::where('is_active', true)->orderBy('nama')->
       <div class="col-lg-8 col-md-7">
         <div class="row g-4">
 
+          {{-- Informasi Keanggotaan KTA --}}
+          <div class="col-12">
+            <div class="glass-card-premium px-4 py-4">
+              <h5 class="detail-section-title">
+                <i class="icon-base ti tabler-id-badge"></i> Informasi Keanggotaan KTA
+              </h5>
+              <hr class="detail-divider">
+              @php
+                $ktaMember = $enrollment->user?->ktaMember ?? ($ktaMember ?? null);
+              @endphp
+              @if($ktaMember && ($ktaMember->status_kta ?? null) === 'Aktif')
+                <div class="d-flex align-items-center gap-2 mb-3">
+                  <span class="badge-premium badge-premium-success d-inline-flex align-items-center gap-1" style="font-size: 0.85rem;">
+                    <i class="icon-base ti tabler-id-badge fs-6"></i> KTA Aktif
+                  </span>
+                  @if($enrollment->is_kta_priority ?? false)
+                    <span class="badge-premium badge-premium-warning d-inline-flex align-items-center gap-1" style="font-size: 0.85rem;">
+                      <i class="icon-base ti tabler-star fs-6"></i> Prioritas KTA
+                    </span>
+                  @endif
+                </div>
+                <div class="row g-3">
+                  <div class="col-md-4">
+                    <div class="detail-label">Nama Lengkap (KTA)</div>
+                    <div class="detail-value">{{ $ktaMember->nama_lengkap ?? '-' }}</div>
+                  </div>
+                  <div class="col-md-4">
+                    <div class="detail-label">NIK</div>
+                    <div class="detail-value">{{ $ktaMember->nik ?? '-' }}</div>
+                  </div>
+                  <div class="col-md-4">
+                    <div class="detail-label">Status KTA</div>
+                    <div class="detail-value">{{ $ktaMember->status_kta ?? '-' }}</div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="detail-label">Wilayah</div>
+                    <div class="detail-value">{{ $ktaMember->wilayah ?? '-' }}</div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="detail-label">Keterangan</div>
+                    <div class="detail-value">{{ $ktaMember->keterangan ?? '-' }}</div>
+                  </div>
+                </div>
+              @else
+                <div class="d-flex align-items-start gap-3 py-2">
+                  <div class="stat-icon-box" style="background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.5); width: 44px; height: 44px; font-size: 1.25rem;">
+                    <i class="icon-base ti tabler-id-off"></i>
+                  </div>
+                  <div>
+                    <div class="text-white fw-semibold mb-1">Bukan Anggota KTA</div>
+                    <p class="text-body-premium mb-0" style="font-size: 0.85rem;">
+                      Peserta ini tidak terdaftar sebagai anggota KTA aktif atau data KTA tidak ditemukan.
+                    </p>
+                  </div>
+                </div>
+              @endif
+            </div>
+          </div>
+
           {{-- Data Pribadi --}}
           <div class="col-12">
             <div class="glass-card-premium px-4 py-4">

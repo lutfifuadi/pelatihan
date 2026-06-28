@@ -13,6 +13,7 @@ class Enrollment extends Model
     protected $fillable = [
         'user_id',
         'pelatihan_id',
+        'dinas_id',
         'status',
         'notes',
         'approved_at',
@@ -25,6 +26,7 @@ class Enrollment extends Model
         'newbimma_checked_at',
         'newbimma_checked_by',
         'newbimma_result',
+        'is_kta_priority',
     ];
 
     protected function casts(): array
@@ -37,6 +39,7 @@ class Enrollment extends Model
             'verification_code_expires_at' => 'datetime',
             'wa_confirmed_at' => 'datetime',
             'newbimma_checked_at' => 'datetime',
+            'is_kta_priority' => 'boolean',
         ];
     }
 
@@ -48,6 +51,11 @@ class Enrollment extends Model
     public function pelatihan(): BelongsTo
     {
         return $this->belongsTo(Pelatihan::class);
+    }
+
+    public function dinas(): BelongsTo
+    {
+        return $this->belongsTo(Dinas::class);
     }
 
     public function attendances(): HasMany

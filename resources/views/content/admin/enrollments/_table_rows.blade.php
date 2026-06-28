@@ -2,7 +2,19 @@
   <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.04);">
     <td class="px-0 py-3 text-body-premium">{{ $enrollments->firstItem() + $index }}</td>
     <td class="py-3">
-      <div class="fw-semibold text-white">{{ $enrollment->user?->pesertaProfile?->nama_lengkap ?: $enrollment->user?->name ?? 'User tidak ditemukan' }}</div>
+      <div class="d-flex align-items-center flex-wrap gap-2">
+        <span class="fw-semibold text-white">{{ $enrollment->user?->pesertaProfile?->nama_lengkap ?: $enrollment->user?->name ?? 'User tidak ditemukan' }}</span>
+        @if(($enrollment->user?->ktaMember?->status_kta ?? null) === 'Aktif' || ($enrollment->is_kta_active ?? false))
+          <span class="badge-premium badge-premium-success d-inline-flex align-items-center gap-1" title="Anggota KTA aktif">
+            <i class="icon-base ti tabler-id-badge fs-6"></i> KTA Aktif
+          </span>
+        @endif
+        @if($enrollment->is_kta_priority ?? false)
+          <span class="badge-premium badge-premium-warning d-inline-flex align-items-center gap-1" title="Prioritas KTA — didahulukan dalam antrian approval">
+            <i class="icon-base ti tabler-star fs-6"></i> Prioritas
+          </span>
+        @endif
+      </div>
       <div class="text-body-premium" style="font-size: 0.75rem;">{{ $enrollment->user?->whatsapp ?: $enrollment->user?->phone ?? '-' }}</div>
     </td>
     <td class="py-3">

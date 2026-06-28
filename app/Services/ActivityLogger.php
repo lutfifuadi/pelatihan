@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Request;
 class ActivityLogger
 {
     /**
-     * Catat aktivitas admin ke dalam log.
+     * Catat aktivitas ke dalam log.
      *
      * @param string $action       Tipe aksi: created, updated, deleted, approved, rejected, login, export
      * @param string $subjectType  Nama entitas: Pelatihan, Peserta, Enrollment, Sertifikat, dll
@@ -37,6 +37,60 @@ class ActivityLogger
 
         $log = ActivityLog::create([
             'user_id'      => $user?->id,
+            'action'       => $action,
+            'subject_type' => $subjectType,
+            'subject_id'   => $subjectId,
+            'subject_name' => $subjectName,
+            'description'  => $description,
+            'old_values'   => $oldValues ? json_encode($oldValues) : null,
+            'new_values'   => $newValues ? json_encode($newValues) : null,
+            'ip_address'   => $request->ip(),
+            'user_agent'   => $request->userAgent(),
+        ]);
+
+        try {
+            event(new \App\Events\DashboardUpdated());
+        } catch (\Throwable $e) {
+            // Bypass if broadcast is offline
+        }
+
+        return $log;
+    }
+
+    /**
+     * Catat aktivitas sistem (proses otomatis tanpa intervensi user langsung).
+     *
+     * Digunakan ketika proses berjalan atas nama sistem (mis. auto-approve KTA)
+     * namun tetap mencatat user yang terdampak sebagai konteks.
+     * user_id diisi dari $actorUser jika diberikan, atau dari Auth::user() sebagai fallback.
+     *
+     * @param string $action       Tipe aksi (auto_approved, system_action, dll)
+     * @param string $subjectType  Nama entitas
+     * @param int|null $subjectId  ID entitas
+     * @param string|null $subjectName Nama entitas
+     * @param string|null $description Deskripsi aktivitas sistem
+     * @param array|null $oldValues Data sebelum perubahan
+     * @param array|null $newValues Data setelah perubahan
+     * @param \App\Models\User|null $actorUser User yang terdampak/memicu aksi (opsional)
+     * @return ActivityLog|null
+     */
+    public static function logAsSystem(
+        string $action,
+        string $subjectType,
+        ?int $subjectId = null,
+        ?string $subjectName = null,
+        ?string $description = null,
+        ?array $oldValues = null,
+        ?array $newValues = null,
+        ?\App\Models\User $actorUser = null,
+    ): ?ActivityLog {
+        // Gunakan actorUser yang diberikan, atau fallback ke Auth user
+        $userId = $actorUser?->id ?? Auth::id();
+
+        $request = Request::instance();
+
+        $log = ActivityLog::create([
+            'user_id'      => $userId,
             'action'       => $action,
             'subject_type' => $subjectType,
             'subject_id'   => $subjectId,

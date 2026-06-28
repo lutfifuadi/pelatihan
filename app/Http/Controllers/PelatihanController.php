@@ -3,9 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Models\Pelatihan;
+use App\Services\EnrollmentCooldownService;
 
 class PelatihanController extends Controller
 {
+    public function __construct(
+        private EnrollmentCooldownService $enrollmentCooldownService
+    ) {}
+
     public function index()
     {
         app()->setLocale('id');
@@ -41,6 +46,12 @@ class PelatihanController extends Controller
              ]));
 
         $is_ditutup = $pelatihan->isPendaftaranDitutup();
-        return view('content.pelatihan.show', compact('pelatihan', 'is_ditutup'));
+
+        $enrollmentCooldown = null;
+        if (auth()->check()) {
+            $enrollmentCooldown = $this->enrollmentCooldownService->getEnrollmentStatus(auth()->user(), $pelatihan);
+        }
+
+        return view('content.pelatihan.show', compact('pelatihan', 'is_ditutup', 'enrollmentCooldown'));
     }
 }
