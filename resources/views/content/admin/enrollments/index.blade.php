@@ -268,15 +268,36 @@ $configData = Helper::appClasses();
           <span class="text-body-premium">peserta terpilih</span>
         </div>
         <div class="d-flex gap-2">
-          <button type="button" class="btn btn-success btn-action px-3 btn-bulk-action" data-action="approve">
-            <i class="icon-base ti tabler-check me-1"></i> Approve Terpilih
-          </button>
-          <button type="button" class="btn btn-danger btn-action px-3 btn-bulk-action" data-action="reject">
-            <i class="icon-base ti tabler-x me-1"></i> Reject Terpilih
-          </button>
-          <button type="button" class="btn btn-warning btn-action px-3 btn-bulk-action" data-action="waitlist">
-            <i class="icon-base ti tabler-clock me-1"></i> Cadangkan Terpilih
-          </button>
+          <div class="dropdown">
+            <button class="btn btn-warning dropdown-toggle btn-action px-3" type="button" id="bulkActionDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+              <i class="icon-base ti tabler-settings me-1"></i> Ubah Status Terpilih
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end bg-premium" aria-labelledby="bulkActionDropdown" style="background: #0f172a; border: 1px solid rgba(255,255,255,0.08); border-radius: 5px; min-width: 200px;">
+              <li><h6 class="dropdown-header" style="color: rgba(255,255,255,0.5); font-size: 0.7rem; text-transform: uppercase;">Ubah Status Ke:</h6></li>
+              @php
+                $allStatuses = \App\Enums\EnrollmentStatus::values();
+                $statusColors = [
+                  'pending' => '#fbbf24',
+                  'approved' => '#34d399',
+                  'waiting_wa_confirmation' => '#eab308',
+                  'waiting_newbimma_check' => '#3b82f6',
+                  'confirmed' => '#22c55e',
+                  'rejected' => '#f87171',
+                  'waitlist' => '#93c5fd',
+                ];
+              @endphp
+              @foreach($allStatuses as $statusValue)
+                @php $statusEnum = \App\Enums\EnrollmentStatus::fromValue($statusValue); @endphp
+                @if($statusEnum)
+                  <li>
+                    <a class="dropdown-item btn-bulk-action" href="#" data-status="{{ $statusEnum->value }}" data-label="{{ $statusEnum->label() }}" style="color: {{ $statusColors[$statusEnum->value] ?? '#93c5fd' }}; font-size: 0.8rem; padding: 6px 16px;">
+                      {{ $statusEnum->label() }}
+                    </a>
+                  </li>
+                @endif
+              @endforeach
+            </ul>
+          </div>
         </div>
       </div>
     </div>
@@ -729,8 +750,10 @@ $configData = Helper::appClasses();
     // Bulk action button click
     const bulkActionBtns = document.querySelectorAll('.btn-bulk-action');
     bulkActionBtns.forEach(btn => {
-      btn.addEventListener('click', function() {
-        const action = this.getAttribute('data-action');
+      btn.addEventListener('click', function(e) {
+        e.preventDefault();
+        const status = this.getAttribute('data-status');
+        const statusLabel = this.getAttribute('data-label');
         const checkedBoxes = document.querySelectorAll('.enrollment-checkbox:checked');
         const selectedIds = Array.from(checkedBoxes).map(cb => cb.value);
 
@@ -743,27 +766,20 @@ $configData = Helper::appClasses();
           return;
         }
 
-        let title = '';
-        let confirmText = '';
-        let color = '';
+        let confirmText = 'Ya, Ubah!';
+        let color = '#fbbf24'; // default warning
 
-        if (action === 'approve') {
-          title = 'Approve Terpilih?';
-          confirmText = 'Ya, Approve!';
+        if (status === 'approved' || status === 'confirmed') {
           color = '#10b981';
-        } else if (action === 'reject') {
-          title = 'Reject Terpilih?';
-          confirmText = 'Ya, Reject!';
+        } else if (status === 'rejected') {
           color = '#ef4444';
-        } else if (action === 'waitlist') {
-          title = 'Cadangkan Terpilih?';
-          confirmText = 'Ya, Cadangkan!';
-          color = '#ff9f43';
+        } else if (status === 'waitlist') {
+          color = '#3b82f6';
         }
 
         Swal.fire({
-          title: title,
-          text: `Anda akan melakukan aksi massal "${action}" pada ${selectedIds.length} pendaftaran.`,
+          title: 'Ubah Status Terpilih?',
+          text: `Anda akan mengubah status ${selectedIds.length} peserta terpilih menjadi ${statusLabel}. Apakah Anda yakin?`,
           icon: 'question',
           showCancelButton: true,
           confirmButtonText: confirmText,
@@ -772,7 +788,7 @@ $configData = Helper::appClasses();
           cancelButtonColor: '#6b7280',
         }).then((result) => {
           if (result.isConfirmed) {
-            btn.disabled = true;
+            btn.classList.add('disabled');
             const originalHtml = btn.innerHTML;
             btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Processing...';
 
@@ -785,7 +801,7 @@ $configData = Helper::appClasses();
               },
               body: JSON.stringify({
                 ids: selectedIds,
-                action: action
+                status: status
               })
             })
             .then(res => res.json().then(data => ({ status: res.status, body: data })))
@@ -803,7 +819,7 @@ $configData = Helper::appClasses();
               }
             })
             .catch(err => {
-              btn.disabled = false;
+              btn.classList.remove('disabled');
               btn.innerHTML = originalHtml;
               Swal.fire({
                 title: 'Gagal',

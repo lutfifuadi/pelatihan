@@ -411,14 +411,14 @@ class EnrollmentController extends Controller
     }
 
     /**
-     * Lakukan bulk action (approve/reject/waitlist) secara massal.
+     * Lakukan bulk action (approve/reject/waitlist) secara massal dengan status dinamis.
      */
     public function bulkAction(Request $request)
     {
         $request->validate([
             'ids' => 'required|array',
             'ids.*' => 'exists:enrollments,id',
-            'action' => 'required|in:approve,reject,waitlist',
+            'status' => ['required', \Illuminate\Validation\Rule::in(\App\Enums\EnrollmentStatus::values())],
         ]);
 
         $enrollments = Enrollment::whereIn('id', $request->ids)->get();
@@ -427,8 +427,10 @@ class EnrollmentController extends Controller
             return response()->json(['success' => false, 'message' => 'Tidak ada pendaftaran yang terpilih.'], 400);
         }
 
-        // Validasi Kuota Pelatihan (Khusus jika $request->action === 'approve')
-        if ($request->action === 'approve') {
+        $newStatus = EnrollmentStatus::fromValue($request->status);
+
+        // Validasi Kuota Pelatihan (Khusus jika $newStatus === EnrollmentStatus::Approved)
+        if ($newStatus === EnrollmentStatus::Approved) {
             $grouped = $enrollments->groupBy('pelatihan_id');
             foreach ($grouped as $pelatihanId => $groupEnrollments) {
                 $pelatihan = Pelatihan::findOrFail($pelatihanId);
@@ -447,30 +449,19 @@ class EnrollmentController extends Controller
         $processedIds = [];
         $waitlistPromotions = []; // Simpan pelatihan_id yang butuh dipromosikan (jika melepas status approved)
 
-        DB::transaction(function () use ($enrollments, $request, &$processedIds, &$waitlistPromotions) {
+        DB::transaction(function () use ($enrollments, $newStatus, &$processedIds, &$waitlistPromotions) {
             foreach ($enrollments as $enrollment) {
                 $oldStatus = $enrollment->status;
                 $oldStatusEnum = $oldStatus instanceof EnrollmentStatus ? $oldStatus : EnrollmentStatus::fromValue($oldStatus);
-
-                $action = $request->action;
-                if ($action === 'approve') {
-                    $newStatus = EnrollmentStatus::Approved;
-                    $note = 'Disetujui secara massal oleh admin';
-                } elseif ($action === 'reject') {
-                    $newStatus = EnrollmentStatus::Rejected;
-                    $note = 'Ditolak secara massal oleh admin';
-                } else {
-                    $newStatus = EnrollmentStatus::Waitlist;
-                    $note = 'Dimasukkan ke daftar cadangan massal oleh admin';
-                }
 
                 if ($oldStatusEnum !== $newStatus) {
                     $this->updateTimestamps($enrollment, $newStatus);
                 }
 
+                $note = "[Bulk Action: " . $newStatus->label() . "] Diubah secara massal oleh admin";
                 $enrollment->update([
                     'status' => $newStatus,
-                    'notes' => '[Bulk Action: ' . ucfirst($request->action) . '] ' . $note
+                    'notes' => $note
                 ]);
 
                 if ($oldStatusEnum === EnrollmentStatus::Approved && $newStatus !== EnrollmentStatus::Approved) {
@@ -492,10 +483,7 @@ class EnrollmentController extends Controller
         // Looping luar transaction untuk notification & ActivityLogger
         foreach ($enrollments as $enrollment) {
             try {
-                $status = $enrollment->status;
-                $statusEnum = $status instanceof EnrollmentStatus ? $status : EnrollmentStatus::fromValue($status);
-
-                switch ($statusEnum) {
+                switch ($newStatus) {
                     case EnrollmentStatus::Approved:
                         \App\Events\PendaftaranApproved::dispatch($enrollment->user, $enrollment->pelatihan);
                         break;
@@ -528,7 +516,7 @@ class EnrollmentController extends Controller
         ActivityLogger::action(
             'status_changed',
             'Enrollment',
-            "Aksi massal {$request->action} dilakukan pada {$count} pendaftaran",
+            "Aksi massal ubah status ke {$newStatus->value} dilakukan pada {$count} pendaftaran",
             $enrollments->first()?->pelatihan_id,
             $enrollments->first()?->pelatihan?->nama
         );
@@ -537,7 +525,7 @@ class EnrollmentController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => "Berhasil memproses {$count} pendaftaran."
+            'message' => "Berhasil mengubah status {$count} pendaftaran menjadi {$newStatus->label()}."
         ]);
     }
 

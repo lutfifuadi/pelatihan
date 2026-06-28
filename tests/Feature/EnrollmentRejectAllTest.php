@@ -312,7 +312,7 @@ class EnrollmentRejectAllTest extends TestCase
 
         $response = $this->postJson(route('admin.enrollments.bulk-action'), [
             'ids' => collect($enrollments)->pluck('id')->toArray(),
-            'action' => 'approve',
+            'status' => 'approved',
         ]);
 
         $response->assertStatus(200);
@@ -324,7 +324,7 @@ class EnrollmentRejectAllTest extends TestCase
             $fresh = $enrollment->fresh();
             $this->assertEquals(EnrollmentStatus::Approved, $fresh->status);
             $this->assertNotNull($fresh->approved_at);
-            $this->assertStringContainsString('[Bulk Action: Approve]', $fresh->notes);
+            $this->assertStringContainsString('[Bulk Action: Disetujui]', $fresh->notes);
         }
 
         Event::assertDispatched(\App\Events\PendaftaranApproved::class, 2);
@@ -348,7 +348,7 @@ class EnrollmentRejectAllTest extends TestCase
         // Try to bulk approve 2 pending, but remaining quota is only 1
         $response = $this->postJson(route('admin.enrollments.bulk-action'), [
             'ids' => collect($pendingEnrollments)->pluck('id')->toArray(),
-            'action' => 'approve',
+            'status' => 'approved',
         ]);
 
         $response->assertStatus(422);
@@ -374,7 +374,7 @@ class EnrollmentRejectAllTest extends TestCase
 
         $response = $this->postJson(route('admin.enrollments.bulk-action'), [
             'ids' => collect($enrollments)->pluck('id')->toArray(),
-            'action' => 'reject',
+            'status' => 'rejected',
         ]);
 
         $response->assertStatus(200);
@@ -386,7 +386,7 @@ class EnrollmentRejectAllTest extends TestCase
             $fresh = $enrollment->fresh();
             $this->assertEquals(EnrollmentStatus::Rejected, $fresh->status);
             $this->assertNotNull($fresh->rejected_at);
-            $this->assertStringContainsString('[Bulk Action: Reject]', $fresh->notes);
+            $this->assertStringContainsString('[Bulk Action: Ditolak]', $fresh->notes);
         }
 
         Event::assertDispatched(\App\Events\PendaftaranRejected::class, 2);
@@ -402,7 +402,7 @@ class EnrollmentRejectAllTest extends TestCase
 
         $response = $this->postJson(route('admin.enrollments.bulk-action'), [
             'ids' => collect($enrollments)->pluck('id')->toArray(),
-            'action' => 'waitlist',
+            'status' => 'waitlist',
         ]);
 
         $response->assertStatus(200);
@@ -413,7 +413,7 @@ class EnrollmentRejectAllTest extends TestCase
         foreach ($enrollments as $enrollment) {
             $fresh = $enrollment->fresh();
             $this->assertEquals(EnrollmentStatus::Waitlist, $fresh->status);
-            $this->assertStringContainsString('[Bulk Action: Waitlist]', $fresh->notes);
+            $this->assertStringContainsString('[Bulk Action: Cadangan]', $fresh->notes);
         }
     }
 }
