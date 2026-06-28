@@ -299,4 +299,121 @@ class EnrollmentRejectAllTest extends TestCase
         $response->assertSessionHas('error');
         $this->assertStringContainsString('Tidak ada pendaftaran pending', session('error'));
     }
+
+    public function test_bulk_action_approve_success(): void
+    {
+        Event::fake();
+
+        $users = User::factory()->count(2)->create(['role' => 'peserta']);
+        $enrollments = [];
+        foreach ($users as $user) {
+            $enrollments[] = $this->createEnrollment($user, 'pending');
+        }
+
+        $response = $this->postJson(route('admin.enrollments.bulk-action'), [
+            'ids' => collect($enrollments)->pluck('id')->toArray(),
+            'action' => 'approve',
+        ]);
+
+        $response->assertStatus(200);
+        $response->assertJson([
+            'success' => true,
+        ]);
+
+        foreach ($enrollments as $enrollment) {
+            $fresh = $enrollment->fresh();
+            $this->assertEquals(EnrollmentStatus::Approved, $fresh->status);
+            $this->assertNotNull($fresh->approved_at);
+            $this->assertStringContainsString('[Bulk Action: Approve]', $fresh->notes);
+        }
+
+        Event::assertDispatched(\App\Events\PendaftaranApproved::class, 2);
+    }
+
+    public function test_bulk_action_approve_fails_on_quota(): void
+    {
+        $this->pelatihan->update(['kuota' => 2]);
+
+        // 1 approved
+        $approvedUser = User::factory()->create(['role' => 'peserta']);
+        $this->createEnrollment($approvedUser, 'approved');
+
+        // 2 pending
+        $pendingUsers = User::factory()->count(2)->create(['role' => 'peserta']);
+        $pendingEnrollments = [];
+        foreach ($pendingUsers as $user) {
+            $pendingEnrollments[] = $this->createEnrollment($user, 'pending');
+        }
+
+        // Try to bulk approve 2 pending, but remaining quota is only 1
+        $response = $this->postJson(route('admin.enrollments.bulk-action'), [
+            'ids' => collect($pendingEnrollments)->pluck('id')->toArray(),
+            'action' => 'approve',
+        ]);
+
+        $response->assertStatus(422);
+        $response->assertJson([
+            'success' => false,
+        ]);
+
+        // Verify status didn't change
+        foreach ($pendingEnrollments as $enrollment) {
+            $this->assertEquals(EnrollmentStatus::Pending, $enrollment->fresh()->status);
+        }
+    }
+
+    public function test_bulk_action_reject_success(): void
+    {
+        Event::fake();
+
+        $users = User::factory()->count(2)->create(['role' => 'peserta']);
+        $enrollments = [];
+        foreach ($users as $user) {
+            $enrollments[] = $this->createEnrollment($user, 'pending');
+        }
+
+        $response = $this->postJson(route('admin.enrollments.bulk-action'), [
+            'ids' => collect($enrollments)->pluck('id')->toArray(),
+            'action' => 'reject',
+        ]);
+
+        $response->assertStatus(200);
+        $response->assertJson([
+            'success' => true,
+        ]);
+
+        foreach ($enrollments as $enrollment) {
+            $fresh = $enrollment->fresh();
+            $this->assertEquals(EnrollmentStatus::Rejected, $fresh->status);
+            $this->assertNotNull($fresh->rejected_at);
+            $this->assertStringContainsString('[Bulk Action: Reject]', $fresh->notes);
+        }
+
+        Event::assertDispatched(\App\Events\PendaftaranRejected::class, 2);
+    }
+
+    public function test_bulk_action_waitlist_success(): void
+    {
+        $users = User::factory()->count(2)->create(['role' => 'peserta']);
+        $enrollments = [];
+        foreach ($users as $user) {
+            $enrollments[] = $this->createEnrollment($user, 'pending');
+        }
+
+        $response = $this->postJson(route('admin.enrollments.bulk-action'), [
+            'ids' => collect($enrollments)->pluck('id')->toArray(),
+            'action' => 'waitlist',
+        ]);
+
+        $response->assertStatus(200);
+        $response->assertJson([
+            'success' => true,
+        ]);
+
+        foreach ($enrollments as $enrollment) {
+            $fresh = $enrollment->fresh();
+            $this->assertEquals(EnrollmentStatus::Waitlist, $fresh->status);
+            $this->assertStringContainsString('[Bulk Action: Waitlist]', $fresh->notes);
+        }
+    }
 }

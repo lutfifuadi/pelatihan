@@ -1,5 +1,6 @@
 @forelse($enrollments as $index => $enrollment)
   <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.04);">
+    <td class="px-0 py-3"><input type="checkbox" class="form-check-input enrollment-checkbox" value="{{ $enrollment->id }}"></td>
     <td class="px-0 py-3 text-body-premium">{{ $enrollments->firstItem() + $index }}</td>
     <td class="py-3">
       <div class="d-flex align-items-center flex-wrap gap-2">
@@ -173,7 +174,7 @@
   </tr>
 @empty
   <tr>
-    <td colspan="6" class="text-center text-body-premium py-5">
+    <td colspan="7" class="text-center text-body-premium py-5">
       <i class="icon-base ti tabler-inbox fs-1 mb-2 d-block text-warning"></i>
       Belum ada pendaftaran.
     </td>

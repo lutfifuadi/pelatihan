@@ -260,12 +260,34 @@ $configData = Helper::appClasses();
       </div>
     </div>
 
+    {{-- Bulk Action Bar --}}
+    <div class="glass-card-premium px-4 py-3 mb-4 d-none" id="bulk-action-container">
+      <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+        <div class="d-flex align-items-center">
+          <span class="text-white fw-bold me-2 fs-5" id="bulk-select-count">0</span>
+          <span class="text-body-premium">peserta terpilih</span>
+        </div>
+        <div class="d-flex gap-2">
+          <button type="button" class="btn btn-success btn-action px-3 btn-bulk-action" data-action="approve">
+            <i class="icon-base ti tabler-check me-1"></i> Approve Terpilih
+          </button>
+          <button type="button" class="btn btn-danger btn-action px-3 btn-bulk-action" data-action="reject">
+            <i class="icon-base ti tabler-x me-1"></i> Reject Terpilih
+          </button>
+          <button type="button" class="btn btn-warning btn-action px-3 btn-bulk-action" data-action="waitlist">
+            <i class="icon-base ti tabler-clock me-1"></i> Cadangkan Terpilih
+          </button>
+        </div>
+      </div>
+    </div>
+
     {{-- Table --}}
     <div class="glass-card-premium px-4 py-4">
       <div class="table-responsive">
         <table class="table table-borderless text-white align-middle">
           <thead>
             <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.08);">
+              <th class="text-body-premium small fw-semibold px-0" style="width: 40px;"><input type="checkbox" id="check-all-enrollments" class="form-check-input"></th>
               <th class="text-body-premium small fw-semibold px-0" style="width: 50px;">No</th>
               <th class="text-body-premium small fw-semibold">Nama Peserta</th>
               <th class="text-body-premium small fw-semibold">Pelatihan</th>
@@ -501,6 +523,13 @@ $configData = Helper::appClasses();
         if (!res.ok) throw new Error('Response error');
         const data = await res.json();
         tableContent.innerHTML = data.rows;
+
+        // Reset bulk select
+        const checkAll = document.getElementById('check-all-enrollments');
+        if (checkAll) checkAll.checked = false;
+        const bulkActionContainer = document.getElementById('bulk-action-container');
+        if (bulkActionContainer) bulkActionContainer.classList.add('d-none');
+
         if (data.pagination) {
           paginationContainer.innerHTML = data.pagination;
         } else {
@@ -653,6 +682,138 @@ $configData = Helper::appClasses();
       search = '';
       searchInput.value = '';
       fetchData();
+    });
+
+    function updateBulkActionState() {
+      const checkboxes = document.querySelectorAll('.enrollment-checkbox');
+      const checkedBoxes = document.querySelectorAll('.enrollment-checkbox:checked');
+      const checkAll = document.getElementById('check-all-enrollments');
+      const bulkActionContainer = document.getElementById('bulk-action-container');
+      const bulkSelectCount = document.getElementById('bulk-select-count');
+
+      if (checkAll) {
+        checkAll.checked = checkboxes.length > 0 && checkboxes.length === checkedBoxes.length;
+      }
+
+      if (bulkActionContainer) {
+        if (checkedBoxes.length > 0) {
+          bulkActionContainer.classList.remove('d-none');
+        } else {
+          bulkActionContainer.classList.add('d-none');
+        }
+      }
+
+      if (bulkSelectCount) {
+        bulkSelectCount.textContent = checkedBoxes.length;
+      }
+    }
+
+    const checkAll = document.getElementById('check-all-enrollments');
+    if (checkAll) {
+      checkAll.addEventListener('change', function() {
+        const checkboxes = document.querySelectorAll('.enrollment-checkbox');
+        checkboxes.forEach(cb => {
+          cb.checked = checkAll.checked;
+        });
+        updateBulkActionState();
+      });
+    }
+
+    // Delegate changes on .enrollment-checkbox (using document so it works after AJAX reload)
+    document.addEventListener('change', function(e) {
+      if (e.target.classList.contains('enrollment-checkbox')) {
+        updateBulkActionState();
+      }
+    });
+
+    // Bulk action button click
+    const bulkActionBtns = document.querySelectorAll('.btn-bulk-action');
+    bulkActionBtns.forEach(btn => {
+      btn.addEventListener('click', function() {
+        const action = this.getAttribute('data-action');
+        const checkedBoxes = document.querySelectorAll('.enrollment-checkbox:checked');
+        const selectedIds = Array.from(checkedBoxes).map(cb => cb.value);
+
+        if (selectedIds.length === 0) {
+          Swal.fire({
+            title: 'Peringatan',
+            text: 'Silakan pilih minimal satu pendaftaran.',
+            icon: 'warning'
+          });
+          return;
+        }
+
+        let title = '';
+        let confirmText = '';
+        let color = '';
+
+        if (action === 'approve') {
+          title = 'Approve Terpilih?';
+          confirmText = 'Ya, Approve!';
+          color = '#10b981';
+        } else if (action === 'reject') {
+          title = 'Reject Terpilih?';
+          confirmText = 'Ya, Reject!';
+          color = '#ef4444';
+        } else if (action === 'waitlist') {
+          title = 'Cadangkan Terpilih?';
+          confirmText = 'Ya, Cadangkan!';
+          color = '#ff9f43';
+        }
+
+        Swal.fire({
+          title: title,
+          text: `Anda akan melakukan aksi massal "${action}" pada ${selectedIds.length} pendaftaran.`,
+          icon: 'question',
+          showCancelButton: true,
+          confirmButtonText: confirmText,
+          cancelButtonText: 'Batal',
+          confirmButtonColor: color,
+          cancelButtonColor: '#6b7280',
+        }).then((result) => {
+          if (result.isConfirmed) {
+            btn.disabled = true;
+            const originalHtml = btn.innerHTML;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Processing...';
+
+            fetch('{{ route('admin.enrollments.bulk-action') }}', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '{{ csrf_token() }}',
+                'X-Requested-With': 'XMLHttpRequest',
+              },
+              body: JSON.stringify({
+                ids: selectedIds,
+                action: action
+              })
+            })
+            .then(res => res.json().then(data => ({ status: res.status, body: data })))
+            .then(({ status, body }) => {
+              if (status === 200 && body.success) {
+                Swal.fire({
+                  title: 'Berhasil',
+                  text: body.message,
+                  icon: 'success'
+                }).then(() => {
+                  window.location.reload();
+                });
+              } else {
+                throw new Error(body.message || 'Terjadi kesalahan saat memproses bulk action.');
+              }
+            })
+            .catch(err => {
+              btn.disabled = false;
+              btn.innerHTML = originalHtml;
+              Swal.fire({
+                title: 'Gagal',
+                text: err.message || 'Terjadi kesalahan.',
+                icon: 'error'
+              });
+            });
+          }
+        });
+      });
     });
 
     // Sinkronkan dropdown dari URL saat inisialisasi

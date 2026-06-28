@@ -411,6 +411,137 @@ class EnrollmentController extends Controller
     }
 
     /**
+     * Lakukan bulk action (approve/reject/waitlist) secara massal.
+     */
+    public function bulkAction(Request $request)
+    {
+        $request->validate([
+            'ids' => 'required|array',
+            'ids.*' => 'exists:enrollments,id',
+            'action' => 'required|in:approve,reject,waitlist',
+        ]);
+
+        $enrollments = Enrollment::whereIn('id', $request->ids)->get();
+
+        if ($enrollments->isEmpty()) {
+            return response()->json(['success' => false, 'message' => 'Tidak ada pendaftaran yang terpilih.'], 400);
+        }
+
+        // Validasi Kuota Pelatihan (Khusus jika $request->action === 'approve')
+        if ($request->action === 'approve') {
+            $grouped = $enrollments->groupBy('pelatihan_id');
+            foreach ($grouped as $pelatihanId => $groupEnrollments) {
+                $pelatihan = Pelatihan::findOrFail($pelatihanId);
+                $sisaKuota = $pelatihan->sisaKuota();
+                $countSelected = $groupEnrollments->count();
+
+                if ($countSelected > $sisaKuota) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => "Kuota untuk pelatihan {$pelatihan->nama} (Batch {$pelatihan->batch}) tidak mencukupi. Sisa kuota: {$sisaKuota}, yang diajukan untuk disetujui: {$countSelected}."
+                    ], 422);
+                }
+            }
+        }
+
+        $processedIds = [];
+        $waitlistPromotions = []; // Simpan pelatihan_id yang butuh dipromosikan (jika melepas status approved)
+
+        DB::transaction(function () use ($enrollments, $request, &$processedIds, &$waitlistPromotions) {
+            foreach ($enrollments as $enrollment) {
+                $oldStatus = $enrollment->status;
+                $oldStatusEnum = $oldStatus instanceof EnrollmentStatus ? $oldStatus : EnrollmentStatus::fromValue($oldStatus);
+
+                $action = $request->action;
+                if ($action === 'approve') {
+                    $newStatus = EnrollmentStatus::Approved;
+                    $note = 'Disetujui secara massal oleh admin';
+                } elseif ($action === 'reject') {
+                    $newStatus = EnrollmentStatus::Rejected;
+                    $note = 'Ditolak secara massal oleh admin';
+                } else {
+                    $newStatus = EnrollmentStatus::Waitlist;
+                    $note = 'Dimasukkan ke daftar cadangan massal oleh admin';
+                }
+
+                if ($oldStatusEnum !== $newStatus) {
+                    $this->updateTimestamps($enrollment, $newStatus);
+                }
+
+                $enrollment->update([
+                    'status' => $newStatus,
+                    'notes' => '[Bulk Action: ' . ucfirst($request->action) . '] ' . $note
+                ]);
+
+                if ($oldStatusEnum === EnrollmentStatus::Approved && $newStatus !== EnrollmentStatus::Approved) {
+                    $waitlistPromotions[] = [
+                        'pelatihan_id' => $enrollment->pelatihan_id,
+                        'exclude_id' => $enrollment->id,
+                    ];
+                }
+
+                $processedIds[] = $enrollment->id;
+            }
+
+            // Jalankan promote dari waitlist dalam transaction
+            foreach ($waitlistPromotions as $promo) {
+                $this->promoteFromWaitlist($promo['pelatihan_id'], $promo['exclude_id']);
+            }
+        });
+
+        // Looping luar transaction untuk notification & ActivityLogger
+        foreach ($enrollments as $enrollment) {
+            try {
+                $status = $enrollment->status;
+                $statusEnum = $status instanceof EnrollmentStatus ? $status : EnrollmentStatus::fromValue($status);
+
+                switch ($statusEnum) {
+                    case EnrollmentStatus::Approved:
+                        \App\Events\PendaftaranApproved::dispatch($enrollment->user, $enrollment->pelatihan);
+                        break;
+                    case EnrollmentStatus::Rejected:
+                        \App\Events\PendaftaranRejected::dispatch(
+                            $enrollment->user,
+                            $enrollment->pelatihan,
+                            'Disetujui/Ditolak secara massal oleh admin'
+                        );
+                        break;
+                    case EnrollmentStatus::Waitlist:
+                        if ($enrollment->user && $enrollment->pelatihan) {
+                            $this->notificationService->sendByTemplate(
+                                $enrollment->user,
+                                'masuk_cadangan',
+                                [
+                                    'nama' => $enrollment->user->name,
+                                    'pelatihan' => $enrollment->pelatihan->nama,
+                                ]
+                            );
+                        }
+                        break;
+                }
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::warning('Notifikasi bulkAction gagal dikirim untuk enrollment ID ' . $enrollment->id . ': ' . $e->getMessage());
+            }
+        }
+
+        $count = $enrollments->count();
+        ActivityLogger::action(
+            'status_changed',
+            'Enrollment',
+            "Aksi massal {$request->action} dilakukan pada {$count} pendaftaran",
+            $enrollments->first()?->pelatihan_id,
+            $enrollments->first()?->pelatihan?->nama
+        );
+
+        $this->broadcastDashboardUpdate();
+
+        return response()->json([
+            'success' => true,
+            'message' => "Berhasil memproses {$count} pendaftaran."
+        ]);
+    }
+
+    /**
      * Reset enrollment — hapus pendaftaran agar peserta bisa daftar ulang.
      */
     public function reset(Request $request, Enrollment $enrollment)

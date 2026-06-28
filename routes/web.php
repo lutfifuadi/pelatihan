@@ -173,30 +173,34 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
 
         // Form pendaftaran di dalam dashboard/peserta/
         Route::prefix('dashboard/peserta')->name('dashboard.peserta.')->group(function () {
-            // Halaman 1: Data Pribadi
-            Route::get('/form-pendaftaran', [PesertaFormController::class, 'formPendaftaran'])->name('form-pendaftaran');
-            Route::post('/form-pendaftaran', [PesertaFormController::class, 'store'])->name('form-pendaftaran.store');
-            Route::post('/save-tab1', [PesertaFormController::class, 'saveTab1'])->name('save-tab1');
+            
+            // Middleware untuk membatasi akses ke form pendaftaran jika sudah completed
+            Route::middleware(['pendaftaran.completed'])->group(function () {
+                // Halaman 1: Data Pribadi
+                Route::get('/form-pendaftaran', [PesertaFormController::class, 'formPendaftaran'])->name('form-pendaftaran');
+                Route::post('/form-pendaftaran', [PesertaFormController::class, 'store'])->name('form-pendaftaran.store');
+                Route::post('/save-tab1', [PesertaFormController::class, 'saveTab1'])->name('save-tab1');
 
-            // Halaman 2: Alamat & Kontak
-            Route::get('/form-alamat', [PesertaFormController::class, 'formAlamat'])->name('form-alamat');
-            Route::post('/form-alamat', [PesertaFormController::class, 'storeAlamat'])->name('form-alamat.store');
+                // Halaman 2: Alamat & Kontak
+                Route::get('/form-alamat', [PesertaFormController::class, 'formAlamat'])->name('form-alamat');
+                Route::post('/form-alamat', [PesertaFormController::class, 'storeAlamat'])->name('form-alamat.store');
 
-            // Form Tahap 3 - Pendidikan & Pekerjaan
-            Route::get('/form-pendidikan', [PesertaFormController::class, 'pendidikan'])->name('form-pendidikan');
-            Route::post('/form-pendidikan', [PesertaFormController::class, 'savePendidikan'])->name('form-pendidikan.store');
+                // Form Tahap 3 - Pendidikan & Pekerjaan
+                Route::get('/form-pendidikan', [PesertaFormController::class, 'pendidikan'])->name('form-pendidikan');
+                Route::post('/form-pendidikan', [PesertaFormController::class, 'savePendidikan'])->name('form-pendidikan.store');
 
-            // Form Tahap 4 - Minat Pelatihan
-            Route::get('/form-minat', [PesertaFormController::class, 'minat'])->name('form-minat');
-            Route::post('/form-minat', [PesertaFormController::class, 'saveMinat'])->name('form-minat.store');
+                // Form Tahap 4 - Minat Pelatihan
+                Route::get('/form-minat', [PesertaFormController::class, 'minat'])->name('form-minat');
+                Route::post('/form-minat', [PesertaFormController::class, 'saveMinat'])->name('form-minat.store');
 
-            // Form Tahap 5 - Dokumen & Pertanyaan
-            Route::get('/form-dokumen', [PesertaFormController::class, 'dokumen'])->name('form-dokumen');
-            Route::post('/form-dokumen', [PesertaFormController::class, 'saveDokumen'])->name('form-dokumen.store');
+                // Form Tahap 5 - Dokumen & Pertanyaan
+                Route::get('/form-dokumen', [PesertaFormController::class, 'dokumen'])->name('form-dokumen');
+                Route::post('/form-dokumen', [PesertaFormController::class, 'saveDokumen'])->name('form-dokumen.store');
 
-            // Form Tahap 6 - Review Data & Submit Final
-            Route::get('/form-review', [PesertaFormController::class, 'review'])->name('form-review');
-            Route::post('/form-review', [PesertaFormController::class, 'submitFinal'])->name('form-review.submit');
+                // Form Tahap 6 - Review Data & Submit Final
+                Route::get('/form-review', [PesertaFormController::class, 'review'])->name('form-review');
+                Route::post('/form-review', [PesertaFormController::class, 'submitFinal'])->name('form-review.submit');
+            });
 
             // Halaman Sukses setelah submit final
             Route::get('/pendaftaran-sukses', [PesertaFormController::class, 'pendaftaranSukses'])->name('pendaftaran-sukses');
@@ -206,6 +210,7 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
 
             // Halaman Profil
             Route::get('/profil', [PesertaFormController::class, 'profil'])->name('profil');
+            Route::post('/profil/update-kontak', [PesertaFormController::class, 'updateKontak'])->name('profil.update-kontak');
 
             // Halaman Notifikasi Peserta
             Route::get('/notifikasi', [NotificationController::class, 'index'])->name('notifikasi');
@@ -287,6 +292,7 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
         // Enrollment (Pendaftaran Pelatihan - Approve/Reject/Waitlist)
         Route::get('enrollments', [EnrollmentController::class, 'index'])->name('enrollments.index');
         Route::get('enrollments/pelatihan/{pelatihan}', [EnrollmentController::class, 'index'])->name('enrollments.pelatihan');
+        Route::post('enrollments/bulk-action', [EnrollmentController::class, 'bulkAction'])->name('enrollments.bulk-action');
         Route::get('enrollments/{enrollment}', [EnrollmentController::class, 'show'])->name('enrollments.show');
         Route::post('enrollments/{enrollment}/approve', [EnrollmentController::class, 'approve'])->name('enrollments.approve');
         Route::post('enrollments/{enrollment}/reject', [EnrollmentController::class, 'reject'])->name('enrollments.reject');
