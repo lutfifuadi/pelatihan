@@ -25,13 +25,35 @@ class WebPushService
         $auth = [
             'VAPID' => [
                 'subject' => config('services.web_push.vapid_subject', 'mailto:admin@pelatihanku.com'),
-                'publicKey' => config('services.web_push.vapid_public_key'),
-                'privateKey' => config('services.web_push.vapid_private_key'),
+                'publicKey' => $this->getVapidPublicKey(),
+                'privateKey' => $this->getVapidPrivateKey(),
             ],
         ];
 
         $this->webPush = new WebPush($auth);
         $this->webPush->setReuseVAPIDHeaders(true);
+    }
+
+    private function getVapidPublicKey(): ?string
+    {
+        return \Illuminate\Support\Facades\Cache::remember('vapid_public_key', 3600, function () {
+            $setting = \App\Models\Setting::where('key', 'vapid_public_key')->first();
+            return $setting?->value ?? config('services.web_push.vapid_public_key');
+        });
+    }
+
+    private function getVapidPrivateKey(): ?string
+    {
+        return \Illuminate\Support\Facades\Cache::remember('vapid_private_key', 3600, function () {
+            $setting = \App\Models\Setting::where('key', 'vapid_private_key')->first();
+            
+            if (!$setting || empty($setting->value)) {
+                return config('services.web_push.vapid_private_key');
+            }
+
+            // Asumsi menggunakan enkripsi bawaan Laravel
+            return \Illuminate\Support\Facades\Crypt::decryptString($setting->value);
+        });
     }
 
     /**
