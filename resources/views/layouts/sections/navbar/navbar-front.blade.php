@@ -80,9 +80,23 @@ data-icon="device-desktop-analytics"></i>System</span>
 
         <!-- navbar button: Start -->
         <li>
-          <a href="javascript:;" class="btn btn-primary" target="_blank"><span
-              class="icon-base ti tabler-login scaleX-n1-rtl me-md-1"></span><span
-              class="d-none d-md-block">{{ __('Login') }}/{{ __('Register') }}</span></a>
+          @auth
+            @php
+              $dashboardRoute = match(auth()->user()->role) {
+                  'admin' => route('dashboard.admin'),
+                  'instruktur' => route('dashboard.instruktur'),
+                  'koordinator' => route('dashboard.koordinator'),
+                  default => route('dashboard.peserta'),
+              };
+            @endphp
+            <a href="{{ $dashboardRoute }}" class="btn btn-primary"><span
+                class="icon-base ti tabler-layout-dashboard scaleX-n1-rtl me-md-1"></span><span
+                class="d-none d-md-block">{{ __('Dashboard') }}</span></a>
+          @else
+            <a href="{{ route('login') }}" class="btn btn-primary"><span
+                class="icon-base ti tabler-login scaleX-n1-rtl me-md-1"></span><span
+                class="d-none d-md-block">{{ __('Login') }}/{{ __('Register') }}</span></a>
+          @endauth
         </li>
         <!-- navbar button: End -->
       </ul>

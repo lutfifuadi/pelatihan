@@ -21,10 +21,18 @@
     </nav>
     <div class="d-flex align-items-center gap-2">
       @auth
-        <a href="{{ route('dashboard.admin') }}" class="btn btn-login-premium d-flex align-items-center gap-2">
-          <i class="icon-base ti tabler-dashboard fs-5"></i>Dashboard
-        </a>
-      @else
+          @php
+            $dashRoute = match(auth()->user()->role) {
+                "admin" => route("dashboard.admin"),
+                "instruktur" => route("dashboard.instruktur"),
+                "koordinator" => route("dashboard.koordinator"),
+                default => route("dashboard.peserta"),
+            };
+          @endphp
+          <a href="{{ $dashRoute }}" class="btn btn-login-premium d-flex align-items-center gap-2">
+            <i class="icon-base ti tabler-dashboard fs-5"></i>Dashboard
+          </a>
+        @else
         <a href="{{ route('login') }}" class="btn btn-login-premium d-flex align-items-center gap-2">
           <i class="icon-base ti tabler-login fs-5"></i>Login
         </a>
@@ -70,13 +78,22 @@
 
   <div class="panel-footer">
     @auth
-      <a href="{{ route('dashboard.admin') }}" class="btn btn-login-premium w-100 d-flex align-items-center justify-content-center gap-2">
-        <i class="icon-base ti tabler-dashboard fs-5"></i>Dashboard
-      </a>
-    @else
+          @php
+            $dashRouteMobile = match(auth()->user()->role) {
+                "admin" => route("dashboard.admin"),
+                "instruktur" => route("dashboard.instruktur"),
+                "koordinator" => route("dashboard.koordinator"),
+                default => route("dashboard.peserta"),
+            };
+          @endphp
+          <a href="{{ $dashRouteMobile }}" class="btn btn-login-premium w-100 d-flex align-items-center justify-content-center gap-2">
+            <i class="icon-base ti tabler-dashboard fs-5"></i>Dashboard
+          </a>
+        @else
       <a href="{{ route('login') }}" class="btn btn-login-premium w-100 d-flex align-items-center justify-content-center gap-2">
         <i class="icon-base ti tabler-login fs-5"></i>Login
       </a>
     @endauth
   </div>
 </div>
+
