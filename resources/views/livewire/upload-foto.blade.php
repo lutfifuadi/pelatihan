@@ -19,10 +19,18 @@
             <div class="d-flex align-items-center justify-content-between p-3 rounded mb-3"
                 style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.06);">
                 <div class="d-flex align-items-center gap-3">
-                    <div class="stat-icon-box {{ $fotoDiriBase64 ? 'stat-icon-success' : 'stat-icon-secondary' }}"
-                        style="width: 42px; height: 42px; font-size: 1.2rem;">
-                        <i class="icon-base ti {{ $fotoDiriBase64 ? 'tabler-check' : 'tabler-user' }}"></i>
-                    </div>
+                    @if($fotoDiriBase64)
+                        <div style="width: 50px; height: 50px; border-radius: 8px; overflow: hidden; flex-shrink: 0; border: 2px solid rgba(255,255,255,0.1);">
+                            <img src="data:image/jpeg;base64,{{ $fotoDiriBase64 }}"
+                                 alt="Preview Foto Diri"
+                                 style="width: 100%; height: 100%; object-fit: cover;">
+                        </div>
+                    @else
+                        <div class="stat-icon-box stat-icon-secondary"
+                            style="width: 42px; height: 42px; font-size: 1.2rem;">
+                            <i class="icon-base ti tabler-user"></i>
+                        </div>
+                    @endif
                     <div>
                         <h6 class="text-white fw-semibold mb-0" style="font-size: 0.9rem;">Foto Diri</h6>
                         <small class="text-body-premium">
@@ -42,10 +50,18 @@
             <div class="d-flex align-items-center justify-content-between p-3 rounded mb-4"
                 style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.06);">
                 <div class="d-flex align-items-center gap-3">
-                    <div class="stat-icon-box {{ $fotoKtpBase64 ? 'stat-icon-success' : 'stat-icon-secondary' }}"
-                        style="width: 42px; height: 42px; font-size: 1.2rem;">
-                        <i class="icon-base ti {{ $fotoKtpBase64 ? 'tabler-check' : 'tabler-id' }}"></i>
-                    </div>
+                    @if($fotoKtpBase64)
+                        <div style="width: 50px; height: 50px; border-radius: 8px; overflow: hidden; flex-shrink: 0; border: 2px solid rgba(255,255,255,0.1);">
+                            <img src="data:image/jpeg;base64,{{ $fotoKtpBase64 }}"
+                                 alt="Preview Foto KTP"
+                                 style="width: 100%; height: 100%; object-fit: cover;">
+                        </div>
+                    @else
+                        <div class="stat-icon-box stat-icon-secondary"
+                            style="width: 42px; height: 42px; font-size: 1.2rem;">
+                            <i class="icon-base ti tabler-id"></i>
+                        </div>
+                    @endif
                     <div>
                         <h6 class="text-white fw-semibold mb-0" style="font-size: 0.9rem;">Foto KTP</h6>
                         <small class="text-body-premium">
@@ -130,7 +146,15 @@
             <div class="mt-4 p-3 rounded text-start"
                 style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.06); max-width: 500px; margin: 0 auto;">
                 <div class="d-flex align-items-center gap-3 mb-2">
-                    <i class="icon-base ti tabler-check-circle text-success fs-5"></i>
+                    @if($user->google_drive_photo_url)
+                        <div style="width: 50px; height: 50px; border-radius: 8px; overflow: hidden; flex-shrink: 0; border: 2px solid rgba(255,255,255,0.1);">
+                            <img src="{{ $user->google_drive_photo_url }}"
+                                 alt="Foto Diri"
+                                 style="width: 100%; height: 100%; object-fit: cover;">
+                        </div>
+                    @else
+                        <i class="icon-base ti tabler-check-circle text-success fs-5"></i>
+                    @endif
                     <div>
                         <span class="text-white fw-semibold small d-block">Foto Diri</span>
                         <small class="text-body-premium">
@@ -139,7 +163,15 @@
                     </div>
                 </div>
                 <div class="d-flex align-items-center gap-3">
-                    <i class="icon-base ti tabler-check-circle text-success fs-5"></i>
+                    @if($user->google_drive_ktp_url)
+                        <div style="width: 50px; height: 50px; border-radius: 8px; overflow: hidden; flex-shrink: 0; border: 2px solid rgba(255,255,255,0.1);">
+                            <img src="{{ $user->google_drive_ktp_url }}"
+                                 alt="Foto KTP"
+                                 style="width: 100%; height: 100%; object-fit: cover;">
+                        </div>
+                    @else
+                        <i class="icon-base ti tabler-check-circle text-success fs-5"></i>
+                    @endif
                     <div>
                         <span class="text-white fw-semibold small d-block">Foto KTP</span>
                         <small class="text-body-premium">

@@ -484,9 +484,12 @@ document.addEventListener('alpine:init', () => {
             const videoEl = this.$refs.video;
             if (!videoEl) return;
 
+            // ✅ Capture frame DULU selagi video masih hidup & streaming
+            const result = window.FOTO_CAPTURE.captureFrame(videoEl);
+
+            // ✅ Baru stop kameranya
             window.FOTO_CAPTURE.stopCamera();
 
-            const result = window.FOTO_CAPTURE.captureFrame(videoEl);
             this.capturedDataUrl = result.dataUrl;
             this.capturedImage = result.base64;
             this.capturedMimeType = result.mimeType;
