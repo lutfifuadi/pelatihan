@@ -57,7 +57,12 @@ class EnrollmentController extends Controller
             }
         }
 
-        $enrollments = $query->orderBy('created_at', 'desc')->paginate(20)->withQueryString();
+        $perPage = $request->input('per_page', 20);
+        if ($perPage === 'all') {
+            $perPage = 999999; // Angka besar agar semua data tampil dalam 1 halaman
+        }
+        $perPage = max(1, min(999999, (int) $perPage));
+        $enrollments = $query->orderBy('created_at', 'desc')->paginate($perPage)->withQueryString();
         $pelatihans = Pelatihan::where('is_active', true)->orderBy('nama')->get(['id', 'nama', 'batch']);
 
         // Optimasi: 1 query GROUP BY menggantikan 4 query COUNT terpisah
@@ -103,10 +108,11 @@ class EnrollmentController extends Controller
                 'rows' => $rows,
                 'pagination' => $pagination,
                 'counts' => $counts,
+                'per_page' => $perPage,
             ]);
         }
 
-        return view('content.admin.enrollments.index', compact('enrollments', 'pelatihans', 'pelatihan', 'counts', 'search') + ['enrollmentStatuses' => EnrollmentStatus::values()]);
+        return view('content.admin.enrollments.index', compact('enrollments', 'pelatihans', 'pelatihan', 'counts', 'search', 'perPage') + ['enrollmentStatuses' => EnrollmentStatus::values()]);
     }
 
     /**

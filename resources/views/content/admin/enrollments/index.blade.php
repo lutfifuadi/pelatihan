@@ -304,6 +304,21 @@ $configData = Helper::appClasses();
 
     {{-- Table --}}
     <div class="glass-card-premium px-4 py-4">
+      {{-- Per Page Selector --}}
+      <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+        <div class="d-flex align-items-center gap-2">
+          <small class="text-body-premium">Tampilkan</small>
+          <select id="per-page-selector" class="form-select form-select-sm" style="width: auto; min-width: 80px; background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.08); color: #f8fafc; border-radius: 5px; padding: 4px 12px;">
+            <option value="10" {{ ($perPage ?? 20) == 10 ? 'selected' : '' }}>10</option>
+            <option value="20" {{ ($perPage ?? 20) == 20 ? 'selected' : '' }}>20</option>
+            <option value="30" {{ ($perPage ?? 20) == 30 ? 'selected' : '' }}>30</option>
+            <option value="50" {{ ($perPage ?? 20) == 50 ? 'selected' : '' }}>50</option>
+            <option value="all" {{ ($perPage ?? 20) == 'all' ? 'selected' : '' }}>Semua</option>
+          </select>
+          <small class="text-body-premium">data per halaman</small>
+        </div>
+      </div>
+
       <div class="table-responsive">
         <table class="table table-borderless text-white align-middle">
           <thead>
@@ -532,7 +547,8 @@ $configData = Helper::appClasses();
       loadingSpinner.classList.remove('d-none');
 
       const dropdownFilters = getDropdownFilters();
-      const params = new URLSearchParams({ ...dropdownFilters, search: search || '' });
+      const perPage = document.getElementById('per-page-selector')?.value || '20';
+      const params = new URLSearchParams({ ...dropdownFilters, search: search || '', per_page: perPage });
       if (targetPage) params.set('page', targetPage);
 
       try {
@@ -659,6 +675,14 @@ $configData = Helper::appClasses();
     // Filter dropdown changes
     filterPelatihan.addEventListener('change', applyFilters);
     filterStatus.addEventListener('change', applyFilters);
+
+    // Per-page selector change
+    const perPageSelector = document.getElementById('per-page-selector');
+    if (perPageSelector) {
+      perPageSelector.addEventListener('change', function() {
+        fetchData();
+      });
+    }
 
     // Filter reset button — reset semua filter & search
     filterResetBtn.addEventListener('click', function() {
