@@ -153,7 +153,7 @@ class DashboardController extends Controller
         $latestPeserta = User::select('id', 'name', 'nik', 'created_at')
             ->where('role', 'peserta')
             ->orderBy('created_at', 'desc')
-            ->take(4)
+            ->take(7)
             ->get();
 
         // --- Log Aktivitas Terbaru ---

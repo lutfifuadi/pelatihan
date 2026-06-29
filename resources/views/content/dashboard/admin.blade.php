@@ -484,7 +484,7 @@ $configData = Helper::appClasses();
         </a>
         <a href="{{ route('admin.laporan.index') }}" class="col-6 col-md-3 text-decoration-none">
           <div class="d-flex flex-column align-items-center justify-content-center gap-2 p-3 rounded text-center" style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06); transition: all 0.3s ease; height: 100%;" onmouseover="this.style.borderColor='rgba(139,92,246,0.4)'; this.style.background='rgba(139,92,246,0.06)';" onmouseout="this.style.borderColor='rgba(255,255,255,0.06)'; this.style.background='rgba(255,255,255,0.02)';">
-            <div class="stat-icon-box stat-icon-primary" style="width: 48px; height: 48px; font-size: 1.5rem; border-radius: 5px !important; background: rgba(139,92,246,0.12); color: #a78bfa;">
+            <div class="stat-icon-box" style="width: 48px; height: 48px; font-size: 1.5rem; border-radius: 5px !important; background: rgba(139,92,246,0.12); color: #a78bfa;">
               <i class="icon-base ti tabler-chart-bar"></i>
             </div>
             <div class="w-100">
@@ -640,7 +640,7 @@ $configData = Helper::appClasses();
     @php
       // Siapkan data JS dari $trendPendaftaran
       $trendLabels = collect(range(6, 0))->map(fn($i) => now()->subDays($i)->format('Y-m-d'));
-      $trendData = $trendLabels->map(fn($date) => $trendPendaftaran[$date]->total ?? 0);
+      $trendData = $trendLabels->map(fn($date) => $trendPendaftaran[$date]?->total ?? 0);
       $trendMax = max($trendData->max(), 1);
       $trendChange = $trendData->count() >= 2
         ? $trendData[count($trendData)-1] - $trendData[count($trendData)-2]
@@ -658,19 +658,31 @@ $configData = Helper::appClasses();
         </span>
       </div>
       <!-- Bar chart CSS-only -->
-      <div class="d-flex align-items-end gap-1 mt-3" style="height: 60px;">
-        @foreach($trendLabels as $i => $label)
-          @php
-            $value = $trendData[$i] ?? 0;
-            $height = max(($value / $trendMax) * 100, 5);
-            $dateDisplay = \Carbon\Carbon::parse($label)->format('d/m');
-          @endphp
-          <div class="flex-grow-1 d-flex flex-column align-items-center">
-            <div class="w-100 rounded" style="height: {{ $height }}%; background: linear-gradient(180deg, #6366f1, #d946ef); transition: height 0.3s; min-height: 4px;"
-                 title="{{ $dateDisplay }}: {{ $value }} pendaftar"></div>
-            <small class="text-body-premium mt-1" style="font-size: 0.55rem;">{{ $dateDisplay }}</small>
-          </div>
-        @endforeach
+      <div class="d-flex flex-column mt-3">
+        <!-- 1. Bar Chart Area (Height: 60px) -->
+        <div class="d-flex align-items-end gap-1" style="height: 60px;">
+          @foreach($trendLabels as $i => $label)
+            @php
+              $value = $trendData[$i] ?? 0;
+              $height = max(($value / $trendMax) * 100, 5);
+            @endphp
+            <div class="flex-grow-1 rounded" 
+                 style="height: {{ $height }}%; background: linear-gradient(180deg, #6366f1, #d946ef); transition: height 0.3s; min-height: 4px;"
+                 title="{{ \Carbon\Carbon::parse($label)->format('d/m') }}: {{ $value }} pendaftar">
+            </div>
+          @endforeach
+        </div>
+
+        <!-- 2. Date Labels Area -->
+        <div class="d-flex justify-content-between mt-1">
+          @foreach($trendLabels as $i => $label)
+            <div class="flex-grow-1 text-center">
+              <small class="text-body-premium" style="font-size: 0.55rem;">
+                {{ \Carbon\Carbon::parse($label)->format('d/m') }}
+              </small>
+            </div>
+          @endforeach
+        </div>
       </div>
     </div>
 
@@ -1075,12 +1087,12 @@ $configData = Helper::appClasses();
     </div>
 
     <!-- ============================================================
-         SECTION: PESERTA TERDAFTAR BARU + TOP INSTRUKTUR
+         SECTION: PESERTA TERDAFTAR BARU || LOG & AUDIT SYSTEM
          ============================================================ -->
     <div class="row g-4 mb-4">
       
       <!-- LEFT: Peserta Terdaftar Baru -->
-      <div class="col-lg-6">
+      <div class="col-lg-4">
         <div class="glass-card-premium px-4 px-xl-5 py-4 h-100">
           <div class="d-flex align-items-center justify-content-between mb-4">
             <h5 class="fw-bold text-white mb-0 d-flex align-items-center gap-2">
@@ -1118,174 +1130,133 @@ $configData = Helper::appClasses();
         </div>
       </div>
 
-      <!-- RIGHT: Top Instruktur -->
-      @if($topInstruktur->isNotEmpty())
-      <div class="col-lg-6">
-        <div class="glass-card-premium px-4 px-xl-5 py-4 h-100">
-          <h6 class="fw-bold text-white mb-3 d-flex align-items-center gap-2">
-            <i class="icon-base ti tabler-crown text-gradient"></i>
-            Instruktur Paling Aktif
-          </h6>
-          <div class="d-flex flex-column gap-3">
-            @foreach($topInstruktur as $i => $instruktur)
-              <div class="d-flex align-items-center gap-3">
-                <span class="fw-bold" style="color: {{ $i == 0 ? '#fbbf24' : ($i == 1 ? '#94a3b8' : ($i == 2 ? '#d97706' : 'rgba(255,255,255,0.3)')) }};">
-                  #{{ $i + 1 }}
-                </span>
-                <div class="instructor-avatar" style="background: rgba(99,102,241,0.15); color: #818cf8;">
-                  {{ strtoupper(substr($instruktur->name, 0, 2)) }}
-                </div>
-                <div>
-                  <h6 class="text-white fw-semibold mb-0" style="font-size: 0.85rem;">{{ $instruktur->name }}</h6>
-                  <small class="text-body-premium">{{ $instruktur->total_sessions }} sesi pelatihan</small>
-                </div>
-              </div>
-            @endforeach
+      <!-- RIGHT: Log & Audit System -->
+      <div class="col-lg-8">
+        <div class="glass-card-premium px-4 px-xl-5 py-4 h-100 d-flex flex-column">
+          <div class="d-flex align-items-center justify-content-between mb-4">
+            <h5 class="fw-bold text-white mb-0 d-flex align-items-center gap-2">
+              <i class="icon-base ti tabler-history text-gradient"></i>
+              Log & Audit System
+            </h5>
+            <span class="badge bg-danger bg-opacity-20 text-danger px-2 py-1" style="font-size: 10px; border-radius: 4px;">Real-time</span>
           </div>
-        </div>
-      </div>
-      @endif
 
-    </div>
+          <!-- Navigation Tabs -->
+          <ul class="nav nav-tabs border-bottom border-white border-opacity-10 mb-4" id="logSystemTab" role="tablist">
+            <li class="nav-item" role="presentation">
+              <button class="nav-link active text-white bg-transparent border-0 px-4 py-2" id="general-log-tab" data-bs-toggle="tab" data-bs-target="#general-log-content" type="button" role="tab" aria-controls="general-log-content" aria-selected="true" style="transition: all 0.3s; font-family: 'Sora', sans-serif;">
+                <i class="icon-base ti tabler-activity me-2"></i>Log Aktivitas Umum
+              </button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button class="nav-link text-white-50 bg-transparent border-0 px-4 py-2" id="audit-log-tab" data-bs-toggle="tab" data-bs-target="#audit-log-content" type="button" role="tab" aria-controls="audit-log-content" aria-selected="false" style="transition: all 0.3s; font-family: 'Sora', sans-serif;">
+                <i class="icon-base ti tabler-shield-alert me-2"></i>Log Audit Presensi
+              </button>
+            </li>
+          </ul>
 
-    </div>
-
-    <!-- ============================================================
-         FOURTH ROW: Tabbed Log System (Bawah)
-         ============================================================ -->
-    <div class="glass-card-premium px-4 px-xl-5 py-4 mb-4">
-      <div class="d-flex align-items-center justify-content-between mb-4">
-        <h5 class="fw-bold text-white mb-0 d-flex align-items-center gap-2">
-          <i class="icon-base ti tabler-history text-gradient"></i>
-          Log & Audit System
-        </h5>
-        <span class="badge bg-danger bg-opacity-20 text-danger px-2 py-1" style="font-size: 10px; border-radius: 4px;">Real-time</span>
-      </div>
-
-      <!-- Navigation Tabs -->
-      <ul class="nav nav-tabs border-bottom border-white border-opacity-10 mb-4" id="logSystemTab" role="tablist">
-        <li class="nav-item" role="presentation">
-          <button class="nav-link active text-white bg-transparent border-0 px-4 py-2" id="general-log-tab" data-bs-toggle="tab" data-bs-target="#general-log-content" type="button" role="tab" aria-controls="general-log-content" aria-selected="true" style="transition: all 0.3s; font-family: 'Sora', sans-serif;">
-            <i class="icon-base ti tabler-activity me-2"></i>Log Aktivitas Umum
-          </button>
-        </li>
-        <li class="nav-item" role="presentation">
-          <button class="nav-link text-white-50 bg-transparent border-0 px-4 py-2" id="audit-log-tab" data-bs-toggle="tab" data-bs-target="#audit-log-content" type="button" role="tab" aria-controls="audit-log-content" aria-selected="false" style="transition: all 0.3s; font-family: 'Sora', sans-serif;">
-            <i class="icon-base ti tabler-shield-alert me-2"></i>Log Audit Presensi
-          </button>
-        </li>
-      </ul>
-
-      <!-- Tab Contents -->
-      <div class="tab-content p-0" id="logSystemTabContent">
-        <!-- Tab 1: Log Aktivitas Umum -->
-        <div class="tab-pane fade show active" id="general-log-content" role="tabpanel" aria-labelledby="general-log-tab">
-          <div id="container-latest-activities">
-            @if($latestActivities->isEmpty())
-              <div class="text-center py-5">
-                <i class="icon-base ti tabler-activity-heartbeat fs-1 text-muted mb-2"></i>
-                <p class="text-body-premium small mb-0">Belum ada aktivitas tercatat.</p>
-              </div>
-            @else
-              <div class="d-flex flex-column gap-3">
-                @foreach($latestActivities as $log)
-                  @php
-                    $badgeColor = 'secondary';
-                    if ($log->action === 'created' || $log->action === 'approved') $badgeColor = 'success';
-                    elseif ($log->action === 'updated') $badgeColor = 'warning';
-                    elseif ($log->action === 'deleted' || $log->action === 'rejected') $badgeColor = 'danger';
-                    elseif ($log->action === 'login') $badgeColor = 'info';
-                  @endphp
-                  <div class="d-flex align-items-start gap-3 p-2 rounded" style="background: rgba(255,255,255,0.01); border: 1px solid rgba(255,255,255,0.02);">
-                    <span class="badge bg-{{ $badgeColor }} bg-opacity-20 text-{{ $badgeColor }} text-uppercase px-2 py-1 mt-1" style="font-size: 8px; border-radius: 4px; min-width: 65px; text-align: center;">
-                      {{ $log->action }}
-                    </span>
-                    <div class="flex-grow-1">
-                      <p class="text-white mb-0" style="font-size: 0.85rem; line-height: 1.4;">{{ $log->description }}</p>
-                      <small class="text-body-premium" style="font-size: 0.75rem;">
-                        Oleh: {{ $log->user->name ?? 'Sistem' }} • {{ $log->created_at->diffForHumans() }}
-                      </small>
-                    </div>
+          <!-- Tab Contents with max-height scroll -->
+          <div class="tab-content p-0 flex-grow-1 overflow-auto" id="logSystemTabContent" style="max-height: 380px;">
+            <!-- Tab 1: Log Aktivitas Umum -->
+            <div class="tab-pane fade show active" id="general-log-content" role="tabpanel" aria-labelledby="general-log-tab">
+              <div id="container-latest-activities">
+                @if($latestActivities->isEmpty())
+                  <div class="text-center py-5">
+                    <i class="icon-base ti tabler-activity-heartbeat fs-1 text-muted mb-2"></i>
+                    <p class="text-body-premium small mb-0">Belum ada aktivitas tercatat.</p>
                   </div>
-                @endforeach
-              </div>
-            @endif
-          </div>
-        </div>
-
-        <!-- Tab 2: Log Audit Presensi -->
-        <div class="tab-pane fade" id="audit-log-content" role="tabpanel" aria-labelledby="audit-log-tab">
-          <div id="container-latest-audit-logs">
-            @if($latestAuditLogs->isEmpty())
-              <div class="text-center py-5">
-                <i class="icon-base ti tabler-shield-check fs-1 text-success mb-3"></i>
-                <h6 class="text-white">Log audit aman & bersih</h6>
-                <p class="text-body-premium small mb-0">Tidak ada log koreksi atau bypass presensi terdeteksi.</p>
-              </div>
-            @else
-              <div class="table-responsive">
-                <table class="table table-borderless text-white align-middle" style="font-size: 0.85rem;">
-                  <thead>
-                    <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.08);">
-                      <th class="text-body-premium small fw-semibold px-0">Pelaku</th>
-                      <th class="text-body-premium small fw-semibold">Aksi</th>
-                      <th class="text-body-premium small fw-semibold">Target</th>
-                      <th class="text-body-premium small fw-semibold">Deskripsi</th>
-                      <th class="text-body-premium small fw-semibold">IP Address</th>
-                      <th class="text-body-premium small fw-semibold text-end px-0">Waktu</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    @foreach($latestAuditLogs as $audit)
+                @else
+                  <div class="d-flex flex-column gap-3">
+                    @foreach($latestActivities as $log)
                       @php
                         $badgeColor = 'secondary';
-                        if ($audit->action_type === 'bypass') $badgeColor = 'warning';
-                        elseif ($audit->action_type === 'correct' || $audit->action_type === 'update') $badgeColor = 'info';
-                        elseif ($audit->action_type === 'delete') $badgeColor = 'danger';
+                        if ($log->action === 'created' || $log->action === 'approved') $badgeColor = 'success';
+                        elseif ($log->action === 'updated') $badgeColor = 'warning';
+                        elseif ($log->action === 'deleted' || $log->action === 'rejected') $badgeColor = 'danger';
+                        elseif ($log->action === 'login') $badgeColor = 'info';
                       @endphp
-                      <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.04);">
-                        <td class="px-0 py-3">
-                          <div class="fw-semibold text-white">{{ $audit->actor->name ?? 'Sistem' }}</div>
-                          <span class="badge bg-{{ $badgeColor }} bg-opacity-20 text-{{ $badgeColor }} text-uppercase" style="font-size: 8px; border-radius: 4px; padding: 2px 6px;">{{ $audit->actor_role }}</span>
-                        </td>
-                        <td class="py-3">
-                          <span class="badge bg-{{ $badgeColor }} bg-opacity-10 text-{{ $badgeColor }} border border-{{ $badgeColor }} border-opacity-30 text-uppercase" style="font-size: 8px; border-radius: 4px; padding: 2px 6px;">{{ $audit->action_type }}</span>
-                        </td>
-                        <td class="py-3 text-body-premium">
-                          {{ $audit->target_entity }} #{{ $audit->target_id }}
-                        </td>
-                        <td class="py-3 text-white" style="max-width: 250px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-                          {{ $audit->description }}
-                        </td>
-                        <td class="py-3 text-body-premium">
-                          {{ $audit->ip_address ?? '-' }}
-                        </td>
-                        <td class="text-end px-0 py-3 text-body-premium">
-                          {{ $audit->created_at->diffForHumans() }}
-                        </td>
-                      </tr>
+                      <div class="d-flex align-items-start gap-3 p-2 rounded" style="background: rgba(255,255,255,0.01); border: 1px solid rgba(255,255,255,0.02);">
+                        <span class="badge bg-{{ $badgeColor }} bg-opacity-20 text-{{ $badgeColor }} text-uppercase px-2 py-1 mt-1" style="font-size: 8px; border-radius: 4px; min-width: 65px; text-align: center;">
+                          {{ $log->action }}
+                        </span>
+                        <div class="flex-grow-1">
+                          <p class="text-white mb-0" style="font-size: 0.85rem; line-height: 1.4;">{{ $log->description }}</p>
+                          <small class="text-body-premium" style="font-size: 0.75rem;">
+                            Oleh: {{ $log->user->name ?? 'Sistem' }} • {{ $log->created_at->diffForHumans() }}
+                          </small>
+                        </div>
+                      </div>
                     @endforeach
-                  </tbody>
-                </table>
+                  </div>
+                @endif
               </div>
-            @endif
+            </div>
+
+            <!-- Tab 2: Log Audit Presensi -->
+            <div class="tab-pane fade" id="audit-log-content" role="tabpanel" aria-labelledby="audit-log-tab">
+              <div id="container-latest-audit-logs">
+                @if($latestAuditLogs->isEmpty())
+                  <div class="text-center py-5">
+                    <i class="icon-base ti tabler-shield-check fs-1 text-success mb-3"></i>
+                    <h6 class="text-white">Log audit aman & bersih</h6>
+                    <p class="text-body-premium small mb-0">Tidak ada log koreksi atau bypass presensi terdeteksi.</p>
+                  </div>
+                @else
+                  <div class="table-responsive">
+                    <table class="table table-borderless text-white align-middle" style="font-size: 0.85rem;">
+                      <thead>
+                        <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.08);">
+                          <th class="text-body-premium small fw-semibold px-0">Pelaku</th>
+                          <th class="text-body-premium small fw-semibold">Aksi</th>
+                          <th class="text-body-premium small fw-semibold">Target</th>
+                          <th class="text-body-premium small fw-semibold">Deskripsi</th>
+                          <th class="text-body-premium small fw-semibold">IP Address</th>
+                          <th class="text-body-premium small fw-semibold text-end px-0">Waktu</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        @foreach($latestAuditLogs as $audit)
+                          @php
+                            $badgeColor = 'secondary';
+                            if ($audit->action_type === 'bypass') $badgeColor = 'warning';
+                            elseif ($audit->action_type === 'correct' || $audit->action_type === 'update') $badgeColor = 'info';
+                            elseif ($audit->action_type === 'delete') $badgeColor = 'danger';
+                          @endphp
+                          <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.04);">
+                            <td class="px-0 py-3">
+                              <div class="fw-semibold text-white">{{ $audit->actor->name ?? 'Sistem' }}</div>
+                              <span class="badge bg-{{ $badgeColor }} bg-opacity-20 text-{{ $badgeColor }} text-uppercase" style="font-size: 8px; border-radius: 4px; padding: 2px 6px;">{{ $audit->actor_role }}</span>
+                            </td>
+                            <td class="py-3">
+                              <span class="badge bg-{{ $badgeColor }} bg-opacity-10 text-{{ $badgeColor }} border border-{{ $badgeColor }} border-opacity-30 text-uppercase" style="font-size: 8px; border-radius: 4px; padding: 2px 6px;">{{ $audit->action_type }}</span>
+                            </td>
+                            <td class="py-3 text-body-premium">
+                              {{ $audit->target_entity }} #{{ $audit->target_id }}
+                            </td>
+                            <td class="py-3 text-white" style="max-width: 250px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                              {{ $audit->description }}
+                            </td>
+                            <td class="py-3 text-body-premium">
+                              {{ $audit->ip_address ?? '-' }}
+                            </td>
+                            <td class="text-end px-0 py-3 text-body-premium">
+                              {{ $audit->created_at->diffForHumans() }}
+                            </td>
+                          </tr>
+                        @endforeach
+                      </tbody>
+                    </table>
+                  </div>
+                @endif
+              </div>
+            </div>
           </div>
         </div>
       </div>
+
     </div>
 
-    <!-- Tab Active State Styling -->
-    <style>
-      #logSystemTab .nav-link.active {
-        color: #fff !important;
-        border-bottom: 2px solid #6366f1 !important;
-        background: rgba(99, 102, 241, 0.05) !important;
-      }
-      #logSystemTab .nav-link:not(.active):hover {
-        color: #fff !important;
-        background: rgba(255,255,255,0.02) !important;
-      }
-    </style>
+
 
   </div>
 @endsection
@@ -1439,4 +1410,30 @@ $configData = Helper::appClasses();
   </script>
   @vite(['resources/assets/js/dashboard-admin.js'])
 @endsection
+
+@push('styles')
+<style>
+/* Quick Actions — shortcut item minimal */
+.quick-action-link {
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 6px;
+  margin: 0 -2px; /* prevent clip from translateX */
+}
+.quick-action-link:hover {
+  transform: translateX(5px);
+}
+.quick-action-link:hover .stat-icon-box {
+  box-shadow: 0 0 16px rgba(255, 255, 255, 0.06);
+}
+.quick-action-link:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.25);
+  outline-offset: 3px;
+  border-radius: 8px;
+}
+/* Prevent icon box from shrinking when text wraps on small screens */
+.quick-action-link .stat-icon-box {
+  transition: box-shadow 0.25s ease;
+}
+</style>
+@endpush
 
