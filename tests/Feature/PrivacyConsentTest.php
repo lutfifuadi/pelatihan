@@ -61,7 +61,7 @@ class PrivacyConsentTest extends TestCase
         $this->assertDatabaseHas('consent_logs', [
             'user_id' => $user->id,
             'consent_type' => 'nik_collection',
-            'consent_text' => 'Saya dengan ini menyatakan setuju dan memberikan izin secara sadar kepada Disbudpar Kota Bandung untuk memproses data pribadi saya (termasuk NIK) murni untuk kepentingan administrasi dan verifikasi kepesertaan pelatihan ini sesuai dengan Kebijakan Privasi.',
+            'consent_text' => 'Saya dengan ini menyatakan setuju dan memberikan izin secara sadar kepada Pemerintah Kota Bandung melalui Dinas-Dinas Penyelenggara Pelatihan terkait untuk memproses data pribadi saya (termasuk NIK) murni untuk kepentingan administrasi dan verifikasi kepesertaan pelatihan ini sesuai dengan Kebijakan Privasi.',
         ]);
     }
 

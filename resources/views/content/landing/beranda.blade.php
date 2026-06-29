@@ -95,97 +95,6 @@ $customizerHidden = 'customizer-hide';
     font-family: 'Sora', sans-serif;
   }
 
-  /* --- Floating Navigation Bar --- */
-  .navbar-glass-floating {
-    position: fixed;
-    top: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: calc(100% - 40px);
-    max-width: 1200px;
-    background: rgba(15, 23, 42, 0.45);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 5px;
-    padding: 12px 28px;
-    z-index: 1000;
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-  }
-  .navbar-glass-floating.scrolled {
-    top: 10px;
-    background: rgba(15, 23, 42, 0.85);
-    border-color: rgba(99, 102, 241, 0.25);
-    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4), 0 0 25px rgba(99, 102, 241, 0.15);
-  }
-  .logo-icon-glow {
-    width: 38px;
-    height: 38px;
-    border-radius: 5px;
-    background: linear-gradient(135deg, #6366f1, #d946ef);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 0 15px rgba(99, 102, 241, 0.4);
-    transition: transform 0.3s ease;
-  }
-  .navbar-logo:hover .logo-icon-glow {
-    transform: rotate(15deg) scale(1.05);
-  }
-  .logo-text-glow {
-    font-family: 'Sora', sans-serif;
-    font-size: 1.25rem;
-    font-weight: 800;
-    color: #ffffff;
-    letter-spacing: -0.5px;
-  }
-  .nav-link-premium {
-    font-weight: 500;
-    font-size: 0.95rem;
-    color: rgba(255, 255, 255, 0.7);
-    text-decoration: none;
-    transition: all 0.3s ease;
-    position: relative;
-    padding: 6px 0;
-  }
-  .nav-link-premium::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 0;
-    height: 2px;
-    background: linear-gradient(90deg, #6366f1, #d946ef);
-    transition: width 0.3s ease;
-    border-radius: 2px;
-  }
-  .nav-link-premium:hover {
-    color: #ffffff;
-  }
-  .nav-link-premium:hover::after {
-    width: 100%;
-  }
-  .btn-login-premium {
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    color: #ffffff;
-    font-family: 'Sora', sans-serif;
-    font-weight: 600;
-    font-size: 0.9rem;
-    padding: 8px 22px;
-    border-radius: 5px;
-    transition: all 0.3s ease;
-    text-decoration: none;
-  }
-  .btn-login-premium:hover {
-    background: linear-gradient(135deg, #6366f1, #d946ef);
-    border-color: transparent;
-    color: #ffffff;
-    box-shadow: 0 5px 15px rgba(99, 102, 241, 0.4);
-    transform: translateY(-2px);
-  }
-
   /* --- Premium Mesh Gradient Backdrop --- */
   .hero-gradient-animated {
     background: #0b0f19;
@@ -1354,7 +1263,7 @@ $customizerHidden = 'customizer-hide';
               <div class="form-check mb-4">
                 <input class="form-check-input @error('consent_nik') is-invalid @enderror" type="checkbox" name="consent_nik" id="consent_nik" value="1" {{ old('consent_nik') ? 'checked' : '' }} required>
                 <label class="form-check-label text-white-50 small" for="consent_nik">
-                  Saya dengan ini menyatakan setuju dan memberikan izin secara sadar kepada Disbudpar Kota Bandung untuk memproses data pribadi saya (termasuk NIK) murni untuk kepentingan administrasi dan verifikasi kepesertaan pelatihan ini sesuai dengan <a href="{{ route('privacy-policy') }}" target="_blank" class="text-info text-decoration-underline">Kebijakan Privasi</a>.
+                  Saya dengan ini menyatakan setuju dan memberikan izin secara sadar kepada **Pemerintah Kota Bandung melalui Dinas-Dinas Penyelenggara Pelatihan terkait** untuk memproses data pribadi saya (termasuk NIK) murni untuk kepentingan administrasi dan verifikasi kepesertaan pelatihan ini sesuai dengan <a href="{{ route('privacy-policy') }}" target="_blank" class="text-info text-decoration-underline">Kebijakan Privasi</a>.
                 </label>
                 @error('consent_nik')
                   <div class="invalid-feedback text-danger small mt-1 d-block">{{ $message }}</div>
