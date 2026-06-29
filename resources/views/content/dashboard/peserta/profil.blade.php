@@ -730,15 +730,9 @@ if (str_contains($initialName, ' ')) {
             </div>
             <h5 class="fw-bold text-white mb-0">Foto</h5>
           </div>
-          @if($isCompleted)
-            <span class="badge bg-secondary bg-opacity-15 text-white-50 border border-white border-opacity-10 px-2.5 py-1 small" style="border-radius: 4px;">
-              <i class="icon-base ti tabler-lock me-1 fs-6"></i> Terkunci
-            </span>
-          @else
-            <a href="{{ route('dashboard.peserta.upload-foto') }}" class="btn btn-sm btn-outline-glass">
-              <i class="icon-base ti tabler-pencil me-1"></i> Ubah
-            </a>
-          @endif
+          <a href="{{ route('dashboard.peserta.upload-foto') }}" class="btn btn-sm btn-outline-glass">
+            <i class="icon-base ti tabler-pencil me-1"></i> Ubah
+          </a>
         </div>
         <hr class="dark-premium">
         <div class="row g-4">
