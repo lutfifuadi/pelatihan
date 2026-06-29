@@ -4,6 +4,7 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use App\Models\ActivityLog;
+use App\Models\AuditLog;
 use App\Models\Kelurahan;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -140,6 +141,16 @@ class User extends Authenticatable
     }
 
     /**
+     * Relasi: User memiliki banyak audit logs sebagai subjek (target) perubahan.
+     * Digunakan untuk melihat riwayat perubahan biodata peserta oleh admin.
+     */
+    public function auditLogs(): HasMany
+    {
+        return $this->hasMany(AuditLog::class, 'target_id')
+                    ->where('target_entity', 'User');
+    }
+
+    /**
      * Get the attributes that should be cast.
      *
      * @return array<string, string>
@@ -148,8 +159,11 @@ class User extends Authenticatable
     {
         return [
             'email_verified_at' => 'datetime',
-            'password' => 'hashed',
-            'is_active' => 'boolean',
+            'password'          => 'hashed',
+            'is_active'         => 'boolean',
+            // status_tokoh disimpan sebagai string di DB ('0'/'1'/null),
+            // namun di-cast boolean agar konsisten saat diakses di kode.
+            'status_tokoh'      => 'boolean',
         ];
     }
 }

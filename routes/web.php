@@ -296,6 +296,12 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
         Route::get('peserta/{peserta}', [PesertaController::class, 'show'])->name('peserta.show');
         Route::delete('peserta/{peserta}', [PesertaController::class, 'destroy'])->name('peserta.destroy');
 
+        // Edit Biodata Peserta (oleh Admin)
+        Route::get('peserta/{user}/edit-biodata', [PesertaController::class, 'editBiodata'])
+            ->name('peserta.edit-biodata');
+        Route::put('peserta/{user}/update-biodata', [PesertaController::class, 'updateBiodata'])
+            ->name('peserta.update-biodata');
+
         // WhatsApp Gateway
         Route::get('whatsapp-gateway/status', [WhatsAppGatewayController::class, 'status'])->name('whatsapp-gateway.status');
         Route::get('whatsapp-gateway', [WhatsAppGatewayController::class, 'index'])->name('whatsapp-gateway.index');

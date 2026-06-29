@@ -317,9 +317,14 @@ $configData = Helper::appClasses();
             </p>
           </div>
         </div>
-        <a href="{{ route('admin.peserta.index') }}" class="btn btn-secondary-custom px-4 py-2 d-flex align-items-center gap-2">
-          <i class="icon-base ti tabler-arrow-left"></i> Kembali
-        </a>
+        <div class="d-flex gap-2">
+          <a href="{{ route('admin.peserta.edit-biodata', $peserta) }}" class="btn btn-warning px-4 py-2 d-flex align-items-center gap-2">
+            <i class="icon-base ti tabler-edit"></i> Edit Biodata
+          </a>
+          <a href="{{ route('admin.peserta.index') }}" class="btn btn-secondary-custom px-4 py-2 d-flex align-items-center gap-2">
+            <i class="icon-base ti tabler-arrow-left"></i> Kembali
+          </a>
+        </div>
       </div>
     </div>
 
