@@ -16,7 +16,7 @@ class SettingController extends Controller
             'brand_name', 'brand_logo_size',
             'institution_name', 'institution_address', 'institution_phone', 'institution_email', 'institution_description',
             'footer_copyright', 'lock_kota', 'lock_provinsi', 'validate_whatsapp', 'broadcast_enabled', 'timezone',
-            'minat_mobile_view_mode', 'kta_verification_mode', 'cooldown_period_days'
+            'minat_mobile_view_mode', 'kta_verification_mode', 'cooldown_period_days', 'cooldown_period_passed_days'
         ])
             ->get()
             ->keyBy('key');
@@ -37,6 +37,15 @@ class SettingController extends Controller
                 'value' => '30',
                 'group' => 'general',
                 'label' => 'Jeda Pendaftaran Ulang (Hari)',
+            ]);
+        }
+
+        if (!isset($settings['cooldown_period_passed_days'])) {
+            $settings['cooldown_period_passed_days'] = new Setting([
+                'key' => 'cooldown_period_passed_days',
+                'value' => '365',
+                'group' => 'general',
+                'label' => 'Jeda Pendaftaran Ulang Setelah Lulus (Hari)',
             ]);
         }
 
@@ -63,13 +72,14 @@ class SettingController extends Controller
             'minat_mobile_view_mode' => 'sometimes|required|in:horizontal,grid',
             'kta_verification_mode' => 'required|in:off,priority,auto_approve',
             'cooldown_period_days' => 'required|integer|min:0',
+            'cooldown_period_passed_days' => 'required|integer|min:0',
         ]);
 
         $keys = [
             'brand_name', 'brand_logo_size',
             'institution_name', 'institution_address', 'institution_phone', 'institution_email', 'institution_description',
             'footer_copyright', 'lock_kota', 'lock_provinsi', 'validate_whatsapp', 'broadcast_enabled', 'timezone',
-            'minat_mobile_view_mode', 'kta_verification_mode', 'cooldown_period_days'
+            'minat_mobile_view_mode', 'kta_verification_mode', 'cooldown_period_days', 'cooldown_period_passed_days'
         ];
         $labels = [
             'brand_name' => 'Nama Brand Aplikasi',
@@ -88,6 +98,7 @@ class SettingController extends Controller
             'minat_mobile_view_mode' => 'Mode Tampilan Mobile Form Minat',
             'kta_verification_mode' => 'Mode Verifikasi KTA Otomatis',
             'cooldown_period_days' => 'Jeda Pendaftaran Ulang (Hari)',
+            'cooldown_period_passed_days' => 'Jeda Pendaftaran Ulang Setelah Lulus (Hari)',
         ];
 
         foreach ($keys as $key) {
