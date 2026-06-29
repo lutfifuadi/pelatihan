@@ -5,6 +5,31 @@ $configData = Helper::appClasses();
 $fLabels = $fields->pluck('label', 'field_key');
 $fPlaceholders = $fields->pluck('placeholder', 'field_key');
 $fActive = $fields->where('is_active', true)->pluck('field_key')->toArray();
+
+$coverImages = [
+  'kuliner' => 'https://images.unsplash.com/photo-1556910103-1c02745aae4d?q=80&w=800&auto=format&fit=crop',
+  'kriya' => 'https://images.unsplash.com/photo-1452860606245-08befc0ff44b?q=80&w=800&auto=format&fit=crop',
+  'desain' => 'https://images.unsplash.com/photo-1561070791-2526d30994b5?q=80&w=800&auto=format&fit=crop',
+  'film' => 'https://images.unsplash.com/photo-1574717024653-61fd2cf4d44d?q=80&w=800&auto=format&fit=crop',
+  'foto' => 'https://images.unsplash.com/photo-1516035069371-29a1b244cc32?q=80&w=800&auto=format&fit=crop',
+  'animasi' => 'https://images.unsplash.com/photo-1633356122544-f134324a6cee?q=80&w=800&auto=format&fit=crop',
+  'marketing' => 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=800&auto=format&fit=crop',
+  'bisnis' => 'https://images.unsplash.com/photo-1507679799987-c73779587ccf?q=80&w=800&auto=format&fit=crop',
+  'teknologi' => 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?q=80&w=800&auto=format&fit=crop',
+  'default' => 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?q=80&w=800&auto=format&fit=crop',
+];
+
+$keywordMap = [
+  'kuliner' => 'kuliner', 'makanan' => 'kuliner', 'pastry' => 'kuliner',
+  'kriya' => 'kriya', 'kreasi' => 'kriya', 'diy' => 'kriya',
+  'desain' => 'desain', 'design' => 'desain',
+  'film' => 'film', 'video' => 'film',
+  'animasi' => 'animasi',
+  'foto' => 'foto', 'fotografi' => 'foto',
+  'marketing' => 'marketing', 'iklan' => 'marketing', 'periklanan' => 'marketing',
+  'bisnis' => 'bisnis', 'usaha' => 'bisnis',
+  'teknologi' => 'teknologi', 'it' => 'teknologi', 'software' => 'teknologi',
+];
 @endphp
 
 @extends('layouts/layoutMaster')
@@ -309,15 +334,15 @@ $fActive = $fields->where('is_active', true)->pluck('field_key')->toArray();
   /* --- Base Card --- */
   .training-card {
     position: relative;
-    background: linear-gradient(145deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.01) 100%);
-    border: 1px solid rgba(255,255,255,0.07);
-    border-radius: 16px;
-    padding: 24px 22px 20px;
+    background: rgba(15, 23, 42, 0.6);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
     cursor: pointer;
     transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
     display: flex;
     flex-direction: column;
-    gap: 14px;
     overflow: hidden;
     animation: cardFadeUp 0.5s ease forwards;
     animation-delay: var(--card-delay, 0ms);
@@ -325,14 +350,12 @@ $fActive = $fields->where('is_active', true)->pluck('field_key')->toArray();
   }
   @media (min-width: 1200px) {
     .training-card {
-      padding: 28px 26px 24px;
-      gap: 16px;
+      /* pad styles if any */
     }
   }
   @media (min-width: 1600px) {
     .training-card {
-      padding: 32px 30px 26px;
-      gap: 18px;
+      /* pad styles if any */
     }
   }
   @keyframes cardFadeUp {
@@ -341,21 +364,18 @@ $fActive = $fields->where('is_active', true)->pluck('field_key')->toArray();
   }
 
   .training-card:hover:not(.disabled) {
-    transform: translateY(-6px);
-    border-color: rgba(99, 102, 241, 0.3);
-    background: linear-gradient(145deg, rgba(255,255,255,0.07) 0%, rgba(255,255,255,0.02) 100%);
-    box-shadow:
-      0 24px 48px -16px rgba(0,0,0,0.5),
-      0 0 40px rgba(99,102,241,0.06);
+    transform: translateY(-8px);
+    border-color: rgba(255, 193, 7, 0.35);
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.4), 0 0 30px rgba(255, 193, 7, 0.08);
   }
 
   .training-card.active {
-    border-color: #6366f1;
-    background: linear-gradient(145deg, rgba(99,102,241,0.13) 0%, rgba(139,92,246,0.06) 100%);
+    border-color: #ffc107;
+    background: rgba(15, 23, 42, 0.75);
     box-shadow:
-      0 0 0 1px #6366f1,
-      0 24px 48px -16px rgba(99,102,241,0.15),
-      inset 0 1px 0 rgba(255,255,255,0.06);
+      0 0 0 1px #ffc107,
+      0 25px 50px rgba(0, 0, 0, 0.45),
+      0 0 30px rgba(255, 193, 7, 0.15);
   }
 
   .training-card.disabled {
@@ -384,9 +404,9 @@ $fActive = $fields->where('is_active', true)->pluck('field_key')->toArray();
     border: 1px solid rgba(99,102,241,0.12);
   }
   .training-card.active .badge-batch {
-    background: linear-gradient(135deg, rgba(99,102,241,0.3), rgba(139,92,246,0.2)) !important;
-    color: #c7d2fe !important;
-    border-color: rgba(99,102,241,0.25);
+    background: linear-gradient(135deg, rgba(255,193,7,0.3), rgba(255,152,0,0.2)) !important;
+    color: #ffca28 !important;
+    border-color: rgba(255,193,7,0.25);
   }
   .training-card.disabled .badge-batch {
     background: rgba(239, 68, 68, 0.1) !important;
@@ -407,9 +427,9 @@ $fActive = $fields->where('is_active', true)->pluck('field_key')->toArray();
     flex-shrink: 0;
   }
   .training-card.active .card-radio-indicator {
-    border-color: #6366f1;
-    background: #6366f1;
-    box-shadow: 0 0 14px rgba(99,102,241,0.35);
+    border-color: #ffc107;
+    background: #ffc107;
+    box-shadow: 0 0 14px rgba(255,193,7,0.35);
   }
   .card-radio-dot {
     width: 8px;
@@ -434,7 +454,7 @@ $fActive = $fields->where('is_active', true)->pluck('field_key')->toArray();
     padding-right: 8px;
   }
   .training-card.active .card-title {
-    color: #e0e7ff !important;
+    color: #ffca28 !important;
   }
 
   /* --- Info Section --- */
@@ -466,7 +486,7 @@ $fActive = $fields->where('is_active', true)->pluck('field_key')->toArray();
     color: rgba(255,255,255,0.8) !important;
   }
   .training-card.active .card-info-item i {
-    color: #a5b4fc !important;
+    color: #ffc107 !important;
   }
 
   /* --- CTA Button (Gradient Warna-warni) --- */
@@ -486,9 +506,9 @@ $fActive = $fields->where('is_active', true)->pluck('field_key')->toArray();
     transition: all 0.3s ease;
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 45%, #d946ef 100%);
-    color: #ffffff;
-    box-shadow: 0 4px 18px rgba(99,102,241,0.25);
+    background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%);
+    color: #0b0f19;
+    box-shadow: 0 4px 18px rgba(255,152,0,0.25);
     position: relative;
     overflow: hidden;
     margin-top: 2px;
@@ -497,7 +517,7 @@ $fActive = $fields->where('is_active', true)->pluck('field_key')->toArray();
     content: '';
     position: absolute;
     inset: 0;
-    background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 45%, #db2777 100%);
+    background: linear-gradient(135deg, #ffca28 0%, #ffa726 100%);
     opacity: 0;
     transition: opacity 0.35s ease;
     border-radius: 10px;
@@ -512,15 +532,15 @@ $fActive = $fields->where('is_active', true)->pluck('field_key')->toArray();
   }
   .card-cta:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 28px rgba(99,102,241,0.35);
+    box-shadow: 0 8px 28px rgba(255,152,0,0.35);
   }
   .card-cta:active {
     transform: translateY(0) scale(0.98);
   }
 
   .training-card.active .card-cta {
-    background: linear-gradient(135deg, #4f46e5, #7c3aed, #db2777);
-    box-shadow: 0 4px 24px rgba(99,102,241,0.3);
+    background: linear-gradient(135deg, #ffc107, #ff9800);
+    box-shadow: 0 4px 24px rgba(255,152,0,0.3);
   }
   .training-card.active .card-cta::before {
     opacity: 1;
@@ -919,6 +939,39 @@ $fActive = $fields->where('is_active', true)->pluck('field_key')->toArray();
                     }"
                     @click="handleCardClick(batch)"
                   >
+                    <!-- Cover Image / Ilustrasi Default -->
+                    <div class="card-cover" style="position: relative; height: 160px; overflow: hidden; border-top-left-radius: 12px; border-top-right-radius: 12px;">
+                      @php
+                        $coverImagesJs = json_encode($coverImages);
+                        $keywordMapJs = json_encode($keywordMap);
+                      @endphp
+                      <img :src="(() => {
+                        const coverImages = {{ $coverImagesJs }};
+                        const keywordMap = {{ $keywordMapJs }};
+                        const labelLower = batch.label.toLowerCase();
+                        let foundKey = 'default';
+                        for (const [kw, k] of Object.entries(keywordMap)) {
+                          if (labelLower.includes(kw)) {
+                            foundKey = k;
+                            break;
+                          }
+                        }
+                        return coverImages[foundKey] || coverImages['default'];
+                      })()" alt="Pelatihan Cover" loading="lazy" style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);">
+                      
+                      <!-- Overlay Gradasi Gelap -->
+                      <div style="position: absolute; inset: 0; background: linear-gradient(to top, rgba(11, 15, 25, 0.9) 0%, rgba(11, 15, 25, 0.2) 50%, transparent 100%);"></div>
+
+                      <!-- Badge Status Kanan Atas -->
+                      <span class="card-badge-status" :class="{
+                        'card-status-limited': !batch.is_kuota_unlimited && batch.percentage >= 80 && batch.percentage < 100,
+                        'card-status-full': batch.ditutup || batch.restricted || (!batch.is_kuota_unlimited && batch.percentage >= 100),
+                        'card-status-open': batch.is_kuota_unlimited || (batch.percentage < 80 && !batch.ditutup && !batch.restricted)
+                      }" style="position: absolute; top: 14px; right: 14px; z-index: 2; padding: 5px 10px; border-radius: 20px; font-size: 0.7rem; font-weight: 600; backdrop-filter: blur(8px);">
+                        <span x-text="batch.ditutup ? 'Tutup' : (batch.restricted ? 'Terbatas' : (!batch.is_kuota_unlimited && batch.percentage >= 100 ? 'Penuh' : (!batch.is_kuota_unlimited && batch.percentage >= 80 ? 'Terbatas' : 'Buka')))"></span>
+                      </span>
+                    </div>
+
                     <!-- Watermark DITUTUP -->
                     <template x-if="batch.ditutup">
                       <div class="watermark-overlay-card">
@@ -936,46 +989,64 @@ $fActive = $fields->where('is_active', true)->pluck('field_key')->toArray();
                       class="sr-only"
                     />
 
-                    <!-- Top Row: Badge Batch + Radio Indicator -->
-                    <div class="card-top-row">
-                      <span class="badge-batch" x-text="'Batch ' + (batch.value.toUpperCase().startsWith('BATCH ') ? batch.value.substring(6) : batch.value)"></span>
-                      <div class="card-radio-indicator">
-                        <div class="card-radio-dot"></div>
+                    <!-- Content Body wrapper -->
+                    <div style="padding: 20px; display: flex; flex-direction: column; flex-grow: 1; gap: 12px;">
+                      <!-- Top Row: Badge Batch + Radio Indicator -->
+                      <div class="card-top-row">
+                        <span class="badge-batch" x-text="'Batch ' + (batch.value.toUpperCase().startsWith('BATCH ') ? batch.value.substring(6) : batch.value)"></span>
+                        <div class="card-radio-indicator">
+                          <div class="card-radio-dot"></div>
+                        </div>
                       </div>
+
+                      <!-- Nama Pelatihan -->
+                      <h5 class="card-title" style="font-size: 1.1rem !important; margin: 4px 0 8px !important;" x-text="batch.label.split(' : ')[1] ? batch.label.split(' : ')[1].split(' (')[0] : batch.label"></h5>
+
+                      <!-- Info: Dinas, Tanggal, Lokasi -->
+                      <div class="card-info-section">
+                        <div class="card-info-item">
+                          <i class="icon-base ti tabler-building"></i>
+                          <span x-text="batch.dinas_name"></span>
+                        </div>
+                        <div class="card-info-item">
+                          <i class="icon-base ti tabler-calendar"></i>
+                          <span x-text="batch.label.includes('(') ? batch.label.substring(batch.label.indexOf('(') + 1, batch.label.lastIndexOf(')')) : 'COMING SOON'"></span>
+                        </div>
+                        <div class="card-info-item">
+                          <i class="icon-base ti tabler-map-pin"></i>
+                          <span x-text="batch.kecamatans && batch.kecamatans.length > 0 ? 'Khusus: ' + batch.kecamatans.join(', ') : 'Untuk semua kecamatan'"></span>
+                        </div>
+                      </div>
+
+                      <!-- Progress bar kuota (jika kuota tidak unlimited) -->
+                      <template x-if="!batch.is_kuota_unlimited">
+                        <div class="quota-bar" style="margin-top: 6px; padding-top: 8px;">
+                          <div class="quota-label" style="display: flex; justify-content: space-between; font-size: 0.75rem; color: rgba(255, 255, 255, 0.6); margin-bottom: 6px;">
+                            <span>Terisi</span>
+                            <strong style="color: #ffc107;" x-text="batch.percentage >= 100 ? 'Kuota Penuh' : (batch.percentage >= 80 ? (batch.kuota - batch.approved_count) + ' kursi tersisa' : batch.approved_count + ' / ' + batch.kuota + ' kursi terisi')"></strong>
+                          </div>
+                          <div class="progress" style="height: 5px; background: rgba(255, 255, 255, 0.08); border-radius: 10px; overflow: hidden;">
+                            <div class="progress-bar" role="progressbar" :style="`width: ${batch.percentage}%`" :class="batch.percentage >= 100 ? 'bg-danger' : (batch.percentage >= 80 ? 'bg-warning' : 'bg-success')" :aria-valuenow="batch.percentage" aria-valuemin="0" aria-valuemax="100" style="border-radius: 10px; transition: width 0.6s ease;"></div>
+                          </div>
+                        </div>
+                      </template>
                     </div>
 
-                    <!-- Nama Pelatihan -->
-                    <h5 class="card-title" x-text="batch.label.split(' : ')[1] ? batch.label.split(' : ')[1].split(' (')[0] : batch.label"></h5>
-
-                    <!-- Info: Dinas, Tanggal, Lokasi -->
-                    <div class="card-info-section">
-                      <div class="card-info-item">
-                        <i class="icon-base ti tabler-building"></i>
-                        <span x-text="batch.dinas_name"></span>
-                      </div>
-                      <div class="card-info-item">
-                        <i class="icon-base ti tabler-calendar"></i>
-                        <span x-text="batch.label.includes('(') ? batch.label.substring(batch.label.indexOf('(') + 1, batch.label.lastIndexOf(')')) : 'COMING SOON'"></span>
-                      </div>
-                      <div class="card-info-item">
-                        <i class="icon-base ti tabler-map-pin"></i>
-                        <span x-text="batch.kecamatans && batch.kecamatans.length > 0 ? 'Khusus: ' + batch.kecamatans.join(', ') : 'Untuk semua kecamatan'"></span>
-                      </div>
+                    <!-- Footer Action: CTA Button -->
+                    <div style="padding: 16px 20px; border-top: 1px solid rgba(255, 255, 255, 0.06); margin-top: auto;">
+                      <button type="button" class="card-cta" @click.stop="handleCardClick(batch)">
+                        <template x-if="form.batch_pelatihan === batch.value.toString() || form.batch_pelatihan === batch.value">
+                          <i class="icon-base ti tabler-check" style="font-size: 15px;"></i>
+                        </template>
+                        <template x-if="!(form.batch_pelatihan === batch.value.toString() || form.batch_pelatihan === batch.value)">
+                          <i class="icon-base ti tabler-plus" style="font-size: 15px;"></i>
+                        </template>
+                        <span x-text="form.batch_pelatihan === batch.value.toString() || form.batch_pelatihan === batch.value ? 'Terpilih' : 'Pilih Ini'"></span>
+                        <template x-if="!(form.batch_pelatihan === batch.value.toString() || form.batch_pelatihan === batch.value)">
+                          <i class="icon-base ti tabler-arrow-right" style="font-size: 14px;"></i>
+                        </template>
+                      </button>
                     </div>
-
-                    <!-- CTA Button: Gradient Warna-warni -->
-                    <button type="button" class="card-cta" @click.stop="handleCardClick(batch)">
-                      <template x-if="form.batch_pelatihan === batch.value.toString() || form.batch_pelatihan === batch.value">
-                        <i class="icon-base ti tabler-check" style="font-size: 15px;"></i>
-                      </template>
-                      <template x-if="!(form.batch_pelatihan === batch.value.toString() || form.batch_pelatihan === batch.value)">
-                        <i class="icon-base ti tabler-plus" style="font-size: 15px;"></i>
-                      </template>
-                      <span x-text="form.batch_pelatihan === batch.value.toString() || form.batch_pelatihan === batch.value ? 'Terpilih' : 'Pilih Ini'"></span>
-                      <template x-if="!(form.batch_pelatihan === batch.value.toString() || form.batch_pelatihan === batch.value)">
-                        <i class="icon-base ti tabler-arrow-right" style="font-size: 14px;"></i>
-                      </template>
-                    </button>
 
                     <!-- Restricted Warning -->
                     <template x-if="batch.restricted">

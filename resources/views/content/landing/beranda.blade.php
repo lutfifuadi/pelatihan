@@ -1695,18 +1695,18 @@ $customizerHidden = 'customizer-hide';
       <!-- Bootstrap Accordion Redesigned -->
       <div class="row justify-content-center reveal">
         <div class="col-lg-8">
-          <div class="accordion" id="accordionFaq">
+          <div class="accordion" id="accordionFaq" x-data="{ activeIndex: null }">
             @forelse($faqs as $index => $faq)
-              <div class="faq-accordion-item border-0" x-data="{ open: false }">
+              <div class="faq-accordion-item border-0" x-data="{ localIndex: {{ $index }} }">
                 <h3 class="accordion-header" id="heading{{ $index }}">
                   <button class="faq-accordion-button" type="button"
-                    @click="open = !open" :class="{ 'collapsed': !open }">
+                    @click="activeIndex = (activeIndex === localIndex ? null : localIndex)" :class="{ 'collapsed': activeIndex !== localIndex }">
                     <span class="flex-grow-1">{{ $faq->question }}</span>
-                    <i class="icon-base ti tabler-chevron-down faq-chevron" :style="open ? 'transform: rotate(180deg)' : ''"></i>
+                    <i class="icon-base ti tabler-chevron-down faq-chevron" :style="activeIndex === localIndex ? 'transform: rotate(180deg)' : ''"></i>
                   </button>
                 </h3>
                 <div id="collapse{{ $index }}" class="accordion-collapse collapse"
-                  x-show="open" x-collapse :class="{ 'show': open }"
+                  x-show="activeIndex === localIndex" x-collapse :class="{ 'show': activeIndex === localIndex }"
                   aria-labelledby="heading{{ $index }}">
                   <div class="faq-accordion-body">
                     {{ $faq->answer }}
@@ -1764,6 +1764,9 @@ $customizerHidden = 'customizer-hide';
 @endsection
 
 @section('page-script')
+@push('scripts')
+<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+@endpush
 <script>
 document.addEventListener('DOMContentLoaded', function() {
   'use strict';

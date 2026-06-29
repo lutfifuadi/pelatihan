@@ -424,7 +424,7 @@ class PesertaFormController extends Controller
                 })->orWhereDoesntHave('kecamatans');
             });
         }
-        $pelatihans = $query->with('dinas')->orderBy('batch')->get();
+        $pelatihans = $query->with('dinas')->withCount('approvedEnrollments')->orderBy('batch')->get();
 
         $userLocation = null;
         if ($user->kecamatan_id && $user->kecamatan) {
@@ -490,9 +490,19 @@ class PesertaFormController extends Controller
             $restrictedUntil = $restricted ? $dinasRestrictions[$dinasId]['available_after']->format('d/m/Y') : null;
             $restrictedDinas = $restricted ? $dinasRestrictions[$dinasId]['dinas_name'] : null;
             $lastPelatihan = $restricted ? $dinasRestrictions[$dinasId]['last_pelatihan'] : null;
+            $approvedCount = $p->approved_enrollments_count ?? 0;
+            $quota = $p->kuota;
+            $isKuotaUnlimited = is_null($quota) || $quota <= 0;
+            $percentage = $isKuotaUnlimited ? 0 : min(100, round(($approvedCount / $quota) * 100, 1));
+            
             return [
                 'value' => $p->batch,
                 'label' => $p->batch . ' : ' . $p->nama . ($tgl ? ' (' . $tgl . ')' : ''),
+                'nama' => $p->nama,
+                'kuota' => $quota,
+                'approved_count' => $approvedCount,
+                'percentage' => $percentage,
+                'is_kuota_unlimited' => $isKuotaUnlimited,
                 'kecamatans' => $kecNames,
                 'dinas_name' => $p->dinas->nama_dinas ?? '-',
                 'restricted' => $restricted,
