@@ -65,9 +65,10 @@
       <p class="text-white-50 small mb-0">
         &copy; {{ date('Y') }} <span class="text-white fw-medium">{{ $footerCopyright }}</span>. All rights reserved.
       </p>
-      <div class="d-flex gap-4">
-        <a href="#" class="text-white-50 small text-decoration-none hover-white">{{ __('Kebijakan Privasi') }}</a>
-        <a href="#" class="text-white-50 small text-decoration-none hover-white">{{ __('Syarat & Ketentuan') }}</a>
+      <div class="d-flex flex-wrap gap-4 justify-content-center justify-content-md-end">
+        <a href="{{ route('privacy-policy') }}" class="text-white-50 small text-decoration-none hover-white">{{ __('Kebijakan Privasi') }}</a>
+        <a href="{{ route('disclaimer') }}" class="text-white-50 small text-decoration-none hover-white">{{ __('Disclaimer') }}</a>
+        <a href="{{ route('verifikasi-kontak') }}" class="text-white-50 small text-decoration-none hover-white">{{ __('Verifikasi Kontak') }}</a>
       </div>
     </div>
   </div>

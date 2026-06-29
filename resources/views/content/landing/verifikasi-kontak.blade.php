@@ -3,12 +3,14 @@
   $customizerHidden = 'customizer-hide';
 @endphp
 
-@extends('layouts.layoutFront')
+@extends('layouts/publicLayout')
 
 @section('title', 'Verifikasi Kontak Resmi Admin')
 
 @section('content')
-<section class="section-py first-section-pt help-center-header position-relative overflow-hidden" style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); color: #f8fafc; min-height: 100vh; display: flex; align-items: center; justify-content: center; font-family: 'Outfit', sans-serif;">
+@include('partials.floating-navbar')
+
+<section class="section-py first-section-pt help-center-header position-relative overflow-hidden" style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); color: #f8fafc; min-height: 100vh; display: flex; align-items: center; justify-content: center; font-family: 'Outfit', sans-serif; padding-top: 120px !important;">
   <!-- Background illustration/glow effect -->
   <div class="position-absolute w-100 h-100 top-0 start-0 z-0 opacity-25" style="background-image: radial-gradient(circle at 80% 20%, rgba(99, 102, 241, 0.15) 0%, transparent 50%), radial-gradient(circle at 20% 80%, rgba(245, 158, 11, 0.1) 0%, transparent 50%); pointer-events: none;"></div>
 
@@ -114,4 +116,5 @@
     </div>
   </div>
 </section>
+@include('partials.site-footer')
 @endsection
