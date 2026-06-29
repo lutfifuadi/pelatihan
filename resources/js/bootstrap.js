@@ -14,7 +14,7 @@ if (window.broadcastEnabled === '1') {
   const config = window.reverbConfig;
 
   if (!config || !config.key) {
-    console.warn('Echo/Reverb not initialized: reverbConfig or reverbConfig.key is missing or empty.');
+    console.log('[Echo] Reverb not initialized: reverbConfig.key is missing or empty. Skipping Echo setup.');
   } else {
     (async () => {
       const Echo = (await import('laravel-echo')).default;

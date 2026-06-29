@@ -303,7 +303,7 @@ window.FOTO_CAPTURE = FOTO_CAPTURE;
 // Register Alpine component for FotoCapture
 // =====================================================
 document.addEventListener('alpine:init', () => {
-    Alpine.data('fotoCapture', () => ({
+    window.Alpine.data('fotoCapture', () => ({
         // State
         state: 'viewfinder',
         mode: 'foto',

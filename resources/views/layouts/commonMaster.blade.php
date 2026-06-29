@@ -104,6 +104,14 @@
   {{-- remove while creating package --}}
   {{-- remove while creating package end --}}
 
+  {{-- ===== PWA Helper: iOS install prompt detection ===== --}}
+  @vite(['resources/js/pwa-helper.js'])
+  {{-- ===== End PWA Helper ===== --}}
+
+  {{-- ===== Push Notification: Client-side subscription ===== --}}
+  @vite(['resources/js/push-subscription.js'])
+  {{-- ===== End Push Notification ===== --}}
+
   <!-- Include Scripts -->
   <!-- $isFront is used to append the front layout scripts only on the front layout otherwise the variable will be blank -->
   @include('layouts/sections/scripts' . $isFront)
@@ -127,14 +135,6 @@
     }
   </script>
   {{-- ===== End PWA SW Registration ===== --}}
-
-  {{-- ===== PWA Helper: iOS install prompt detection ===== --}}
-  @vite(['resources/js/pwa-helper.js'])
-  {{-- ===== End PWA Helper ===== --}}
-
-  {{-- ===== Push Notification: Client-side subscription ===== --}}
-  @vite(['resources/js/push-subscription.js'])
-  {{-- ===== End Push Notification ===== --}}
 
   {{-- Push Notification Overlay (hidden by default, shown after delay) --}}
   <div id="push-notification-overlay" class="hidden fixed inset-0 z-[9999] flex items-center justify-center p-4"
