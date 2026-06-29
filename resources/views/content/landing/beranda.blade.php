@@ -11,6 +11,7 @@ $customizerHidden = 'customizer-hide';
     $institutionDesc = \App\Models\Setting::where('key', 'institution_description')->value('value') ?? 'Program pelatihan pengembangan kompetensi dan keterampilan praktis yang mandiri, kreatif, dan berdaya saing.';
     $footerCopyright = \App\Models\Setting::where('key', 'footer_copyright')->value('value') ?? 'Pelatihan — Pengembangan Kompetensi';
     $faqs = \App\Models\Faq::active()->ordered()->get();
+    $dinasList = \App\Models\Dinas::where('is_active', true)->whereNotNull('logo')->get();
 
     // Landing page settings
     $landingSettings = \App\Models\Setting::where('group', 'landing')->get()->keyBy('key');
@@ -1136,6 +1137,36 @@ $customizerHidden = 'customizer-hide';
     color: rgba(255,255,255,0.4);
     font-size: 13px;
   }
+
+  /* --- Logo Slider / Marquee --- */
+  .logo-slider-container {
+    overflow: hidden;
+    padding: 10px 0;
+    position: relative;
+    width: 100%;
+  }
+  .logo-slider-track {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 3.5rem;
+    flex-wrap: wrap;
+  }
+  .logo-slider-item {
+    transition: all 0.3s ease;
+    filter: grayscale(100%);
+    opacity: 0.5;
+  }
+  .logo-slider-item:hover {
+    filter: grayscale(0%);
+    opacity: 1;
+    transform: scale(1.08);
+  }
+  .logo-slider-img {
+    max-height: 48px;
+    width: auto;
+    object-fit: contain;
+  }
 </style>
 @endsection
 
@@ -1320,6 +1351,16 @@ $customizerHidden = 'customizer-hide';
                 </div>
               </div>
 
+              <div class="form-check mb-4">
+                <input class="form-check-input @error('consent_nik') is-invalid @enderror" type="checkbox" name="consent_nik" id="consent_nik" value="1" {{ old('consent_nik') ? 'checked' : '' }} required>
+                <label class="form-check-label text-white-50 small" for="consent_nik">
+                  Saya dengan ini menyatakan setuju dan memberikan izin secara sadar kepada Disbudpar Kota Bandung untuk memproses data pribadi saya (termasuk NIK) murni untuk kepentingan administrasi dan verifikasi kepesertaan pelatihan ini sesuai dengan <a href="{{ route('privacy-policy') }}" target="_blank" class="text-info text-decoration-underline">Kebijakan Privasi</a>.
+                </label>
+                @error('consent_nik')
+                  <div class="invalid-feedback text-danger small mt-1 d-block">{{ $message }}</div>
+                @enderror
+              </div>
+
               <!-- Animated Button Submit -->
               <button type="submit" id="btnDaftar" class="btn btn-warning btn-lg w-100 fw-semibold btn-glow py-3" style="font-family: 'Sora', sans-serif; border-radius: 5px;">
                 <span id="btn-text">{{ $form_button_text }} <i class="icon-base ti tabler-arrow-right ms-2"></i></span>
@@ -1341,6 +1382,26 @@ $customizerHidden = 'customizer-hide';
       </div>
     </div>
   </section>
+
+  <!-- ============================================================
+       DINAS PENYELENGGARA LOGO SLIDER SECTION
+       ============================================================ -->
+  @if(isset($dinasList) && $dinasList->count() > 0)
+  <section class="py-5" style="background: rgba(15, 23, 42, 0.45); border-top: 1px solid rgba(255, 255, 255, 0.06); border-bottom: 1px solid rgba(255, 255, 255, 0.06);">
+    <div class="container">
+      <p class="text-center text-white-50 small text-uppercase tracking-wider mb-4 fw-semibold" style="letter-spacing: 0.1em; font-family: 'Sora', sans-serif;">Dinas Penelenggara & Mitra Resmi</p>
+      <div class="logo-slider-container">
+        <div class="logo-slider-track">
+          @foreach($dinasList as $dinas)
+            <div class="logo-slider-item px-3" title="{{ $dinas->nama_dinas }}">
+              <img src="{{ asset('storage/' . $dinas->logo) }}" alt="{{ $dinas->nama_dinas }}" class="logo-slider-img">
+            </div>
+          @endforeach
+        </div>
+      </div>
+    </div>
+  </section>
+  @endif
 
   <!-- ============================================================
        WAVE DIVIDER (Separator)
@@ -1727,16 +1788,17 @@ $customizerHidden = 'customizer-hide';
         <div class="col-lg-8">
           <div class="accordion" id="accordionFaq">
             @forelse($faqs as $index => $faq)
-              <div class="faq-accordion-item border-0">
+              <div class="faq-accordion-item border-0" x-data="{ open: false }">
                 <h3 class="accordion-header" id="heading{{ $index }}">
-                  <button class="faq-accordion-button collapsed" type="button" data-bs-toggle="collapse"
-                    data-bs-target="#collapse{{ $index }}" aria-expanded="false" aria-controls="collapse{{ $index }}">
+                  <button class="faq-accordion-button" type="button"
+                    @click="open = !open" :class="{ 'collapsed': !open }">
                     <span class="flex-grow-1">{{ $faq->question }}</span>
-                    <i class="icon-base ti tabler-chevron-down faq-chevron"></i>
+                    <i class="icon-base ti tabler-chevron-down faq-chevron" :style="open ? 'transform: rotate(180deg)' : ''"></i>
                   </button>
                 </h3>
                 <div id="collapse{{ $index }}" class="accordion-collapse collapse"
-                  aria-labelledby="heading{{ $index }}" data-bs-parent="#accordionFaq">
+                  x-show="open" x-collapse :class="{ 'show': open }"
+                  aria-labelledby="heading{{ $index }}">
                   <div class="faq-accordion-body">
                     {{ $faq->answer }}
                   </div>

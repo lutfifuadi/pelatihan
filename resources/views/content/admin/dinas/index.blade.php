@@ -291,7 +291,22 @@ $configData = Helper::appClasses();
               @forelse($dinas as $index => $d)
                 <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.04);">
                   <td class="px-0 py-3 text-body-premium">{{ $dinas->firstItem() + $index }}</td>
-                  <td class="py-3 text-white fw-semibold">{{ $d->nama_dinas }}</td>
+                  <td class="py-3 text-white fw-semibold">
+                    <div class="d-flex align-items-center gap-3">
+                      @if($d->logo)
+                        <div class="flex-shrink-0" style="width: 36px; height: 36px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 4px; display: flex; align-items: center; justify-content: center; padding: 2px;">
+                          <img src="{{ asset('storage/' . $d->logo) }}" alt="Logo {{ $d->nama_dinas }}" style="max-width: 100%; max-height: 100%; object-fit: contain;">
+                        </div>
+                      @else
+                        <div class="flex-shrink-0 text-white-50" style="width: 36px; height: 36px; background: rgba(255, 255, 255, 0.03); border: 1px dashed rgba(255, 255, 255, 0.08); border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 14px;">
+                          <i class="icon-base ti tabler-building"></i>
+                        </div>
+                      @endif
+                      <div>
+                        {{ $d->nama_dinas }}
+                      </div>
+                    </div>
+                  </td>
                   <td class="py-3 text-body-premium">{{ $d->singkatan ?? '-' }}</td>
                   <td class="py-3">
                     @if($d->is_active)

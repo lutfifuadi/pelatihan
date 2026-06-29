@@ -10,56 +10,54 @@
             <span class="app-brand-logo demo">@include('_partials.macros')</span>
             <span class="app-brand-text demo text-white fw-bold ms-2 ps-1">{{ config('variables.templateName') }}</span>
           </a>
-          <p class="footer-text footer-logo-description mb-6">Most developer friendly & highly customisable
-            Admin
-            Dashboard Template.</p>
-          <form class="footer-form">
-            <label for="footer-email" class="small">Subscribe to newsletter</label>
-            <div class="d-flex mt-1">
-              <input type="email" class="form-control rounded-0 rounded-start-bottom rounded-start-top"
-                id="footer-email" placeholder="Your email" />
-              <button type="submit"
-                class="btn btn-primary shadow-none rounded-0 rounded-end-bottom rounded-end-top">Subscribe</button>
+          <p class="footer-text footer-logo-description mb-4">
+            Platform pendaftaran dan manajemen pelatihan resmi Dinas Kebudayaan dan Pariwisata Kota Bandung.
+          </p>
+          <div class="d-flex align-items-center gap-3 mb-6">
+            <!-- Representatif Logo Pemkot Bandung -->
+            <div class="bg-white p-2 rounded d-flex align-items-center gap-2" style="border: 1px solid rgba(255,255,255,0.2);">
+              <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center text-white fw-bold" style="width: 28px; height: 28px; font-size: 9px; line-height: 1;">
+                BDG
+              </div>
+              <span class="text-dark fw-bold" style="font-size: 10px; line-height: 1.2; letter-spacing: 0.5px;">PEMKOT BANDUNG</span>
             </div>
-          </form>
+            <!-- Representatif Logo Disbudpar -->
+            <div class="bg-white p-2 rounded d-flex align-items-center gap-2" style="border: 1px solid rgba(255,255,255,0.2);">
+              <div class="bg-warning rounded-circle d-flex align-items-center justify-content-center text-white fw-bold" style="width: 28px; height: 28px; font-size: 8px; line-height: 1;">
+                DBP
+              </div>
+              <span class="text-dark fw-bold" style="font-size: 10px; line-height: 1.2; letter-spacing: 0.5px;">DISBUDPAR</span>
+            </div>
+          </div>
         </div>
         <div class="col-lg-2 col-md-4 col-sm-6">
-          <h6 class="footer-title mb-6">Demos</h6>
+          <h6 class="footer-title mb-6">Kepatuhan & Hukum</h6>
           <ul class="list-unstyled">
             <li class="mb-4">
-              <a href="javascript:;" target="_blank" class="footer-link">Vertical Layout</a>
+              <a href="{{ route('privacy-policy') }}" class="footer-link">Kebijakan Privasi</a>
             </li>
             <li class="mb-4">
-              <a href="javascript:;" target="_blank" class="footer-link">Horizontal Layout</a>
-            </li>
-            <li class="mb-4">
-              <a href="javascript:;" target="_blank" class="footer-link">Bordered Layout</a>
-            </li>
-            <li class="mb-4">
-              <a href="javascript:;" target="_blank" class="footer-link">Semi Dark Layout</a>
+              <a href="{{ route('disclaimer') }}" class="footer-link">Disclaimer</a>
             </li>
             <li>
-              <a href="javascript:;" target="_blank" class="footer-link">Dark Layout</a>
+              <a href="{{ route('verifikasi-kontak') }}" class="footer-link">Verifikasi Kontak Resmi</a>
             </li>
           </ul>
         </div>
         <div class="col-lg-2 col-md-4 col-sm-6">
-          <h6 class="footer-title mb-6">Pages</h6>
+          <h6 class="footer-title mb-6">Informasi Resmi</h6>
           <ul class="list-unstyled">
             <li class="mb-4">
-              <a href="javascript:;" class="footer-link">Pricing</a>
+              <a href="{{ url('/') }}" class="footer-link">Beranda</a>
             </li>
             <li class="mb-4">
-              <a href="javascript:;" class="footer-link">Payment<span class="badge bg-primary ms-2">New</span></a>
+              <a href="{{ route('pelatihan.index') }}" class="footer-link">Semua Pelatihan</a>
             </li>
             <li class="mb-4">
-              <a href="javascript:;" class="footer-link">Checkout</a>
-            </li>
-            <li class="mb-4">
-              <a href="javascript:;" class="footer-link">Help Center</a>
+              <a href="{{ route('koordinator.register') }}" class="footer-link">Daftar Koordinator</a>
             </li>
             <li>
-              <a href="javascript:;" target="_blank" class="footer-link">Login/Register</a>
+              <a href="{{ route('login') }}" class="footer-link">Login Peserta & Admin</a>
             </li>
           </ul>
         </div>
@@ -77,14 +75,7 @@
   <div class="footer-bottom py-3 py-md-5">
     <div class="container d-flex flex-wrap justify-content-between flex-md-row flex-column text-center text-md-start">
       <div class="mb-2 mb-md-0">
-        <span class="footer-bottom-text">©
-          <script>
-            document.write(new Date().getFullYear());
-          </script>
-        </span>
-        <a href="{{ config('variables.creatorUrl') }}" target="_blank"
-          class="text-white">{{ config('variables.creatorName') }},</a>
-        <span class="footer-bottom-text"> Made with ❤️ for a better web.</span>
+        <span class="footer-bottom-text">© 2026 Dinas Kebudayaan dan Pariwisata Kota Bandung. Powered by Pelatihanku.</span>
       </div>
       <div>
         <a href="{{ config('variables.githubFreeUrl') }}" class="me-4 text-white" target="_blank">

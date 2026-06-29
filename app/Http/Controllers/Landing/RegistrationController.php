@@ -28,11 +28,14 @@ class RegistrationController extends Controller
             'email'    => 'required|email|unique:users,email',
             'sumber_informasi' => ['required', 'string', 'in:koordinator,sosmed,lainnya'],
             'sumber_informasi_detail' => ['nullable', 'string', 'max:255'],
+            'consent_nik' => 'required|accepted',
         ], [
             'nik.unique' => 'NIK ini sudah terdaftar. Silakan login saja.',
             'nik.digits_between'   => 'NIK harus 15 atau 16 digit.',
             'email.unique' => 'Email ini sudah terdaftar. Silakan login saja.',
             'sumber_informasi.required' => 'Silakan pilih sumber informasi pelatihan.',
+            'consent_nik.required' => 'Anda harus menyetujui pernyataan persetujuan NIK.',
+            'consent_nik.accepted' => 'Anda harus menyetujui pernyataan persetujuan NIK.',
         ]);
 
         // Auto-convert WA number: 08xxx → 628xxx
@@ -59,6 +62,15 @@ class RegistrationController extends Controller
             'role'     => 'peserta',
             'is_active' => true,
             'email_verified_at' => now(), // Auto-verified (manual registration)
+        ]);
+
+        // Simpan log persetujuan ke tabel consent_logs
+        \App\Models\ConsentLog::create([
+            'user_id' => $user->id,
+            'ip_address' => $request->ip(),
+            'user_agent' => $request->userAgent(),
+            'consent_type' => 'nik_collection',
+            'consent_text' => 'Saya dengan ini menyatakan setuju dan memberikan izin secara sadar kepada Disbudpar Kota Bandung untuk memproses data pribadi saya (termasuk NIK) murni untuk kepentingan administrasi dan verifikasi kepesertaan pelatihan ini sesuai dengan Kebijakan Privasi.',
         ]);
 
         // Log aktivitas pendaftaran

@@ -11,6 +11,7 @@ class Dinas extends Model
     protected $fillable = [
         'nama_dinas',
         'singkatan',
+        'logo',
         'is_active',
     ];
 

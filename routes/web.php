@@ -90,6 +90,18 @@ Route::post('/daftar/cek-nik', [RegistrationController::class, 'checkNik'])->nam
 Route::post('/daftar/cek-wa', [RegistrationController::class, 'checkWa'])->name('landing.check-wa')->middleware('throttle:10,1');
 Route::get('/daftar/sukses', [RegistrationController::class, 'sukses'])->name('landing.sukses')->middleware('auth');
 
+// ===== LEGAL & PDP COMPLIANCE ROUTES =====
+Route::get('/kebijakan-privasi', function () {
+    return view('content.landing.privacy-policy');
+})->name('privacy-policy');
+
+Route::get('/disclaimer', function () {
+    return view('content.landing.disclaimer');
+})->name('disclaimer');
+
+Route::get('/verifikasi-kontak', [App\Http\Controllers\Landing\ContactVerificationController::class, 'index'])->name('verifikasi-kontak');
+Route::post('/verifikasi-kontak', [App\Http\Controllers\Landing\ContactVerificationController::class, 'check'])->name('verifikasi-kontak.check');
+
 // ===== MAINTENANCE PAGE (public) =====
 Route::get('/maintenance', [MaintenanceController::class, 'index'])->name('maintenance');
 

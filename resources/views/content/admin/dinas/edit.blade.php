@@ -290,7 +290,7 @@ $configData = Helper::appClasses();
     <!-- Form Card -->
     <div class="col-12">
       <div class="glass-card-premium px-4 px-xl-5 py-5">
-        <form action="{{ route('admin.dinas.update', $dinas) }}" method="POST">
+        <form action="{{ route('admin.dinas.update', $dinas) }}" method="POST" enctype="multipart/form-data">
           @csrf
           @method('PUT')
 
@@ -310,6 +310,26 @@ $configData = Helper::appClasses();
             <input type="text" class="form-control @error('singkatan') is-invalid @enderror"
               id="singkatan" name="singkatan" value="{{ old('singkatan', $dinas->singkatan) }}" placeholder="Contoh: Disparekraf">
             @error('singkatan')
+              <div class="invalid-feedback mt-1">{{ $message }}</div>
+            @enderror
+          </div>
+
+          <!-- Logo Dinas -->
+          <div class="mb-4">
+            <label for="logo" class="form-label">Logo Dinas</label>
+            @if($dinas->logo)
+              <div class="mb-3 d-flex align-items-center gap-3 p-2 rounded" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1);">
+                <img src="{{ asset('storage/' . $dinas->logo) }}" alt="Logo {{ $dinas->nama_dinas }}" class="img-thumbnail bg-transparent" style="max-height: 80px; object-fit: contain; border-color: rgba(255, 255, 255, 0.15);">
+                <div>
+                  <span class="text-white-50 small d-block">Logo saat ini terpasang</span>
+                  <span class="text-white font-monospace small" style="font-size: 11px;">{{ basename($dinas->logo) }}</span>
+                </div>
+              </div>
+            @endif
+            <input type="file" class="form-control @error('logo') is-invalid @enderror"
+              id="logo" name="logo" accept="image/png, image/jpeg, image/jpg, image/svg+xml">
+            <small class="text-white-50 mt-1 d-block" style="font-size: 11px;">Format: PNG, JPG, JPEG, SVG. Maks: 2MB. Biarkan kosong jika tidak ingin mengubah logo.</small>
+            @error('logo')
               <div class="invalid-feedback mt-1">{{ $message }}</div>
             @enderror
           </div>

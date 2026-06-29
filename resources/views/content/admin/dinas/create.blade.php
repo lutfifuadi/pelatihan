@@ -290,7 +290,7 @@ $configData = Helper::appClasses();
     <!-- Form Card -->
     <div class="col-12">
       <div class="glass-card-premium px-4 px-xl-5 py-5">
-        <form action="{{ route('admin.dinas.store') }}" method="POST">
+        <form action="{{ route('admin.dinas.store') }}" method="POST" enctype="multipart/form-data">
           @csrf
 
           <!-- Nama Dinas -->
@@ -309,6 +309,17 @@ $configData = Helper::appClasses();
             <input type="text" class="form-control @error('singkatan') is-invalid @enderror"
               id="singkatan" name="singkatan" value="{{ old('singkatan') }}" placeholder="Contoh: Disparekraf">
             @error('singkatan')
+              <div class="invalid-feedback mt-1">{{ $message }}</div>
+            @enderror
+          </div>
+
+          <!-- Logo Dinas -->
+          <div class="mb-4">
+            <label for="logo" class="form-label">Logo Dinas</label>
+            <input type="file" class="form-control @error('logo') is-invalid @enderror"
+              id="logo" name="logo" accept="image/png, image/jpeg, image/jpg, image/svg+xml">
+            <small class="text-white-50 mt-1 d-block" style="font-size: 11px;">Format: PNG, JPG, JPEG, SVG. Maks: 2MB</small>
+            @error('logo')
               <div class="invalid-feedback mt-1">{{ $message }}</div>
             @enderror
           </div>
