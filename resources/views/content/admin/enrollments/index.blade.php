@@ -251,10 +251,10 @@ $configData = Helper::appClasses();
     {{-- Export Buttons --}}
     <div class="glass-card-premium px-4 py-3 mb-4">
       <div class="d-flex justify-content-end align-items-center gap-2">
-        <a href="{{ request('pelatihan_id') ? route('admin.exports.enrollments.pdf', ['pelatihan' => request('pelatihan_id')]) : route('admin.exports.enrollments.pdf') }}" class="btn btn-outline-info btn-action" style="border-color: rgba(96,165,250,0.3); color: #93c5fd;">
+        <a href="{{ request('pelatihan_id') ? route('admin.exports.enrollments.pdf', ['pelatihan' => request('pelatihan_id')]) : route('admin.exports.enrollments.pdf') }}" id="btn-export-pdf" class="btn btn-outline-info btn-action" style="border-color: rgba(96,165,250,0.3); color: #93c5fd;">
           <i class="icon-base ti tabler-file-export me-1"></i> 📄 Export PDF
         </a>
-        <a href="{{ request('pelatihan_id') ? route('admin.exports.enrollments.excel', ['pelatihan' => request('pelatihan_id')]) : route('admin.exports.enrollments.excel') }}" class="btn btn-outline-success btn-action" style="border-color: rgba(16,185,129,0.3); color: #34d399;">
+        <a href="{{ request('pelatihan_id') ? route('admin.exports.enrollments.excel', ['pelatihan' => request('pelatihan_id')]) : route('admin.exports.enrollments.excel') }}" id="btn-export-excel" class="btn btn-outline-success btn-action" style="border-color: rgba(16,185,129,0.3); color: #34d399;">
           <i class="icon-base ti tabler-file-spreadsheet me-1"></i> 📊 Export Excel
         </a>
       </div>
@@ -508,6 +508,30 @@ $configData = Helper::appClasses();
     }
 
     /**
+     * Memperbarui tautan ekspor PDF & Excel berdasarkan filter yang aktif.
+     */
+    function updateExportLinks(pelatihanId, status, searchVal) {
+      const btnPdf = document.getElementById('btn-export-pdf');
+      const btnExcel = document.getElementById('btn-export-excel');
+
+      if (!btnPdf && !btnExcel) return;
+
+      const pdfBase = '/admin/exports/enrollments/pdf';
+      const excelBase = '/admin/exports/enrollments/excel';
+
+      const queryParams = new URLSearchParams();
+      if (pelatihanId) queryParams.set('pelatihan_id', pelatihanId);
+      if (status) queryParams.set('status', status);
+      if (searchVal) queryParams.set('search', searchVal);
+
+      const queryString = queryParams.toString();
+      const suffix = queryString ? `?${queryString}` : '';
+
+      if (btnPdf) btnPdf.setAttribute('href', pdfBase + suffix);
+      if (btnExcel) btnExcel.setAttribute('href', excelBase + suffix);
+    }
+
+    /**
      * Sinkronkan nilai dropdown dengan URL saat ini (misal akses langsung via URL).
      */
     function syncDropdownsFromUrl() {
@@ -534,6 +558,9 @@ $configData = Helper::appClasses();
       // Reset ke halaman 1 saat filter berubah
       url.searchParams.delete('page');
       window.history.replaceState({}, '', url);
+
+      // Perbarui tautan ekspor
+      updateExportLinks(dropdownFilters.pelatihan_id, dropdownFilters.status, search);
 
       fetchData();
     }
@@ -643,6 +670,9 @@ $configData = Helper::appClasses();
         else url.searchParams.delete('search');
         if (targetPage) url.searchParams.set('page', targetPage);
         window.history.replaceState({}, '', url);
+
+        // Perbarui tautan ekspor saat data di-fetch / pagination berubah / pencarian berubah
+        updateExportLinks(dropdownFilters.pelatihan_id, dropdownFilters.status, search);
 
         // Reset button visibility
         if (search) resetBtn.classList.remove('d-none');
@@ -858,6 +888,9 @@ $configData = Helper::appClasses();
 
     // Sinkronkan dropdown dari URL saat inisialisasi
     syncDropdownsFromUrl();
+    
+    // Perbarui tautan ekspor pada saat inisialisasi awal
+    updateExportLinks(filterPelatihan.value, filterStatus.value, search);
   })();
 
   // Reset Enrollment Forms — menggunakan event delegation agar tetap jalan setelah AJAX load

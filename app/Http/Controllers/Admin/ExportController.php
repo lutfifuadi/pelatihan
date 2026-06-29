@@ -70,16 +70,28 @@ class ExportController extends Controller
      */
     public function exportEnrollmentsPdf(Request $request, ?Pelatihan $pelatihan = null)
     {
-        $query = Enrollment::with(['user', 'pelatihan']);
+        $query = Enrollment::with(['user.pesertaProfile', 'user.kecamatan', 'user.kelurahan', 'pelatihan.dinas']);
 
+        $pelatihanId = null;
         if ($pelatihan && $pelatihan->exists) {
-            $query->where('pelatihan_id', $pelatihan->id);
+            $pelatihanId = $pelatihan->id;
+            $query->where('pelatihan_id', $pelatihanId);
         } elseif ($request->filled('pelatihan_id')) {
-            $query->where('pelatihan_id', $request->pelatihan_id);
+            $pelatihanId = $request->pelatihan_id;
+            $query->where('pelatihan_id', $pelatihanId);
         }
 
         if ($request->filled('status')) {
             $query->where('status', $request->status);
+        }
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->whereHas('user', function ($q) use ($search) {
+                $q->where('name', 'like', '%' . $search . '%')
+                    ->orWhere('nik', 'like', '%' . $search . '%')
+                    ->orWhere('email', 'like', '%' . $search . '%');
+            });
         }
 
         $enrollments = $query->orderBy('created_at', 'desc')->get();
@@ -87,9 +99,26 @@ class ExportController extends Controller
         $pdf = Pdf::loadView('content.admin.exports.enrollments-pdf', compact('enrollments', 'pelatihan'));
 
         $filename = 'data-pendaftaran';
+        
+        $p = null;
         if ($pelatihan && $pelatihan->exists) {
-            $filename .= '-' . \Illuminate\Support\Str::slug($pelatihan->nama);
+            $p = $pelatihan;
+        } elseif ($pelatihanId) {
+            $p = Pelatihan::find($pelatihanId);
         }
+
+        if ($p) {
+            $filename .= '-' . \Illuminate\Support\Str::slug($p->nama);
+        }
+
+        if ($request->filled('status')) {
+            $filename .= '-' . \Illuminate\Support\Str::slug($request->status);
+        }
+
+        if ($request->filled('search')) {
+            $filename .= '-search-' . \Illuminate\Support\Str::slug($request->search);
+        }
+
         $filename .= '-' . now()->format('Y-m-d') . '.pdf';
 
         return $pdf->download($filename);
@@ -107,16 +136,33 @@ class ExportController extends Controller
             $pelatihanId = $request->pelatihan_id;
         }
 
+        $status = $request->input('status');
+        $search = $request->input('search');
+
         $filename = 'data-pendaftaran';
-        if ($pelatihanId) {
+        
+        $p = null;
+        if ($pelatihan && $pelatihan->exists) {
+            $p = $pelatihan;
+        } elseif ($pelatihanId) {
             $p = Pelatihan::find($pelatihanId);
-            if ($p) {
-                $filename .= '-' . \Illuminate\Support\Str::slug($p->nama);
-            }
         }
+
+        if ($p) {
+            $filename .= '-' . \Illuminate\Support\Str::slug($p->nama);
+        }
+
+        if ($status) {
+            $filename .= '-' . \Illuminate\Support\Str::slug($status);
+        }
+
+        if ($search) {
+            $filename .= '-search-' . \Illuminate\Support\Str::slug($search);
+        }
+
         $filename .= '-' . now()->format('Y-m-d') . '.xlsx';
 
-        return Excel::download(new EnrollmentExport($pelatihanId), $filename);
+        return Excel::download(new EnrollmentExport($pelatihanId, $status, $search), $filename);
     }
 
     /**

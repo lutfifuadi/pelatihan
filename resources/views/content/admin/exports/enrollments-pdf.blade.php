@@ -105,7 +105,7 @@
                 <td>{{ $enrollment->user?->nik ?? '-' }}</td>
                 <td>{{ $enrollment->user?->whatsapp ?? '-' }}</td>
                 <td>{{ $enrollment->pelatihan?->nama ?? '-' }}</td>
-                <td class="status-{{ $enrollment->status }}">{{ ucfirst($enrollment->status) }}</td>
+                <td class="status-{{ is_string($enrollment->status) ? $enrollment->status : $enrollment->status?->value }}">{{ ucfirst(is_string($enrollment->status) ? $enrollment->status : $enrollment->status?->value) }}</td>
                 <td>{{ $enrollment->created_at ? $enrollment->created_at->format('d-m-Y H:i') : '-' }}</td>
                 <td>{{ $tanggalApproveReject }}</td>
             </tr>

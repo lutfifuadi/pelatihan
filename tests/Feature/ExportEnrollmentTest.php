@@ -616,6 +616,107 @@ class ExportEnrollmentTest extends TestCase
         $response->assertStatus(403);
     }
 
+    public function test_export_excel_with_status_and_search_filters()
+    {
+        Excel::fake();
+
+        $dinas = Dinas::factory()->create();
+        $pelatihan = Pelatihan::create([
+            'nama' => 'Pelatihan Filter Test',
+            'batch' => 'BATCH-002',
+            'deskripsi' => 'Test',
+            'dinas_id' => $dinas->id,
+            'is_active' => true,
+        ]);
+
+        $user1 = User::factory()->create([
+            'role' => 'peserta',
+            'name' => 'Budi Sudarsono',
+            'email' => 'budi@test.com',
+            'nik' => '1234567890123456',
+        ]);
+        PesertaProfile::create(['user_id' => $user1->id, 'nama_lengkap' => 'Budi Sudarsono']);
+        Enrollment::create([
+            'user_id' => $user1->id,
+            'pelatihan_id' => $pelatihan->id,
+            'status' => 'approved',
+        ]);
+
+        $user2 = User::factory()->create([
+            'role' => 'peserta',
+            'name' => 'Andi Mallarangeng',
+            'email' => 'andi@test.com',
+            'nik' => '6543210987654321',
+        ]);
+        PesertaProfile::create(['user_id' => $user2->id, 'nama_lengkap' => 'Andi Mallarangeng']);
+        Enrollment::create([
+            'user_id' => $user2->id,
+            'pelatihan_id' => $pelatihan->id,
+            'status' => 'pending',
+        ]);
+
+        // Request excel export with filters status=approved and search=Budi
+        $response = $this->get('/admin/exports/enrollments/excel?status=approved&search=Budi');
+        $response->assertStatus(200);
+
+        $expectedFilename = 'data-pendaftaran-approved-search-budi-' . now()->format('Y-m-d') . '.xlsx';
+        Excel::assertDownloaded($expectedFilename, function (EnrollmentExport $export) {
+            $export->collection(); // This will trigger the filtered query building in collection()
+            // We want to make sure only the matching enrollment (Budi Sudarsono) is in the collection
+            $results = $export->collection();
+            return $results->count() === 1 && $results->first()->user->name === 'Budi Sudarsono';
+        });
+    }
+
+    public function test_export_pdf_with_status_and_search_filters()
+    {
+        $dinas = Dinas::factory()->create();
+        $pelatihan = Pelatihan::create([
+            'nama' => 'Pelatihan PDF Filter Test',
+            'batch' => 'BATCH-003',
+            'deskripsi' => 'Test',
+            'dinas_id' => $dinas->id,
+            'is_active' => true,
+        ]);
+
+        $user1 = User::factory()->create([
+            'role' => 'peserta',
+            'name' => 'Citra Lestari',
+            'email' => 'citra@test.com',
+            'nik' => '1111222233334444',
+        ]);
+        PesertaProfile::create(['user_id' => $user1->id, 'nama_lengkap' => 'Citra Lestari']);
+        Enrollment::create([
+            'user_id' => $user1->id,
+            'pelatihan_id' => $pelatihan->id,
+            'status' => 'rejected',
+        ]);
+
+        $user2 = User::factory()->create([
+            'role' => 'peserta',
+            'name' => 'Dewi Persik',
+            'email' => 'dewi@test.com',
+            'nik' => '5555666677778888',
+        ]);
+        PesertaProfile::create(['user_id' => $user2->id, 'nama_lengkap' => 'Dewi Persik']);
+        Enrollment::create([
+            'user_id' => $user2->id,
+            'pelatihan_id' => $pelatihan->id,
+            'status' => 'approved',
+        ]);
+
+        // Request PDF export with filters status=rejected and search=Citra
+        $response = $this->get('/admin/exports/enrollments/pdf?status=rejected&search=Citra');
+        $response->assertStatus(200);
+
+        // Header check for PDF content type
+        $response->assertHeader('Content-Type', 'application/pdf');
+        
+        // Assert the content-disposition header matches slugged filename
+        $expectedFilename = 'data-pendaftaran-rejected-search-citra-' . now()->format('Y-m-d') . '.pdf';
+        $response->assertHeader('Content-Disposition', 'attachment; filename=' . $expectedFilename);
+    }
+
     public function test_export_without_data_still_returns_valid_file()
     {
         $response = $this->get('/admin/exports/enrollments/excel');

@@ -21,12 +21,16 @@ class EnrollmentExport extends DefaultValueBinder implements
 {
 
     protected $pelatihanId;
+    protected $status;
+    protected $search;
 
     protected $jawabanKeys = [];
 
-    public function __construct($pelatihanId = null)
+    public function __construct($pelatihanId = null, $status = null, $search = null)
     {
         $this->pelatihanId = $pelatihanId;
+        $this->status = $status;
+        $this->search = $search;
     }
 
     public function collection()
@@ -40,6 +44,18 @@ class EnrollmentExport extends DefaultValueBinder implements
 
         if ($this->pelatihanId) {
             $query->where('pelatihan_id', $this->pelatihanId);
+        }
+
+        if ($this->status) {
+            $query->where('status', $this->status);
+        }
+
+        if ($this->search) {
+            $query->whereHas('user', function ($q) {
+                $q->where('name', 'like', '%' . $this->search . '%')
+                    ->orWhere('nik', 'like', '%' . $this->search . '%')
+                    ->orWhere('email', 'like', '%' . $this->search . '%');
+            });
         }
 
         $enrollments = $query->get();
