@@ -4,6 +4,7 @@ use App\Http\Middleware\CanImpersonate;
 use App\Http\Middleware\CheckMaintenanceMode;
 use App\Http\Middleware\CheckUserActive;
 use App\Http\Middleware\LocaleMiddleware;
+use App\Http\Middleware\MustChangePassword;
 use App\Http\Middleware\RedirectIfInstalled;
 use App\Http\Middleware\RoleMiddleware;
 use App\Http\Middleware\TimezoneMiddleware;
@@ -26,11 +27,12 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->web(TimezoneMiddleware::class);
 
         $middleware->alias([
-            'role' => RoleMiddleware::class,
-            'user.active' => CheckUserActive::class,
+            'role'                  => RoleMiddleware::class,
+            'user.active'           => CheckUserActive::class,
             'redirect.if.installed' => RedirectIfInstalled::class,
-            'can.impersonate' => CanImpersonate::class,
+            'can.impersonate'       => CanImpersonate::class,
             'pendaftaran.completed' => \App\Http\Middleware\RedirectIfPendaftaranCompleted::class,
+            'must.change.password'  => MustChangePassword::class,
         ]);
 
         // Middleware untuk cek user aktif, dijalankan setelah session & auth

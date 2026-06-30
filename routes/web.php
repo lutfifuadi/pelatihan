@@ -160,7 +160,7 @@ Route::get('/api/koordinator', function (Request $request) {
 })->name('api.koordinator');
 
 // ===== DASHBOARD (Protected - via Jetstream Fortify) =====
-Route::middleware(['auth:sanctum', 'verified'])->group(function () {
+Route::middleware(['auth:sanctum', 'verified', 'must.change.password'])->group(function () {
     // Impersonate Leave
     Route::post('/impersonate/leave', [ImpersonateController::class, 'leave'])
         ->name('impersonate.leave');
@@ -266,6 +266,8 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
 
         // Users Management
         Route::get('users', [UserController::class, 'index'])->name('users.index');
+        Route::get('users/create', [UserController::class, 'create'])->name('users.create');
+        Route::post('users', [UserController::class, 'store'])->name('users.store');
         Route::post('users/reset-all-peserta', [UserController::class, 'resetAllPeserta'])->name('users.reset-all-peserta');
         Route::patch('users/{user}/toggle-status', [UserController::class, 'toggleStatus'])->name('users.toggle-status');
         Route::post('users/{user}/reset-password', [UserController::class, 'resetPassword'])->name('users.reset-password');

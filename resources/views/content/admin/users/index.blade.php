@@ -7,6 +7,7 @@ $configData = Helper::appClasses();
 @section('title', 'Manajemen User')
 
 @section('page-style')
+<meta name="csrf-token" content="{{ csrf_token() }}">
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Sora:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
 
@@ -348,8 +349,112 @@ $configData = Helper::appClasses();
             </p>
           </div>
         </div>
+        <a href="{{ route('admin.users.create') }}" class="btn btn-glow-premium px-4 py-2">
+          <i class="icon-base ti tabler-user-plus me-1"></i> Tambah User Baru
+        </a>
       </div>
     </div>
+
+    {{-- ============================================================ --}}
+    {{-- ALERT: NEW USER PASSWORD — Tampil HANYA saat ada session ini --}}
+    {{-- ============================================================ --}}
+    @if(session('new_user_password'))
+      @php
+        $newUserData = session('new_user_password');
+      @endphp
+      <div
+        x-data="{
+          show: true,
+          copied: false,
+          password: {{ json_encode($newUserData['password'] ?? '') }},
+          copyPassword() {
+            navigator.clipboard.writeText(this.password).then(() => {
+              this.copied = true;
+              setTimeout(() => { this.copied = false; }, 2500);
+            }).catch(() => {
+              // Fallback for browsers without clipboard API
+              const el = document.createElement('textarea');
+              el.value = this.password;
+              document.body.appendChild(el);
+              el.select();
+              document.execCommand('copy');
+              document.body.removeChild(el);
+              this.copied = true;
+              setTimeout(() => { this.copied = false; }, 2500);
+            });
+          }
+        }"
+        x-show="show"
+        x-transition:leave="transition ease-in duration-300"
+        x-transition:leave-start="opacity-100"
+        x-transition:leave-end="opacity-0"
+        class="mb-4 position-relative"
+        style="border-radius: 5px; background: linear-gradient(135deg, rgba(6, 182, 212, 0.12), rgba(99, 102, 241, 0.12)); border: 1px solid rgba(6, 182, 212, 0.35); padding: 1.25rem 1.5rem;"
+        role="alert"
+        aria-live="polite"
+      >
+        {{-- Header row --}}
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <div class="d-flex align-items-center gap-2">
+            <span style="width: 32px; height: 32px; border-radius: 50%; background: rgba(6,182,212,0.15); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+              <i class="icon-base ti tabler-user-check" style="color: #22d3ee; font-size: 1rem;"></i>
+            </span>
+            <span style="font-family: 'Sora', sans-serif; font-weight: 700; font-size: 0.95rem; color: #22d3ee;">
+              User Baru Berhasil Ditambahkan!
+            </span>
+          </div>
+          <button
+            type="button"
+            @click="show = false"
+            style="background: none; border: none; color: rgba(255,255,255,0.5); cursor: pointer; line-height:1; padding:4px;"
+            title="Tutup"
+            aria-label="Tutup notifikasi"
+          >
+            <i class="icon-base ti tabler-x" style="font-size: 1rem;"></i>
+          </button>
+        </div>
+
+        {{-- User Detail Row --}}
+        <div class="row g-3 mb-3">
+          <div class="col-sm-4">
+            <div style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em; color: rgba(255,255,255,0.4); margin-bottom: 4px;">Nama User</div>
+            <div style="font-weight: 600; color: #f8fafc; font-size: 0.9rem;">{{ $newUserData['name'] ?? '-' }}</div>
+          </div>
+          <div class="col-sm-4">
+            <div style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em; color: rgba(255,255,255,0.4); margin-bottom: 4px;">Email</div>
+            <div style="font-weight: 500; color: rgba(255,255,255,0.85); font-size: 0.9rem; word-break: break-all;">{{ $newUserData['email'] ?? '-' }}</div>
+          </div>
+          <div class="col-sm-4">
+            <div style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em; color: rgba(255,255,255,0.4); margin-bottom: 4px;">Password Default</div>
+            <div class="d-flex align-items-center gap-2 flex-wrap">
+              <code style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.12); padding: 3px 10px; border-radius: 4px; color: #fbbf24; font-size: 0.9rem; font-weight: 700; letter-spacing: 0.03em;">
+                {{ $newUserData['password'] ?? '-' }}
+              </code>
+              <button
+                type="button"
+                @click="copyPassword()"
+                class="btn btn-sm"
+                style="background: rgba(6,182,212,0.15); border: 1px solid rgba(6,182,212,0.3); color: #22d3ee; border-radius: 4px; padding: 3px 10px; font-size: 0.78rem; font-family: 'Outfit', sans-serif; font-weight: 600; transition: all 0.2s ease; white-space: nowrap;"
+                :style="copied ? 'background: rgba(16,185,129,0.15); border-color: rgba(16,185,129,0.3); color: #34d399;' : ''"
+                title="Salin password ke clipboard"
+              >
+                <i class="icon-base me-1" :class="copied ? 'ti tabler-check' : 'ti tabler-copy'" style="font-size: 0.8rem;"></i>
+                <span x-text="copied ? 'Tersalin!' : 'Salin Password'">Salin Password</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {{-- Warning Notice --}}
+        <div style="background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.2); border-radius: 5px; padding: 8px 14px; display: flex; align-items: flex-start; gap: 8px;">
+          <i class="icon-base ti tabler-alert-triangle" style="color: #fbbf24; font-size: 0.9rem; margin-top: 2px; flex-shrink: 0;"></i>
+          <span style="font-size: 0.8rem; color: rgba(251,191,36,0.9); line-height: 1.5;">
+            <strong>Penting:</strong> Simpan dan sampaikan informasi ini ke user bersangkutan. Password ini <strong>hanya ditampilkan sekali</strong> dan tidak dapat dilihat kembali.
+          </span>
+        </div>
+      </div>
+    @endif
+    {{-- ============================================================ --}}
 
     <!-- Alert Messages (Standard fallback) -->
     @if(session('success'))

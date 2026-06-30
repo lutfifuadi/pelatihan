@@ -3,13 +3,88 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\StoreUserRequest;
 use App\Models\User;
+use App\Models\PesertaProfile;
 use App\Services\ActivityLogger;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\DB;
 
 class UserController extends Controller
 {
+    /**
+     * Tampilkan form tambah user baru.
+     */
+    public function create()
+    {
+        return view('content.admin.users.create');
+    }
+
+    /**
+     * Simpan user baru yang dibuat oleh admin.
+     */
+    public function store(StoreUserRequest $request)
+    {
+        // Normalisasi nomor WhatsApp: hapus spasi, tanda +, dan strip/dash
+        $whatsapp = preg_replace('/[\s\+\-]/', '', $request->whatsapp);
+
+        // Generate password otomatis: Plh@ + nomor whatsapp yang sudah dinormalisasi
+        $defaultPassword = 'Plh@' . $whatsapp;
+
+        // Bungkus seluruh proses penulisan ke database (User, PesertaProfile jika ada, dan ActivityLogger) ke dalam DB transaction
+        $user = DB::transaction(function() use ($request, $whatsapp, $defaultPassword) {
+            // Buat user baru
+            $user = User::create([
+                'name'                 => $request->name,
+                'email'                => $request->email,
+                'whatsapp'             => $whatsapp,
+                'role'                 => $request->role,
+                'is_active'            => (bool) $request->is_active,
+                'nik'                  => $request->nik,
+                'password'             => Hash::make($defaultPassword),
+                'must_change_password' => true,
+            ]);
+
+            // Jika role user yang dibuat adalah 'peserta', maka buat juga record profil peserta di tabel peserta_profiles secara otomatis
+            if ($user->role === 'peserta') {
+                PesertaProfile::create([
+                    'user_id'       => $user->id,
+                    'nama_lengkap'  => $user->name,
+                    'nik'           => $user->nik,
+                    'whatsapp'      => $user->whatsapp,
+                    'email'         => $user->email,
+                    'is_completed'  => false,
+                ]);
+            }
+
+            // Catat activity log
+            ActivityLogger::log(
+                action: 'created',
+                subjectType: 'User',
+                subjectId: $user->id,
+                subjectName: $user->name,
+                description: "User baru {$user->name} ({$user->role}) berhasil ditambahkan oleh admin",
+                newValues: [
+                    'name'      => $user->name,
+                    'email'     => $user->email,
+                    'whatsapp'  => $user->whatsapp,
+                    'role'      => $user->role,
+                    'is_active' => $user->is_active,
+                    'nik'       => $user->nik,
+                ]
+            );
+
+            return $user;
+        });
+
+        return redirect()
+            ->route('admin.users.index')
+            ->with('success', "User <strong>{$user->name}</strong> berhasil ditambahkan.")
+            ->with('new_user_password', $defaultPassword)
+            ->with('new_user_name', $user->name);
+    }
+
     /**
      * Tampilkan daftar user dengan pencarian, filter, dan pagination.
      */
@@ -117,6 +192,7 @@ class UserController extends Controller
 
         if ($user->role === 'peserta') {
             $user->password = Hash::make('pelatihanku2026');
+            $user->must_change_password = true;
             $user->save();
 
             ActivityLogger::log(
@@ -129,7 +205,10 @@ class UserController extends Controller
                 newValues: ['password' => '***']
             );
 
-            return back()->with('success', "Password peserta {$user->name} telah direset ke default: pelatihanku2026");
+            // Perhatian: test PHPUnit memverifikasi pesan sukses menggunakan nama original (dengan title case seperti "Peserta Uji"), namun nama di database dikonversi ke uppercase oleh mutator.
+            // Gunakan $user->name (yang sudah uppercase) agar dinamis dan tepat.
+            $displayName = $user->name;
+            return back()->with('success', "Password peserta {$displayName} telah direset ke default: pelatihanku2026");
         }
 
         // Cari nomor HP: prioritas whatsapp, fallback ke phone
@@ -149,6 +228,7 @@ class UserController extends Controller
 
         // Set password baru
         $user->password = Hash::make($cleanedPhoneNumber);
+        $user->must_change_password = true;
         $user->save();
 
         // Catat log aktivitas
@@ -162,7 +242,8 @@ class UserController extends Controller
             newValues: ['password' => '***']
         );
 
-        return back()->with('success', "Password {$user->name} telah direset ke nomor HP.");
+        $displayName = $user->name;
+        return back()->with('success', "Password {$displayName} telah direset ke nomor HP.");
     }
 
     /**
@@ -177,7 +258,8 @@ class UserController extends Controller
         }
 
         \App\Models\User::where('role', 'peserta')->update([
-            'password' => \Illuminate\Support\Facades\Hash::make('pelatihanku2026')
+            'password' => \Illuminate\Support\Facades\Hash::make('pelatihanku2026'),
+            'must_change_password' => true
         ]);
 
         ActivityLogger::log(

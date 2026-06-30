@@ -43,6 +43,7 @@ class User extends Authenticatable
         'avatar',
         'bio',
         'is_active',
+        'must_change_password',
         'nik',
         'status_tokoh',
         'sumber_informasi',
@@ -96,6 +97,14 @@ class User extends Authenticatable
     public function pesertaProfile()
     {
         return $this->hasOne(PesertaProfile::class);
+    }
+
+    /**
+     * Mutator untuk name agar selalu huruf besar.
+     */
+    protected function setNameAttribute($value)
+    {
+        $this->attributes['name'] = mb_strtoupper($value);
     }
 
     /**
@@ -161,6 +170,7 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password'          => 'hashed',
             'is_active'         => 'boolean',
+            'must_change_password' => 'boolean',
             // status_tokoh disimpan sebagai string di DB ('0'/'1'/null),
             // namun di-cast boolean agar konsisten saat diakses di kode.
             'status_tokoh'      => 'boolean',
