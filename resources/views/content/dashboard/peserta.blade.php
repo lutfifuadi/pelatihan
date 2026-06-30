@@ -1463,6 +1463,7 @@ $configData = Helper::appClasses();
 @endsection
 
 @section('page-script')
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
   // ===== REALTIME NOTIFICATION via Echo/Reverb =====
   document.addEventListener('DOMContentLoaded', function() {
@@ -1501,16 +1502,6 @@ $configData = Helper::appClasses();
       let isQrVisible = false;
       const duration = 20; // 20 seconds
       let timeLeft = duration;
-
-      // Load qrcode library dynamically if not loaded
-      if (typeof QRCode === 'undefined') {
-        const script = document.createElement('script');
-        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js';
-        script.onload = () => {
-          // script loaded successfully
-        };
-        document.head.appendChild(script);
-      }
 
       btnToggleQr.addEventListener('click', function() {
         if (!isQrVisible) {
@@ -1560,7 +1551,7 @@ $configData = Helper::appClasses();
         const pelatihanId = "{{ $data['pelatihan']->id ?? '' }}";
         if (!pelatihanId) return;
 
-        fetch(`/api/peserta/attendance-token/${pelatihanId}`, {
+        fetch(`/peserta/attendance-token/${pelatihanId}`, {
           headers: {
             'Accept': 'application/json',
             'X-Requested-With': 'XMLHttpRequest',
@@ -1588,6 +1579,7 @@ $configData = Helper::appClasses();
         })
         .catch(err => {
           console.error('Error generating QR Token:', err);
+          showNotificationToast('Gagal memuat QR Presensi', 'Terjadi kesalahan sistem atau sesi Anda telah berakhir. Silakan refresh halaman.');
         });
       }
     }

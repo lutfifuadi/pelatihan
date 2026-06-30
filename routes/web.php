@@ -196,6 +196,7 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
     // Peserta only
     Route::middleware(['role:peserta'])->group(function () {
         Route::get('/dashboard/peserta', [DashboardController::class, 'peserta'])->name('dashboard.peserta');
+        Route::get('/peserta/attendance-token/{pelatihan_id}', [App\Http\Controllers\Api\AttendanceApiController::class, 'generatePesertaToken'])->name('dashboard.peserta.attendance-token');
 
         // Form pendaftaran di dalam dashboard/peserta/
         Route::prefix('dashboard/peserta')->name('dashboard.peserta.')->group(function () {

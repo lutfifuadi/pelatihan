@@ -9,7 +9,6 @@ Route::middleware('auth:sanctum')->group(function () {
         return $request->user();
     });
 
-    Route::get('/peserta/attendance-token/{pelatihan_id}', [App\Http\Controllers\Api\AttendanceApiController::class, 'generatePesertaToken']);
     Route::post('/panitia/check-in', [App\Http\Controllers\Api\AttendanceApiController::class, 'panitiaCheckIn']);
     Route::post('/panitia/bypass-attendance', [App\Http\Controllers\Api\AttendanceApiController::class, 'panitiaBypass']);
     Route::get('/pelatihan/{pelatihan_id}/realtime-attendance', [App\Http\Controllers\Api\AttendanceApiController::class, 'getRealtimeAttendance']);
