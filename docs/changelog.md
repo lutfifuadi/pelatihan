@@ -7,6 +7,15 @@ dan versi mengikuti [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [1.2.6] - 2026-06-30
+
+### Fixed
+- Memperbaiki akses admin ke halaman monitoring instruktur (/instruktur/pelatihan/{id}/monitoring) yang sebelumnya selalu 403 Forbidden.
+- Menambahkan role 'admin' secara eksplisit ke middleware route group monitoring instruktur.
+- Menambahkan test coverage untuk route monitoring instruktur (admin, instruktur, peserta).
+
+---
+
 ## [1.2.5] - 2026-06-30
 
 ### Fixed

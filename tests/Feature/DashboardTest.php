@@ -173,4 +173,46 @@ class DashboardTest extends TestCase
         $response = $this->get('/dashboard/koordinator');
         $response->assertRedirect();
     }
+
+    public function test_admin_can_access_instruktur_monitoring_route(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+        Sanctum::actingAs($admin);
+
+        $pelatihan = \App\Models\Pelatihan::create([
+            'nama' => 'Monitoring Test Admin',
+            'batch' => 'BATCH-MON-ADMIN',
+        ]);
+
+        $response = $this->get("/instruktur/pelatihan/{$pelatihan->id}/monitoring");
+        $response->assertStatus(200);
+    }
+
+    public function test_instruktur_can_access_instruktur_monitoring_route(): void
+    {
+        $instruktur = User::factory()->create(['role' => 'instruktur']);
+        Sanctum::actingAs($instruktur);
+
+        $pelatihan = \App\Models\Pelatihan::create([
+            'nama' => 'Monitoring Test Instruktur',
+            'batch' => 'BATCH-MON-INSTRUKTUR',
+        ]);
+
+        $response = $this->get("/instruktur/pelatihan/{$pelatihan->id}/monitoring");
+        $response->assertStatus(200);
+    }
+
+    public function test_peserta_cannot_access_instruktur_monitoring_route(): void
+    {
+        $peserta = User::factory()->create(['role' => 'peserta']);
+        Sanctum::actingAs($peserta);
+
+        $pelatihan = \App\Models\Pelatihan::create([
+            'nama' => 'Monitoring Test Peserta',
+            'batch' => 'BATCH-MON-PESERTA',
+        ]);
+
+        $response = $this->get("/instruktur/pelatihan/{$pelatihan->id}/monitoring");
+        $response->assertStatus(403);
+    }
 }

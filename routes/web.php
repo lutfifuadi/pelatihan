@@ -171,7 +171,7 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
     });
 
     // Instruktur only
-    Route::middleware(['role:instruktur'])->group(function () {
+    Route::middleware(['role:instruktur,admin'])->group(function () {
         Route::get('/dashboard/instruktur', [DashboardController::class, 'instruktur'])->name('dashboard.instruktur');
         Route::get('/instruktur/pelatihan/{pelatihan}/monitoring', function ($pelatihanId) {
             $pelatihan = \App\Models\Pelatihan::findOrFail($pelatihanId);
