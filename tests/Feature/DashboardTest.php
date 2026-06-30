@@ -129,6 +129,36 @@ class DashboardTest extends TestCase
         $response->assertStatus(403);
     }
 
+    public function test_admin_can_access_peserta_dashboard(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+        Sanctum::actingAs($admin);
+
+        $response = $this->get('/dashboard/peserta');
+        $response->assertStatus(200);
+        $response->assertViewIs('content.dashboard.peserta');
+    }
+
+    public function test_admin_can_access_instruktur_dashboard(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+        Sanctum::actingAs($admin);
+
+        $response = $this->get('/dashboard/instruktur');
+        $response->assertStatus(200);
+        $response->assertViewIs('content.dashboard.instruktur');
+    }
+
+    public function test_admin_can_access_koordinator_dashboard(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+        Sanctum::actingAs($admin);
+
+        $response = $this->get('/dashboard/koordinator');
+        $response->assertStatus(200);
+        $response->assertViewIs('content.dashboard.koordinator');
+    }
+
     public function test_guest_redirected_from_all_dashboards(): void
     {
         $response = $this->get('/dashboard/admin');
