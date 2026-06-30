@@ -81,3 +81,36 @@ jobs:
           prerelease: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  cleanup:
+    name: Cleanup Old Workflow Runs
+    runs-on: ubuntu-latest
+    needs: build-assets
+    if: always()
+    permissions:
+      actions: write
+    steps:
+      - name: Hapus workflow runs lama (simpan 5 terbaru)
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { data } = await github.rest.actions.listWorkflowRuns({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow_id: 'auto-deploy.yml',
+              per_page: 100,
+            });
+            const allRuns = data.workflow_runs.sort(
+              (a, b) => new Date(b.created_at) - new Date(a.created_at)
+            );
+            const otherRuns = allRuns.filter(run => run.id !== context.runId);
+            const runsToDelete = otherRuns.slice(4);
+            for (const run of runsToDelete) {
+              await github.rest.actions.deleteWorkflowRun({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                run_id: run.id,
+              });
+              console.log(`Deleted run: ${run.id} (${run.display_title})`);
+            }
+            console.log(`Kept: ${Math.min(4, otherRuns.length) + 1} runs, Deleted: ${runsToDelete.length} runs`);
