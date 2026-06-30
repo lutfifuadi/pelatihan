@@ -7,6 +7,16 @@ dan versi mengikuti [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [1.2.5] - 2026-06-30
+
+### Fixed
+- Memperbaiki isu QR Code presensi di dashboard peserta yang tidak muncul meskipun berstatus 'confirmed' dan siap mengikuti pelatihan.
+- Memindahkan rute pengambilan token presensi peserta dari '/api/peserta/attendance-token' ke rute web '/peserta/attendance-token' yang dilindungi Web Session Guard untuk mengatasi error 401 Unauthorized.
+- Memuat pustaka 'qrcode.min.js' secara statis di dashboard peserta untuk mencegah error race condition 'QRCode is not defined'.
+- Menambahkan error handling dan notifikasi toast yang informatif jika pengambilan token presensi gagal.
+
+---
+
 ## [latest-build] - 2026-06-12
 
 ### Added
