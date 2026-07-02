@@ -389,7 +389,7 @@ $customizerHidden = 'customizer-hide';
     border-radius: 5px !important;
     margin-bottom: 16px;
     overflow: hidden;
-    transition: all 0.3s ease;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
     box-shadow: 0 4px 20px rgba(0,0,0,0.01);
   }
   .faq-accordion-item:hover {
@@ -409,7 +409,7 @@ $customizerHidden = 'customizer-hide';
     display: flex;
     justify-content: space-between;
     align-items: center;
-    transition: all 0.3s ease;
+    transition: color 0.3s ease, background-color 0.3s ease;
   }
   .faq-accordion-button:focus {
     outline: none;
@@ -1094,8 +1094,8 @@ $customizerHidden = 'customizer-hide';
     <div class="glow-orb orb-2"></div>
     <div class="glow-orb orb-3"></div>
 
-    <div class="container position-relative py-lg-5 py-3" style="z-index: 10;">
-      <div class="row align-items-center justify-content-between py-lg-4 py-0 mt-3 mt-lg-0">
+    <div class="container position-relative pt-lg-5 pb-lg-3 pt-3 pb-2" style="z-index: 10;">
+      <div class="row align-items-center justify-content-between pt-lg-4 pb-lg-1 py-0 mt-3 mt-lg-0">
 
         <!-- LEFT: Hero Copywriting -->
         <div class="col-lg-6 text-center text-lg-start mb-5 mb-lg-0">
@@ -1313,6 +1313,89 @@ $customizerHidden = 'customizer-hide';
   @endif
 
   <!-- ============================================================
+       SECTION PENGUMUMAN PUBLIK GLOBAL — Dark Premium Design
+       ============================================================ -->
+  @if(isset($announcements) && $announcements->count() > 0)
+  <section id="pengumuman" class="py-8 py-lg-10 pb-12 pb-lg-14 position-relative" style="background: #0b0f19; border-bottom: 1px solid rgba(255, 255, 255, 0.05);">
+    <!-- Decorative side glows -->
+    <div class="position-absolute top-50 start-0 translate-middle-y" style="width: 250px; height: 250px; background: radial-gradient(circle, rgba(99, 102, 241, 0.08) 0%, transparent 70%); pointer-events: none; z-index: 0;"></div>
+    <div class="position-absolute top-50 end-0 translate-middle-y" style="width: 250px; height: 250px; background: radial-gradient(circle, rgba(245, 158, 11, 0.06) 0%, transparent 70%); pointer-events: none; z-index: 0;"></div>
+
+    <div class="container py-4 position-relative" style="z-index: 1;">
+      <!-- Section Title Header -->
+      <div class="text-center mb-5 pb-3 reveal">
+        <span class="badge bg-warning bg-opacity-10 text-warning px-4 py-2 fw-semibold mb-3" style="font-size: 0.8rem; letter-spacing: 0.05em; border: 1px solid rgba(245, 158, 11, 0.2); border-radius: 5px;">
+          📢 UPDATE INFORMASI
+        </span>
+        <h2 class="fw-bold mb-3 display-6 text-white" style="font-family: 'Sora', sans-serif;">
+          Pengumuman Terbaru
+        </h2>
+        <p class="text-white-50 fs-5 mx-auto" style="max-width: 580px;">
+          Dapatkan berita, rilis resmi, dan pengumuman penting langsung dari admin penyelenggara pelatihan.
+        </p>
+      </div>
+
+      <!-- Announcements Grid -->
+      <div class="row g-4 justify-content-center">
+        @foreach($announcements as $announcement)
+          <div class="col-md-6 col-lg-4 reveal" style="transition-delay: {{ $loop->iteration * 0.1 }}s;">
+            <div class="glass-card-premium h-100 p-4 d-flex flex-column" style="
+              border-radius: 8px;
+              background: rgba(15, 23, 42, 0.45);
+              @if($announcement->is_pinned) border: 1px solid rgba(245, 158, 11, 0.4); box-shadow: 0 0 25px rgba(245, 158, 11, 0.1); @else border: 1px solid rgba(255, 255, 255, 0.06); @endif
+            ">
+              <!-- Pin Badge / Tag -->
+              <div class="d-flex align-items-center justify-content-between mb-3">
+                @if($announcement->is_pinned)
+                  <span class="badge px-3 py-2 fw-bold" style="background: rgba(245, 158, 11, 0.2); color: #fef3c7; border: 1px solid rgba(245, 158, 11, 0.4); font-size: 0.7rem; letter-spacing: 0.05em;">
+                    📌 PENGUMUMAN PENTING
+                  </span>
+                @else
+                  <span class="badge bg-secondary bg-opacity-10 text-white-50 px-3 py-2 fw-bold" style="font-size: 0.7rem; letter-spacing: 0.05em; border: 1px solid rgba(255, 255, 255, 0.08);">
+                    INFORMASI
+                  </span>
+                @endif
+                <span class="text-white-50" style="font-size: 0.8rem;">
+                  <i class="icon-base ti tabler-clock me-1 text-warning"></i>
+                  {{ $announcement->created_at->diffForHumans() }}
+                </span>
+              </div>
+
+              <!-- Judul -->
+              <h4 class="fw-bold text-white mb-3" style="font-family: 'Sora', sans-serif; font-size: 1.2rem; line-height: 1.4;">
+                {{ $announcement->judul }}
+              </h4>
+
+              <!-- Konten -->
+              <p class="text-white-50 flex-grow-1 mb-4" style="font-size: 0.95rem; line-height: 1.6;">
+                {!! nl2br(e($announcement->konten)) !!}
+              </p>
+
+              <!-- Footer / Writer Info -->
+              <div class="pt-3 border-top d-flex align-items-center justify-content-between" style="border-top-color: rgba(255, 255, 255, 0.08) !important;">
+                <div class="d-flex align-items-center gap-2">
+                  <div style="width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, #6366f1, #d946ef); display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 700; color: #fff; font-family: 'Sora', sans-serif; border: 1.5px solid rgba(99, 102, 241, 0.3);">
+                    {{ strtoupper(substr($announcement->user->name ?? 'A', 0, 1)) }}
+                  </div>
+                  <div>
+                    <div class="text-white fw-medium" style="font-size: 0.85rem;">
+                      {{ $announcement->user->name ?? 'Administrator' }}
+                    </div>
+                    <div class="text-white-50" style="font-size: 0.75rem;">
+                      {{ $announcement->user->role ?? 'Admin' }}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        @endforeach
+      </div>
+    </div>
+  </section>
+  @endif
+
+  <!-- ============================================================
        WAVE DIVIDER (Separator)
        ============================================================ -->
   <div class="section-divider">
@@ -1503,6 +1586,44 @@ $customizerHidden = 'customizer-hide';
 
             <div class="col-md-6 col-lg-4 reveal" style="transition-delay: {{ $loop->iteration * 0.1 }}s;">
               <div class="pelatihan-card h-100">
+              @php
+                // Hitung status pendaftaran berdasarkan logic mapping di controller
+                $isPendaftaranDitutup = $pelatihan->is_ditutup;
+
+                if ($isPendaftaranDitutup) {
+                  $statusClass = 'card-status-full';
+                  $statusText = __('Pendaftaran Ditutup');
+                  $barColor = 'bg-secondary';
+                } else {
+                  $approvedCount = $pelatihan->approved_enrollments_count ?? 0;
+                  $quota = $pelatihan->kuota;
+                  $isKuotaUnlimited = is_null($quota) || $quota <= 0;
+                  $percentage = $isKuotaUnlimited ? 0 : min(100, round(($approvedCount / $quota) * 100, 1));
+
+                  if ($isKuotaUnlimited) {
+                    $statusClass = 'card-status-open';
+                    $statusText = __('Pendaftaran Dibuka');
+                    $quotaText = __('Kuota Terbuka');
+                    $barColor = 'bg-success';
+                  } elseif ($percentage >= 100) {
+                    $statusClass = 'card-status-full';
+                    $statusText = __('Kuota Penuh');
+                    $quotaText = __('Kuota Penuh');
+                    $barColor = 'bg-danger';
+                  } elseif ($percentage >= 80) {
+                    $statusClass = 'card-status-limited';
+                    $statusText = __('Sisa Sedikit');
+                    $quotaText = ($quota - $approvedCount) . ' ' . __('kursi tersisa');
+                    $barColor = 'bg-warning';
+                  } else {
+                    $statusClass = 'card-status-open';
+                    $statusText = __('Pendaftaran Dibuka');
+                    $quotaText = $approvedCount . ' / ' . $quota . ' ' . __('kursi terisi');
+                    $barColor = 'bg-success';
+                  }
+                }
+              @endphp
+
                 <!-- Cover Image -->
                 <div class="card-cover">
                   <img src="{{ $coverUrl }}" alt="{{ $pelatihan->nama }}" loading="lazy">
@@ -1530,7 +1651,7 @@ $customizerHidden = 'customizer-hide';
                     <span>{{ $lokasiText }}</span>
                   </div>
 
-                  @if(!$isKuotaUnlimited)
+                  @if(!$isKuotaUnlimited && !$isPendaftaranDitutup)
                     <div class="quota-bar">
                       <div class="quota-label">
                         <span>{{ __('Terisi') }}</span>
@@ -1549,9 +1670,15 @@ $customizerHidden = 'customizer-hide';
                     <small>Rp 0</small>
                     {{ __('Gratis') }}
                   </div>
-                  <a href="#beranda" class="btn-daftar-card">
-                    {{ __('Daftar') }} <i class="icon-base ti tabler-arrow-right"></i>
-                  </a>
+                  @if($isPendaftaranDitutup)
+                    <button class="btn-daftar-card" disabled style="opacity: 0.5; cursor: not-allowed;">
+                      {{ __('Ditutup') }}
+                    </button>
+                  @else
+                    <a href="#beranda" class="btn-daftar-card">
+                      {{ __('Daftar') }} <i class="icon-base ti tabler-arrow-right"></i>
+                    </a>
+                  @endif
                 </div>
               </div>
             </div>
@@ -1695,18 +1822,21 @@ $customizerHidden = 'customizer-hide';
       <!-- Bootstrap Accordion Redesigned -->
       <div class="row justify-content-center reveal">
         <div class="col-lg-8">
-          <div class="accordion" id="accordionFaq" x-data="{ activeIndex: null }">
+          <div class="accordion" id="accordionFaq">
             @forelse($faqs as $index => $faq)
-              <div class="faq-accordion-item border-0" x-data="{ localIndex: {{ $index }} }">
+              <div class="faq-accordion-item border-0">
                 <h3 class="accordion-header" id="heading{{ $index }}">
-                  <button class="faq-accordion-button" type="button"
-                    @click="activeIndex = (activeIndex === localIndex ? null : localIndex)" :class="{ 'collapsed': activeIndex !== localIndex }">
+                  <button class="faq-accordion-button collapsed" type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#collapse{{ $index }}"
+                    aria-expanded="false"
+                    aria-controls="collapse{{ $index }}">
                     <span class="flex-grow-1">{{ $faq->question }}</span>
-                    <i class="icon-base ti tabler-chevron-down faq-chevron" :style="activeIndex === localIndex ? 'transform: rotate(180deg)' : ''"></i>
+                    <i class="icon-base ti tabler-chevron-down faq-chevron"></i>
                   </button>
                 </h3>
                 <div id="collapse{{ $index }}" class="accordion-collapse collapse"
-                  x-show="activeIndex === localIndex" x-collapse :class="{ 'show': activeIndex === localIndex }"
+                  data-bs-parent="#accordionFaq"
                   aria-labelledby="heading{{ $index }}">
                   <div class="faq-accordion-body">
                     {{ $faq->answer }}

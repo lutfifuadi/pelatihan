@@ -16,13 +16,26 @@ class HomePage extends Controller
 
     $faqs = Faq::active()->ordered()->get();
 
+    // Ambil data pengumuman publik global
+    $announcements = \App\Models\PengumumanPelatihan::with('user')
+      ->where('is_private', false)
+      ->whereNull('pelatihan_id')
+      ->orderBy('is_pinned', 'desc')
+      ->orderBy('created_at', 'desc')
+      ->get();
+
     // Ambil pelatihan aktif untuk ditampilkan di section publik
     $pelatihans = Pelatihan::with(['dinas', 'kecamatans'])
       ->withCount(['approvedEnrollments'])
       ->where('is_active', true)
       ->orderBy('tanggal_mulai', 'asc')
       ->orderBy('batch', 'asc')
-      ->take(3)->get();
+      ->take(3)
+      ->get()
+      ->map(function ($p) {
+        $p->is_ditutup = $p->isPendaftaranDitutup();
+        return $p;
+      });
 
     seo()->staticPage('home')
          ->addJsonLd(seo()->faqPageSchema($faqs));
@@ -31,6 +44,7 @@ class HomePage extends Controller
     return view('content.landing.beranda', [
       'pageConfigs' => $pageConfigs,
       'pelatihans' => $pelatihans,
+      'announcements' => $announcements,
     ]);
   }
 }
