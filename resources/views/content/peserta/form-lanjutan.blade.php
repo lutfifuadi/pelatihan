@@ -371,8 +371,9 @@ $customizerHidden = 'customizer-hide';
         <div class="field-group">
           <div class="field-full">
             <label class="form-label form-label-custom" for="nama_lengkap">Nama Lengkap</label>
-            <input type="text" id="nama_lengkap" name="nama_lengkap" class="form-control form-control-custom"
+            <input type="text" id="nama_lengkap" name="nama_lengkap" class="form-control form-control-custom form-control-uppercase"
               x-model="form.nama_lengkap" placeholder="Nama lengkap sesuai KTP"
+              @input="form.nama_lengkap = form.nama_lengkap.toUpperCase()"
               :class="{ 'is-invalid': errors.nama_lengkap }" />
             <div class="invalid-feedback-custom" :class="{ 'd-block': errors.nama_lengkap }" x-text="errors.nama_lengkap"></div>
           </div>

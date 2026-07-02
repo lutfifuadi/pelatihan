@@ -281,7 +281,27 @@ class DashboardController extends Controller
         $data['waConfirmedAt'] = $enrollment?->wa_confirmed_at;
         $data['approvedAt'] = $enrollment?->approved_at;
 
-        return view('content.dashboard.peserta', compact('profile', 'data'));
+        $registeredPelatihanId = $profile?->pelatihan_id ?? $enrollment?->pelatihan_id;
+
+        if ($registeredPelatihanId) {
+            $announcements = \App\Models\PengumumanPelatihan::with('user')
+                ->where(function($query) use ($registeredPelatihanId) {
+                    $query->where('pelatihan_id', $registeredPelatihanId)
+                          ->orWhereNull('pelatihan_id');
+                })
+                ->orderBy('is_pinned', 'desc')
+                ->orderBy('created_at', 'desc')
+                ->get();
+        } else {
+            $announcements = \App\Models\PengumumanPelatihan::with('user')
+                ->whereNull('pelatihan_id')
+                ->where('is_private', false)
+                ->orderBy('is_pinned', 'desc')
+                ->orderBy('created_at', 'desc')
+                ->get();
+        }
+
+        return view('content.dashboard.peserta', compact('profile', 'data', 'announcements'));
     }
 
     /**

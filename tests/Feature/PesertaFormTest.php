@@ -76,7 +76,7 @@ class PesertaFormTest extends TestCase
 
         $this->assertDatabaseHas('peserta_profiles', [
             'user_id' => $this->peserta->id,
-            'nama_lengkap' => 'Peserta Updated',
+            'nama_lengkap' => 'PESERTA UPDATED',
         ]);
     }
 
@@ -316,7 +316,7 @@ class PesertaFormTest extends TestCase
 
         $response->assertStatus(200);
         $response->assertSee('Belum Mendaftar');
-        $response->assertSee('Peserta Lengkap');
+        $response->assertSee('PESERTA LENGKAP');
     }
 
     private function prepareStatusScenario(string $status, ?array $extra = []): Pelatihan
@@ -659,14 +659,14 @@ class PesertaFormTest extends TestCase
         $user = User::factory()->create([
             'role' => 'peserta',
             'email' => 'old@test.com',
-            'whatsapp' => '6281234567890',
+            'whatsapp' => '6281234567899', // Change this to be unique and different from setUp's '6281234567890'
         ]);
         
         $profile = PesertaProfile::create([
             'user_id' => $user->id,
             'nama_lengkap' => 'Nama Peserta',
             'email' => 'old@test.com',
-            'whatsapp' => '6281234567890',
+            'whatsapp' => '6281234567899',
             'link_medsos' => [],
             'is_completed' => true,
         ]);

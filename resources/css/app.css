@@ -259,3 +259,15 @@ label, .form-label, .form-control, .form-select, input, select, textarea, button
   0%, 100% { border-color: rgba(16, 185, 129, 0.6); box-shadow: 0 0 0 9999px rgba(0,0,0,0.5), 0 0 20px rgba(16, 185, 129, 0.2); }
   50% { border-color: rgba(16, 185, 129, 0.9); box-shadow: 0 0 0 9999px rgba(0,0,0,0.5), 0 0 40px rgba(16, 185, 129, 0.4); }
 }
+
+/* Global uppercase helper for forms */
+.form-control-uppercase {
+  text-transform: uppercase !important;
+}
+
+/* Fix Tailwind v4 .collapse vs Bootstrap 5 .collapse conflict */
+.collapse.show {
+  visibility: visible !important;
+}
+
+

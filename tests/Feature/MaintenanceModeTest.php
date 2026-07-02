@@ -384,6 +384,7 @@ class MaintenanceModeTest extends TestCase
             'timezone' => 'Asia/Jakarta',
             'kta_verification_mode' => 'off',
             'cooldown_period_days' => '30',
+            'cooldown_period_passed_days' => '30',
         ]);
         $response->assertSessionHasNoErrors();
         $response->assertRedirect(route('admin.settings.branding'));

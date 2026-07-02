@@ -39,6 +39,7 @@ use App\Http\Controllers\Admin\NotificationAdminController;
 use App\Http\Controllers\Admin\PelatihanController;
 use App\Http\Controllers\Admin\PesertaController;
 use App\Http\Controllers\Admin\PushNotificationController;
+use App\Http\Controllers\Admin\PengumumanController;
 use App\Http\Controllers\Admin\ScheduleController;
 use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\SystemLogController;
@@ -282,6 +283,9 @@ Route::middleware(['auth:sanctum', 'verified', 'must.change.password'])->group(f
         // Pelatihan
         Route::resource('pelatihan', PelatihanController::class);
         Route::get('pelatihan/{pelatihan}/peserta', [PelatihanController::class, 'show'])->name('pelatihan.peserta');
+
+        // Pengumuman
+        Route::resource('pengumuman', PengumumanController::class);
 
         // Presensi Baru
         Route::get('presensi', [\App\Http\Controllers\Admin\PresensiController::class, 'index'])->name('presensi.index');

@@ -16,4 +16,12 @@ class KtaMember extends Model
         'wilayah',
         'keterangan',
     ];
+
+    /**
+     * Mutator untuk nama_lengkap agar selalu huruf besar.
+     */
+    protected function setNamaLengkapAttribute($value)
+    {
+        $this->attributes['nama_lengkap'] = mb_strtoupper($value);
+    }
 }

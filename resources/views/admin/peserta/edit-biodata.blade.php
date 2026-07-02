@@ -179,7 +179,7 @@
             {{-- Nama Lengkap (Synced with name) --}}
             <div class="col-md-6">
               <label for="nama_lengkap" class="form-label">Nama Lengkap <span class="text-danger">*</span></label>
-              <input type="text" id="nama_lengkap" name="nama_lengkap" class="form-control" :class="{'is-invalid': errors.nama_lengkap}" value="{{ $profile?->nama_lengkap ?? ($user->name ?? '') }}" required>
+              <input type="text" id="nama_lengkap" name="nama_lengkap" class="form-control form-control-uppercase" :class="{'is-invalid': errors.nama_lengkap}" value="{{ $profile?->nama_lengkap ?? ($user->name ?? '') }}" oninput="this.value = this.value.toUpperCase()" required>
               <template x-if="errors.nama_lengkap">
                 <div class="invalid-feedback" x-text="errors.nama_lengkap[0]"></div>
               </template>

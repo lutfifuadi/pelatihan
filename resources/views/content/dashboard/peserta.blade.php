@@ -481,6 +481,28 @@ $configData = Helper::appClasses();
   body .content-wrapper > .container-p-y {
     padding-top: 1.5rem !important; /* Disamakan persis dengan admin dashboard (1.5rem) */
   }
+
+  /* Custom styles for announcements */
+  .badge-pinned {
+    background: linear-gradient(135deg, #ffd700, #b8860b);
+    color: #0b0f19 !important;
+    font-weight: 700;
+  }
+  .glass-card-pinned {
+    border: 1px solid rgba(212, 175, 55, 0.4) !important;
+    background: rgba(212, 175, 55, 0.05) !important;
+    box-shadow: 0 20px 60px rgba(212, 175, 55, 0.1) !important;
+  }
+  .badge-privat {
+    background: rgba(139, 92, 246, 0.15);
+    border: 1px solid rgba(139, 92, 246, 0.3);
+    color: #a78bfa !important;
+  }
+  .badge-publik {
+    background: rgba(16, 185, 129, 0.15);
+    border: 1px solid rgba(16, 185, 129, 0.3);
+    color: #34d399 !important;
+  }
 </style>
 @endsection
 
@@ -541,6 +563,55 @@ $configData = Helper::appClasses();
         </div>
       </div>
     </div>
+
+    {{-- Section Pengumuman Dashboard Peserta --}}
+    @if(isset($announcements) && $announcements->count() > 0)
+      <div class="mb-4">
+        <h5 class="fw-bold text-white mb-3 d-flex align-items-center gap-2">
+          <i class="icon-base ti tabler-bell text-primary"></i>
+          Pengumuman Terbaru
+        </h5>
+        <div class="row g-3">
+          @foreach($announcements as $announcement)
+            <div class="col-12">
+              <div class="glass-card-premium p-4 {{ $announcement->is_pinned ? 'glass-card-pinned' : '' }}">
+                <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+                  <div class="d-flex align-items-center gap-2">
+                    @if($announcement->is_pinned)
+                      <span class="badge badge-pinned px-2.5 py-1 rounded fs-xs">
+                        <i class="icon-base ti tabler-pin me-1"></i>PINNED
+                      </span>
+                    @endif
+                    @if($announcement->is_private)
+                      <span class="badge badge-privat px-2.5 py-1 rounded fs-xs">
+                        <i class="icon-base ti tabler-lock me-1"></i>Khusus Peserta
+                      </span>
+                    @else
+                      <span class="badge badge-publik px-2.5 py-1 rounded fs-xs">
+                        <i class="icon-base ti tabler-world me-1"></i>Umum / Global
+                      </span>
+                    @endif
+                  </div>
+                  <div class="text-muted fs-xs">
+                    <i class="icon-base ti tabler-clock me-1"></i>{{ $announcement->created_at->diffForHumans() }}
+                  </div>
+                </div>
+                <h6 class="fw-bold mb-2 text-white" style="font-size: 1.1rem;">{{ $announcement->judul }}</h6>
+                <div class="announcement-content text-white-50" style="font-size: 0.92rem; line-height: 1.6;">
+                  {!! nl2br(e($announcement->konten)) !!}
+                </div>
+                @if($announcement->user)
+                  <div class="mt-3 pt-3 border-top border-white-10 d-flex align-items-center gap-2 text-muted fs-xs" style="border-top: 1px solid rgba(255, 255, 255, 0.08) !important;">
+                    <i class="icon-base ti tabler-user fs-sm"></i>
+                    <span>Diposting oleh: <strong>{{ $announcement->user->name }}</strong></span>
+                  </div>
+                @endif
+              </div>
+            </div>
+          @endforeach
+        </div>
+      </div>
+    @endif
 
     <!-- ============================================================
          STATE 1: Pendaftaran Belum Lengkap

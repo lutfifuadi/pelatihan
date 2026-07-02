@@ -50,7 +50,7 @@ class AdminEditPesertaBiodataTest extends TestCase
         // Buat peserta
         $this->peserta = User::factory()->create([
             'role'  => 'peserta',
-            'name'  => 'Peserta Test',
+            'name'  => 'PESERTA TEST',
             'email' => 'peserta@test.test',
             'nik'   => '1234567890123456',
             'phone' => '081234567890',
@@ -182,13 +182,13 @@ class AdminEditPesertaBiodataTest extends TestCase
         // Verifikasi data tersimpan di DB
         $this->assertDatabaseHas('users', [
             'id'    => $this->peserta->id,
-            'name'  => 'Peserta Updated Lengkap',
+            'name'  => 'PESERTA UPDATED LENGKAP',
             'email' => 'peserta_update@test.test',
         ]);
 
         $this->assertDatabaseHas('peserta_profiles', [
             'user_id'      => $this->peserta->id,
-            'nama_lengkap' => 'Peserta Updated Lengkap',
+            'nama_lengkap' => 'PESERTA UPDATED LENGKAP',
         ]);
     }
 
@@ -247,7 +247,7 @@ class AdminEditPesertaBiodataTest extends TestCase
         // Cek user data
         $this->assertDatabaseHas('users', [
             'id'    => $this->peserta->id,
-            'name'  => 'Budi Santoso',
+            'name'  => 'BUDI SANTOSO',
             'email' => 'budi.updated@test.test',
             'nik'   => '3201010101010001',
         ]);
@@ -255,7 +255,7 @@ class AdminEditPesertaBiodataTest extends TestCase
         // Cek profile data
         $this->assertDatabaseHas('peserta_profiles', [
             'user_id'             => $this->peserta->id,
-            'nama_lengkap'        => 'Budi Santoso',
+            'nama_lengkap'        => 'BUDI SANTOSO',
             'jenis_kelamin'       => 'Laki-laki',
             'tempat_lahir'        => 'Jakarta',
             'pendidikan_terakhir' => 'S1',
@@ -712,7 +712,7 @@ class AdminEditPesertaBiodataTest extends TestCase
         // Buat profile awal
         PesertaProfile::create([
             'user_id'      => $this->peserta->id,
-            'nama_lengkap' => 'Nama Awal',
+            'nama_lengkap' => 'NAMA AWAL',
         ]);
 
         $payload = [
@@ -730,12 +730,12 @@ class AdminEditPesertaBiodataTest extends TestCase
 
         // Pastikan model user TIDAK terubah/tidak diupdate fields wajib jika tidak dikirim
         $this->peserta->refresh();
-        $this->assertEquals('Peserta Test', $this->peserta->name);
+        $this->assertEquals('PESERTA TEST', $this->peserta->name);
         $this->assertEquals('peserta@test.test', $this->peserta->email);
 
         // Pastikan profile terupdate alamatnya namun nama_lengkap tetap
         $profile = $this->peserta->pesertaProfile;
-        $this->assertEquals('Nama Awal', $profile->nama_lengkap);
+        $this->assertEquals('NAMA AWAL', $profile->nama_lengkap);
         $this->assertEquals('Jl. Baru No. 100', $profile->alamat_ktp);
         $this->assertEquals('005', $profile->rt);
         $this->assertEquals('006', $profile->rw);
@@ -781,10 +781,10 @@ class AdminEditPesertaBiodataTest extends TestCase
         $response->assertSessionHas('success');
 
         $this->peserta->refresh();
-        $this->assertEquals('Nama Lengkap Baru', $this->peserta->name);
+        $this->assertEquals('NAMA LENGKAP BARU', $this->peserta->name);
 
         $profile = $this->peserta->pesertaProfile;
-        $this->assertEquals('Nama Lengkap Baru', $profile->nama_lengkap);
+        $this->assertEquals('NAMA LENGKAP BARU', $profile->nama_lengkap);
         $this->assertEquals('Laki-laki', $profile->jenis_kelamin);
         $this->assertEquals('Surabaya', $profile->tempat_lahir);
     }

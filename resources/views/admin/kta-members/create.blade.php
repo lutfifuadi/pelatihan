@@ -21,7 +21,7 @@
           </div>
           <div class="mb-3">
             <label for="nama_lengkap" class="form-label">Nama Lengkap <span class="text-danger">*</span></label>
-            <input type="text" class="form-control @error('nama_lengkap') is-invalid @enderror" id="nama_lengkap" name="nama_lengkap" value="{{ old('nama_lengkap') }}" placeholder="Masukkan nama lengkap" required>
+            <input type="text" class="form-control form-control-uppercase @error('nama_lengkap') is-invalid @enderror" id="nama_lengkap" name="nama_lengkap" value="{{ old('nama_lengkap') }}" placeholder="Masukkan nama lengkap" oninput="this.value = this.value.toUpperCase()" required>
             @error('nama_lengkap') <div class="invalid-feedback">{{ $message }}</div> @enderror
           </div>
           <div class="mb-3">

@@ -216,7 +216,7 @@ class ExportEnrollmentTest extends TestCase
         $export->collection();
         $row = $export->map($enrollment);
 
-        $this->assertEquals('John Doe', $row[0]);
+        $this->assertEquals('JOHN DOE', $row[0]);
         $this->assertEquals('3273010101950001', $row[1]);
         $this->assertEquals('6281234567890', $row[2]);
         $this->assertEquals('john@example.com', $row[3]);
@@ -664,7 +664,7 @@ class ExportEnrollmentTest extends TestCase
             $export->collection(); // This will trigger the filtered query building in collection()
             // We want to make sure only the matching enrollment (Budi Sudarsono) is in the collection
             $results = $export->collection();
-            return $results->count() === 1 && $results->first()->user->name === 'Budi Sudarsono';
+            return $results->count() === 1 && $results->first()->user->name === 'BUDI SUDARSONO';
         });
     }
 

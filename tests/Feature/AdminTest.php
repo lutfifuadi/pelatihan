@@ -318,20 +318,20 @@ class AdminTest extends TestCase
         // Search match
         $response = $this->get('/admin/users?search=John');
         $response->assertStatus(200);
-        $response->assertSee('John Doe Search');
+        $response->assertSee('JOHN DOE SEARCH');
         $response->assertDontSee('Jane Smith');
 
         // Role filter
         $response = $this->get('/admin/users?role=instruktur');
         $response->assertStatus(200);
-        $response->assertSee('John Doe Search');
+        $response->assertSee('JOHN DOE SEARCH');
         $response->assertDontSee('Jane Smith');
 
         // Status filter
         $response = $this->get('/admin/users?status=0');
         $response->assertStatus(200);
-        $response->assertSee('Jane Smith');
-        $response->assertDontSee('John Doe Search');
+        $response->assertSee('JANE SMITH');
+        $response->assertDontSee('JOHN DOE SEARCH');
     }
 
     public function test_admin_can_toggle_user_status(): void
@@ -384,27 +384,27 @@ class AdminTest extends TestCase
     public function test_admin_can_reset_peserta_password_to_default_value(): void
     {
         $peserta = User::factory()->create([
-            'name' => 'Peserta Uji',
+            'name' => 'PESERTA UJI',
             'role' => 'peserta',
             'password' => Hash::make('oldpassword'),
         ]);
 
         $response = $this->post(route('admin.users.reset-password', $peserta));
         $response->assertRedirect();
-        $response->assertSessionHas('success', 'Password peserta Peserta Uji telah direset ke default: pelatihanku2026');
+        $response->assertSessionHas('success', 'Password peserta PESERTA UJI telah direset ke default: pelatihanku2026');
 
         $this->assertTrue(Hash::check('pelatihanku2026', $peserta->fresh()->password));
 
         $this->assertDatabaseHas('activity_logs', [
             'subject_id' => $peserta->id,
-            'description' => 'Password peserta Peserta Uji telah direset ke default: pelatihanku2026',
+            'description' => 'Password peserta PESERTA UJI telah direset ke default: pelatihanku2026',
         ]);
     }
 
     public function test_admin_can_reset_non_peserta_password_to_phone_number(): void
     {
         $instruktur = User::factory()->create([
-            'name' => 'Instruktur Uji',
+            'name' => 'INSTRUKTUR UJI',
             'role' => 'instruktur',
             'whatsapp' => '081234567890',
             'password' => Hash::make('oldpassword'),
@@ -412,13 +412,13 @@ class AdminTest extends TestCase
 
         $response = $this->post(route('admin.users.reset-password', $instruktur));
         $response->assertRedirect();
-        $response->assertSessionHas('success', 'Password Instruktur Uji telah direset ke nomor HP.');
+        $response->assertSessionHas('success', 'Password INSTRUKTUR UJI telah direset ke nomor HP.');
 
         $this->assertTrue(Hash::check('081234567890', $instruktur->fresh()->password));
 
         $this->assertDatabaseHas('activity_logs', [
             'subject_id' => $instruktur->id,
-            'description' => 'Password user Instruktur Uji telah direset ke nomor HP',
+            'description' => 'Password user INSTRUKTUR UJI telah direset ke nomor HP',
         ]);
     }
 

@@ -52,6 +52,15 @@ class PelatihanController extends Controller
             $enrollmentCooldown = $this->enrollmentCooldownService->getEnrollmentStatus(auth()->user(), $pelatihan);
         }
 
-        return view('content.pelatihan.show', compact('pelatihan', 'is_ditutup', 'enrollmentCooldown'));
+        $announcements = \App\Models\PengumumanPelatihan::with('user')->where('is_private', false)
+            ->where(function($query) use ($pelatihan) {
+                $query->where('pelatihan_id', $pelatihan->id)
+                      ->orWhereNull('pelatihan_id');
+            })
+            ->orderBy('is_pinned', 'desc')
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return view('content.pelatihan.show', compact('pelatihan', 'is_ditutup', 'enrollmentCooldown', 'announcements'));
     }
 }

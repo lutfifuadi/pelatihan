@@ -1,5 +1,8 @@
 <?php
 
+require __DIR__ . '/api_pengumuman.php';
+
+
 use App\Http\Controllers\Api\PushSubscriptionController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;

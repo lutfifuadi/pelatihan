@@ -243,12 +243,12 @@ class KoordinatorToggleStatusTest extends TestCase
     {
         $admin = $this->createAdmin();
         $active = $this->createKoordinator(['is_active' => true, 'name' => 'Aktif Koordinator']);
-        $inactive = $this->createKoordinator(['is_active' => false, 'name' => 'Pending Koordinator']);
+        $inactive = $this->createKoordinator(['is_active' => false, 'name' => 'PENDING KOORDINATOR']);
 
         $response = $this->actingAs($admin)->get(route('admin.koordinator.pending'));
 
         $response->assertStatus(200)
-            ->assertSee('Pending Koordinator')
+            ->assertSee('PENDING KOORDINATOR')
             ->assertDontSee('Aktif Koordinator');
     }
 

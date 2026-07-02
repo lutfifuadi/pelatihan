@@ -109,6 +109,44 @@ $isDitutup = $is_ditutup ?? false;
     font-variant-numeric: tabular-nums;
     font-weight: 700;
   }
+
+  .glass-card-premium {
+    background: rgba(15, 23, 42, 0.25) !important;
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+    border-radius: 8px !important;
+    color: #ffffff;
+    transition: transform 0.3s ease, border-color 0.3s ease;
+  }
+  .glass-card-premium:hover {
+    transform: translateY(-2px);
+    border-color: rgba(255, 255, 255, 0.15) !important;
+  }
+  .glass-card-pinned {
+    border: 1px solid rgba(212, 175, 55, 0.4) !important;
+    background: rgba(212, 175, 55, 0.05) !important;
+    box-shadow: 0 20px 60px rgba(212, 175, 55, 0.1);
+  }
+  .glass-card-pinned:hover {
+    border-color: rgba(212, 175, 55, 0.7) !important;
+  }
+  .badge-pinned {
+    background: linear-gradient(135deg, #ffd700, #b8860b);
+    color: #0b0f19 !important;
+    font-weight: 700;
+  }
+  .badge-global {
+    background: rgba(59, 130, 246, 0.2);
+    border: 1px solid rgba(59, 130, 246, 0.4);
+    color: #93c5fd !important;
+  }
+  .badge-kelas {
+    background: rgba(16, 185, 129, 0.2);
+    border: 1px solid rgba(16, 185, 129, 0.4);
+    color: #a7f3d0 !important;
+  }
 </style>
 @endsection
 
@@ -364,5 +402,52 @@ $isDitutup = $is_ditutup ?? false;
             @endif
         @endif
     </div>
+
+    {{-- Section Pengumuman Pelatihan --}}
+    @if(isset($announcements) && $announcements->count() > 0)
+        <hr class="my-5" style="border-color: rgba(255, 255, 255, 0.1);">
+        <div class="mt-4">
+            <h3 class="fw-bold mb-4" style="color: #ffffff;">Pengumuman Pelatihan</h3>
+            <div class="row g-4">
+                @foreach($announcements as $announcement)
+                    <div class="col-12">
+                        <div class="glass-card-premium p-4 {{ $announcement->is_pinned ? 'glass-card-pinned' : '' }}">
+                            <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+                                <div class="d-flex align-items-center gap-2">
+                                    @if($announcement->is_pinned)
+                                        <span class="badge badge-pinned px-2.5 py-1 rounded fs-xs">
+                                            <i class="icon-base ti tabler-pin me-1"></i>PINNED
+                                        </span>
+                                    @endif
+                                    @if($announcement->pelatihan_id)
+                                        <span class="badge badge-kelas px-2.5 py-1 rounded fs-xs">
+                                            <i class="icon-base ti tabler-book me-1"></i>Pelatihan
+                                        </span>
+                                    @else
+                                        <span class="badge badge-global px-2.5 py-1 rounded fs-xs">
+                                            <i class="icon-base ti tabler-world me-1"></i>Umum / Global
+                                        </span>
+                                    @endif
+                                </div>
+                                <div class="text-muted fs-xs">
+                                    <i class="icon-base ti tabler-clock me-1"></i>{{ $announcement->created_at->diffForHumans() }}
+                                </div>
+                            </div>
+                            <h4 class="fw-bold mb-2 text-white">{{ $announcement->judul }}</h4>
+                            <div class="announcement-content text-white-50" style="font-size: 0.95rem; line-height: 1.6;">
+                                {!! nl2br(e($announcement->konten)) !!}
+                            </div>
+                            @if($announcement->user)
+                                <div class="mt-3 pt-3 border-top border-white-10 d-flex align-items-center gap-2 text-muted fs-xs" style="border-top: 1px solid rgba(255, 255, 255, 0.08) !important;">
+                                    <i class="icon-base ti tabler-user fs-sm"></i>
+                                    <span>Diposting oleh: <strong>{{ $announcement->user->name }}</strong></span>
+                                </div>
+                            @endif
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+        </div>
+    @endif
 </div>
 @endsection

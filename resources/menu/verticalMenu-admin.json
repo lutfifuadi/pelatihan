@@ -117,6 +117,12 @@
       "slug": "admin.certificates.index"
     },
     {
+      "url": "/admin/pengumuman",
+      "name": "Pengumuman Pelatihan",
+      "icon": "menu-icon icon-base ti tabler-speakerphone",
+      "slug": "admin.pengumuman.index"
+    },
+    {
       "menuHeader": "Tampilan & Konten"
     },
     {
