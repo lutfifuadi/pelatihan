@@ -1,11 +1,10 @@
 /**
  * PWA Service Worker - Aplikasi Pelatihan
- * Version 1.0.0
+ * Version 1.1.0
  */
 
-const CACHE_NAME = 'pelatihanku-pwa-v2';
+const CACHE_NAME = 'pelatihanku-pwa-v3';
 const STATIC_ASSETS = [
-  '/',
   '/offline',
   '/manifest.json',
   '/icons/icon.svg',
@@ -14,7 +13,7 @@ const STATIC_ASSETS = [
   '/icons/badge-72x72.png',
 ];
 
-// Install event - cache static assets
+// Install event - cache critical offline assets
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
@@ -62,36 +61,77 @@ const isStaticAsset = (request) => {
   return ['css', 'js', 'png', 'jpg', 'jpeg', 'gif', 'svg', 'webp', 'ico', 'woff', 'woff2', 'ttf', 'eot'].includes(ext);
 };
 
-// Helper: check if request is for an API endpoint
-const isApiRequest = (request) => {
-  const url = new URL(request.url);
-  return url.pathname.startsWith('/api/');
-};
-
-// Fetch event - network first for HTML, cache first for assets
+// Fetch event - carefully managed strategies
 self.addEventListener('fetch', (event) => {
   const request = event.request;
 
-  // Only handle GET requests
-  if (request.method !== 'GET') return;
+  // 1. Only handle GET requests
+  if (request.method !== 'GET') {
+    return;
+  }
 
-  // Skip non-HTTP(S) requests
-  if (!request.url.startsWith('http')) return;
+  // 2. Only handle HTTP/HTTPS requests (skip chrome-extension, blob, data, etc.)
+  if (!request.url.startsWith('http://') && !request.url.startsWith('https://')) {
+    return;
+  }
 
-  // Handle API requests with network-only strategy
-  if (isApiRequest(request)) {
+  const url = new URL(request.url);
+
+  // 3. Skip dev / hot reload / livewire polling requests
+  if (
+    url.pathname.startsWith('/@vite') ||
+    url.pathname.startsWith('/__vite_ping') ||
+    url.pathname.includes('/livewire/')
+  ) {
+    return;
+  }
+
+  // 4. Handle API requests with network-first and graceful offline JSON response
+  if (url.pathname.startsWith('/api/')) {
+    event.respondWith(
+      fetch(request).catch(() => {
+        return new Response(
+          JSON.stringify({
+            success: false,
+            message: 'Anda sedang offline. Periksa koneksi internet Anda.',
+          }),
+          {
+            status: 503,
+            statusText: 'Service Unavailable',
+            headers: { 'Content-Type': 'application/json' },
+          }
+        );
+      })
+    );
+    return;
+  }
+
+  // 5. Navigation requests: Network First, fallback to cached offline page
+  if (isNavigation(request)) {
     event.respondWith(
       fetch(request)
         .then((response) => {
           return response;
         })
-        .catch(() => {
+        .catch(async () => {
+          // Attempt to return cached offline page
+          try {
+            const cache = await caches.open(CACHE_NAME);
+            const cachedOffline = await cache.match('/offline');
+            if (cachedOffline) {
+              return cachedOffline;
+            }
+          } catch (e) {
+            console.warn('[PWA] Failed to retrieve cached offline page:', e);
+          }
+
+          // Fallback static offline HTML if offline view not available
           return new Response(
-            JSON.stringify({ error: 'Anda sedang offline. Periksa koneksi internet Anda.' }),
+            '<!DOCTYPE html><html lang="id"><head><meta charset="utf-8"><title>Offline - Pelatihanku</title><meta name="viewport" content="width=device-width, initial-scale=1.0"><style>body{font-family:system-ui,-apple-system,sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;background:#1a1d29;color:#fff;text-align:center;padding:20px}.card{background:#232635;border:1px solid #2e3140;padding:2rem;border-radius:1rem;max-width:400px;width:100%}h1{font-size:1.5rem;margin-top:0;color:#7367f0}p{color:#8e92a4;line-height:1.5}button{background:#7367f0;color:#fff;border:none;padding:10px 20px;border-radius:8px;cursor:pointer;font-weight:600;margin-top:1rem}</style></head><body><div class="card"><h1>Koneksi Terputus</h1><p>Anda sedang offline. Periksa koneksi internet Anda lalu coba lagi.</p><button onclick="window.location.reload()">Coba Lagi</button></div></body></html>',
             {
               status: 503,
               statusText: 'Service Unavailable',
-              headers: { 'Content-Type': 'application/json' },
+              headers: { 'Content-Type': 'text/html; charset=utf-8' },
             }
           );
         })
@@ -99,67 +139,43 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Navigation requests: Network First, fallback to cache, then offline page
-  if (isNavigation(request)) {
-    event.respondWith(
-      fetch(request)
-        .then((response) => {
-          // Cache the latest version of this page
-          const clone = response.clone();
-          caches.open(CACHE_NAME).then((cache) => {
-            cache.put(request, clone);
-          });
-          return response;
-        })
-        .catch(() => {
-          return caches.match(request).then((cached) => {
-            if (cached) return cached;
-            // Return offline page
-            return caches.match('/offline').then((offlinePage) => {
-              return offlinePage || new Response(
-                '<html><body><h1>Offline</h1><p>Koneksi terputus. Silakan coba lagi.</p></body></html>',
-                { headers: { 'Content-Type': 'text/html; charset=utf-8' } }
-              );
-            });
-          });
-        })
-    );
-    return;
-  }
-
-  // Static assets: Cache First, then network
+  // 6. Static assets: Cache First, fallback to Network
   if (isStaticAsset(request)) {
     event.respondWith(
       caches.match(request).then((cached) => {
-        if (cached) return cached;
-        return fetch(request).then((response) => {
-          // Cache the new asset
-          const clone = response.clone();
-          caches.open(CACHE_NAME).then((cache) => {
-            cache.put(request, clone);
+        if (cached) {
+          return cached;
+        }
+
+        return fetch(request)
+          .then((response) => {
+            // Only cache valid basic or CORS responses with status 200
+            if (response && response.status === 200 && (response.type === 'basic' || response.type === 'cors')) {
+              const clone = response.clone();
+              caches.open(CACHE_NAME).then((cache) => {
+                cache.put(request, clone).catch((err) => {
+                  console.warn('[PWA] Failed to cache asset:', request.url, err);
+                });
+              }).catch(() => {});
+            }
+            return response;
+          })
+          .catch(() => {
+            // Return placeholder for images when offline
+            if (request.url.match(/\.(png|jpg|jpeg|gif|svg|webp|ico)$/i)) {
+              return new Response(
+                '<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200"><rect fill="#1a1d29" width="200" height="200"/><text fill="#7367f0" font-size="18" text-anchor="middle" x="100" y="105">Offline</text></svg>',
+                { headers: { 'Content-Type': 'image/svg+xml' } }
+              );
+            }
+            return new Response('', { status: 404, statusText: 'Not Found' });
           });
-          return response;
-        }).catch(() => {
-          // Return a placeholder for failed assets
-          if (request.url.match(/\.(png|jpg|jpeg|gif|svg|webp|ico)$/)) {
-            return new Response(
-              '<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200"><rect fill="#1a1d29" width="200" height="200"/><text fill="#7367f0" font-size="20" text-anchor="middle" x="100" y="110">Offline</text></svg>',
-              { headers: { 'Content-Type': 'image/svg+xml' } }
-            );
-          }
-          return new Response('', { status: 404 });
-        });
       })
     );
     return;
   }
 
-  // Default: Network only for everything else
-  event.respondWith(
-    fetch(request).catch(() => {
-      return caches.match(request);
-    })
-  );
+  // 7. All other requests: let the browser handle naturally (no event.respondWith)
 });
 
 // Background sync for pending notifications
