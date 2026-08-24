@@ -109,7 +109,9 @@
   {{-- ===== End PWA Helper ===== --}}
 
   {{-- ===== Push Notification: Client-side subscription ===== --}}
-  @vite(['resources/js/push-subscription.js'])
+  @if(feature('fitur_push_notification'))
+    @vite(['resources/js/push-subscription.js'])
+  @endif
   {{-- ===== End Push Notification ===== --}}
 
   <!-- Include Scripts -->
@@ -137,10 +139,12 @@
   {{-- ===== End PWA SW Registration ===== --}}
 
   {{-- Push Notification Overlay (hidden by default, shown after delay) --}}
+  @if(feature('fitur_push_notification'))
   <div id="push-notification-overlay" class="hidden fixed inset-0 z-[9999] flex items-center justify-center p-4"
        style="background: rgba(0, 0, 0, 0.6);">
     <x-push-subscription-toggle />
   </div>
+  @endif
   {{-- ===== End Push Notification Overlay ===== --}}
 
 </body>

@@ -267,6 +267,10 @@ $customizerHidden = 'customizer-hide';
   .text-white-50-custom {
     color: rgba(255, 255, 255, 0.5) !important;
   }
+  .hover-white:hover {
+    color: #ffffff !important;
+    text-decoration: underline !important;
+  }
 </style>
 @endsection
 
@@ -323,8 +327,13 @@ $customizerHidden = 'customizer-hide';
 
       <!-- Input Password -->
       <div class="mb-3 form-password-toggle">
-        <div class="d-flex justify-content-between mb-1">
-          <label class="form-label form-label-custom" for="login-password">Password</label>
+        <div class="d-flex justify-content-between align-items-center mb-1">
+          <label class="form-label form-label-custom mb-0" for="login-password">Password</label>
+          @if (Route::has('password.request'))
+          <a href="{{ route('password.request') }}" class="small fw-semibold text-warning text-decoration-none hover-white">
+            Lupa Password?
+          </a>
+          @endif
         </div>
         <div class="input-group input-group-merge @error('password') is-invalid @enderror">
           <input type="password" id="login-password" class="form-control form-control-custom @error('password') is-invalid @enderror"
@@ -337,19 +346,12 @@ $customizerHidden = 'customizer-hide';
         @enderror
       </div>
 
-      <!-- Remember Me & Forgot Password -->
+      <!-- Remember Me -->
       <div class="mb-4">
-        <div class="d-flex justify-content-between align-items-center">
-          <div class="form-check mb-0">
-            <input class="form-check-input form-check-input-custom" type="checkbox" id="remember-me" name="remember"
-              {{ old('remember') ? 'checked' : '' }} />
-            <label class="form-check-label text-white-50-custom small" for="remember-me"> Ingat Saya </label>
-          </div>
-          @if (Route::has('password.request'))
-          <a href="{{ route('password.request') }}" class="small fw-semibold text-warning text-decoration-none hover-white">
-            Lupa Password?
-          </a>
-          @endif
+        <div class="form-check mb-0">
+          <input class="form-check-input form-check-input-custom" type="checkbox" id="remember-me" name="remember"
+            {{ old('remember') ? 'checked' : '' }} />
+          <label class="form-check-label text-white-50-custom small" for="remember-me"> Ingat Saya </label>
         </div>
       </div>
 
