@@ -45,6 +45,11 @@ class MustChangePassword
     {
         // Hanya cek jika user sudah login
         if (Auth::check()) {
+            // Lewati jika sedang dalam sesi impersonasi admin
+            if ($request->session()->has('impersonator_id')) {
+                return $next($request);
+            }
+
             $user = Auth::user();
 
             // Jika user harus ganti password

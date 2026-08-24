@@ -11,6 +11,15 @@ use Illuminate\Support\Facades\Auth;
 class ImpersonateController extends Controller
 {
     /**
+     * Handle GET request on impersonate route to prevent 405 Method Not Allowed.
+     */
+    public function handleGet($user)
+    {
+        return redirect()->route('admin.users.index')
+            ->with('warning', 'Fitur impersonate tidak dapat diakses langsung via URL. Silakan gunakan tombol resmi di tabel pengguna.');
+    }
+
+    /**
      * Impersonate target user.
      *
      * @param  \Illuminate\Http\Request  $request
@@ -21,8 +30,13 @@ class ImpersonateController extends Controller
     {
         $admin = Auth::user();
 
-        // Simpan ID admin yang sedang login ke session impersonator_id
-        session(['impersonator_id' => $admin->id]);
+        if (!$admin || $admin->role !== 'admin' || !$admin->is_active) {
+            return redirect()->back()->with('error', 'Akses ditolak. Anda harus menjadi admin yang aktif untuk melakukan impersonasi.');
+        }
+
+        // Simpan data admin asli sebelum switch login
+        $adminId = $admin->id;
+        $adminName = $admin->name;
 
         // Tulis log aktivitas menggunakan App\Services\ActivityLogger
         ActivityLogger::log(
@@ -30,14 +44,27 @@ class ImpersonateController extends Controller
             subjectType: 'User',
             subjectId: $user->id,
             subjectName: $user->name,
-            description: "Admin {$admin->name} melakukan impersonasi sebagai {$user->name} ({$user->role})"
+            description: "Admin {$adminName} melakukan impersonasi sebagai {$user->name} ({$user->role})"
         );
 
-        // Lakukan login dengan target user
-        Auth::guard('web')->loginUsingId($user->id);
+        // Lakukan login target user pada guard web
+        Auth::guard('web')->login($user);
 
-        // Regenerasi session
-        $request->session()->regenerate();
+        // Perbarui user resolver pada current request lifecycle
+        $request->setUserResolver(fn () => $user);
+
+        // Simpan data session impersonasi & sinkronkan hash password untuk AuthenticateSession / Sanctum
+        $session = $request->session();
+        $session->put([
+            'impersonator_id'       => $adminId,
+            'impersonator_name'     => $adminName,
+            'password_hash_web'     => $user->getAuthPassword(),
+            'password_hash_sanctum' => $user->getAuthPassword(),
+            'active_role'           => $user->role,
+        ]);
+
+        // Simpan session secara eksplisit sebelum redirect
+        $session->save();
 
         // Redirect ke dashboard yang sesuai berdasarkan role target user
         return match ($user->role) {
@@ -49,35 +76,45 @@ class ImpersonateController extends Controller
     }
 
     /**
-     * Stop impersonating and leave to admin session.
+     * Stop impersonating and return to admin session.
      *
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\RedirectResponse
      */
     public function leave(Request $request)
     {
-        // Pastikan session('impersonator_id') ada
-        if (!session()->has('impersonator_id')) {
+        $adminId = session('impersonator_id');
+
+        if (!$adminId) {
             return redirect()->to('/home')->with('error', 'Tidak ada session impersonasi yang aktif.');
         }
 
-        $adminId = session('impersonator_id');
         $admin = User::find($adminId);
 
         if (!$admin) {
-            return redirect()->to('/home')->with('error', 'Admin tidak ditemukan.');
+            session()->forget(['impersonator_id', 'impersonator_name']);
+            return redirect()->route('login')->with('error', 'Admin tidak ditemukan.');
         }
 
-        // Login kembali dengan admin asli
-        Auth::guard('web')->loginUsingId($adminId);
+        // Login kembali dengan akun admin asli
+        Auth::guard('web')->login($admin);
 
-        // Hapus impersonator_id dari session
-        session()->forget('impersonator_id');
+        // Perbarui user resolver pada current request lifecycle
+        $request->setUserResolver(fn () => $admin);
 
-        // Regenerasi session
-        $request->session()->regenerate();
+        // Bersihkan session impersonasi & kembalikan hash password admin
+        $session = $request->session();
+        $session->forget(['impersonator_id', 'impersonator_name']);
+        $session->put([
+            'password_hash_web'     => $admin->getAuthPassword(),
+            'password_hash_sanctum' => $admin->getAuthPassword(),
+            'active_role'           => $admin->role,
+        ]);
 
-        // Redirect ke /admin/users dengan pesan sukses "Kembali ke Panel Administrator"
+        // Simpan session secara eksplisit
+        $session->save();
+
+        // Redirect ke /admin/users dengan notifikasi sukses
         return redirect()->route('admin.users.index')->with('success', 'Kembali ke Panel Administrator');
     }
 }

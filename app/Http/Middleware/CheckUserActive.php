@@ -18,6 +18,11 @@ class CheckUserActive
     public function handle(Request $request, Closure $next): Response
     {
         if (Auth::check() && !Auth::user()->is_active) {
+            // Jika sedang dalam sesi impersonasi admin, tetap izinkan akses inspeksi
+            if ($request->session()->has('impersonator_id')) {
+                return $next($request);
+            }
+
             // Koordinator nonaktif tetap bisa melanjutkan request, dengan flag popup
             if (Auth::user()->role === 'koordinator') {
                 session()->flash('account_disabled', true);
