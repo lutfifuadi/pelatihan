@@ -134,6 +134,7 @@
         "admin.settings.landing",
         "admin.settings.seo",
         "admin.settings.maintenance",
+        "admin.settings.fitur",
         "admin.faqs"
       ],
       "submenu": [
@@ -156,6 +157,12 @@
           "slug": "admin.settings.seo"
         },
         {
+          "url": "/admin/settings/fitur",
+          "name": "Aktivasi Fitur",
+          "icon": "menu-icon icon-base ti tabler-toggle-right",
+          "slug": "admin.settings.fitur"
+        },
+        {
           "url": "/admin/faqs",
           "name": "FAQ",
           "icon": "menu-icon icon-base ti tabler-help-circle",
@@ -171,6 +178,12 @@
     },
     {
       "menuHeader": "Konfigurasi Sistem"
+    },
+    {
+      "url": "/admin/fitur",
+      "name": "Aktivasi Fitur",
+      "icon": "menu-icon icon-base ti tabler-toggle-right",
+      "slug": "admin.fitur.index"
     },
     {
       "url": "#",

@@ -33,6 +33,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'can.impersonate'       => CanImpersonate::class,
             'pendaftaran.completed' => \App\Http\Middleware\RedirectIfPendaftaranCompleted::class,
             'must.change.password'  => MustChangePassword::class,
+            'feature'               => \App\Http\Middleware\EnsureFeatureEnabled::class,
         ]);
 
         // Middleware untuk cek user aktif, dijalankan setelah session & auth

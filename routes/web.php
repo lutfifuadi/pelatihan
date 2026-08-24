@@ -29,6 +29,7 @@ use App\Http\Controllers\Admin\DinasController;
 use App\Http\Controllers\Admin\EnrollmentController;
 use App\Http\Controllers\Admin\ExportController;
 use App\Http\Controllers\Admin\FaqController;
+use App\Http\Controllers\Admin\FeatureToggleController;
 use App\Http\Controllers\Admin\FormFieldConfigController;
 use App\Http\Controllers\Admin\FormOptionController;
 use App\Http\Controllers\Admin\ImpersonateController;
@@ -71,9 +72,11 @@ Route::get('/lang/{locale}', [LanguageController::class, 'swap']);
 Route::get('/pages/misc-error', [MiscError::class, 'index'])->name('pages-misc-error');
 
 // ===== Koordinator Registration =====
-Route::get('/daftar-koordinator', [KoordinatorRegisterController::class, 'showForm'])->name('koordinator.register');
-Route::post('/daftar-koordinator', [KoordinatorRegisterController::class, 'register']);
-Route::get('/daftar-koordinator/sukses', [KoordinatorRegisterController::class, 'sukses'])->name('koordinator.register.sukses');
+Route::middleware(['feature:fitur_daftar_koordinator'])->group(function () {
+    Route::get('/daftar-koordinator', [KoordinatorRegisterController::class, 'showForm'])->name('koordinator.register');
+    Route::post('/daftar-koordinator', [KoordinatorRegisterController::class, 'register']);
+    Route::get('/daftar-koordinator/sukses', [KoordinatorRegisterController::class, 'sukses'])->name('koordinator.register.sukses');
+});
 
 // ===== PUBLIC: Semua Pelatihan =====
 Route::get('/pelatihan', [App\Http\Controllers\PelatihanController::class, 'index'])->name('pelatihan.index');
@@ -331,6 +334,13 @@ Route::middleware(['auth:sanctum', 'verified', 'must.change.password'])->group(f
         Route::get('settings/maintenance', [SettingController::class, 'maintenance'])->name('settings.maintenance');
         Route::post('settings/maintenance', [SettingController::class, 'updateMaintenance'])->name('settings.maintenance.update');
 
+        // Dedicated Feature Toggles Management
+        Route::get('fitur', [FeatureToggleController::class, 'index'])->name('fitur.index');
+        Route::get('settings/fitur', [FeatureToggleController::class, 'index'])->name('settings.fitur');
+        Route::post('settings/fitur/toggle', [FeatureToggleController::class, 'toggle'])->name('settings.fitur.toggle');
+        Route::post('settings/fitur/bulk', [FeatureToggleController::class, 'bulkToggle'])->name('settings.fitur.bulk');
+        Route::post('settings/fitur/reset', [FeatureToggleController::class, 'resetDefaults'])->name('settings.fitur.reset');
+
         // FAQ Management
         Route::resource('faqs', FaqController::class)->parameters(['faqs' => 'faq']);
 
@@ -425,7 +435,7 @@ Route::middleware(['auth:sanctum', 'verified', 'must.change.password'])->group(f
         });
 
         // ===== EXPORT ROUTES =====
-        Route::prefix('exports')->name('exports.')->group(function () {
+        Route::middleware(['feature:fitur_export_laporan'])->prefix('exports')->name('exports.')->group(function () {
             Route::get('/', [ExportController::class, 'index'])->name('index');
             Route::get('peserta/pdf', [ExportController::class, 'exportPesertaPdf'])->name('peserta.pdf');
             Route::get('peserta/excel', [ExportController::class, 'exportPesertaExcel'])->name('peserta.excel');

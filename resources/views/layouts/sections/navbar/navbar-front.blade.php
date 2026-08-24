@@ -34,11 +34,13 @@ $activeClass = in_array($currentRouteName, $activeRoutes) ? 'active' : '';
             </a>
           </li>
 
+          @fitur('fitur_daftar_koordinator')
           <li class="nav-item">
             <a class="nav-link {{ request()->routeIs('koordinator.register') ? 'active' : '' }}" href="{{ route('koordinator.register') }}">
               <i class="icon-base ti tabler-user-plus me-1"></i>{{ __('Daftar Koordinator') }}
             </a>
           </li>
+          @endfitur
         </ul>
       </div>
       <div class="landing-menu-overlay d-lg-none"></div>

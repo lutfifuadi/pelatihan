@@ -53,9 +53,11 @@
             <li class="mb-4">
               <a href="{{ route('pelatihan.index') }}" class="footer-link">Semua Pelatihan</a>
             </li>
+            @fitur('fitur_daftar_koordinator')
             <li class="mb-4">
               <a href="{{ route('koordinator.register') }}" class="footer-link">Daftar Koordinator</a>
             </li>
+            @endfitur
             <li>
               <a href="{{ route('login') }}" class="footer-link">Login Peserta & Admin</a>
             </li>

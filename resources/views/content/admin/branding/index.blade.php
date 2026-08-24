@@ -271,6 +271,35 @@ $configData = Helper::appClasses();
             </p>
           </div>
         </div>
+
+        {{-- Navigasi Tab Pengaturan --}}
+        <ul class="nav nav-pills gap-1">
+          <li class="nav-item">
+            <a class="nav-link active" href="{{ route('admin.settings.branding') }}" style="border-radius: 8px; font-weight: 500;">
+              <i class="icon-base ti tabler-palette me-1"></i> Branding
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link text-white-50" href="{{ route('admin.settings.landing') }}" style="border-radius: 8px; font-weight: 500;">
+              <i class="icon-base ti tabler-browser me-1"></i> Landing Page
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link text-white-50" href="{{ route('admin.settings.seo') }}" style="border-radius: 8px; font-weight: 500;">
+              <i class="icon-base ti tabler-seo me-1"></i> SEO
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link text-white-50" href="{{ route('admin.settings.maintenance') }}" style="border-radius: 8px; font-weight: 500;">
+              <i class="icon-base ti tabler-tool me-1"></i> Maintenance
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link text-white-50" href="{{ route('admin.settings.fitur') }}" style="border-radius: 8px; font-weight: 500;">
+              <i class="icon-base ti tabler-toggle-right me-1"></i> Aktivasi Fitur
+            </a>
+          </li>
+        </ul>
       </div>
     </div>
 

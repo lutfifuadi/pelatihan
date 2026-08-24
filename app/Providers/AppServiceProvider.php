@@ -21,6 +21,14 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton(SEOManager::class, function ($app) {
             return new SEOManager();
         });
+
+        $this->app->singleton(\App\Services\SettingsManager::class, function ($app) {
+            return new \App\Services\SettingsManager();
+        });
+
+        $this->app->singleton(\App\Services\FeatureManager::class, function ($app) {
+            return new \App\Services\FeatureManager($app->make(\App\Services\SettingsManager::class));
+        });
     }
 
     /**
@@ -30,6 +38,21 @@ class AppServiceProvider extends ServiceProvider
     {
         Blade::directive('seoHead', function () {
             return "<?php echo app(\App\Services\SEOManager::class)->render(); ?>";
+        });
+
+        // ── Blade Directives untuk Feature Toggle ──
+        Blade::directive('fitur', function ($expression) {
+            return "<?php if (feature({$expression})): ?>";
+        });
+        Blade::directive('endfitur', function () {
+            return '<?php endif; ?>';
+        });
+
+        Blade::directive('notfitur', function ($expression) {
+            return "<?php if (feature_is_off({$expression})): ?>";
+        });
+        Blade::directive('endnotfitur', function () {
+            return '<?php endif; ?>';
         });
 
         Paginator::useBootstrapFive();

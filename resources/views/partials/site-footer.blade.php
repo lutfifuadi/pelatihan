@@ -44,7 +44,9 @@
             <li><a href="{{ route('pages-home') }}#langkah" class="footer-link">{{ __('Cara Daftar') }}</a></li>
             <li><a href="{{ route('pages-home') }}#mengapa" class="footer-link">{{ __('Keunggulan') }}</a></li>
             <li><a href="{{ route('pages-home') }}#faq" class="footer-link">{{ __('FAQ') }}</a></li>
+            @fitur('fitur_daftar_koordinator')
             <li><a href="{{ route('koordinator.register') }}" class="footer-link">{{ __('Daftar Koordinator') }}</a></li>
+            @endfitur
           </ul>
       </div>
 
