@@ -79,12 +79,6 @@ use Illuminate\Support\Facades\Route;
   <!-- / Style Switcher-->
   @endif
   <ul class="navbar-nav flex-row align-items-center ms-auto">
-    <!-- Notification Bell -->
-    @auth
-    <li class="nav-item dropdown-notification me-2 d-flex align-items-center">
-      <x-notification-bell />
-    </li>
-    @endauth
     <!-- User -->
     <li class="nav-item navbar-dropdown dropdown-user dropdown">
       <a class="nav-link dropdown-toggle hide-arrow p-0" href="javascript:void(0);" data-bs-toggle="dropdown">

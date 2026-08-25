@@ -76,11 +76,22 @@ $configData = Helper::appClasses();
   }
 
   .info-label {
-    font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em;
-    color: rgba(255, 255, 255, 0.4); font-weight: 600; margin-bottom: 2px;
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #94a3b8 !important;
+    font-weight: 700;
+    margin-bottom: 3px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
   }
   .info-value {
-    font-size: 0.95rem; color: #f8fafc; font-weight: 500;
+    font-size: 0.98rem;
+    color: #ffffff !important;
+    font-weight: 600;
+    line-height: 1.4;
+    letter-spacing: -0.01em;
   }
 
   hr.dark-premium { border-color: rgba(255, 255, 255, 0.06); opacity: 1; }
@@ -103,44 +114,54 @@ $configData = Helper::appClasses();
   /* === BADGE STATUS === */
   .badge-status {
     display: inline-flex; align-items: center; gap: 6px;
-    padding: 6px 16px; border-radius: 20px;
-    font-weight: 600; font-size: 0.78rem;
-    letter-spacing: 0.03em;
+    padding: 5px 12px; border-radius: 5px !important;
+    font-weight: 700; font-size: 0.8rem;
+    letter-spacing: 0.04em;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.15);
   }
   .badge-status.pending {
-    background: rgba(99, 102, 241, 0.15);
-    border: 1px solid rgba(99, 102, 241, 0.3);
-    color: #818cf8;
+    background: rgba(99, 102, 241, 0.22);
+    border: 1px solid rgba(129, 140, 248, 0.5);
+    color: #c7d2fe;
+    text-shadow: 0 0 12px rgba(129, 140, 248, 0.4);
   }
   .badge-status.approved {
-    background: rgba(16, 185, 129, 0.15);
-    border: 1px solid rgba(16, 185, 129, 0.3);
-    color: #34d399;
+    background: rgba(16, 185, 129, 0.22);
+    border: 1px solid rgba(52, 211, 153, 0.5);
+    color: #6ee7b7;
+    text-shadow: 0 0 12px rgba(52, 211, 153, 0.4);
   }
   .badge-status.rejected {
-    background: rgba(248, 113, 113, 0.15);
-    border: 1px solid rgba(248, 113, 113, 0.3);
-    color: #f87171;
+    background: rgba(239, 68, 68, 0.22);
+    border: 1px solid rgba(248, 113, 113, 0.5);
+    color: #fca5a5;
+    text-shadow: 0 0 12px rgba(248, 113, 113, 0.4);
   }
   .badge-status.waitlist {
-    background: rgba(245, 158, 11, 0.15);
-    border: 1px solid rgba(245, 158, 11, 0.3);
-    color: #fbbf24;
+    background: rgba(245, 158, 11, 0.22);
+    border: 1px solid rgba(251, 191, 36, 0.5);
+    color: #fef08a;
+    text-shadow: 0 0 12px rgba(251, 191, 36, 0.4);
   }
   .badge-status.waiting-wa {
-    background: rgba(245, 158, 11, 0.15);
-    border: 1px solid rgba(245, 158, 11, 0.3);
-    color: #fbbf24;
+    background: rgba(245, 158, 11, 0.22);
+    border: 1px solid rgba(251, 191, 36, 0.5);
+    color: #fef08a;
+    text-shadow: 0 0 12px rgba(251, 191, 36, 0.4);
   }
   .badge-status.newbimma {
-    background: rgba(59, 130, 246, 0.15);
-    border: 1px solid rgba(59, 130, 246, 0.3);
-    color: #60a5fa;
+    background: rgba(6, 182, 212, 0.22);
+    border: 1px solid rgba(34, 211, 238, 0.5);
+    color: #a5f3fc;
+    text-shadow: 0 0 12px rgba(34, 211, 238, 0.4);
   }
   .badge-status.confirmed {
-    background: rgba(16, 185, 129, 0.15);
-    border: 1px solid rgba(16, 185, 129, 0.3);
-    color: #34d399;
+    background: rgba(16, 185, 129, 0.22);
+    border: 1px solid rgba(52, 211, 153, 0.5);
+    color: #6ee7b7;
+    text-shadow: 0 0 12px rgba(52, 211, 153, 0.4);
   }
 
   /* === VERTICAL TIMELINE === */
@@ -807,7 +828,7 @@ $configData = Helper::appClasses();
       </div>
       <div class="col-12 col-md-6 text-md-end">
         <div class="d-flex gap-2 flex-wrap justify-content-md-end">
-          {{-- WA Auto-fill Konfirmasi Pendaftaran --}}
+          {{-- WA Auto-fill Konfirmasi Pendaftaran / Chat Bantuan --}}
           @php
             $whatsappSender = \App\Models\Setting::where('key', 'whatsapp_sender')->value('value') ?? '62888888888';
             $waNama = $profile->nama_lengkap ?? auth()->user()->name ?? '-';
@@ -815,14 +836,35 @@ $configData = Helper::appClasses();
             $waKelurahan = $profile->kelurahan ?? '-';
             $waKecamatan = $profile->kecamatan ?? '-';
             $waNoHp = $profile->whatsapp ?? auth()->user()->whatsapp ?? '-';
-            $waAutoFillMessage = "Halo Admin, saya telah melakukan pendaftaran pelatihan.\n\nNama Lengkap Sesuai KTP : {$waNama}\nJenis Pelatihan : {$waPelatihan}\nKelurahan : {$waKelurahan}\nKecamatan : {$waKecamatan}\nNo. HP Peserta Terdaftar : {$waNoHp}\n\n#pelatihanku2026";
+            
+            if ($enrollment && $enrollment->status?->value === 'rejected') {
+                $waMessage = "Halo Admin, saya ingin klarifikasi terkait status penolakan pendaftaran pelatihan {$waPelatihan}.\nNama: {$waNama}\nNIK: " . ($profile->nik ?? '-') . "\nMohon bantuannya.";
+            } elseif ($enrollment && $enrollment->status?->value === 'waiting_newbimma_check') {
+                $waMessage = "Halo Admin, saya ingin menanyakan progres pengecekan NewBimma untuk pendaftaran pelatihan {$waPelatihan}.\nNama: {$waNama}\nNIK: " . ($profile->nik ?? '-');
+            } else {
+                $waMessage = "Halo Admin, saya telah melakukan pendaftaran pelatihan.\n\nNama Lengkap Sesuai KTP : {$waNama}\nJenis Pelatihan : {$waPelatihan}\nKelurahan : {$waKelurahan}\nKecamatan : {$waKecamatan}\nNo. HP Peserta Terdaftar : {$waNoHp}\n\n#pelatihanku2026";
+            }
           @endphp
-          <a href="https://wa.me/{{ $whatsappSender }}?text={{ urlencode($waAutoFillMessage) }}" 
-             target="_blank" class="btn btn-glow-premium py-2 px-4">
-            <i class="icon-base ti tabler-clipboard-check me-1"></i> Konfirmasi Pendaftaran
-          </a>
+
+          @if($enrollment && $enrollment->status?->value === 'rejected')
+            <a href="{{ route('dashboard.peserta.form-minat') }}" class="btn btn-glow-premium py-2 px-4" style="background: linear-gradient(135deg, #ef4444, #f97316) !important;">
+              <i class="icon-base ti tabler-refresh me-1"></i> Pilih Pelatihan Lain
+            </a>
+            <a href="https://wa.me/{{ $whatsappSender }}?text={{ urlencode($waMessage) }}" target="_blank" class="btn btn-outline-glass py-2 px-4 text-white">
+              <i class="icon-base ti tabler-brand-whatsapp me-1"></i> Chat Admin
+            </a>
+          @elseif($enrollment && $enrollment->status?->value === 'confirmed')
+            <a href="{{ route('dashboard.peserta') }}" class="btn btn-glow-premium py-2 px-4">
+              <i class="icon-base ti tabler-qrcode me-1"></i> Buka QR Presensi
+            </a>
+          @else
+            <a href="https://wa.me/{{ $whatsappSender }}?text={{ urlencode($waMessage) }}" 
+               target="_blank" class="btn btn-glow-premium py-2 px-4">
+              <i class="icon-base ti tabler-clipboard-check me-1"></i> {{ ($enrollment && $enrollment->status?->value === 'waiting_newbimma_check') ? 'Tanya Status Admin' : 'Konfirmasi Pendaftaran' }}
+            </a>
+          @endif
           <a href="{{ route('dashboard.peserta') }}" class="btn btn-outline-glass py-2 px-4">
-            <i class="icon-base ti tabler-layout-dashboard me-1"></i> Kembali ke Dashboard
+            <i class="icon-base ti tabler-layout-dashboard me-1"></i> Dashboard
           </a>
         </div>
       </div>

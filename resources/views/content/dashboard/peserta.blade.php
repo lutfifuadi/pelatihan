@@ -250,33 +250,50 @@ $configData = Helper::appClasses();
   }
 
   .badge-premium {
-    background: rgba(255, 255, 255, 0.04);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    color: rgba(255, 255, 255, 0.8);
-    border-radius: 5px;
-    padding: 4px 12px;
-    font-weight: 500;
-    font-size: 0.75rem;
+    background: rgba(15, 23, 42, 0.65);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: #ffffff;
+    border-radius: 5px !important;
+    padding: 5px 14px;
+    font-weight: 700;
+    font-size: 0.78rem;
+    letter-spacing: 0.03em;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
   }
   .badge-premium-primary {
-    background: rgba(99, 102, 241, 0.15);
-    border-color: rgba(99, 102, 241, 0.3);
-    color: #818cf8;
+    background: rgba(99, 102, 241, 0.22) !important;
+    border-color: rgba(129, 140, 248, 0.5) !important;
+    color: #c7d2fe !important;
+    text-shadow: 0 0 12px rgba(129, 140, 248, 0.5);
   }
   .badge-premium-success {
-    background: rgba(16, 185, 129, 0.15);
-    border-color: rgba(16, 185, 129, 0.3);
-    color: #34d399;
+    background: rgba(16, 185, 129, 0.22) !important;
+    border-color: rgba(52, 211, 153, 0.5) !important;
+    color: #6ee7b7 !important;
+    text-shadow: 0 0 12px rgba(52, 211, 153, 0.5);
   }
   .badge-premium-warning {
-    background: rgba(245, 158, 11, 0.15);
-    border-color: rgba(245, 158, 11, 0.3);
-    color: #fbbf24;
+    background: rgba(245, 158, 11, 0.22) !important;
+    border-color: rgba(251, 191, 36, 0.5) !important;
+    color: #fef08a !important;
+    text-shadow: 0 0 12px rgba(251, 191, 36, 0.5);
   }
   .badge-premium-info {
-    background: rgba(6, 182, 212, 0.15);
-    border-color: rgba(6, 182, 212, 0.3);
-    color: #22d3ee;
+    background: rgba(6, 182, 212, 0.22) !important;
+    border-color: rgba(34, 211, 238, 0.5) !important;
+    color: #a5f3fc !important;
+    text-shadow: 0 0 12px rgba(34, 211, 238, 0.5);
+  }
+  .badge-premium-danger {
+    background: rgba(239, 68, 68, 0.22) !important;
+    border-color: rgba(248, 113, 113, 0.5) !important;
+    color: #fca5a5 !important;
+    text-shadow: 0 0 12px rgba(248, 113, 113, 0.5);
   }
 
   .instructor-avatar {
@@ -382,10 +399,13 @@ $configData = Helper::appClasses();
   ::-webkit-scrollbar-thumb:hover { background: #d946ef; }
 
   .text-gradient {
-    background: linear-gradient(135deg, #6366f1, #d946ef);
+    background: linear-gradient(135deg, #ffffff 0%, #c7d2fe 45%, #f472b6 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    filter: drop-shadow(0 2px 10px rgba(199, 210, 254, 0.25));
   }
 
   .hover-text-primary:hover {
@@ -393,17 +413,28 @@ $configData = Helper::appClasses();
   }
 
   .info-label {
-    font-size: 0.7rem;
+    font-size: 0.72rem;
     text-transform: uppercase;
     letter-spacing: 0.08em;
-    color: rgba(255, 255, 255, 0.4);
-    font-weight: 600;
-    margin-bottom: 2px;
+    color: #94a3b8 !important;
+    font-weight: 700;
+    margin-bottom: 3px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
   }
   .info-value {
-    font-size: 0.95rem;
-    color: #f8fafc;
-    font-weight: 500;
+    font-size: 0.98rem;
+    color: #ffffff !important;
+    font-weight: 600;
+    line-height: 1.4;
+    letter-spacing: -0.01em;
+  }
+  .info-value.fw-mono {
+    font-family: 'Fira Code', 'Courier New', monospace;
+    letter-spacing: 0.04em;
+    color: #fde047 !important;
+    font-size: 0.92rem;
   }
 
   /* === VERTICAL TIMELINE === */
@@ -503,6 +534,40 @@ $configData = Helper::appClasses();
     border: 1px solid rgba(16, 185, 129, 0.3);
     color: #34d399 !important;
   }
+
+  /* === HERO CARD BADGES (HIGH CONTRAST & PREMIUM) === */
+  .badge-hero-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 12px;
+    border-radius: 5px !important;
+    font-size: 0.78rem;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    background: rgba(16, 185, 129, 0.18) !important;
+    border: 1px solid rgba(52, 211, 153, 0.45) !important;
+    color: #34d399 !important;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  }
+  .badge-hero-batch {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 10px;
+    border-radius: 5px !important;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    background: rgba(99, 102, 241, 0.18) !important;
+    border: 1px solid rgba(129, 140, 248, 0.45) !important;
+    color: #c7d2fe !important;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    box-shadow: 0 4px 15px rgba(99, 102, 241, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  }
 </style>
 @endsection
 
@@ -529,7 +594,7 @@ $configData = Helper::appClasses();
               <i class="icon-base ti tabler-user-star fs-4"></i>
             </div>
             <div>
-              <h4 class="fw-bold text-white mb-0">Selamat datang, <span class="text-gradient fw-extrabold">{{ optional($profile)->nama_lengkap ?? auth()->user()->name }}</span> <i class="icon-base ti tabler-hand-wave"></i></h4>
+              <h4 class="fw-bold text-white mb-0">Selamat datang, <span class="text-gradient fw-extrabold">{{ optional($profile)->nama_lengkap ?? auth()->user()->name }}</span> 👋</h4>
               <p class="text-body-premium mb-0 mt-1" style="font-size: 0.95rem;">
                 Terus semangat belajar dan tingkatkan skill kreatifmu!
               </p>
@@ -538,7 +603,19 @@ $configData = Helper::appClasses();
         </div>
         <div class="col-12 col-lg-4 mt-3 mt-lg-0">
           <div class="d-flex align-items-center gap-4 justify-content-lg-end">
-            @if($data['isProfileCompleted'] && $data['hasPelatihan'] && $data['enrollment'] && in_array($data['enrollment']->status?->value, ['approved', 'confirmed']))
+            @if($data['enrollment'] && $data['enrollment']->status?->value === 'rejected')
+              <div class="text-end">
+                <span class="badge-premium badge-premium-danger">
+                  <i class="icon-base ti tabler-circle-x"></i> Pendaftaran Ditolak
+                </span>
+              </div>
+            @elseif($data['enrollment'] && $data['enrollment']->status?->value === 'waiting_newbimma_check')
+              <div class="text-end">
+                <span class="badge-premium badge-premium-info">
+                  <span class="spinner-grow spinner-grow-sm" style="width: 8px; height: 8px;"></span> 🔄 Cek NewBimma
+                </span>
+              </div>
+            @elseif($data['isProfileCompleted'] && $data['hasPelatihan'] && $data['enrollment'] && in_array($data['enrollment']->status?->value, ['approved', 'confirmed']))
               <div class="text-center">
                 <p class="text-body-premium small mb-0">Kehadiran</p>
                 <h5 class="text-white fw-bold mb-0">{{ $data['attendanceRate'] }}%</h5>
@@ -819,9 +896,108 @@ $configData = Helper::appClasses();
       </div>
 
     <!-- ============================================================
-         STATE 2: Pendaftaran Selesai, Menunggu Verifikasi / Cadangan / Ditolak
+         STATE REJECTED: Pendaftaran Ditolak
          ============================================================ -->
-    @elseif(!$data['enrollment'] || in_array($data['enrollment']->status?->value, ['pending', 'rejected', 'waitlist', 'waiting_wa_confirmation']))
+    @elseif($data['enrollment'] && $data['enrollment']->status?->value === 'rejected')
+      <div class="row g-4 mb-4">
+        <div class="col-12 col-xl-8">
+          <div class="glass-card-premium px-4 px-xl-5 py-4 h-100" style="border-color: rgba(248, 113, 113, 0.3) !important; background: radial-gradient(at 0% 0%, rgba(239, 68, 68, 0.08) 0px, transparent 60%), rgba(15, 23, 42, 0.35) !important;">
+            <div class="text-center py-4">
+              <div class="stat-icon-box stat-icon-danger mx-auto mb-3" style="width: 68px; height: 68px; font-size: 2.2rem; border-radius: 50% !important; background: rgba(248, 113, 113, 0.15) !important; color: #f87171 !important; box-shadow: 0 0 30px rgba(248, 113, 113, 0.25);">
+                <i class="icon-base ti tabler-circle-x fs-1"></i>
+              </div>
+              <h4 class="fw-bold text-white mb-2">Pendaftaran Belum Dapat Disetujui</h4>
+              <p class="text-body-premium mx-auto mb-4" style="max-width: 550px; font-size: 0.95rem; line-height: 1.6;">
+                Mohon maaf, permohonan pendaftaran Anda untuk pelatihan ini tidak lolos tahap verifikasi berkas atau kuota penerimaan telah terpenuhi.
+              </p>
+
+              <div class="p-4 mx-auto text-start rounded mb-4" style="max-width: 580px; background: rgba(248, 113, 113, 0.08); border: 1px solid rgba(248, 113, 113, 0.25); border-radius: 8px;">
+                <div class="d-flex align-items-start gap-3">
+                  <i class="icon-base ti tabler-alert-circle fs-3 text-danger mt-1 flex-shrink-0"></i>
+                  <div>
+                    <span class="text-danger fw-bold d-block mb-1" style="font-size: 0.9rem;">Catatan &amp; Alasan Penolakan:</span>
+                    <p class="text-white mb-0" style="font-size: 0.9rem; line-height: 1.5;">
+                      {{ $data['enrollment']->notes ?? 'Data peserta belum memenuhi kriteria kualifikasi atau pernah terdaftar pada pelatihan sejenis di sistem NewBimma.' }}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="d-flex flex-wrap gap-3 justify-content-center">
+                <a href="{{ route('dashboard.peserta.form-minat') }}" class="btn btn-glow-premium px-4 py-2" style="background: linear-gradient(135deg, #ef4444, #f97316) !important; box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3) !important;">
+                  <i class="icon-base ti tabler-refresh me-2"></i>Pilih Pelatihan Lain
+                </a>
+                <a href="{{ route('dashboard.peserta.status') }}" class="btn btn-outline-glass px-4 py-2">
+                  <i class="icon-base ti tabler-timeline me-2"></i>Lihat Riwayat Lengkap
+                </a>
+              </div>
+            </div>
+
+            @if($data['pelatihan'])
+              <hr class="dark-premium my-4">
+              <h5 class="fw-bold text-white mb-3 d-flex align-items-center gap-2">
+                <i class="icon-base ti tabler-book text-muted"></i>
+                Detail Pelatihan Terkait
+              </h5>
+              <div class="p-3 rounded" style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06);">
+                <div class="row g-3">
+                  <div class="col-12 col-md-6">
+                    <span class="info-label d-block">Nama Pelatihan</span>
+                    <span class="info-value fw-bold text-white">{{ $data['pelatihan']->nama }}</span>
+                  </div>
+                  <div class="col-6 col-md-3">
+                    <span class="info-label d-block">Batch</span>
+                    <span class="info-value text-white">{{ $data['pelatihan']->batch }}</span>
+                  </div>
+                  <div class="col-6 col-md-3">
+                    <span class="info-label d-block">Dinas Penyelenggara</span>
+                    <span class="info-value text-white">{{ $data['pelatihan']->dinas->nama_dinas ?? '-' }}</span>
+                  </div>
+                </div>
+              </div>
+            @endif
+          </div>
+        </div>
+
+        <div class="col-12 col-xl-4">
+          <div class="glass-card-premium px-4 px-xl-5 py-4 h-100">
+            <h5 class="fw-bold text-white mb-4 d-flex align-items-center gap-2">
+              <i class="icon-base ti tabler-help-circle text-info"></i>
+              Bantuan &amp; Solusi
+            </h5>
+            <div class="d-flex flex-column gap-3">
+              <div class="p-3 rounded" style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06);">
+                <span class="text-white fw-semibold small d-block mb-1">
+                  <i class="icon-base ti tabler-bulb text-warning me-1"></i> Jangan Berkecil Hati
+                </span>
+                <small class="text-body-premium d-block" style="line-height: 1.5;">
+                  Anda masih berkesempatan mendaftar pada kejuruan lain atau batch selanjutnya yang masih membuka kuota penerimaan.
+                </small>
+              </div>
+
+              <div class="p-3 rounded" style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06);">
+                <span class="text-white fw-semibold small d-block mb-1">
+                  <i class="icon-base ti tabler-brand-whatsapp text-success me-1"></i> Klarifikasi Data NIK / Berkas
+                </span>
+                <small class="text-body-premium d-block mb-2" style="line-height: 1.5;">
+                  Jika Anda merasa ada kekeliruan pencocokan data di sistem NewBimma, silakan hubungi tim Admin.
+                </small>
+                @php
+                  $waTolakMsg = "Halo Admin, saya ingin menanyakan terkait penolakan pendaftaran saya pada pelatihan " . ($data['pelatihan']->nama ?? '-') . ". NIK: " . ($profile->nik ?? auth()->user()->nik ?? '-');
+                @endphp
+                <a href="https://wa.me/{{ $data['whatsapp_sender'] }}?text={{ urlencode($waTolakMsg) }}" target="_blank" class="btn btn-sm btn-outline-success w-100 py-2">
+                  <i class="icon-base ti tabler-brand-whatsapp me-1"></i> Chat Helpdesk Admin
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    <!-- ============================================================
+         STATE 2: Pendaftaran Selesai, Menunggu Verifikasi / Cadangan / Konfirmasi WA
+         ============================================================ -->
+    @elseif(!$data['enrollment'] || in_array($data['enrollment']->status?->value, ['pending', 'waitlist', 'waiting_wa_confirmation']))
       <div class="row g-4 mb-4">
         <div class="col-12 col-xl-8">
           <div class="glass-card-premium px-4 px-xl-5 py-4 h-100">
@@ -847,21 +1023,13 @@ $configData = Helper::appClasses();
                     </div>
                   </div>
                 </div>
-              @elseif($data['enrollment'] && $data['enrollment']->status?->value === 'rejected')
-                <div class="alert alert-danger border-danger border-opacity-20 bg-danger bg-opacity-10 text-danger mx-auto p-3 mt-4 text-start" style="max-width: 550px; border-radius: 5px;">
+              @elseif($data['enrollment'] && $data['enrollment']->status?->value === 'waiting_wa_confirmation')
+                <div class="alert alert-warning border-warning border-opacity-20 bg-warning bg-opacity-10 text-warning mx-auto p-3 mt-4 text-start" style="max-width: 550px; border-radius: 5px;">
                   <div class="d-flex gap-2">
-                    <i class="icon-base ti tabler-circle-x mt-1 flex-shrink-0"></i>
+                    <i class="icon-base ti tabler-brand-whatsapp mt-1 flex-shrink-0"></i>
                     <div>
-                      <strong class="d-block mb-1">Status: Pendaftaran Ditolak</strong>
-                      <span>Mohon maaf, pendaftaran Anda belum dapat disetujui.</span>
-                      @if($data['enrollment']->notes)
-                        <p class="mb-0 mt-2 small text-danger text-opacity-80">Alasan Penolakan: <strong>{{ $data['enrollment']->notes }}</strong></p>
-                      @endif
-                      <div class="mt-3">
-                        <a href="{{ route('dashboard.peserta.form-minat') }}" class="btn btn-sm btn-danger fw-semibold px-3 py-1" style="border-radius: 5px;">
-                          <i class="icon-base ti tabler-refresh me-1"></i> Pilih Pelatihan Lain
-                        </a>
-                      </div>
+                      <strong class="d-block mb-1">Status: Menunggu Konfirmasi WhatsApp</strong>
+                      <span>Pendaftaran Anda telah disetujui tahap awal. Silakan lakukan konfirmasi kesediaan hadir melalui WhatsApp agar dapat diproses ke tahap verifikasi NewBimma.</span>
                     </div>
                   </div>
                 </div>
@@ -1167,9 +1335,47 @@ $configData = Helper::appClasses();
       </div>
 
     <!-- ============================================================
-         STATE 3: Pelatihan Aktif / Approved
+         STATE 3: Pelatihan Aktif / Diterima (Confirmed & Approved)
          ============================================================ -->
     @else
+      {{-- HERO CARD: Status Penerimaan & Info Kelas --}}
+      <div class="glass-card-premium px-4 px-xl-5 py-4 mb-4" style="background: radial-gradient(at 0% 0%, rgba(16, 185, 129, 0.12) 0px, transparent 60%), rgba(15, 23, 42, 0.35) !important; border-color: rgba(16, 185, 129, 0.3) !important;">
+        <div class="row align-items-center g-3">
+          <div class="col-12 col-lg-8">
+            <div class="d-flex align-items-center gap-2 mb-2 flex-wrap">
+              <span class="badge-hero-status">
+                <i class="icon-base ti tabler-circle-check"></i> RESMI TERDAFTAR SEBAGAI PESERTA
+              </span>
+              @if($data['pelatihan'] && $data['pelatihan']->batch)
+                <span class="badge-hero-batch">
+                  <i class="icon-base ti tabler-tag"></i> {{ $data['pelatihan']->batch }}
+                </span>
+              @endif
+            </div>
+            <h3 class="fw-bold text-white mb-2">{{ $data['pelatihan']->nama ?? 'Pelatihan Unggulan' }}</h3>
+            <p class="text-body-premium mb-0" style="font-size: 0.92rem;">
+              Penyelenggara: <strong class="text-white">{{ $data['pelatihan']->dinas->nama_dinas ?? '-' }}</strong>
+              @if($data['pelatihan'] && $data['pelatihan']->tanggal_mulai)
+                &bull; Pelaksanaan: <span class="text-white fw-semibold">{{ $data['pelatihan']->tanggal_mulai->format('d M Y') }} s/d {{ $data['pelatihan']->tanggal_selesai ? $data['pelatihan']->tanggal_selesai->format('d M Y') : '-' }}</span>
+              @endif
+            </p>
+          </div>
+          <div class="col-12 col-lg-4 text-lg-end">
+            <div class="d-flex gap-2 justify-content-lg-end flex-wrap">
+              @php
+                $waGrupMsg = "Halo Admin, saya peserta terdaftar pelatihan " . ($data['pelatihan']->nama ?? '-') . " (NIK: " . (optional($profile)->nik ?? auth()->user()->nik ?? '-') . "). Mohon info grup WhatsApp kelas / koordinasi pelatihan.";
+              @endphp
+              <a href="https://wa.me/{{ $data['whatsapp_sender'] }}?text={{ urlencode($waGrupMsg) }}" target="_blank" class="btn btn-glow-premium px-3 py-2" style="font-size: 0.85rem;">
+                <i class="icon-base ti tabler-brand-whatsapp me-1.5"></i> Hubungi Panitia / Grup WA
+              </a>
+              <a href="{{ route('dashboard.peserta.status') }}" class="btn btn-outline-glass px-3 py-2" style="font-size: 0.85rem;">
+                <i class="icon-base ti tabler-file-text me-1.5"></i> Bukti Pendaftaran
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div class="row g-4 mb-4">
         {{-- Left: Progress & Absensi --}}
         <div class="col-12 col-xl-8">
@@ -1251,9 +1457,9 @@ $configData = Helper::appClasses();
               <div class="row g-3">
                 @foreach($data['enrollment']->attendances->sortBy('pertemuan_ke') as $att)
                   <div class="col-12 col-sm-6">
-                    <div class="d-flex align-items-center justify-content-between p-3 rounded" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255,255,255,0.04);">
+                    <div class="d-flex align-items-center justify-content-between p-3" style="background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255,255,255,0.06); border-radius: 5px;">
                       <div class="d-flex align-items-center gap-3">
-                        <div class="stat-icon-box stat-icon-primary" style="width: 36px; height: 36px; font-size: 1rem;">
+                        <div class="stat-icon-box stat-icon-primary" style="width: 36px; height: 36px; font-size: 0.95rem; border-radius: 5px !important;">
                           {{ $att->pertemuan_ke }}
                         </div>
                         <div>
@@ -1264,19 +1470,19 @@ $configData = Helper::appClasses();
                       <div>
                         @switch($att->status)
                           @case('hadir')
-                            <span class="badge bg-success bg-opacity-15 text-success border border-success border-opacity-30 px-2.5 py-1 small" style="border-radius: 4px;">Hadir</span>
+                            <span class="badge-premium badge-premium-success px-2.5 py-1" style="font-size: 0.75rem;">Hadir</span>
                             @break
                           @case('izin')
-                            <span class="badge bg-warning bg-opacity-15 text-warning border border-warning border-opacity-30 px-2.5 py-1 small" style="border-radius: 4px;">Izin</span>
+                            <span class="badge-premium badge-premium-warning px-2.5 py-1" style="font-size: 0.75rem;">Izin</span>
                             @break
                           @case('sakit')
-                            <span class="badge bg-info bg-opacity-15 text-info border border-info border-opacity-30 px-2.5 py-1 small" style="border-radius: 4px;">Sakit</span>
+                            <span class="badge-premium badge-premium-info px-2.5 py-1" style="font-size: 0.75rem;">Sakit</span>
                             @break
                           @case('alpa')
-                            <span class="badge bg-danger bg-opacity-15 text-danger border border-danger border-opacity-30 px-2.5 py-1 small" style="border-radius: 4px;">Alpa</span>
+                            <span class="badge-premium badge-premium-danger px-2.5 py-1" style="font-size: 0.75rem;">Alpa</span>
                             @break
                           @default
-                            <span class="badge bg-secondary bg-opacity-15 text-secondary border border-secondary border-opacity-30 px-2.5 py-1 small" style="border-radius: 4px;">-</span>
+                            <span class="badge-premium px-2.5 py-1" style="font-size: 0.75rem;">-</span>
                         @endswitch
                       </div>
                     </div>
@@ -1284,9 +1490,62 @@ $configData = Helper::appClasses();
                 @endforeach
               </div>
             @else
-              <div class="text-center py-4 rounded border border-white border-opacity-5" style="background: rgba(255, 255, 255, 0.05);">
-                <i class="icon-base ti tabler-calendar-off fs-2 text-muted mb-2 d-block"></i>
-                <span class="text-body-premium small">Belum ada riwayat absensi yang tercatat untuk pelatihan ini.</span>
+              {{-- ONBOARDING / PANDUAN PRESENSI KELAS --}}
+              <div class="p-3.5 p-xl-4" style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.07); border-radius: 5px;">
+                <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
+                  <div class="d-flex align-items-center gap-2">
+                    <span class="badge-premium badge-premium-primary">
+                      <i class="icon-base ti tabler-calendar-event"></i> Jadwal &amp; Presensi
+                    </span>
+                    <span class="text-white fw-semibold small">Sesi Kelas Siap Dimulai</span>
+                  </div>
+                  <span class="text-body-premium" style="font-size: 0.78rem;">
+                    Check-in via QR Code di Lokasi
+                  </span>
+                </div>
+
+                <div class="row g-2.5 mb-3">
+                  <div class="col-12 col-md-4">
+                    <div class="p-3 h-100" style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 5px;">
+                      <div class="d-flex align-items-center gap-2 mb-1.5">
+                        <span class="badge-premium badge-premium-primary px-2 py-0.5" style="font-size: 0.72rem;">1</span>
+                        <strong class="text-white small">Hadir di Kelas</strong>
+                      </div>
+                      <p class="text-body-premium mb-0" style="font-size: 0.75rem; line-height: 1.4;">
+                        Datang ke lokasi pelatihan sesuai jadwal pelaksanaan.
+                      </p>
+                    </div>
+                  </div>
+                  <div class="col-12 col-md-4">
+                    <div class="p-3 h-100" style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 5px;">
+                      <div class="d-flex align-items-center gap-2 mb-1.5">
+                        <span class="badge-premium badge-premium-primary px-2 py-0.5" style="font-size: 0.72rem;">2</span>
+                        <strong class="text-white small">Buka QR Code</strong>
+                      </div>
+                      <p class="text-body-premium mb-0" style="font-size: 0.75rem; line-height: 1.4;">
+                        Klik tombol <em>Tampilkan QR</em> di atas saat berada di kelas.
+                      </p>
+                    </div>
+                  </div>
+                  <div class="col-12 col-md-4">
+                    <div class="p-3 h-100" style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 5px;">
+                      <div class="d-flex align-items-center gap-2 mb-1.5">
+                        <span class="badge-premium badge-premium-success px-2 py-0.5" style="font-size: 0.72rem;">3</span>
+                        <strong class="text-white small">Scan Panitia</strong>
+                      </div>
+                      <p class="text-body-premium mb-0" style="font-size: 0.75rem; line-height: 1.4;">
+                        Tunjukkan QR ke panitia, status kehadiran akan otomatis tercatat.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="d-flex align-items-center gap-2 px-3 py-2" style="background: rgba(99, 102, 241, 0.08); border: 1px solid rgba(99, 102, 241, 0.2); border-radius: 5px;">
+                  <i class="icon-base ti tabler-info-circle text-info flex-shrink-0"></i>
+                  <small class="text-body-premium mb-0" style="font-size: 0.78rem; line-height: 1.35;">
+                    Riwayat check-in dan persentase kehadiran Anda akan otomatis terisi di bagian ini setiap kali selesai presensi.
+                  </small>
+                </div>
               </div>
             @endif
           </div>
@@ -1325,12 +1584,41 @@ $configData = Helper::appClasses();
                 </div>
               </div>
             @else
-              <div class="text-center py-4 rounded border border-white border-opacity-5" style="background: rgba(255, 255, 255, 0.05);">
-                <i class="icon-base ti tabler-award fs-2 text-muted mb-2 d-block"></i>
-                <span class="text-white fw-semibold d-block mb-1">Pelatihan Sedang Berlangsung</span>
-                <p class="text-body-premium mb-0 small" style="font-size: 0.75rem; line-height: 1.4;">
-                  Sertifikat kelulusan akan diterbitkan oleh Admin/Dinas setelah seluruh rangkaian pelatihan dan absensi selesai diverifikasi.
+              <div class="p-3.5 mb-3" style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 5px;">
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                  <div class="d-flex align-items-center gap-2">
+                    <div class="stat-icon-box stat-icon-warning" style="width: 38px; height: 38px; font-size: 1.2rem; border-radius: 5px !important;">
+                      <i class="icon-base ti tabler-award"></i>
+                    </div>
+                    <div>
+                      <h6 class="text-white fw-bold mb-0" style="font-size: 0.9rem;">Target Kelulusan</h6>
+                      <small class="text-body-premium" style="font-size: 0.72rem;">Pelatihan Sedang Berlangsung</small>
+                    </div>
+                  </div>
+                  <span class="badge-premium badge-premium-warning">
+                    <i class="icon-base ti tabler-clock"></i> Proses
+                  </span>
+                </div>
+
+                <p class="text-body-premium mb-3" style="font-size: 0.8rem; line-height: 1.45;">
+                  Sertifikat resmi ber-QR Code &amp; SK Penyelenggara akan diterbitkan otomatis setelah memenuhi syarat:
                 </p>
+
+                {{-- Checklist Syarat Kelulusan --}}
+                <div class="d-flex flex-column gap-2 pt-2 border-top border-white border-opacity-10">
+                  <div class="d-flex align-items-center justify-content-between p-2" style="background: rgba(255,255,255,0.02); border-radius: 5px;">
+                    <span class="text-white small d-flex align-items-center gap-2" style="font-size: 0.78rem;">
+                      <i class="icon-base ti tabler-circle-check text-success"></i> Kehadiran Minimal (80%)
+                    </span>
+                    <span class="text-white fw-bold small">{{ $data['attendanceRate'] }}%</span>
+                  </div>
+                  <div class="d-flex align-items-center justify-content-between p-2" style="background: rgba(255,255,255,0.02); border-radius: 5px;">
+                    <span class="text-white small d-flex align-items-center gap-2" style="font-size: 0.78rem;">
+                      <i class="icon-base ti tabler-hourglass-low text-warning"></i> Selesaikan Seluruh Sesi
+                    </span>
+                    <span class="badge-premium px-2 py-0.5" style="font-size: 0.68rem;">Menunggu</span>
+                  </div>
+                </div>
               </div>
             @endif
 
