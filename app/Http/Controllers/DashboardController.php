@@ -253,6 +253,11 @@ class DashboardController extends Controller
             $profileCompletion = (int) round(($filled / count($fields)) * 100);
         }
 
+        $allEnrollments = \App\Models\Enrollment::where('user_id', $user->id)
+            ->with(['pelatihan.dinas', 'attendances', 'certificate'])
+            ->orderBy('created_at', 'desc')
+            ->get();
+
         // Kumpulkan data statistik dashboard
         $whatsappSender = \App\Models\Setting::where('key', 'whatsapp_sender')->value('value') ?? '62888888888';
         $data = [
@@ -261,6 +266,7 @@ class DashboardController extends Controller
             'hasPelatihan' => ($profile && $profile->pelatihan_id) || ($enrollment && $enrollment->pelatihan_id),
             'pelatihan' => $profile?->pelatihan ?? $enrollment?->pelatihan,
             'enrollment' => $enrollment,
+            'allEnrollments' => $allEnrollments,
             'attendanceRate' => $attendanceRate,
             'hasCertificate' => $enrollment && $enrollment->certificate()->exists(),
             'certificate' => $enrollment ? $enrollment->certificate : null,

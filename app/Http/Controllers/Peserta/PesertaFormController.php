@@ -950,8 +950,14 @@ class PesertaFormController extends Controller
         }
 
         $enrollment = \App\Models\Enrollment::where('user_id', $user->id)
-            ->with(['pelatihan.dinas'])
+            ->with(['pelatihan.dinas', 'attendances', 'certificate'])
+            ->latest('id')
             ->first();
+
+        $allEnrollments = \App\Models\Enrollment::where('user_id', $user->id)
+            ->with(['pelatihan.dinas', 'attendances', 'certificate'])
+            ->orderBy('created_at', 'desc')
+            ->get();
 
         // --- DATA TAMBAHAN (FR-015, FR-016) ---
         $approvedAt = $enrollment?->approved_at;
@@ -968,7 +974,7 @@ class PesertaFormController extends Controller
         }
 
         return view('content.dashboard.peserta.status-pendaftaran', compact(
-            'profile', 'enrollment', 'user',
+            'profile', 'enrollment', 'allEnrollments', 'user',
             'approvedAt', 'waConfirmedAt', 'newbimmaCheckedAt', 'elapsedTime'
         ));
     }

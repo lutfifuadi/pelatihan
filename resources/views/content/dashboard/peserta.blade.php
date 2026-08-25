@@ -1978,6 +1978,127 @@ $configData = Helper::appClasses();
 
     </div>
     @endif
+
+    {{-- ============================================================
+         RIWAYAT & JEJAK PENDAFTARAN PELATIHAN ANDA
+         ============================================================ --}}
+    @if(isset($data['allEnrollments']) && $data['allEnrollments']->count() > 0)
+    <div class="row g-4 mt-2 mb-4">
+      <div class="col-12">
+        <div class="glass-card-premium p-4 p-xl-4">
+          <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4">
+            <h5 class="fw-bold text-white mb-0 d-flex align-items-center gap-2">
+              <i class="icon-base ti tabler-history text-primary"></i>
+              Riwayat Pendaftaran &amp; Pelatihan Anda
+            </h5>
+            <span class="badge" style="background: rgba(99, 102, 241, 0.18); border: 1px solid rgba(99, 102, 241, 0.35); color: #c7d2fe; border-radius: 5px !important; padding: 4px 10px; font-weight: 600; font-size: 0.75rem;">
+              Total: {{ $data['allEnrollments']->count() }} Program
+            </span>
+          </div>
+
+          <div class="row g-3">
+            @foreach($data['allEnrollments'] as $histEnr)
+              @php
+                $histPelatihan = $histEnr->pelatihan;
+                $histHadirCount = $histEnr->attendances ? $histEnr->attendances->where('status', 'hadir')->count() : 0;
+                $histTotalSesi = $histEnr->attendances ? $histEnr->attendances->count() : 0;
+                $histRate = $histTotalSesi > 0 ? round(($histHadirCount / $histTotalSesi) * 100) : 0;
+                $isCurrentlyActive = ($data['enrollment'] && $data['enrollment']->id === $histEnr->id);
+              @endphp
+              <div class="col-12 col-lg-6">
+                <div class="p-3.5 h-100 d-flex flex-column justify-content-between" style="background: rgba(255, 255, 255, 0.03); border: 1px solid {{ $isCurrentlyActive ? 'rgba(99, 102, 241, 0.4)' : 'rgba(255, 255, 255, 0.07)' }}; border-radius: 5px !important; position: relative;">
+                  @if($isCurrentlyActive)
+                    <div class="position-absolute top-0 end-0 mt-2 me-2">
+                      <span class="badge" style="background: rgba(99, 102, 241, 0.25); border: 1px solid rgba(99, 102, 241, 0.5); color: #c7d2fe; font-size: 0.68rem; border-radius: 4px !important; padding: 2px 7px;">
+                        Aktif Saat Ini
+                      </span>
+                    </div>
+                  @endif
+
+                  <div>
+                    {{-- Status Badge & Batch --}}
+                    <div class="d-flex align-items-center gap-2 flex-wrap mb-2">
+                      @switch($histEnr->status?->value ?? $histEnr->status)
+                        @case('confirmed')
+                          <span class="badge" style="background: rgba(34, 197, 94, 0.18); border: 1px solid rgba(34, 197, 94, 0.4); color: #86efac; border-radius: 5px !important; padding: 3px 8px; font-size: 0.72rem; font-weight: 700;">
+                            <i class="icon-base ti tabler-circle-check me-1"></i> Terkonfirmasi
+                          </span>
+                          @break
+                        @case('approved')
+                          <span class="badge" style="background: rgba(16, 185, 129, 0.18); border: 1px solid rgba(16, 185, 129, 0.4); color: #6ee7b7; border-radius: 5px !important; padding: 3px 8px; font-size: 0.72rem; font-weight: 700;">
+                            <i class="icon-base ti tabler-check me-1"></i> Disetujui
+                          </span>
+                          @break
+                        @case('pending')
+                          <span class="badge" style="background: rgba(245, 158, 11, 0.18); border: 1px solid rgba(251, 191, 36, 0.4); color: #fde047; border-radius: 5px !important; padding: 3px 8px; font-size: 0.72rem; font-weight: 700;">
+                            <i class="icon-base ti tabler-clock me-1"></i> Menunggu Verifikasi
+                          </span>
+                          @break
+                        @case('rejected')
+                          <span class="badge" style="background: rgba(239, 68, 68, 0.18); border: 1px solid rgba(248, 113, 113, 0.4); color: #fca5a5; border-radius: 5px !important; padding: 3px 8px; font-size: 0.72rem; font-weight: 700;">
+                            <i class="icon-base ti tabler-circle-x me-1"></i> Ditolak
+                          </span>
+                          @break
+                        @case('waitlist')
+                          <span class="badge" style="background: rgba(56, 189, 248, 0.18); border: 1px solid rgba(56, 189, 248, 0.4); color: #7dd3fc; border-radius: 5px !important; padding: 3px 8px; font-size: 0.72rem; font-weight: 700;">
+                            <i class="icon-base ti tabler-hourglass me-1"></i> Daftar Tunggu
+                          </span>
+                          @break
+                        @default
+                          <span class="badge" style="background: rgba(255, 255, 255, 0.1); color: #cbd5e1; border-radius: 5px !important; padding: 3px 8px; font-size: 0.72rem;">
+                            {{ $histEnr->statusLabel() }}
+                          </span>
+                      @endswitch
+
+                      <span class="text-body-premium small" style="font-size: 0.75rem;">
+                        Batch: <strong class="text-white">{{ $histPelatihan->batch ?? '-' }}</strong>
+                      </span>
+                    </div>
+
+                    {{-- Nama Pelatihan & Dinas --}}
+                    <h6 class="text-white fw-bold mb-1" style="font-size: 0.95rem;">
+                      {{ $histPelatihan->nama ?? 'Pelatihan #' . $histEnr->pelatihan_id }}
+                    </h6>
+                    <p class="text-body-premium mb-3 small" style="font-size: 0.78rem;">
+                      Penyelenggara: {{ $histPelatihan->dinas->nama_dinas ?? '-' }}
+                      <br>
+                      Waktu: 
+                      <span class="text-white-50">
+                        {{ $histPelatihan->tanggal_mulai ? \Carbon\Carbon::parse($histPelatihan->tanggal_mulai)->format('d M Y') : '-' }} 
+                        s/d 
+                        {{ $histPelatihan->tanggal_selesai ? \Carbon\Carbon::parse($histPelatihan->tanggal_selesai)->format('d M Y') : '-' }}
+                      </span>
+                    </p>
+
+                    @if($histEnr->notes)
+                      <div class="p-2 mb-3 rounded" style="background: rgba(255, 255, 255, 0.02); border-left: 3px solid rgba(99, 102, 241, 0.5); font-size: 0.75rem;">
+                        <span class="text-body-premium">{{ $histEnr->notes }}</span>
+                      </div>
+                    @endif
+                  </div>
+
+                  {{-- Bottom Action & Stats --}}
+                  <div class="pt-2 border-top border-white border-opacity-5 d-flex justify-content-between align-items-center flex-wrap gap-2">
+                    <small class="text-body-premium" style="font-size: 0.72rem;">
+                      Tgl Daftar: {{ $histEnr->created_at ? $histEnr->created_at->format('d/m/Y H:i') : '-' }} WIB
+                    </small>
+
+                    <div class="d-flex align-items-center gap-1.5">
+                      @if($histEnr->certificate)
+                        <a href="{{ route('admin.certificates.download', $histEnr->certificate->id) }}" class="btn btn-sm d-inline-flex align-items-center gap-1" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: #0f172a; font-weight: 700; border-radius: 4px !important; padding: 3px 8px; font-size: 0.72rem;">
+                          <i class="icon-base ti tabler-award"></i> Unduh Sertifikat
+                        </a>
+                      @endif
+                    </div>
+                  </div>
+                </div>
+              </div>
+            @endforeach
+          </div>
+        </div>
+      </div>
+    </div>
+    @endif
   </div>
 @endsection
 
