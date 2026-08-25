@@ -113,28 +113,69 @@ class PelatihanController extends Controller
             ->with('success', 'Pelatihan berhasil diperbarui.');
     }
 
-    public function show(Pelatihan $pelatihan)
+    public function show(Request $request, Pelatihan $pelatihan)
     {
-        // Optimasi: Load + count dalam 1 query, hindari N+1
         $pelatihan->load([
             'dinas',
             'kecamatans',
         ]);
 
-        $peserta = $pelatihan->pesertaProfiles()
-            ->with(['user', 'kelurahan'])
-            ->orderBy('created_at', 'desc')
-            ->paginate(20);
+        $statusFilter = $request->query('status');
+        $search = $request->query('search');
 
-        // Optimasi: Gunakan withCount agar tidak perlu query terpisah
-        $pelatihan->loadCount([
-            'pesertaProfiles as total_peserta',
-            'pesertaProfiles as completed_count' => function ($q) {
-                $q->where('is_completed', true);
-            },
-        ]);
+        $query = $pelatihan->enrollments()
+            ->with(['user.pesertaProfile.kelurahan.kecamatan'])
+            ->orderBy('created_at', 'desc');
 
-        return view('content.admin.pelatihan.show', compact('pelatihan', 'peserta'));
+        if ($statusFilter && $statusFilter !== 'all') {
+            $query->where('status', $statusFilter);
+        }
+
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->whereHas('user', function ($uq) use ($search) {
+                    $uq->where('name', 'like', "%{$search}%")
+                       ->orWhere('nik', 'like', "%{$search}%")
+                       ->orWhere('whatsapp', 'like', "%{$search}%")
+                       ->orWhere('phone', 'like', "%{$search}%")
+                       ->orWhere('email', 'like', "%{$search}%");
+                })->orWhereHas('user.pesertaProfile', function ($pq) use ($search) {
+                    $pq->where('nama_lengkap', 'like', "%{$search}%")
+                       ->orWhere('nik', 'like', "%{$search}%");
+                });
+            });
+        }
+
+        $enrollments = $query->paginate(20)->withQueryString();
+
+        // Statistik
+        $totalPeserta = $pelatihan->enrollments()->count();
+        $confirmedCount = $pelatihan->enrollments()->where('status', 'confirmed')->count();
+        $pendingCount = $pelatihan->enrollments()->where('status', 'pending')->count();
+        $rejectedCount = $pelatihan->enrollments()->where('status', 'rejected')->count();
+
+        // Seluruh nomor WA untuk tombol salin cepat
+        $allWaNumbers = $pelatihan->enrollments()
+            ->with('user.pesertaProfile')
+            ->get()
+            ->map(function ($enr) {
+                return $enr->user?->whatsapp ?: ($enr->user?->phone ?: $enr->user?->pesertaProfile?->no_wa);
+            })
+            ->filter()
+            ->unique()
+            ->implode(', ');
+
+        return view('content.admin.pelatihan.show', compact(
+            'pelatihan',
+            'enrollments',
+            'totalPeserta',
+            'confirmedCount',
+            'pendingCount',
+            'rejectedCount',
+            'allWaNumbers',
+            'statusFilter',
+            'search'
+        ));
     }
 
     public function destroy(Pelatihan $pelatihan)

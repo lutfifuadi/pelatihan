@@ -8,7 +8,7 @@ $configData = Helper::appClasses();
 
 @section('page-style')
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Sora:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Sora:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500;600&display=swap');
 
   .content-wrapper {
     font-family: 'Outfit', sans-serif;
@@ -39,194 +39,79 @@ $configData = Helper::appClasses();
     color: #f8fafc !important;
   }
 
-  .layout-navbar-fixed .layout-page::before {
-    display: none !important;
-  }
-
-  .content-wrapper > .container-xxl {
-    max-width: 100% !important;
-    padding: 0 !important;
-  }
-
-  .layout-menu,
-  #layout-menu {
-    background-color: #0b0f19 !important;
-    border-right: 1px solid rgba(255, 255, 255, 0.08) !important;
-  }
-  .layout-menu .app-brand {
-    background-color: #0b0f19 !important;
-  }
-  .layout-menu .menu-inner {
-    background-color: #0b0f19 !important;
-  }
-  .layout-menu .menu-link {
-    color: rgba(255, 255, 255, 0.7) !important;
-  }
-  .layout-menu .menu-item.active > .menu-link {
-    color: #ffffff !important;
-    background: linear-gradient(135deg, #6366f1, #d946ef) !important;
-    box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3) !important;
-  }
-  .layout-menu .menu-item.active > .menu-link i {
-    color: #ffffff !important;
-  }
-  .layout-menu .menu-header-text {
-    color: rgba(255, 255, 255, 0.4) !important;
-  }
-  .layout-menu .menu-link:hover {
-    background-color: rgba(255, 255, 255, 0.04) !important;
-    color: #ffffff !important;
-  }
-  .layout-menu .menu-inner-shadow {
-    background: linear-gradient(#0b0f19 5%, rgba(11, 15, 25, 0) 95%) !important;
-  }
-  .layout-menu .app-brand .app-brand-text {
-    color: #ffffff !important;
-  }
-
-  .layout-navbar,
-  #layout-navbar {
-    background: rgba(15, 23, 42, 0.45) !important;
-    backdrop-filter: blur(20px) !important;
-    -webkit-backdrop-filter: blur(20px) !important;
-    border: 1px solid rgba(255, 255, 255, 0.08) !important;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2) !important;
-  }
-  .navbar-detached {
-    background: rgba(15, 23, 42, 0.45) !important;
-    border: 1px solid rgba(255, 255, 255, 0.08) !important;
-    margin-top: 12px !important;
-  }
-  #layout-navbar .nav-link {
-    color: rgba(255, 255, 255, 0.7) !important;
-  }
-  #layout-navbar .nav-link:hover {
-    color: #ffffff !important;
-  }
-
-  .glow-orb {
-    position: absolute;
-    border-radius: 50%;
-    filter: blur(120px);
-    opacity: 0.4;
-    mix-blend-mode: screen;
-    pointer-events: none;
-    animation: orbFloat 25s infinite alternate ease-in-out;
-    z-index: 0;
-  }
-  .orb-1 {
-    width: 450px;
-    height: 450px;
-    background: radial-gradient(circle, #6366f1 0%, rgba(99, 102, 241, 0) 70%);
-    top: -10%;
-    left: -10%;
-    animation-duration: 20s;
-  }
-  .orb-2 {
-    width: 550px;
-    height: 550px;
-    background: radial-gradient(circle, #ec4899 0%, rgba(236, 72, 153, 0) 70%);
-    bottom: 5%;
-    right: -10%;
-    animation-duration: 28s;
-  }
-  .orb-3 {
-    width: 350px;
-    height: 350px;
-    background: radial-gradient(circle, #06b6d4 0%, rgba(6, 182, 212, 0) 70%);
-    top: 35%;
-    left: 25%;
-    animation-duration: 24s;
-  }
-  @keyframes orbFloat {
-    0% { transform: translate(0, 0) scale(1) rotate(0deg); }
-    50% { transform: translate(60px, 40px) scale(1.08) rotate(180deg); }
-    100% { transform: translate(-30px, -50px) scale(0.92) rotate(360deg); }
-  }
-
-  .text-body-premium {
-    color: rgba(255, 255, 255, 0.65) !important;
-  }
-
   .glass-card-premium {
-    background: rgba(15, 23, 42, 0.25) !important;
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
+    background: rgba(15, 23, 42, 0.55) !important;
+    backdrop-filter: blur(16px) !important;
+    -webkit-backdrop-filter: blur(16px) !important;
     border: 1px solid rgba(255, 255, 255, 0.08) !important;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
     border-radius: 5px !important;
-    position: relative;
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    z-index: 1;
-  }
-  .glass-card-premium:hover {
-    transform: translateY(-2px) !important;
-    border-color: rgba(99, 102, 241, 0.2) !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25) !important;
   }
 
   .stat-icon-box {
-    width: 52px;
-    height: 52px;
+    width: 44px;
+    height: 44px;
     border-radius: 5px !important;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.6rem;
     flex-shrink: 0;
   }
-
   .stat-icon-primary {
-    background: rgba(99, 102, 241, 0.12);
-    color: #6366f1;
+    background: rgba(99, 102, 241, 0.18);
+    color: #818cf8;
+    border: 1px solid rgba(99, 102, 241, 0.35);
   }
   .stat-icon-success {
-    background: rgba(16, 185, 129, 0.12);
-    color: #10b981;
-  }
-  .stat-icon-info {
-    background: rgba(6, 182, 212, 0.12);
-    color: #06b6d4;
+    background: rgba(16, 185, 129, 0.18);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.35);
   }
   .stat-icon-warning {
-    background: rgba(245, 158, 11, 0.12);
-    color: #f59e0b;
+    background: rgba(245, 158, 11, 0.18);
+    color: #fbbf24;
+    border: 1px solid rgba(245, 158, 11, 0.35);
+  }
+  .stat-icon-info {
+    background: rgba(56, 189, 248, 0.18);
+    color: #38bdf8;
+    border: 1px solid rgba(56, 189, 248, 0.35);
   }
 
   .badge-premium {
-    background: rgba(255, 255, 255, 0.04);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    color: rgba(255, 255, 255, 0.8);
-    border-radius: 5px;
-    padding: 4px 12px;
-    font-weight: 500;
+    border-radius: 5px !important;
+    padding: 4px 10px;
+    font-weight: 600;
     font-size: 0.75rem;
+    border: 1px solid transparent;
   }
   .badge-premium-success {
-    background: rgba(16, 185, 129, 0.15);
-    border-color: rgba(16, 185, 129, 0.3);
+    background: rgba(16, 185, 129, 0.18);
+    border-color: rgba(16, 185, 129, 0.35);
     color: #34d399;
   }
   .badge-premium-warning {
-    background: rgba(245, 158, 11, 0.15);
-    border-color: rgba(245, 158, 11, 0.3);
+    background: rgba(245, 158, 11, 0.18);
+    border-color: rgba(245, 158, 11, 0.35);
     color: #fbbf24;
   }
-
-  .btn-glow-premium {
-    background: linear-gradient(135deg, #ffc107, #ff9800) !important;
-    border: none;
-    color: #0b0f19 !important;
-    font-family: 'Sora', sans-serif;
-    font-weight: 700;
-    border-radius: 5px;
-    box-shadow: 0 4px 15px rgba(255, 152, 0, 0.2);
-    transition: all 0.3s ease;
+  .badge-premium-danger {
+    background: rgba(239, 68, 68, 0.18);
+    border-color: rgba(239, 68, 68, 0.35);
+    color: #f87171;
   }
-  .btn-glow-premium:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 10px 25px rgba(255, 152, 0, 0.4);
-    background: linear-gradient(135deg, #ffca28, #ffa726) !important;
-    color: #0b0f19 !important;
+  .badge-premium-info {
+    background: rgba(56, 189, 248, 0.18);
+    border-color: rgba(56, 189, 248, 0.35);
+    color: #38bdf8;
+  }
+
+  .table-custom tbody tr {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    transition: background 0.2s ease;
+  }
+  .table-custom tbody tr:hover {
+    background: rgba(255, 255, 255, 0.03);
   }
 
   .pagination .page-item .page-link {
@@ -250,204 +135,320 @@ $configData = Helper::appClasses();
     border-color: rgba(255, 255, 255, 0.04) !important;
     color: rgba(255, 255, 255, 0.3) !important;
   }
-  .pagination .page-item .page-link:hover:not(.disabled) {
-    background: rgba(255, 255, 255, 0.08) !important;
-    color: #ffffff !important;
-  }
 </style>
 @endsection
 
 @section('content')
-  <div class="glow-orb orb-1"></div>
-  <div class="glow-orb orb-2"></div>
-  <div class="glow-orb orb-3"></div>
+<div class="container-fluid px-4 px-lg-5 py-3">
 
-  <div class="container-fluid px-4 px-lg-6 position-relative" style="z-index: 1;">
+  {{-- Top Hero Header --}}
+  <div class="glass-card-premium p-4 p-xl-4 mb-4">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+      <div class="d-flex align-items-center gap-3">
+        <div class="stat-icon-box stat-icon-primary" style="width: 48px; height: 48px; font-size: 1.5rem;">
+          <i class="icon-base ti tabler-users-group"></i>
+        </div>
+        <div>
+          <div class="d-flex align-items-center gap-2 flex-wrap mb-1">
+            <h4 class="fw-bold text-white mb-0">{{ $pelatihan->nama }}</h4>
+            <span class="badge" style="background: rgba(99, 102, 241, 0.2); border: 1px solid rgba(99, 102, 241, 0.4); color: #c7d2fe; border-radius: 5px !important; padding: 4px 10px; font-size: 0.78rem;">
+              Batch: {{ $pelatihan->batch }}
+            </span>
+          </div>
+          <p class="text-body-premium mb-0" style="font-size: 0.88rem;">
+            Penyelenggara: <strong class="text-white">{{ $pelatihan->dinas->nama_dinas ?? 'Dinas Terkait' }}</strong>
+            <span class="mx-2 text-white-50">•</span>
+            Pelaksanaan: 
+            <span class="text-info fw-semibold">
+              {{ $pelatihan->tanggal_mulai ? \Carbon\Carbon::parse($pelatihan->tanggal_mulai)->format('d M Y') : '-' }} 
+              s/d 
+              {{ $pelatihan->tanggal_selesai ? \Carbon\Carbon::parse($pelatihan->tanggal_selesai)->format('d M Y') : '-' }}
+            </span>
+          </p>
+        </div>
+      </div>
 
-    <div class="glass-card-premium px-4 px-xl-5 py-4 mb-4">
-      <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+      {{-- Action Buttons --}}
+      <div class="d-flex align-items-center gap-2 flex-wrap">
+        <a href="{{ route('admin.pelatihan.index') }}" class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-1.5" style="border-radius: 5px !important; border-color: rgba(255,255,255,0.15); color: #cbd5e1;">
+          <i class="icon-base ti tabler-arrow-left"></i> <span>Kembali</span>
+        </a>
+        <a href="{{ route('admin.presensi.show', $pelatihan->id) }}" class="btn btn-info btn-sm d-flex align-items-center gap-1.5 text-white" style="border-radius: 5px !important; background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%); border: 1px solid rgba(56, 189, 248, 0.4);">
+          <i class="icon-base ti tabler-qrcode"></i> <span>Presensi / Scanner</span>
+        </a>
+        <button type="button" onclick="copyAllWaNumbers()" class="btn btn-success btn-sm d-flex align-items-center gap-1.5" style="border-radius: 5px !important; background: linear-gradient(135deg, #059669 0%, #047857 100%); border: 1px solid rgba(52, 211, 153, 0.4);">
+          <i class="icon-base ti tabler-brand-whatsapp"></i> <span>Salin Semua WA</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  {{-- Summary Stat Cards --}}
+  <div class="row g-3 mb-4">
+    <div class="col-12 col-sm-6 col-xl-3">
+      <div class="glass-card-premium p-3">
         <div class="d-flex align-items-center gap-3">
-          <div class="stat-icon-box stat-icon-primary">
-            <i class="icon-base ti tabler-users-group fs-4"></i>
+          <div class="stat-icon-box stat-icon-info">
+            <i class="icon-base ti tabler-users fs-4"></i>
           </div>
           <div>
-            <h4 class="fw-bold text-white mb-0">Peserta Pelatihan</h4>
-            <p class="text-body-premium mb-0 mt-1" style="font-size: 0.95rem;">
-              {{ $pelatihan->nama }} — Batch {{ $pelatihan->batch }}
-              @if($pelatihan->dinas)
-                <span class="mx-2">|</span> {{ $pelatihan->dinas->nama_dinas }}
-              @endif
-            </p>
-          </div>
-        </div>
-        <a href="{{ route('admin.pelatihan.index') }}" class="btn btn-outline-light btn-sm d-flex align-items-center gap-2" style="border-radius: 5px;">
-          <i class="icon-base ti tabler-arrow-left"></i> Kembali
-        </a>
-      </div>
-    </div>
-
-    <div class="row g-3 mb-4">
-      <div class="col-md-3 col-6">
-        <div class="glass-card-premium px-3 py-3">
-          <div class="d-flex align-items-center gap-3">
-            <div class="stat-icon-box stat-icon-info" style="width: 44px; height: 44px; font-size: 1.3rem;">
-              <i class="icon-base ti tabler-users"></i>
-            </div>
-            <div>
-              <div class="text-body-premium small">Total Peserta</div>
-              <div class="text-white fw-bold fs-4">{{ $pelatihan->total_peserta }}</div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="col-md-3 col-6">
-        <div class="glass-card-premium px-3 py-3">
-          <div class="d-flex align-items-center gap-3">
-            <div class="stat-icon-box stat-icon-success" style="width: 44px; height: 44px; font-size: 1.3rem;">
-              <i class="icon-base ti tabler-check"></i>
-            </div>
-            <div>
-              <div class="text-body-premium small">Lengkap</div>
-              <div class="text-white fw-bold fs-4">{{ $pelatihan->completed_count }}</div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="col-md-3 col-6">
-        <div class="glass-card-premium px-3 py-3">
-          <div class="d-flex align-items-center gap-3">
-            <div class="stat-icon-box stat-icon-warning" style="width: 44px; height: 44px; font-size: 1.3rem;">
-              <i class="icon-base ti tabler-clipboard-list"></i>
-            </div>
-            <div>
-              <div class="text-body-premium small">Kuota</div>
-              <div class="text-white fw-bold fs-4">{{ $pelatihan->kuota ?? '-' }}</div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="col-md-3 col-6">
-        <div class="glass-card-premium px-3 py-3">
-          <div class="d-flex align-items-center gap-3">
-            <div class="stat-icon-box stat-icon-primary" style="width: 44px; height: 44px; font-size: 1.3rem;">
-              <i class="icon-base ti tabler-calendar"></i>
-            </div>
-            <div>
-              <div class="text-body-premium small">Pelaksanaan</div>
-              <div class="text-white fw-semibold" style="font-size: 0.85rem;">
-                {{ $pelatihan->tanggal_mulai ? \Carbon\Carbon::parse($pelatihan->tanggal_mulai)->format('d/m/Y') : '-' }}
-                —
-                {{ $pelatihan->tanggal_selesai ? \Carbon\Carbon::parse($pelatihan->tanggal_selesai)->format('d/m/Y') : '-' }}
-              </div>
-              @if($pelatihan->batas_pendaftaran)
-                <div class="mt-1" style="font-size: 0.7rem; color: rgba(251, 191, 36, 0.8);">
-                  <i class="icon-base ti tabler-clock me-1"></i>
-                  Batas daftar: {{ \Carbon\Carbon::parse($pelatihan->batas_pendaftaran)->format('d/m/Y') }}
-                </div>
-              @endif
-            </div>
+            <span class="text-body-premium small d-block">Total Pendaftar</span>
+            <h4 class="text-white fw-bold mb-0">{{ $totalPeserta }}</h4>
           </div>
         </div>
       </div>
     </div>
 
-    <div class="col-12">
-      <div class="glass-card-premium px-4 py-4">
-        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
-          <h5 class="fw-bold text-white mb-0">
-            <i class="icon-base ti tabler-list me-2"></i> Daftar Peserta
-          </h5>
-          <div class="d-flex gap-2">
-            <button onclick="copyAllWA()" class="btn btn-info btn-sm d-flex align-items-center gap-1" style="border-radius: 5px;">
-              <i class="icon-base ti tabler-copy"></i> Salin Semua WA
-            </button>
-            <a href="#" class="btn btn-success btn-sm d-flex align-items-center gap-1" style="border-radius: 5px;">
-              <i class="icon-base ti tabler-file-spreadsheet"></i> Export Excel
-            </a>
+    <div class="col-12 col-sm-6 col-xl-3">
+      <div class="glass-card-premium p-3">
+        <div class="d-flex align-items-center gap-3">
+          <div class="stat-icon-box stat-icon-success">
+            <i class="icon-base ti tabler-circle-check fs-4"></i>
+          </div>
+          <div>
+            <span class="text-body-premium small d-block">Terkonfirmasi (Resmi)</span>
+            <h4 class="text-white fw-bold mb-0">{{ $confirmedCount }}</h4>
           </div>
         </div>
-
-        <div class="table-responsive">
-          <table class="table table-borderless text-white align-middle">
-            <thead>
-              <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.08);">
-                <th class="text-body-premium small fw-semibold px-0" style="width: 50px;">No</th>
-                <th class="text-body-premium small fw-semibold">Nama</th>
-                <th class="text-body-premium small fw-semibold">NIK</th>
-                <th class="text-body-premium small fw-semibold">WhatsApp</th>
-                <th class="text-body-premium small fw-semibold">Email</th>
-                <th class="text-body-premium small fw-semibold">Kecamatan</th>
-                <th class="text-body-premium small fw-semibold">Status</th>
-                <th class="text-body-premium small fw-semibold text-end px-0" style="width: 80px;">Aksi</th>
-              </tr>
-            </thead>
-            <tbody>
-              @forelse($peserta as $index => $p)
-                <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.04);">
-                  <td class="px-0 py-3 text-body-premium">{{ $peserta->firstItem() + $index }}</td>
-                  <td class="py-3 fw-semibold text-white">{{ $p->nama_lengkap ?? $p->user?->name ?? '-' }}</td>
-                  <td class="py-3 text-body-premium" style="font-size: 0.85rem;">{{ $p->nik ?? '-' }}</td>
-                  <td class="py-3 text-body-premium">
-                    @if($p->whatsapp)
-                      <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $p->whatsapp) }}" target="_blank" class="text-info text-decoration-none">
-                        <i class="icon-base ti tabler-brand-whatsapp me-1"></i>{{ $p->whatsapp }}
-                      </a>
-                    @else
-                      <span class="text-body-premium">-</span>
-                    @endif
-                  </td>
-                  <td class="py-3 text-body-premium" style="font-size: 0.85rem;">{{ $p->email ?? $p->user?->email ?? '-' }}</td>
-                  <td class="py-3 text-body-premium" style="font-size: 0.85rem;">
-                    {{ $p->kelurahan?->kecamatan?->name ?? $p->kecamatan ?? '-' }}
-                  </td>
-                  <td class="py-3">
-                    @if($p->is_completed)
-                      <span class="badge-premium badge-premium-success">Lengkap</span>
-                    @else
-                      <span class="badge-premium badge-premium-warning">Belum Lengkap</span>
-                    @endif
-                  </td>
-                  <td class="text-end px-0 py-3">
-                    @if($p->user)
-                      <a href="{{ route('admin.peserta.show', $p->user) }}" class="btn btn-primary btn-sm d-flex align-items-center justify-content-center" style="border-radius: 5px; width: 32px; height: 32px; padding: 0;" title="Detail">
-                        <i class="icon-base ti tabler-arrow-right fs-5"></i>
-                      </a>
-                    @else
-                      <span class="text-body-premium small">-</span>
-                    @endif
-                  </td>
-                </tr>
-              @empty
-                <tr>
-                  <td colspan="8" class="text-center text-body-premium py-5">
-                    <i class="icon-base ti tabler-users-off fs-1 mb-2 d-block text-warning"></i>
-                    Belum ada peserta terdaftar untuk pelatihan ini.
-                  </td>
-                </tr>
-              @endforelse
-            </tbody>
-          </table>
-        </div>
-
-        @if($peserta->hasPages())
-          <div class="mt-4 pt-3" style="border-top: 1px solid rgba(255, 255, 255, 0.05);">
-            {{ $peserta->links() }}
-          </div>
-        @endif
       </div>
     </div>
 
+    <div class="col-12 col-sm-6 col-xl-3">
+      <div class="glass-card-premium p-3">
+        <div class="d-flex align-items-center gap-3">
+          <div class="stat-icon-box stat-icon-warning">
+            <i class="icon-base ti tabler-clock fs-4"></i>
+          </div>
+          <div>
+            <span class="text-body-premium small d-block">Menunggu Verifikasi</span>
+            <h4 class="text-white fw-bold mb-0">{{ $pendingCount }}</h4>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-sm-6 col-xl-3">
+      <div class="glass-card-premium p-3">
+        <div class="d-flex align-items-center gap-3">
+          <div class="stat-icon-box stat-icon-primary">
+            <i class="icon-base ti tabler-armchair fs-4"></i>
+          </div>
+          <div>
+            <span class="text-body-premium small d-block">Target Kuota</span>
+            <h4 class="text-white fw-bold mb-0">{{ $pelatihan->kuota ?? 40 }} <small class="fs-6 fw-normal text-white-50">Kursi</small></h4>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
+
+  {{-- Participant Table Card --}}
+  <div class="glass-card-premium p-4 p-xl-4 mb-4">
+    {{-- Header Table & Filters --}}
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-3.5">
+      <div>
+        <h5 class="fw-bold text-white mb-0 d-flex align-items-center gap-2">
+          <i class="icon-base ti tabler-list-details text-primary"></i>
+          Daftar Peserta Pelatihan ({{ $enrollments->total() }})
+        </h5>
+      </div>
+
+      {{-- Search & Filter Form --}}
+      <form method="GET" action="{{ route('admin.pelatihan.peserta', $pelatihan->id) }}" class="d-flex align-items-center gap-2 flex-wrap">
+        <div class="input-group input-group-sm" style="width: 240px;">
+          <span class="input-group-text" style="background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.1); color: #94a3b8;">
+            <i class="icon-base ti tabler-search"></i>
+          </span>
+          <input type="text" name="search" class="form-control" placeholder="Cari nama, NIK, WA..." value="{{ $search }}" style="background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.1); color: #fff;">
+        </div>
+
+        <select name="status" class="form-select form-select-sm" style="width: 160px; background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.1); color: #fff;" onchange="this.form.submit()">
+          <option value="all" {{ empty($statusFilter) || $statusFilter === 'all' ? 'selected' : '' }}>Semua Status</option>
+          <option value="confirmed" {{ $statusFilter === 'confirmed' ? 'selected' : '' }}>Terkonfirmasi ({{ $confirmedCount }})</option>
+          <option value="pending" {{ $statusFilter === 'pending' ? 'selected' : '' }}>Pending ({{ $pendingCount }})</option>
+          <option value="rejected" {{ $statusFilter === 'rejected' ? 'selected' : '' }}>Ditolak ({{ $rejectedCount }})</option>
+        </select>
+
+        @if($search || ($statusFilter && $statusFilter !== 'all'))
+          <a href="{{ route('admin.pelatihan.peserta', $pelatihan->id) }}" class="btn btn-outline-secondary btn-sm" style="border-radius: 5px !important;" title="Reset Filter">
+            <i class="icon-base ti tabler-rotate"></i>
+          </a>
+        @endif
+      </form>
+    </div>
+
+    {{-- Table Responsive --}}
+    <div class="table-responsive">
+      <table class="table table-custom text-white align-middle mb-0">
+        <thead>
+          <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.08); background: rgba(255, 255, 255, 0.02);">
+            <th class="text-body-premium small fw-semibold py-3 px-3" style="width: 50px;">No</th>
+            <th class="text-body-premium small fw-semibold py-3">Nama Peserta</th>
+            <th class="text-body-premium small fw-semibold py-3">WhatsApp &amp; Kontak</th>
+            <th class="text-body-premium small fw-semibold py-3">Domisili (Wilayah)</th>
+            <th class="text-body-premium small fw-semibold py-3">Profil Usaha / Produk</th>
+            <th class="text-body-premium small fw-semibold py-3">Status</th>
+            <th class="text-body-premium small fw-semibold py-3">Tgl Daftar</th>
+            <th class="text-body-premium small fw-semibold py-3 text-end px-3" style="width: 100px;">Aksi</th>
+          </tr>
+        </thead>
+        <tbody>
+          @forelse($enrollments as $index => $enr)
+            @php
+              $user = $enr->user;
+              $profile = $user?->pesertaProfile;
+              $answers = is_array($profile?->jawaban_pertanyaan) ? $profile->jawaban_pertanyaan : (json_decode($profile?->jawaban_pertanyaan ?? '[]', true) ?: []);
+              $waClean = preg_replace('/[^0-9]/', '', $user?->whatsapp ?: ($user?->phone ?: $profile?->no_wa));
+            @endphp
+            <tr>
+              <td class="py-3 px-3 text-body-premium small">
+                {{ $enrollments->firstItem() + $index }}
+              </td>
+              <td class="py-3">
+                <div class="d-flex flex-column">
+                  <span class="fw-bold text-white" style="font-size: 0.92rem; letter-spacing: 0.01em;">
+                    {{ $profile?->nama_lengkap ?: ($user?->name ?? 'PESERTA') }}
+                  </span>
+                  <small class="text-body-premium" style="font-family: 'Fira Code', monospace; font-size: 0.75rem;">
+                    NIK: {{ $user?->nik ?: ($profile?->nik ?? '-') }}
+                  </small>
+                </div>
+              </td>
+              <td class="py-3">
+                <div class="d-flex flex-column gap-1">
+                  @if($waClean)
+                    <a href="https://wa.me/{{ $waClean }}" target="_blank" class="d-inline-flex align-items-center gap-1.5 text-success fw-semibold text-decoration-none" style="font-size: 0.82rem;">
+                      <i class="icon-base ti tabler-brand-whatsapp"></i>
+                      <span>{{ $user?->whatsapp ?: ($user?->phone ?: $profile?->no_wa) }}</span>
+                    </a>
+                  @else
+                    <span class="text-body-premium small">-</span>
+                  @endif
+                  <small class="text-body-premium" style="font-size: 0.72rem;">
+                    {{ $user?->email ?: '-' }}
+                  </small>
+                </div>
+              </td>
+              <td class="py-3">
+                <div class="d-flex flex-column">
+                  <span class="text-white small fw-semibold">
+                    {{ $profile?->kelurahan?->name ?? ($profile?->alamat_ktp ?: 'Kec. Regol') }}
+                  </span>
+                  <small class="text-body-premium" style="font-size: 0.72rem;">
+                    RT {{ $profile?->rt ?? '01' }} / RW {{ $profile?->rw ?? '01' }} • {{ $profile?->kelurahan?->kecamatan?->name ?? 'Regol' }}
+                  </small>
+                </div>
+              </td>
+              <td class="py-3">
+                <div class="d-flex flex-column" style="max-width: 200px;">
+                  @if(!empty($answers['nama_usaha']))
+                    <span class="text-warning small fw-semibold text-truncate" title="{{ $answers['nama_usaha'] }}">
+                      <i class="icon-base ti tabler-building-store me-1"></i>{{ $answers['nama_usaha'] }}
+                    </span>
+                    <small class="text-body-premium text-truncate" style="font-size: 0.72rem;" title="{{ $answers['nama_produk'] ?? '-' }}">
+                      {{ $answers['nama_produk'] ?? 'Produk UMKM' }}
+                    </small>
+                  @else
+                    <span class="text-body-premium small">-</span>
+                  @endif
+                </div>
+              </td>
+              <td class="py-3">
+                @switch($enr->status?->value ?? $enr->status)
+                  @case('confirmed')
+                    <span class="badge-premium badge-premium-success d-inline-flex align-items-center gap-1">
+                      <i class="icon-base ti tabler-circle-check"></i> Terkonfirmasi
+                    </span>
+                    @break
+                  @case('pending')
+                    <span class="badge-premium badge-premium-warning d-inline-flex align-items-center gap-1">
+                      <i class="icon-base ti tabler-clock"></i> Pending
+                    </span>
+                    @break
+                  @case('rejected')
+                    <span class="badge-premium badge-premium-danger d-inline-flex align-items-center gap-1">
+                      <i class="icon-base ti tabler-circle-x"></i> Ditolak
+                    </span>
+                    @break
+                  @case('approved')
+                    <span class="badge-premium badge-premium-success d-inline-flex align-items-center gap-1">
+                      <i class="icon-base ti tabler-check"></i> Disetujui
+                    </span>
+                    @break
+                  @default
+                    <span class="badge-premium">{{ $enr->statusLabel() }}</span>
+                @endswitch
+              </td>
+              <td class="py-3 text-body-premium small" style="font-size: 0.78rem;">
+                {{ $enr->created_at ? $enr->created_at->format('d/m/Y H:i') : '-' }} <small class="text-white-50">WIB</small>
+              </td>
+              <td class="py-3 px-3 text-end">
+                @if($user)
+                  <a href="{{ route('admin.peserta.show', $user->id) }}" class="btn btn-outline-primary btn-sm d-inline-flex align-items-center justify-content-center" style="width: 32px; height: 32px; border-radius: 5px !important; padding: 0;" title="Lihat Profil Peserta">
+                    <i class="icon-base ti tabler-arrow-right fs-5"></i>
+                  </a>
+                @endif
+              </td>
+            </tr>
+          @empty
+            <tr>
+              <td colspan="8" class="text-center text-body-premium py-5">
+                <div class="py-4">
+                  <i class="icon-base ti tabler-users-off fs-1 text-warning d-block mb-2"></i>
+                  <span class="fw-semibold text-white d-block">Tidak ada data peserta yang sesuai filter.</span>
+                  <small class="text-body-premium">Coba ubah kata kunci pencarian atau status filter.</small>
+                </div>
+              </td>
+            </tr>
+          @endforelse
+        </tbody>
+      </table>
+    </div>
+
+    {{-- Pagination --}}
+    @if($enrollments->hasPages())
+      <div class="mt-4 pt-3 d-flex justify-content-between align-items-center flex-wrap gap-2" style="border-top: 1px solid rgba(255, 255, 255, 0.05);">
+        <small class="text-body-premium">
+          Menampilkan {{ $enrollments->firstItem() }} - {{ $enrollments->lastItem() }} dari total {{ $enrollments->total() }} peserta
+        </small>
+        <div>
+          {{ $enrollments->links() }}
+        </div>
+      </div>
+    @endif
+  </div>
+
+</div>
 @endsection
 
 @push('scripts')
 <script>
-function copyAllWA() {
-    const waNumbers = @json($peserta->pluck('whatsapp')->filter()->implode(', '));
-    navigator.clipboard.writeText(waNumbers).then(() => {
-        alert('Semua nomor WA berhasil disalin!');
-    }).catch(() => {
-        alert('Gagal menyalin nomor WA.');
+function copyAllWaNumbers() {
+    const waList = @json($allWaNumbers);
+    if (!waList || waList.length === 0) {
+        if (typeof Swal !== 'undefined') {
+            Swal.fire('Info', 'Tidak ada nomor WhatsApp yang dapat disalin.', 'info');
+        } else {
+            alert('Tidak ada nomor WhatsApp yang dapat disalin.');
+        }
+        return;
+    }
+
+    navigator.clipboard.writeText(waList).then(() => {
+        if (typeof Swal !== 'undefined') {
+            Swal.fire({
+                icon: 'success',
+                title: 'Nomor WA Berhasil Disalin! 📋',
+                text: 'Daftar nomor WhatsApp seluruh peserta telah disalin ke clipboard.',
+                confirmButtonText: 'Bagus',
+                customClass: { confirmButton: 'btn btn-success' }
+            });
+        } else {
+            alert('Semua nomor WA berhasil disalin ke clipboard!');
+        }
+    }).catch(err => {
+        console.error('Gagal menyalin:', err);
+        alert('Gagal menyalin nomor WhatsApp.');
     });
 }
 </script>
