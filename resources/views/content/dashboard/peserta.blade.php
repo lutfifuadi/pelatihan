@@ -998,123 +998,228 @@ $configData = Helper::appClasses();
          STATE 2: Pendaftaran Selesai, Menunggu Verifikasi / Cadangan / Konfirmasi WA
          ============================================================ -->
     @elseif(!$data['enrollment'] || in_array($data['enrollment']->status?->value, ['pending', 'waitlist', 'waiting_wa_confirmation']))
-      <div class="row g-4 mb-4">
-        <div class="col-12 col-xl-8">
-          <div class="glass-card-premium px-4 px-xl-5 py-4 h-100">
-            <div class="text-center py-4">
-              <div class="stat-icon-box stat-icon-info mx-auto mb-3" style="width: 64px; height: 64px; font-size: 2rem; border-radius: 50% !important;">
-                <i class="icon-base ti tabler-send fs-1"></i>
-              </div>
-              <h4 class="fw-bold text-white mb-2">Pendaftaran Anda Berhasil Dikirim!</h4>
-              <p class="text-body-premium mx-auto" style="max-width: 550px; font-size: 0.95rem; line-height: 1.6;">
-                Terima kasih telah melengkapi data pendaftaran Anda. Saat ini data Anda sedang dalam proses peninjauan dan verifikasi oleh tim Admin/Dinas penyelenggara.
-              </p>
+      @php
+        $enrollment = $data['enrollment'];
+        $pelatihan = $data['pelatihan'];
+        $isWaitlist = $enrollment && $enrollment->status?->value === 'waitlist';
+        $isWaitingWa = $enrollment && $enrollment->status?->value === 'waiting_wa_confirmation';
+        
+        $statusTitle = 'MENUNGGU VERIFIKASI BERKAS';
+        if ($isWaitlist) {
+            $statusTitle = 'STATUS: CADANGAN (WAITLIST)';
+        } elseif ($isWaitingWa) {
+            $statusTitle = 'MENUNGGU KONFIRMASI WHATSAPP';
+        }
+        
+        $tglDaftar = $enrollment?->created_at ?? ($profile?->created_at ?? now());
+        $whatsappSender = $data['whatsapp_sender'] ?? '62888888888';
+        $waNama = $profile->nama_lengkap ?? auth()->user()->name ?? '-';
+        $waPelatihan = $pelatihan->nama ?? '-';
+        $waMsg = "Halo Admin, saya telah mendaftar pelatihan {$waPelatihan}.\nNama: {$waNama}\nNIK: " . ($profile->nik ?? auth()->user()->nik ?? '-') . "\nMohon info terkait verifikasi pendaftaran saya.";
+      @endphp
 
-              @if($data['enrollment'] && $data['enrollment']->status?->value === 'waitlist')
-                <div class="alert alert-warning border-warning border-opacity-20 bg-warning bg-opacity-10 text-warning mx-auto p-3 mt-4 text-start" style="max-width: 550px; border-radius: 5px;">
-                  <div class="d-flex gap-2">
-                    <i class="icon-base ti tabler-alert-triangle mt-1 flex-shrink-0"></i>
-                    <div>
-                      <strong class="d-block mb-1">Status: Cadangan (Waiting List)</strong>
-                      <span>Kuota utama untuk pelatihan ini saat ini sudah penuh. Anda masuk ke daftar cadangan dan akan otomatis dipromosikan jika ada peserta utama yang mengundurkan diri atau ditolak.</span>
-                      @if($data['enrollment']->notes)
-                        <p class="mb-0 mt-2 small text-warning text-opacity-80">Catatan Admin: {{ $data['enrollment']->notes }}</p>
-                      @endif
-                    </div>
-                  </div>
-                </div>
-              @elseif($data['enrollment'] && $data['enrollment']->status?->value === 'waiting_wa_confirmation')
-                <div class="alert alert-warning border-warning border-opacity-20 bg-warning bg-opacity-10 text-warning mx-auto p-3 mt-4 text-start" style="max-width: 550px; border-radius: 5px;">
-                  <div class="d-flex gap-2">
-                    <i class="icon-base ti tabler-brand-whatsapp mt-1 flex-shrink-0"></i>
-                    <div>
-                      <strong class="d-block mb-1">Status: Menunggu Konfirmasi WhatsApp</strong>
-                      <span>Pendaftaran Anda telah disetujui tahap awal. Silakan lakukan konfirmasi kesediaan hadir melalui WhatsApp agar dapat diproses ke tahap verifikasi NewBimma.</span>
-                    </div>
-                  </div>
-                </div>
-              @else
-                <div class="d-inline-flex align-items-center gap-2 badge bg-primary bg-opacity-15 text-white border border-primary border-opacity-30 px-3 py-2 mt-3" style="border-radius: 20px;">
-                  <span class="spinner-grow spinner-grow-sm text-white" role="status"></span>
-                  <span class="fw-semibold small text-uppercase" style="letter-spacing: 0.05em;">Menunggu Verifikasi Admin</span>
-                </div>
+      {{-- HERO CARD: Status Pending / Menunggu Verifikasi --}}
+      <div class="glass-card-premium px-4 px-xl-5 py-4 mb-4 position-relative overflow-hidden" 
+           style="background: radial-gradient(at 0% 0%, rgba(245, 158, 11, 0.12) 0px, transparent 65%), rgba(15, 23, 42, 0.5) !important; border: 1px solid rgba(251, 191, 36, 0.3) !important; border-radius: 5px !important;">
+        
+        <div class="row align-items-center g-4">
+          <div class="col-12 col-lg-8">
+            <div class="d-flex align-items-center gap-2 flex-wrap mb-3">
+              {{-- Badge Status Utama --}}
+              <span class="badge-hero-status" style="background: rgba(245, 158, 11, 0.22) !important; border-color: rgba(251, 191, 36, 0.5) !important; color: #fef08a !important; text-shadow: 0 0 12px rgba(251, 191, 36, 0.4);">
+                <span class="spinner-grow spinner-grow-sm me-1" role="status" style="width: 8px; height: 8px;"></span>
+                {{ $statusTitle }}
+              </span>
+
+              {{-- Badge Batch --}}
+              @if($pelatihan && $pelatihan->batch)
+                <span class="badge-hero-batch">
+                  <i class="icon-base ti tabler-tag me-1"></i> BATCH {{ $pelatihan->batch }}
+                </span>
+              @endif
+
+              {{-- Badge Dinas --}}
+              @if($pelatihan && $pelatihan->dinas)
+                <span class="badge-hero-batch" style="background: rgba(99, 102, 241, 0.2) !important; border-color: rgba(129, 140, 248, 0.4) !important; color: #c7d2fe !important;">
+                  <i class="icon-base ti tabler-building me-1"></i> {{ $pelatihan->dinas->nama_dinas }}
+                </span>
               @endif
             </div>
 
-            <hr class="dark-premium my-4">
+            <h3 class="fw-bold text-white mb-2" style="font-family: 'Sora', sans-serif; letter-spacing: -0.02em;">
+              {{ $pelatihan->nama ?? 'Pendaftaran Pelatihan Kerja' }}
+            </h3>
 
-            {{-- Link ke halaman Status Pendaftaran --}}
-            <div class="text-center">
-              <a href="{{ route('dashboard.peserta.status') }}" class="btn btn-outline-glass px-4 py-2 fw-semibold" style="border-radius: 5px; font-size: 0.85rem;">
-                <i class="icon-base ti tabler-external-link me-1"></i> Lihat Status Lengkap <span aria-hidden="true">&rarr;</span>
+            <p class="text-body-premium mb-3" style="font-size: 0.95rem; line-height: 1.6; max-width: 680px;">
+              Data formulir Anda telah berhasil kami terima. Saat ini berkas administrasi dan kualifikasi Anda sedang dalam tahap peninjauan oleh tim verifikator dinas.
+            </p>
+
+            <div class="d-flex align-items-center gap-4 flex-wrap text-white-50" style="font-size: 0.85rem;">
+              <div>
+                <span class="info-label d-inline me-1">Pendaftar:</span>
+                <strong class="text-white">{{ $profile->nama_lengkap ?? auth()->user()->name }}</strong>
+              </div>
+              <div>
+                <span class="info-label d-inline me-1">NIK:</span>
+                <span class="text-white" style="font-family: 'Fira Code', monospace; color: #fde047 !important;">{{ $profile->nik ?? auth()->user()->nik ?? '-' }}</span>
+              </div>
+              <div>
+                <span class="info-label d-inline me-1">Diajukan:</span>
+                <span class="text-white">{{ $tglDaftar->format('d M Y, H:i') }} WIB</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-12 col-lg-4 text-lg-end">
+            <div class="d-flex flex-column gap-2 justify-content-lg-end">
+              <a href="{{ route('dashboard.peserta.status') }}" class="btn btn-glow-premium py-2 px-4">
+                <i class="icon-base ti tabler-file-text me-1"></i> Bukti &amp; Riwayat Pendaftaran
+              </a>
+              <a href="https://wa.me/{{ $whatsappSender }}?text={{ urlencode($waMsg) }}" target="_blank" class="btn btn-outline-glass py-2 px-4 text-white">
+                <i class="icon-base ti tabler-brand-whatsapp text-success me-1"></i> Konfirmasi ke Admin
               </a>
             </div>
+          </div>
+        </div>
+      </div>
 
-            @if($data['pelatihan'])
-              <hr class="dark-premium my-4">
-              <h5 class="fw-bold text-white mb-3">Detail Pelatihan Pilihan:</h5>
-              <div class="p-3 rounded" style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06);">
+      {{-- ROW KONTEN DETAIL: Kiri (Detail & Estimasi SLA) | Kanan (Tahapan Seleksi Tracker) --}}
+      <div class="row g-4 mb-4">
+        {{-- Kiri: Detail & Estimasi Waktu Verifikasi --}}
+        <div class="col-12 col-xl-8">
+          <div class="glass-card-premium px-4 px-xl-5 py-4 h-100">
+            
+            {{-- Box Estimasi Waktu / SLA --}}
+            <div class="p-3.5 mb-4" style="background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(251, 191, 36, 0.25); border-radius: 5px !important;">
+              <div class="d-flex align-items-start gap-3">
+                <div class="stat-icon-box stat-icon-warning flex-shrink-0" style="width: 40px; height: 40px; font-size: 1.3rem; border-radius: 5px !important;">
+                  <i class="icon-base ti tabler-info-circle"></i>
+                </div>
+                <div>
+                  <h6 class="text-white fw-bold mb-1" style="font-size: 0.92rem;">
+                    Estimasi Waktu Verifikasi Berkas (1–3 Hari Kerja)
+                  </h6>
+                  <p class="text-body-premium mb-0" style="font-size: 0.85rem; line-height: 1.55;">
+                    Tim panitia sedang mencocokkan kelengkapan foto KTP, kesesuaian domisili, dan riwayat pelatihan di NewBimma. Status terbaru akan selalu diperbarui di dashboard ini dan notifikasi akan dikirimkan langsung ke nomor WhatsApp Anda.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            @if($isWaitlist && $enrollment->notes)
+              <div class="p-3 mb-4" style="background: rgba(245, 158, 11, 0.12); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 5px !important;">
+                <span class="text-warning fw-bold d-block mb-1 small"><i class="icon-base ti tabler-note me-1"></i>Catatan Tambahan Admin:</span>
+                <p class="text-white mb-0 small">{{ $enrollment->notes }}</p>
+              </div>
+            @endif
+
+            <h5 class="fw-bold text-white mb-3 d-flex align-items-center gap-2">
+              <i class="icon-base ti tabler-list-details text-primary"></i>
+              Rincian Pendaftaran yang Diajukan
+            </h5>
+
+            @if($pelatihan)
+              <div class="p-3 mb-3" style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06); border-radius: 5px !important;">
                 <div class="row g-3">
                   <div class="col-12 col-md-6">
-                    <span class="info-label d-block">Nama Pelatihan</span>
-                    <span class="info-value fw-bold text-white">{{ $data['pelatihan']->nama }}</span>
+                    <span class="info-label d-block">Nama Kejuruan / Program</span>
+                    <span class="info-value text-white fw-bold">{{ $pelatihan->nama }}</span>
                   </div>
                   <div class="col-6 col-md-3">
-                    <span class="info-label d-block">Batch</span>
-                    <span class="info-value text-white">{{ $data['pelatihan']->batch }}</span>
+                    <span class="info-label d-block">Batch Pelatihan</span>
+                    <span class="info-value text-white">{{ $pelatihan->batch }}</span>
                   </div>
                   <div class="col-6 col-md-3">
                     <span class="info-label d-block">Dinas Penyelenggara</span>
-                    <span class="info-value text-white">{{ $data['pelatihan']->dinas->nama_dinas ?? '-' }}</span>
+                    <span class="info-value text-white">{{ $pelatihan->dinas->nama_dinas ?? '-' }}</span>
                   </div>
-                  <div class="col-12">
-                    <span class="info-label d-block">Tanggal Pelaksanaan</span>
+                  <div class="col-12 col-md-6">
+                    <span class="info-label d-block">Rencana Pelaksanaan</span>
                     <span class="info-value text-white">
-                      @if($data['pelatihan']->tanggal_mulai)
-                        {{ $data['pelatihan']->tanggal_mulai->format('d M Y') }} s/d {{ $data['pelatihan']->tanggal_selesai ? $data['pelatihan']->tanggal_selesai->format('d M Y') : '-' }}
+                      @if($pelatihan->tanggal_mulai)
+                        {{ $pelatihan->tanggal_mulai->format('d M Y') }} s/d {{ $pelatihan->tanggal_selesai ? $pelatihan->tanggal_selesai->format('d M Y') : '-' }}
                       @else
-                        Akan segera diumumkan
+                        Akan segera diumumkan panitia
                       @endif
                     </span>
+                  </div>
+                  <div class="col-12 col-md-6">
+                    <span class="info-label d-block">Nomor WhatsApp Terdaftar</span>
+                    <span class="info-value text-white" style="font-family: 'Fira Code', monospace;">{{ $profile->whatsapp ?? auth()->user()->whatsapp ?? '-' }}</span>
                   </div>
                 </div>
               </div>
             @endif
+
+            <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 pt-2">
+              <span class="text-body-premium small">
+                Ingin mengecek atau memperbaiki dokumen yang diunggah?
+              </span>
+              <a href="{{ route('dashboard.peserta.status') }}" class="text-white fw-semibold small text-decoration-none hover-text-primary">
+                Buka Halaman Biodata &amp; Dokumen <i class="icon-base ti tabler-arrow-right ms-1"></i>
+              </a>
+            </div>
           </div>
         </div>
 
+        {{-- Kanan: Alur Seleksi 4 Tahap --}}
         <div class="col-12 col-xl-4">
           <div class="glass-card-premium px-4 px-xl-5 py-4 h-100">
             <h5 class="fw-bold text-white mb-4 d-flex align-items-center gap-2">
-              <i class="icon-base ti tabler-clock text-info"></i>
-              Proses Selanjutnya
+              <i class="icon-base ti tabler-route text-info"></i>
+              Tahapan Seleksi Anda
             </h5>
-            <ul class="timeline-custom mb-0 ps-0" style="list-style: none;">
-              <li class="d-flex gap-3 mb-4">
-                <div class="stat-icon-box stat-icon-success" style="width: 32px; height: 32px; font-size: 1rem; border-radius: 50% !important;">
+            
+            <ul class="timeline-vert mb-0 ps-0">
+              {{-- Tahap 1: Pengisian Form & Kirim --}}
+              <li class="timeline-item">
+                <div class="timeline-icon done">
                   <i class="icon-base ti tabler-check"></i>
                 </div>
-                <div>
-                  <h6 class="text-white fw-bold mb-1" style="font-size: 0.85rem;">1. Data Dikirim</h6>
-                  <p class="text-body-premium mb-0 small" style="font-size: 0.75rem;">Anda telah mengirimkan seluruh data pendaftaran.</p>
+                <div class="timeline-content">
+                  <h6 class="fw-bold text-white mb-1">1. Form &amp; Berkas Terkirim</h6>
+                  <p class="text-body-premium mb-0 small" style="font-size: 0.78rem;">
+                    Seluruh biodata &amp; berkas telah masuk ke sistem.
+                  </p>
                 </div>
               </li>
-              <li class="d-flex gap-3 mb-4">
-                <div class="stat-icon-box stat-icon-warning" style="width: 32px; height: 32px; font-size: 1rem; border-radius: 50% !important;">
-                  <span class="spinner-border spinner-border-sm" role="status" style="width: 14px; height: 14px; color: #fbbf24;"></span>
+
+              {{-- Tahap 2: Verifikasi Berkas (Active) --}}
+              <li class="timeline-item">
+                <div class="timeline-icon current">
+                  <span class="spinner-border spinner-border-sm text-warning" role="status" style="width: 12px; height: 12px;"></span>
                 </div>
-                <div>
-                  <h6 class="text-white fw-bold mb-1" style="font-size: 0.85rem;">2. Verifikasi Data</h6>
-                  <p class="text-body-premium mb-0 small" style="font-size: 0.75rem;">Tim Admin akan memverifikasi kesesuaian berkas dan kuota.</p>
+                <div class="timeline-content">
+                  <h6 class="fw-bold text-warning mb-1">2. Verifikasi Berkas &amp; Kuota</h6>
+                  <p class="text-body-premium mb-0 small" style="font-size: 0.78rem;">
+                    Admin memeriksa keabsahan KTP/KK &amp; kuota kelas.
+                  </p>
                 </div>
               </li>
-              <li class="d-flex gap-3">
-                <div class="stat-icon-box stat-icon-secondary" style="width: 32px; height: 32px; font-size: 1rem; border-radius: 50% !important;">
-                  <i class="icon-base ti tabler-bell"></i>
+
+              {{-- Tahap 3: Pengecekan NewBimma --}}
+              <li class="timeline-item">
+                <div class="timeline-icon pending">
+                  <i class="icon-base ti tabler-search"></i>
                 </div>
-                <div>
-                  <h6 class="text-white fw-bold mb-1" style="font-size: 0.85rem;">3. Hasil Seleksi</h6>
-                  <p class="text-body-premium mb-0 small" style="font-size: 0.75rem;">Hasil seleksi akan diumumkan di dashboard dan dikirimkan via WhatsApp.</p>
+                <div class="timeline-content">
+                  <h6 class="fw-bold text-white-50 mb-1">3. Pengecekan NewBimma</h6>
+                  <p class="text-body-premium mb-0 small" style="font-size: 0.78rem;">
+                    Sinkronisasi data ke database pusat pelatihan.
+                  </p>
+                </div>
+              </li>
+
+              {{-- Tahap 4: Penetapan Peserta & Kelas --}}
+              <li class="timeline-item">
+                <div class="timeline-icon pending">
+                  <i class="icon-base ti tabler-award"></i>
+                </div>
+                <div class="timeline-content">
+                  <h6 class="fw-bold text-white-50 mb-1">4. Penetapan Peserta Resmi</h6>
+                  <p class="text-body-premium mb-0 small" style="font-size: 0.78rem;">
+                    Penerbitan QR Presensi &amp; undangan kelas pelatihan.
+                  </p>
                 </div>
               </li>
             </ul>
@@ -1139,7 +1244,7 @@ $configData = Helper::appClasses();
               <p class="text-body-premium mx-auto" style="max-width: 550px; font-size: 0.95rem; line-height: 1.6;">
                 Pendaftaran Anda telah disetujui dan terkonfirmasi. Saat ini data Anda sedang dalam proses pengecekan Newbimma oleh Admin/Dinas penyelenggara.
               </p>
-              <div class="d-inline-flex align-items-center gap-2 px-3 py-2 mt-3" style="border-radius: 20px; border: 1px solid rgba(59,130,246,0.3); background: rgba(59,130,246,0.15); color: #60a5fa;">
+              <div class="d-inline-flex align-items-center gap-2 px-3 py-2 mt-3" style="border-radius: 5px !important; border: 1px solid rgba(59,130,246,0.3); background: rgba(59,130,246,0.15); color: #60a5fa;">
                 <span class="spinner-grow spinner-grow-sm" role="status" style="width: 10px; height: 10px; color: #60a5fa;"></span>
                 <span class="fw-semibold small text-uppercase" style="letter-spacing: 0.05em; color: #60a5fa;">🔄 Cek Newbimma</span>
               </div>

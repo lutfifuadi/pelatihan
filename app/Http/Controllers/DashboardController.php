@@ -220,6 +220,7 @@ class DashboardController extends Controller
 
         $enrollment = \App\Models\Enrollment::where('user_id', $user->id)
             ->with(['pelatihan.dinas', 'attendances', 'certificate'])
+            ->latest('id')
             ->first();
 
         // Hitung persentase kehadiran
