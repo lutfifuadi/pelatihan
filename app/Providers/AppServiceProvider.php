@@ -36,6 +36,22 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // ── Sinkronisasi Zona Waktu dari Setting Aplikasi / .env ──
+        try {
+            if (!app()->runningInConsole() || app()->runningUnitTests() === false) {
+                if (\Illuminate\Support\Facades\Schema::hasTable('settings')) {
+                    $tz = \App\Models\Setting::where('key', 'timezone')->value('value')
+                        ?: config('app.timezone', 'Asia/Jakarta');
+                    if ($tz) {
+                        date_default_timezone_set($tz);
+                        config(['app.timezone' => $tz]);
+                    }
+                }
+            }
+        } catch (\Throwable $e) {
+            // Silence exceptions during early migrations or install
+        }
+
         Blade::directive('seoHead', function () {
             return "<?php echo app(\App\Services\SEOManager::class)->render(); ?>";
         });
