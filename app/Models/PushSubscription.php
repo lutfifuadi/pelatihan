@@ -14,8 +14,16 @@ class PushSubscription extends Model
     protected $fillable = [
         'user_id',
         'endpoint',
+        'endpoint_hash',
         'p256dh_key',
         'auth_key',
+        'content_encoding',
+        'device_label',
+        'browser',
+        'is_active',
+        'failed_count',
+        'last_failed_at',
+        'last_used_at',
         'user_agent',
         'platform',
         'subscribed_at',
@@ -23,6 +31,10 @@ class PushSubscription extends Model
     ];
 
     protected $casts = [
+        'is_active' => 'boolean',
+        'failed_count' => 'integer',
+        'last_failed_at' => 'datetime',
+        'last_used_at' => 'datetime',
         'subscribed_at' => 'datetime',
         'expired_at' => 'datetime',
     ];
@@ -44,12 +56,15 @@ class PushSubscription extends Model
     }
 
     /**
-     * Scope: Subscription yang belum expired.
+     * Scope: Subscription yang aktif dan belum expired.
      */
     public function scopeActive($query)
     {
-        return $query->whereNull('expired_at')
-            ->orWhere('expired_at', '>', now());
+        return $query->where('is_active', true)
+            ->where(function ($q) {
+                $q->whereNull('expired_at')
+                    ->orWhere('expired_at', '>', now());
+            });
     }
 
     /**

@@ -700,6 +700,9 @@ $configData = Helper::appClasses();
       </div>
     @endif
 
+    {{-- Web Push Notification Permission & Test Widget --}}
+    <x-web-push-widget />
+
     <!-- ============================================================
          STATE 1: Pendaftaran Belum Lengkap
          ============================================================ -->
@@ -1668,7 +1671,7 @@ $configData = Helper::appClasses();
 
         {{-- Right: Status & Sertifikat --}}
         <div class="col-12 col-xl-4">
-          <div class="glass-card-premium px-4 px-xl-5 py-4 h-100">
+          <div class="glass-card-premium p-4 p-xl-4 h-100">
             <h5 class="fw-bold text-white mb-4 d-flex align-items-center gap-2">
               <i class="icon-base ti tabler-certificate text-warning"></i>
               Sertifikat &amp; Kelulusan
@@ -1684,7 +1687,7 @@ $configData = Helper::appClasses();
                   Anda dinyatakan lulus dari pelatihan <strong>{{ $data['pelatihan']->nama ?? 'Anda' }}</strong>. Sertifikat resmi Anda telah diterbitkan.
                 </p>
 
-                <div class="p-3 mb-4 rounded border border-white border-opacity-5 text-start" style="background: rgba(255, 255, 255, 0.05);">
+                <div class="p-3 mb-4 rounded border border-white border-opacity-5 text-start" style="background: rgba(255, 255, 255, 0.05); border-radius: 5px !important;">
                   <span class="info-label d-block">Nomor Sertifikat</span>
                   <span class="info-value fw-mono text-warning" style="font-size: 0.85rem; font-family: monospace;">{{ $data['certificate']->certificate_number }}</span>
                 </div>
@@ -1693,87 +1696,87 @@ $configData = Helper::appClasses();
                   <a href="{{ route('admin.certificates.download', $data['certificate']->id) }}" class="btn btn-glow-premium w-100 py-2">
                     <i class="icon-base ti tabler-download me-1"></i> Unduh Sertifikat PDF
                   </a>
-                  <a href="{{ route('certificates.verify', ['nomor' => $data['certificate']->certificate_number]) }}" target="_blank" class="btn btn-outline-secondary w-100 py-2" style="border-color: rgba(255,255,255,0.1); color: rgba(255,255,255,0.7);">
+                  <a href="{{ route('certificates.verify', ['nomor' => $data['certificate']->certificate_number]) }}" target="_blank" class="btn btn-outline-secondary w-100 py-2" style="border-color: rgba(255,255,255,0.1); color: rgba(255,255,255,0.7); border-radius: 5px !important;">
                     <i class="icon-base ti tabler-qrcode me-1"></i> Verifikasi Online
                   </a>
                 </div>
               </div>
             @elseif($data['pelatihan'] && $data['pelatihan']->tanggal_selesai && now()->gt($data['pelatihan']->tanggal_selesai))
               {{-- STATE: Pelatihan Selesai - Tidak Memenuhi Syarat Kelulusan --}}
-              <div class="p-3.5 mb-3" style="background: rgba(239, 68, 68, 0.06); border: 1px solid rgba(248, 113, 113, 0.25); border-radius: 5px !important;">
-                <div class="d-flex align-items-center justify-content-between mb-3">
-                  <div class="d-flex align-items-center gap-2">
-                    <div class="stat-icon-box stat-icon-danger" style="width: 38px; height: 38px; font-size: 1.2rem; border-radius: 5px !important; background: rgba(239, 68, 68, 0.15); color: #f87171;">
+              <div class="p-3.5 mb-4" style="background: linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(239, 68, 68, 0.03) 100%); border: 1px solid rgba(248, 113, 113, 0.35); border-radius: 5px !important;">
+                <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
+                  <div class="d-flex align-items-center gap-2.5">
+                    <div class="stat-icon-box stat-icon-danger flex-shrink-0" style="width: 38px; height: 38px; font-size: 1.2rem; border-radius: 5px !important; background: rgba(239, 68, 68, 0.2); border: 1px solid rgba(248, 113, 113, 0.4); color: #fca5a5;">
                       <i class="icon-base ti tabler-alert-circle"></i>
                     </div>
                     <div>
-                      <h6 class="text-white fw-bold mb-0" style="font-size: 0.9rem;">Evaluasi Kelulusan</h6>
-                      <small class="text-danger" style="font-size: 0.72rem;">Pelatihan Telah Selesai</small>
+                      <h6 class="text-white fw-bold mb-0" style="font-size: 0.92rem; letter-spacing: -0.01em;">Evaluasi Kelulusan</h6>
+                      <small class="text-danger fw-semibold" style="font-size: 0.72rem;">Pelatihan Telah Selesai</small>
                     </div>
                   </div>
-                  <span class="badge-premium badge-premium-danger">
-                    <i class="icon-base ti tabler-x"></i> Tidak Lulus
+                  <span class="badge" style="background: rgba(239, 68, 68, 0.22); border: 1px solid rgba(248, 113, 113, 0.45); color: #fca5a5; border-radius: 5px !important; padding: 4px 9px; font-size: 0.73rem; font-weight: 700;">
+                    <i class="icon-base ti tabler-x me-1"></i> Tidak Lulus
                   </span>
                 </div>
 
-                <p class="text-body-premium mb-3" style="font-size: 0.8rem; line-height: 1.45;">
+                <p class="text-body-premium mb-3" style="font-size: 0.82rem; line-height: 1.55; color: rgba(255, 255, 255, 0.8) !important;">
                   Rangkaian pelatihan telah berakhir. Berdasarkan evaluasi kehadiran, tingkat partisipasi Anda belum mencapai batas minimal kelulusan resmi:
                 </p>
 
                 {{-- Checklist Rincian Ketidaklulusan --}}
-                <div class="d-flex flex-column gap-2 pt-2 border-top border-white border-opacity-10 mb-3">
-                  <div class="d-flex align-items-center justify-content-between p-2" style="background: rgba(255,255,255,0.02); border-radius: 5px;">
-                    <span class="text-white small d-flex align-items-center gap-2" style="font-size: 0.78rem;">
-                      <i class="icon-base ti tabler-{{ $data['attendanceRate'] >= 80 ? 'circle-check text-success' : 'circle-x text-danger' }}"></i> Kehadiran (Target: 80%)
+                <div class="d-flex flex-column gap-2 mb-3">
+                  <div class="d-flex align-items-center justify-content-between p-2.5 px-3" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 5px !important;">
+                    <span class="text-white small d-flex align-items-center gap-2" style="font-size: 0.8rem;">
+                      <i class="icon-base ti tabler-{{ $data['attendanceRate'] >= 80 ? 'circle-check text-success' : 'circle-x text-danger' }} fs-5"></i> Kehadiran (Target: 80%)
                     </span>
-                    <span class="fw-bold small {{ $data['attendanceRate'] >= 80 ? 'text-success' : 'text-danger' }}">{{ $data['attendanceRate'] }}%</span>
+                    <span class="fw-bold small {{ $data['attendanceRate'] >= 80 ? 'text-success' : 'text-danger' }}" style="font-family: 'Fira Code', monospace;">{{ $data['attendanceRate'] }}%</span>
                   </div>
-                  <div class="d-flex align-items-center justify-content-between p-2" style="background: rgba(255,255,255,0.02); border-radius: 5px;">
-                    <span class="text-white small d-flex align-items-center gap-2" style="font-size: 0.78rem;">
-                      <i class="icon-base ti tabler-certificate-off text-danger"></i> Penerbitan Sertifikat
+                  <div class="d-flex align-items-center justify-content-between p-2.5 px-3" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 5px !important;">
+                    <span class="text-white small d-flex align-items-center gap-2" style="font-size: 0.8rem;">
+                      <i class="icon-base ti tabler-certificate-off text-danger fs-5"></i> Penerbitan Sertifikat
                     </span>
-                    <span class="badge-premium badge-premium-danger px-2 py-0.5" style="font-size: 0.68rem;">Tidak Terbit</span>
+                    <span class="badge" style="background: rgba(239, 68, 68, 0.18); border: 1px solid rgba(248, 113, 113, 0.35); color: #fca5a5; border-radius: 4px !important; padding: 3px 8px; font-size: 0.7rem; font-weight: 600;">Tidak Terbit</span>
                   </div>
                 </div>
 
-                <a href="{{ route('pelatihan.index') }}" class="btn btn-glow-premium w-100 py-2" style="font-size: 0.82rem;">
-                  <i class="icon-base ti tabler-arrow-right me-1"></i> Daftar Batch Berikutnya
+                <a href="{{ route('pelatihan.index') }}" class="btn btn-glow-premium w-100 py-2 d-flex align-items-center justify-content-center gap-2" style="border-radius: 5px !important; font-size: 0.84rem;">
+                  <span>Daftar Batch Berikutnya</span> <i class="icon-base ti tabler-arrow-right"></i>
                 </a>
               </div>
             @else
-              <div class="p-3.5 mb-3" style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 5px;">
-                <div class="d-flex align-items-center justify-content-between mb-3">
-                  <div class="d-flex align-items-center gap-2">
-                    <div class="stat-icon-box stat-icon-warning" style="width: 38px; height: 38px; font-size: 1.2rem; border-radius: 5px !important;">
+              <div class="p-3.5 mb-4" style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 5px !important;">
+                <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
+                  <div class="d-flex align-items-center gap-2.5">
+                    <div class="stat-icon-box stat-icon-warning flex-shrink-0" style="width: 38px; height: 38px; font-size: 1.2rem; border-radius: 5px !important; background: rgba(245, 158, 11, 0.18); color: #fde047;">
                       <i class="icon-base ti tabler-award"></i>
                     </div>
                     <div>
-                      <h6 class="text-white fw-bold mb-0" style="font-size: 0.9rem;">Target Kelulusan</h6>
+                      <h6 class="text-white fw-bold mb-0" style="font-size: 0.92rem;">Target Kelulusan</h6>
                       <small class="text-body-premium" style="font-size: 0.72rem;">Pelatihan Sedang Berlangsung</small>
                     </div>
                   </div>
-                  <span class="badge-premium badge-premium-warning">
-                    <i class="icon-base ti tabler-clock"></i> Proses
+                  <span class="badge" style="background: rgba(245, 158, 11, 0.18); border: 1px solid rgba(251, 191, 36, 0.4); color: #fde047; border-radius: 5px !important; padding: 4px 9px; font-size: 0.73rem; font-weight: 700;">
+                    <i class="icon-base ti tabler-clock me-1"></i> Proses
                   </span>
                 </div>
 
-                <p class="text-body-premium mb-3" style="font-size: 0.8rem; line-height: 1.45;">
+                <p class="text-body-premium mb-3" style="font-size: 0.82rem; line-height: 1.55; color: rgba(255, 255, 255, 0.8) !important;">
                   Sertifikat resmi ber-QR Code &amp; SK Penyelenggara akan diterbitkan otomatis setelah memenuhi syarat:
                 </p>
 
                 {{-- Checklist Syarat Kelulusan --}}
-                <div class="d-flex flex-column gap-2 pt-2 border-top border-white border-opacity-10">
-                  <div class="d-flex align-items-center justify-content-between p-2" style="background: rgba(255,255,255,0.02); border-radius: 5px;">
-                    <span class="text-white small d-flex align-items-center gap-2" style="font-size: 0.78rem;">
-                      <i class="icon-base ti tabler-circle-check text-success"></i> Kehadiran Minimal (80%)
+                <div class="d-flex flex-column gap-2 mb-2">
+                  <div class="d-flex align-items-center justify-content-between p-2.5 px-3" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 5px !important;">
+                    <span class="text-white small d-flex align-items-center gap-2" style="font-size: 0.8rem;">
+                      <i class="icon-base ti tabler-circle-check text-success fs-5"></i> Kehadiran Minimal (80%)
                     </span>
-                    <span class="text-white fw-bold small">{{ $data['attendanceRate'] }}%</span>
+                    <span class="text-white fw-bold small" style="font-family: 'Fira Code', monospace;">{{ $data['attendanceRate'] }}%</span>
                   </div>
-                  <div class="d-flex align-items-center justify-content-between p-2" style="background: rgba(255,255,255,0.02); border-radius: 5px;">
-                    <span class="text-white small d-flex align-items-center gap-2" style="font-size: 0.78rem;">
-                      <i class="icon-base ti tabler-hourglass-low text-warning"></i> Selesaikan Seluruh Sesi
+                  <div class="d-flex align-items-center justify-content-between p-2.5 px-3" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 5px !important;">
+                    <span class="text-white small d-flex align-items-center gap-2" style="font-size: 0.8rem;">
+                      <i class="icon-base ti tabler-hourglass-low text-warning fs-5"></i> Selesaikan Seluruh Sesi
                     </span>
-                    <span class="badge-premium px-2 py-0.5" style="font-size: 0.68rem;">Menunggu</span>
+                    <span class="badge" style="background: rgba(255, 255, 255, 0.08); color: #cbd5e1; border-radius: 4px !important; padding: 3px 8px; font-size: 0.7rem;">Menunggu</span>
                   </div>
                 </div>
               </div>

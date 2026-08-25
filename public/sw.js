@@ -243,7 +243,7 @@ self.addEventListener('push', (event) => {
   const icon = payload.icon || payload.notification?.icon || '/icons/icon-192x192.png';
   const badge = payload.badge || '/icons/badge-72x72.png';
   const image = payload.image || payload.notification?.image || null;
-  const tag = payload.tag || 'pelatihanku-push';
+  const tag = payload.tag || ('pelatihanku-push-' + Date.now());
   const url = payload.url || payload.link_url || payload.data?.url || '/';
 
   const notificationOptions = {
@@ -251,17 +251,41 @@ self.addEventListener('push', (event) => {
     icon,
     badge,
     tag,
-    requireInteraction: false,
-    renotify: false,
-    data: { url },
+    silent: false,
+    vibrate: payload.vibrate || [200, 100, 200, 100, 200, 100, 400],
+    renotify: true,
+    requireInteraction: true,
+    data: {
+      url,
+      timestamp: payload.data?.timestamp || Date.now(),
+      user_id: payload.data?.user_id || null,
+    },
   };
 
   if (image) {
     notificationOptions.image = image;
   }
 
+  // Broadcast ke tab aktif agar dapat memutar audio / update live UI
+  const broadcastPromise = self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
+    for (let client of clientList) {
+      client.postMessage({
+        type: 'PUSH_NOTIFICATION_RECEIVED',
+        payload: payload,
+      });
+    }
+  }).catch((e) => console.log(e));
+
+  const notificationPromise = self.registration.showNotification(title, notificationOptions).catch((err) => {
+    console.error('[PWA] showNotification error:', err);
+    return self.registration.showNotification(title, {
+      body: payload.body || 'Ada pembaruan penting di Pelatihanku.',
+      icon: '/icons/icon-192x192.png',
+    });
+  });
+
   event.waitUntil(
-    self.registration.showNotification(title, notificationOptions)
+    Promise.all([notificationPromise, broadcastPromise])
   );
 });
 
@@ -274,7 +298,7 @@ self.addEventListener('notificationclick', (event) => {
     clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
       // If a matching client already exists, focus it
       for (const client of clientList) {
-        if (client.url === urlToOpen && 'focus' in client) {
+        if (client.url.includes(urlToOpen) && 'focus' in client) {
           return client.focus();
         }
       }
@@ -283,6 +307,25 @@ self.addEventListener('notificationclick', (event) => {
       if (clients.openWindow) {
         return clients.openWindow(urlToOpen);
       }
+    })
+  );
+});
+
+// Auto refresh rotated subscriptions
+self.addEventListener('pushsubscriptionchange', (event) => {
+  event.waitUntil(
+    self.registration.pushManager.subscribe(event.oldSubscription.options).then((newSubscription) => {
+      return fetch('/api/web-push/refresh-subscription', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: JSON.stringify({
+          old_endpoint: event.oldSubscription ? event.oldSubscription.endpoint : null,
+          new_subscription: newSubscription,
+        }),
+      });
     })
   );
 });
@@ -296,3 +339,4 @@ self.addEventListener('message', (event) => {
     self.skipWaiting();
   }
 });
+

@@ -174,4 +174,88 @@ class PushSubscriptionControllerTest extends TestCase
             'message' => 'VAPID public key belum dikonfigurasi.',
         ]);
     }
+
+    // ========================================================================
+    //  USER PUSH SUBSCRIPTION FLOW TESTS
+    // ========================================================================
+
+    public function test_user_can_subscribe_push_notification(): void
+    {
+        $user = \App\Models\User::factory()->create();
+
+        $payload = [
+            'endpoint' => 'https://fcm.googleapis.com/fcm/send/user-device-endpoint-123',
+            'keys'     => [
+                'p256dh' => 'user-p256dh-key-xyz',
+                'auth'   => 'user-auth-token-123',
+            ],
+            'device_label' => 'Samsung Chrome',
+            'browser' => 'Chrome',
+        ];
+
+        $response = $this->actingAs($user)->postJson('/api/web-push/user/subscribe', $payload);
+
+        $response->assertStatus(200);
+        $response->assertJson(['success' => true]);
+
+        $this->assertDatabaseHas('push_subscriptions', [
+            'user_id'       => $user->id,
+            'endpoint_hash' => hash('sha256', $payload['endpoint']),
+            'is_active'     => true,
+            'device_label'  => 'Samsung Chrome',
+        ]);
+    }
+
+    public function test_user_can_check_push_status(): void
+    {
+        $user = \App\Models\User::factory()->create();
+        $endpoint = 'https://fcm.googleapis.com/fcm/send/status-test-endpoint';
+
+        PushSubscription::create([
+            'user_id'       => $user->id,
+            'endpoint'      => $endpoint,
+            'endpoint_hash' => hash('sha256', $endpoint),
+            'p256dh_key'    => 'test-p256dh',
+            'auth_key'      => 'test-auth',
+            'is_active'     => true,
+            'subscribed_at' => now(),
+        ]);
+
+        $response = $this->actingAs($user)->postJson('/api/web-push/user/status', [
+            'endpoint' => $endpoint,
+        ]);
+
+        $response->assertStatus(200);
+        $response->assertJson([
+            'active'  => true,
+            'matched' => true,
+        ]);
+    }
+
+    public function test_user_can_unsubscribe_push(): void
+    {
+        $user = \App\Models\User::factory()->create();
+        $endpoint = 'https://fcm.googleapis.com/fcm/send/unsub-test-endpoint';
+
+        PushSubscription::create([
+            'user_id'       => $user->id,
+            'endpoint'      => $endpoint,
+            'endpoint_hash' => hash('sha256', $endpoint),
+            'p256dh_key'    => 'test-p256dh',
+            'auth_key'      => 'test-auth',
+            'is_active'     => true,
+            'subscribed_at' => now(),
+        ]);
+
+        $response = $this->actingAs($user)->postJson('/api/web-push/user/unsubscribe', [
+            'endpoint' => $endpoint,
+        ]);
+
+        $response->assertStatus(200);
+        $response->assertJson(['success' => true]);
+
+        $this->assertDatabaseMissing('push_subscriptions', [
+            'endpoint_hash' => hash('sha256', $endpoint),
+        ]);
+    }
 }

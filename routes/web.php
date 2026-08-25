@@ -129,6 +129,16 @@ Route::get('/home', function () {
     };
 })->name('home');
 
+// ── Web Push Notification User (Authenticated via Session & Webhook) ──────
+Route::get('/api/web-push/vapid-public-key', [\App\Http\Controllers\Api\PushSubscriptionController::class, 'vapidPublicKey'])->name('api.webpush.vapid-key');
+Route::middleware(['auth'])->group(function () {
+    Route::post('/api/web-push/user/subscribe', [\App\Http\Controllers\Api\PushSubscriptionController::class, 'subscribeUser'])->name('api.webpush.user.subscribe');
+    Route::post('/api/web-push/user/unsubscribe', [\App\Http\Controllers\Api\PushSubscriptionController::class, 'unsubscribeUser'])->name('api.webpush.user.unsubscribe');
+    Route::post('/api/web-push/user/status', [\App\Http\Controllers\Api\PushSubscriptionController::class, 'getUserStatus'])->name('api.webpush.user.status');
+    Route::post('/api/web-push/user/test', [\App\Http\Controllers\Api\PushSubscriptionController::class, 'testUserPush'])->name('api.webpush.user.test');
+    Route::post('/api/web-push/refresh-subscription', [\App\Http\Controllers\Api\PushSubscriptionController::class, 'refreshSubscription'])->name('api.webpush.refresh');
+});
+
 // ===== API Routes untuk dependent dropdown =====
 Route::get('/api/kelurahan', function (Request $request) {
     $kecamatanId = $request->get('kecamatan_id');

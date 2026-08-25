@@ -324,6 +324,117 @@ class WebPushService
     }
 
     /**
+     * Kirim Web Push Notification langsung ke akun User (Peserta / Admin).
+     */
+    public function sendToUser(\App\Models\User|int $user, array $payloadData): array
+    {
+        $userId = ($user instanceof \App\Models\User) ? $user->id : $user;
+        $subscriptions = PushSubscription::where('user_id', $userId)->active()->get();
+
+        if ($subscriptions->isEmpty()) {
+            return [
+                'success' => false,
+                'message' => 'Tidak ada token push browser yang aktif untuk user ini.',
+                'sent_count' => 0,
+                'failed_count' => 0,
+            ];
+        }
+
+        $sentCount = 0;
+        $failedCount = 0;
+        $invalidSubscriptionIds = [];
+        
+        $title = $payloadData['title'] ?? 'Notifikasi Pelatihanku';
+        $body = $payloadData['body'] ?? 'Ada pembaruan penting untuk Anda.';
+        $url = $payloadData['url'] ?? ($payloadData['data']['url'] ?? url('/dashboard/peserta'));
+        $icon = $payloadData['icon'] ?? url('/icons/icon-192x192.png');
+        $badge = $payloadData['badge'] ?? url('/icons/badge-72x72.png');
+        $tag = $payloadData['tag'] ?? ('pelatihanku-user-' . $userId . '-' . time());
+
+        $payload = json_encode([
+            'title' => $title,
+            'body' => $body,
+            'icon' => $icon,
+            'badge' => $badge,
+            'tag' => $tag,
+            'vibrate' => [200, 100, 200, 100, 200, 100, 400],
+            'requireInteraction' => true,
+            'data' => [
+                'url' => $url,
+                'user_id' => $userId,
+                'timestamp' => time(),
+            ],
+            'actions' => [
+                [
+                    'action' => 'open_url',
+                    'title' => 'Buka Aplikasi',
+                ],
+            ],
+        ]);
+
+        foreach ($subscriptions as $subscription) {
+            try {
+                $pushSubscription = Subscription::create([
+                    'endpoint' => $subscription->endpoint,
+                    'publicKey' => $subscription->p256dh_key,
+                    'authToken' => $subscription->auth_key,
+                    'contentEncoding' => $subscription->content_encoding ?: 'aes128gcm',
+                ]);
+
+                $this->webPush->queueNotification($pushSubscription, $payload);
+            } catch (\Throwable $e) {
+                Log::warning("WebPush User queue error (Subscription ID {$subscription->id}): " . $e->getMessage());
+                $failedCount++;
+            }
+        }
+
+        try {
+            foreach ($this->webPush->flush() as $report) {
+                $endpoint = (string) $report->getRequest()->getUri();
+                $matchedSub = $subscriptions->first(fn($s) => $s->endpoint === $endpoint || hash('sha256', $s->endpoint) === hash('sha256', $endpoint));
+
+                if ($report->isSuccess()) {
+                    $sentCount++;
+                    if ($matchedSub) {
+                        $matchedSub->update([
+                            'last_used_at' => now(),
+                            'failed_count' => 0,
+                        ]);
+                    }
+                } else {
+                    $failedCount++;
+                    Log::warning("WebPush User delivery failed for {$endpoint}: " . $report->getReason());
+
+                    if ($matchedSub) {
+                        $matchedSub->increment('failed_count');
+                        $matchedSub->update(['last_failed_at' => now()]);
+
+                        if ($report->isSubscriptionExpired() || $matchedSub->failed_count >= 3) {
+                            $invalidSubscriptionIds[] = $matchedSub->id;
+                        }
+                    }
+                }
+            }
+        } catch (\Throwable $e) {
+            Log::error("WebPush User flush error: " . $e->getMessage());
+        }
+
+        if (!empty($invalidSubscriptionIds)) {
+            PushSubscription::whereIn('id', $invalidSubscriptionIds)->update([
+                'is_active' => false,
+                'expired_at' => now(),
+            ]);
+            Log::info("WebPush User: Menonaktifkan " . count($invalidSubscriptionIds) . " subscription kedaluwarsa.");
+        }
+
+        return [
+            'success' => $sentCount > 0,
+            'sent_count' => $sentCount,
+            'failed_count' => $failedCount,
+        ];
+    }
+
+    /**
      * Hitung jumlah target subscription tanpa mengirim.
      */
     public function countTargets(PushNotification $notification): int
