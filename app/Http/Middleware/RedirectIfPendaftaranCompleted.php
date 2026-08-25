@@ -34,7 +34,10 @@ class RedirectIfPendaftaranCompleted
                 'dashboard.peserta.form-review',
                 'dashboard.peserta.form-review.submit',
             ];
-            if ($profile && $profile->is_completed && in_array($request->route()->getName(), $formRoutes)) {
+            $latestEnrollment = $user->enrollments()->latest('id')->first();
+            $isRejected = $latestEnrollment && $latestEnrollment->status?->value === 'rejected';
+
+            if ($profile && $profile->is_completed && !$isRejected && in_array($request->route()->getName(), $formRoutes)) {
                 return redirect()->route('dashboard.peserta.pendaftaran-sukses');
             }
         }

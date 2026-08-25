@@ -1053,7 +1053,7 @@ $keywordMap = [
                       <div class="restricted-warning-box">
                         <i class="icon-base ti tabler-alert-triangle"></i>
                         <span>
-                          Sudah pernah mengikuti pelatihan di <strong x-text="batch.restricted_dinas"></strong>. Tersedia setelah <strong x-text="batch.restricted_until"></strong>
+                          <span x-text="batch.restricted_message ? batch.restricted_message : ('Sudah pernah mengikuti pelatihan di ' + batch.restricted_dinas + '. Tersedia setelah ' + batch.restricted_until)"></span>
                         </span>
                       </div>
                     </template>

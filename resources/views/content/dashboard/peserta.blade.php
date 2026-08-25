@@ -911,13 +911,13 @@ $configData = Helper::appClasses();
                 Mohon maaf, permohonan pendaftaran Anda untuk pelatihan ini tidak lolos tahap verifikasi berkas atau kuota penerimaan telah terpenuhi.
               </p>
 
-              <div class="p-4 mx-auto text-start rounded mb-4" style="max-width: 580px; background: rgba(248, 113, 113, 0.08); border: 1px solid rgba(248, 113, 113, 0.25); border-radius: 8px;">
+              <div class="p-4 mx-auto text-start mb-4" style="max-width: 580px; background: rgba(248, 113, 113, 0.08); border: 1px solid rgba(248, 113, 113, 0.25); border-radius: 5px !important;">
                 <div class="d-flex align-items-start gap-3">
                   <i class="icon-base ti tabler-alert-circle fs-3 text-danger mt-1 flex-shrink-0"></i>
                   <div>
                     <span class="text-danger fw-bold d-block mb-1" style="font-size: 0.9rem;">Catatan &amp; Alasan Penolakan:</span>
                     <p class="text-white mb-0" style="font-size: 0.9rem; line-height: 1.5;">
-                      {{ $data['enrollment']->notes ?? 'Data peserta belum memenuhi kriteria kualifikasi atau pernah terdaftar pada pelatihan sejenis di sistem NewBimma.' }}
+                      {{ $data['enrollment']->notes ?? $data['enrollment']->newbimma_result ?? 'Data peserta belum memenuhi kriteria kualifikasi atau pernah terdaftar pada pelatihan sejenis di sistem NewBimma.' }}
                     </p>
                   </div>
                 </div>
@@ -1582,6 +1582,48 @@ $configData = Helper::appClasses();
                     <i class="icon-base ti tabler-qrcode me-1"></i> Verifikasi Online
                   </a>
                 </div>
+              </div>
+            @elseif($data['pelatihan'] && $data['pelatihan']->tanggal_selesai && now()->gt($data['pelatihan']->tanggal_selesai))
+              {{-- STATE: Pelatihan Selesai - Tidak Memenuhi Syarat Kelulusan --}}
+              <div class="p-3.5 mb-3" style="background: rgba(239, 68, 68, 0.06); border: 1px solid rgba(248, 113, 113, 0.25); border-radius: 5px !important;">
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                  <div class="d-flex align-items-center gap-2">
+                    <div class="stat-icon-box stat-icon-danger" style="width: 38px; height: 38px; font-size: 1.2rem; border-radius: 5px !important; background: rgba(239, 68, 68, 0.15); color: #f87171;">
+                      <i class="icon-base ti tabler-alert-circle"></i>
+                    </div>
+                    <div>
+                      <h6 class="text-white fw-bold mb-0" style="font-size: 0.9rem;">Evaluasi Kelulusan</h6>
+                      <small class="text-danger" style="font-size: 0.72rem;">Pelatihan Telah Selesai</small>
+                    </div>
+                  </div>
+                  <span class="badge-premium badge-premium-danger">
+                    <i class="icon-base ti tabler-x"></i> Tidak Lulus
+                  </span>
+                </div>
+
+                <p class="text-body-premium mb-3" style="font-size: 0.8rem; line-height: 1.45;">
+                  Rangkaian pelatihan telah berakhir. Berdasarkan evaluasi kehadiran, tingkat partisipasi Anda belum mencapai batas minimal kelulusan resmi:
+                </p>
+
+                {{-- Checklist Rincian Ketidaklulusan --}}
+                <div class="d-flex flex-column gap-2 pt-2 border-top border-white border-opacity-10 mb-3">
+                  <div class="d-flex align-items-center justify-content-between p-2" style="background: rgba(255,255,255,0.02); border-radius: 5px;">
+                    <span class="text-white small d-flex align-items-center gap-2" style="font-size: 0.78rem;">
+                      <i class="icon-base ti tabler-{{ $data['attendanceRate'] >= 80 ? 'circle-check text-success' : 'circle-x text-danger' }}"></i> Kehadiran (Target: 80%)
+                    </span>
+                    <span class="fw-bold small {{ $data['attendanceRate'] >= 80 ? 'text-success' : 'text-danger' }}">{{ $data['attendanceRate'] }}%</span>
+                  </div>
+                  <div class="d-flex align-items-center justify-content-between p-2" style="background: rgba(255,255,255,0.02); border-radius: 5px;">
+                    <span class="text-white small d-flex align-items-center gap-2" style="font-size: 0.78rem;">
+                      <i class="icon-base ti tabler-certificate-off text-danger"></i> Penerbitan Sertifikat
+                    </span>
+                    <span class="badge-premium badge-premium-danger px-2 py-0.5" style="font-size: 0.68rem;">Tidak Terbit</span>
+                  </div>
+                </div>
+
+                <a href="{{ route('pelatihan.index') }}" class="btn btn-glow-premium w-100 py-2" style="font-size: 0.82rem;">
+                  <i class="icon-base ti tabler-arrow-right me-1"></i> Daftar Batch Berikutnya
+                </a>
               </div>
             @else
               <div class="p-3.5 mb-3" style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 5px;">

@@ -475,8 +475,31 @@ class PesertaFormController extends Controller
                         'available_after' => $oneYearFromNow,
                         'dinas_name' => $prev->pelatihan->dinas->nama_dinas,
                         'last_pelatihan' => $prev->pelatihan->nama,
+                        'is_rejected_restriction' => false,
+                        'custom_message' => null,
                     ];
                 }
+            }
+        }
+
+        // Cek riwayat pendaftaran yang ditolak pada dinas yang sama
+        $rejectedDinasEnrollments = \App\Models\Enrollment::where('user_id', $user->id)
+            ->where('status', \App\Enums\EnrollmentStatus::Rejected)
+            ->with(['dinas', 'pelatihan.dinas'])
+            ->get();
+
+        foreach ($rejectedDinasEnrollments as $rej) {
+            $dinasId = $rej->dinas_id ?? $rej->pelatihan?->dinas_id;
+            $dinasName = $rej->dinas->nama_dinas ?? ($rej->pelatihan->dinas->nama_dinas ?? 'Dinas Terkait');
+            if ($dinasId) {
+                $dinasRestrictions[$dinasId] = [
+                    'date' => $rej->created_at,
+                    'available_after' => null,
+                    'dinas_name' => $dinasName,
+                    'last_pelatihan' => $rej->pelatihan->nama ?? 'Pelatihan sebelumnya',
+                    'is_rejected_restriction' => true,
+                    'custom_message' => "Pendaftaran di {$dinasName} belum dapat disetujui. Silakan pilih pelatihan dari dinas/instansi lain.",
+                ];
             }
         }
 
@@ -487,9 +510,12 @@ class PesertaFormController extends Controller
             $kecNames = $p->kecamatans ? $p->kecamatans->pluck('name')->toArray() : [];
             $dinasId = $p->dinas_id;
             $restricted = isset($dinasRestrictions[$dinasId]);
-            $restrictedUntil = $restricted ? $dinasRestrictions[$dinasId]['available_after']->format('d/m/Y') : null;
+            $restrictedUntil = ($restricted && !empty($dinasRestrictions[$dinasId]['available_after'])) 
+                ? $dinasRestrictions[$dinasId]['available_after']->format('d/m/Y') 
+                : null;
             $restrictedDinas = $restricted ? $dinasRestrictions[$dinasId]['dinas_name'] : null;
             $lastPelatihan = $restricted ? $dinasRestrictions[$dinasId]['last_pelatihan'] : null;
+            $restrictedMessage = $restricted ? ($dinasRestrictions[$dinasId]['custom_message'] ?? null) : null;
             $approvedCount = $p->approved_enrollments_count ?? 0;
             $quota = $p->kuota;
             $isKuotaUnlimited = is_null($quota) || $quota <= 0;
@@ -508,6 +534,7 @@ class PesertaFormController extends Controller
                 'restricted' => $restricted,
                 'restricted_until' => $restrictedUntil,
                 'restricted_dinas' => $restrictedDinas,
+                'restricted_message' => $restrictedMessage,
                 'last_pelatihan' => $lastPelatihan,
                 'ditutup' => $p->isPendaftaranDitutup(),
                 'batas_ditutup' => $p->batas_pendaftaran ? $p->batas_pendaftaran->format('d/m/Y') : null,
@@ -548,8 +575,25 @@ class PesertaFormController extends Controller
                 ->withInput();
         }
 
-        // Cek restriksi dinas (1 tahun)
+        // Cek restriksi dinas (1 tahun & riwayat penolakan dinas yang sama)
         if ($selectedPelatihan->dinas_id) {
+            // 1. Cek riwayat penolakan pada dinas yang sama
+            $rejectedInSameDinas = \App\Models\Enrollment::where('user_id', $user->id)
+                ->where(function($q) use ($selectedPelatihan) {
+                    $q->where('dinas_id', $selectedPelatihan->dinas_id)
+                      ->orWhereHas('pelatihan', fn($p) => $p->where('dinas_id', $selectedPelatihan->dinas_id));
+                })
+                ->where('status', \App\Enums\EnrollmentStatus::Rejected)
+                ->first();
+
+            if ($rejectedInSameDinas) {
+                $dinasName = $selectedPelatihan->dinas->nama_dinas ?? 'Dinas Penyelenggara';
+                return redirect()->back()
+                    ->with('error', "Mohon maaf, Anda memiliki riwayat pendaftaran yang belum dapat disetujui pada program {$dinasName}. Demi pemerataan kesempatan peserta, silakan memilih program pelatihan yang diselenggarakan oleh dinas/instansi lain.")
+                    ->withInput();
+            }
+
+            // 2. Cek restriksi 1 tahun untuk pelatihan yang pernah diikuti
             $lastRegistration = PesertaProfile::where('user_id', $user->id)
                 ->whereHas('pelatihan', function ($q) use ($selectedPelatihan) {
                     $q->where('dinas_id', $selectedPelatihan->dinas_id);
@@ -719,10 +763,14 @@ class PesertaFormController extends Controller
         }
 
         // 2. Ambil dari database jika session kosong
-        $profile = PesertaProfile::where('user_id', auth()->id())->first();
+        $user = auth()->user();
+        $profile = PesertaProfile::where('user_id', $user->id)->first();
 
-        // 3. Jika pendaftaran sudah selesai, redirect ke halaman sukses
-        if ($profile && $profile->is_completed) {
+        // 3. Jika pendaftaran sudah selesai dan tidak berstatus ditolak, redirect ke halaman sukses
+        $latestEnrollment = $user->enrollments()->latest('id')->first();
+        $isRejected = $latestEnrollment && $latestEnrollment->status?->value === 'rejected';
+
+        if ($profile && $profile->is_completed && !$isRejected) {
             return redirect()->route('dashboard.peserta.pendaftaran-sukses');
         }
 
@@ -794,7 +842,7 @@ class PesertaFormController extends Controller
                 // Tentukan status default enrollment
                 $status = $this->resolveDefaultEnrollmentStatus($pelatihan);
 
-                $enrollment = \App\Models\Enrollment::firstOrCreate(
+                $enrollment = \App\Models\Enrollment::updateOrCreate(
                     [
                         'user_id' => $user->id,
                         'pelatihan_id' => $pelatihan->id,
@@ -802,6 +850,8 @@ class PesertaFormController extends Controller
                     [
                         'dinas_id' => $pelatihan->dinas_id,
                         'status' => $status,
+                        'notes' => null,
+                        'rejected_at' => null,
                         'approved_at' => $status === 'approved' ? now() : null,
                     ]
                 );
@@ -868,7 +918,13 @@ class PesertaFormController extends Controller
 
         $enrollment = \App\Models\Enrollment::where('user_id', $user->id)
             ->with(['pelatihan.dinas'])
+            ->latest('id')
             ->first();
+
+        // Jika enrollment terakhir berstatus rejected, arahkan ke dashboard peserta bukan pendaftaran sukses
+        if ($enrollment && $enrollment->status?->value === 'rejected') {
+            return redirect()->route('dashboard.peserta');
+        }
 
         return view('content.dashboard.peserta.pendaftaran-sukses', compact('profile', 'enrollment', 'user'));
     }
