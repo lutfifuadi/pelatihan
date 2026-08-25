@@ -440,70 +440,80 @@ $configData = Helper::appClasses();
   /* === VERTICAL TIMELINE === */
   .timeline-vert {
     position: relative;
-    padding-left: 48px;
+    padding-left: 42px;
     list-style: none;
     margin-bottom: 0;
   }
   .timeline-vert::before {
     content: '';
     position: absolute;
-    left: 19px;
+    left: 15px;
     top: 8px;
     bottom: 8px;
     width: 2px;
-    background: linear-gradient(to bottom, #6366f1, rgba(99, 102, 241, 0.1));
+    background: rgba(255, 255, 255, 0.12);
   }
   .timeline-item {
     position: relative;
-    margin-bottom: 32px;
+    margin-bottom: 24px;
   }
   .timeline-item:last-child {
     margin-bottom: 0;
   }
   .timeline-icon {
     position: absolute;
-    left: -48px;
+    left: -42px;
     top: 0;
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    border-radius: 5px !important;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1rem;
+    font-size: 0.88rem;
     z-index: 2;
     flex-shrink: 0;
-    border: 2px solid transparent;
+    border: 1px solid transparent;
     transition: all 0.3s ease;
   }
   .timeline-icon.done {
-    background: rgba(16, 185, 129, 0.15);
-    border-color: rgba(16, 185, 129, 0.4);
-    color: #34d399;
+    background: rgba(16, 185, 129, 0.22);
+    border-color: rgba(52, 211, 153, 0.5);
+    color: #6ee7b7;
+    box-shadow: 0 0 12px rgba(16, 185, 129, 0.3);
   }
+  .timeline-icon.current,
+  .timeline-icon.warning,
   .timeline-icon.active {
-    background: rgba(99, 102, 241, 0.15);
-    border-color: rgba(99, 102, 241, 0.4);
-    color: #818cf8;
-    box-shadow: 0 0 20px rgba(99, 102, 241, 0.3);
-    animation: timelinePulse 2s ease-in-out infinite;
+    background: rgba(245, 158, 11, 0.22);
+    border-color: rgba(251, 191, 36, 0.5);
+    color: #fef08a;
+    box-shadow: 0 0 12px rgba(245, 158, 11, 0.35);
   }
+  .timeline-icon.pending,
   .timeline-icon.waiting {
     background: rgba(255, 255, 255, 0.04);
-    border-color: rgba(255, 255, 255, 0.1);
-    color: rgba(255, 255, 255, 0.3);
+    border-color: rgba(255, 255, 255, 0.12);
+    color: rgba(255, 255, 255, 0.35);
   }
   @keyframes timelinePulse {
     0% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.4); }
     70% { box-shadow: 0 0 0 12px rgba(99, 102, 241, 0); }
     100% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0); }
   }
+  .timeline-content {
+    padding-left: 4px;
+  }
   .timeline-content h6 {
-    font-size: 0.9rem;
-    margin-bottom: 2px;
+    font-size: 0.88rem;
+    font-weight: 700;
+    margin-bottom: 3px;
+    line-height: 1.3;
   }
   .timeline-content p {
     font-size: 0.78rem;
+    line-height: 1.45;
+    color: #94a3b8 !important;
     margin-bottom: 0;
   }
   /* === END VERTICAL TIMELINE === */
@@ -1087,19 +1097,19 @@ $configData = Helper::appClasses();
       <div class="row g-4 mb-4">
         {{-- Kiri: Detail & Estimasi Waktu Verifikasi --}}
         <div class="col-12 col-xl-8">
-          <div class="glass-card-premium px-4 px-xl-5 py-4 h-100">
+          <div class="glass-card-premium p-4 p-xl-4 h-100">
             
             {{-- Box Estimasi Waktu / SLA --}}
-            <div class="p-3.5 mb-4" style="background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(251, 191, 36, 0.25); border-radius: 5px !important;">
+            <div class="p-3.5 mb-4" style="background: linear-gradient(135deg, rgba(245, 158, 11, 0.1) 0%, rgba(245, 158, 11, 0.03) 100%); border: 1px solid rgba(251, 191, 36, 0.3); border-radius: 5px !important;">
               <div class="d-flex align-items-start gap-3">
-                <div class="stat-icon-box stat-icon-warning flex-shrink-0" style="width: 40px; height: 40px; font-size: 1.3rem; border-radius: 5px !important;">
+                <div class="stat-icon-box stat-icon-warning flex-shrink-0" style="width: 42px; height: 42px; font-size: 1.3rem; border-radius: 5px !important; background: rgba(245, 158, 11, 0.2); border: 1px solid rgba(251, 191, 36, 0.4); color: #fde047;">
                   <i class="icon-base ti tabler-info-circle"></i>
                 </div>
-                <div>
-                  <h6 class="text-white fw-bold mb-1" style="font-size: 0.92rem;">
+                <div class="flex-grow-1">
+                  <h6 class="text-white fw-bold mb-1" style="font-size: 0.94rem; letter-spacing: -0.01em;">
                     Estimasi Waktu Verifikasi Berkas (1–3 Hari Kerja)
                   </h6>
-                  <p class="text-body-premium mb-0" style="font-size: 0.85rem; line-height: 1.55;">
+                  <p class="text-body-premium mb-0" style="font-size: 0.85rem; line-height: 1.6; color: rgba(255, 255, 255, 0.8) !important;">
                     Tim panitia sedang mencocokkan kelengkapan foto KTP, kesesuaian domisili, dan riwayat pelatihan di NewBimma. Status terbaru akan selalu diperbarui di dashboard ini dan notifikasi akan dikirimkan langsung ke nomor WhatsApp Anda.
                   </p>
                 </div>
@@ -1164,13 +1174,13 @@ $configData = Helper::appClasses();
 
         {{-- Kanan: Alur Seleksi 4 Tahap --}}
         <div class="col-12 col-xl-4">
-          <div class="glass-card-premium px-4 px-xl-5 py-4 h-100">
+          <div class="glass-card-premium p-4 p-xl-4 h-100">
             <h5 class="fw-bold text-white mb-4 d-flex align-items-center gap-2">
               <i class="icon-base ti tabler-route text-info"></i>
               Tahapan Seleksi Anda
             </h5>
             
-            <ul class="timeline-vert mb-0 ps-0">
+            <ul class="timeline-vert mb-0">
               {{-- Tahap 1: Pengisian Form & Kirim --}}
               <li class="timeline-item">
                 <div class="timeline-icon done">
@@ -1187,7 +1197,7 @@ $configData = Helper::appClasses();
               {{-- Tahap 2: Verifikasi Berkas (Active) --}}
               <li class="timeline-item">
                 <div class="timeline-icon current">
-                  <span class="spinner-border spinner-border-sm text-warning" role="status" style="width: 12px; height: 12px;"></span>
+                  <span class="spinner-border spinner-border-sm" role="status" style="width: 12px; height: 12px; color: #fef08a;"></span>
                 </div>
                 <div class="timeline-content">
                   <h6 class="fw-bold text-warning mb-1">2. Verifikasi Berkas &amp; Kuota</h6>
